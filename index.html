@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Aplikasi Ekspedisi Material</title>
+<title>Materials Expedition Applications</title>
 
 <style>
 *{
@@ -17,12 +17,12 @@ html,body{
   width:100%;
   min-height:100%;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f4f7fb;
+  background:#f3f6fa;
   color:#172033;
 }
 
 body{
-  overflow-x:hidden;
+  min-height:100vh;
 }
 
 /* =========================================================
@@ -32,61 +32,67 @@ body{
 .header{
   width:100%;
   background:#ffffff;
-  border-bottom:1px solid #e1e7ef;
+  border-bottom:1px solid #dfe5ec;
   padding:18px 28px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:20px;
-  position:sticky;
-  top:0;
-  z-index:100;
 }
 
-.header-left{
+.brand{
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:15px;
 }
 
-.logo{
-  width:46px;
-  height:46px;
-  border-radius:12px;
-  background:#173b68;
+.brand-icon{
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  background:#173c69;
   display:flex;
   align-items:center;
   justify-content:center;
-  color:#ffffff;
-  font-size:23px;
-  font-weight:bold;
+  font-size:27px;
+  box-shadow:0 4px 12px rgba(23,60,105,.18);
 }
 
-.title-box h1{
-  margin:0;
-  font-size:21px;
+.brand-title{
+  font-size:24px;
   font-weight:700;
+  color:#102c4d;
+  line-height:1.2;
 }
 
-.title-box p{
-  margin:4px 0 0;
-  font-size:12px;
-  color:#758198;
+.brand-subtitle{
+  margin-top:4px;
+  color:#70829a;
+  font-size:14px;
 }
 
-.connection{
+.api-status{
   display:flex;
   align-items:center;
-  gap:7px;
-  font-size:12px;
-  color:#607086;
+  gap:8px;
+  font-size:13px;
+  color:#70829a;
+  white-space:nowrap;
 }
 
-.connection-dot{
-  width:9px;
-  height:9px;
+.api-dot{
+  width:10px;
+  height:10px;
   border-radius:50%;
+  background:#f59e0b;
+}
+
+.api-dot.online{
   background:#16a34a;
+}
+
+.api-dot.error{
+  background:#dc2626;
 }
 
 /* =========================================================
@@ -95,59 +101,99 @@ body{
 
 .container{
   width:100%;
-  max-width:1500px;
+  max-width:1700px;
   margin:0 auto;
-  padding:26px 28px 40px;
+  padding:30px 46px 50px;
 }
 
 /* =========================================================
-   PROJECT
+   PROJECT SELECTOR
 ========================================================= */
 
-.project-panel{
+.project-card{
   background:#ffffff;
-  border:1px solid #e0e6ee;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:22px;
-  box-shadow:0 2px 8px rgba(30,50,80,.04);
+  border:1px solid #dfe5ec;
+  border-radius:17px;
+  padding:24px;
+  box-shadow:0 4px 15px rgba(28,51,84,.05);
+  margin-bottom:24px;
 }
 
 .project-label{
   display:block;
-  font-size:13px;
+  font-size:14px;
   font-weight:700;
-  margin-bottom:9px;
-  color:#42516a;
+  color:#193c66;
+  margin-bottom:10px;
+  letter-spacing:.3px;
 }
 
 .project-select{
   width:100%;
-  max-width:650px;
-  height:46px;
-  border:1px solid #ccd5e1;
-  border-radius:9px;
-  padding:0 14px;
-  font-size:14px;
+  max-width:735px;
+  height:50px;
+  border:1px solid #cbd6e2;
+  border-radius:11px;
+  padding:0 16px;
   background:#ffffff;
   color:#172033;
+  font-size:15px;
   outline:none;
+  cursor:pointer;
 }
 
 .project-select:focus{
-  border-color:#315f95;
-  box-shadow:0 0 0 3px rgba(49,95,149,.10);
+  border-color:#3478bd;
+  box-shadow:0 0 0 3px rgba(52,120,189,.12);
 }
 
 /* =========================================================
-   SECTION TITLE
+   MESSAGE
 ========================================================= */
 
-.section-title{
-  margin:26px 0 13px;
-  font-size:17px;
+.message{
+  display:none;
+  padding:15px 18px;
+  border-radius:12px;
+  margin-bottom:24px;
+  font-size:14px;
+}
+
+.message.error{
+  display:block;
+  background:#fff1f2;
+  color:#b42318;
+  border:1px solid #fecdd3;
+}
+
+.message.info{
+  display:block;
+  background:#eff6ff;
+  color:#1d4ed8;
+  border:1px solid #bfdbfe;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.dashboard{
+  display:none;
+}
+
+.dashboard.show{
+  display:block;
+}
+
+/* =========================================================
+   PROJECT TITLE
+========================================================= */
+
+.project-title{
+  margin:0 0 18px;
+  font-size:21px;
+  color:#153b64;
   font-weight:700;
-  color:#172033;
 }
 
 /* =========================================================
@@ -157,278 +203,305 @@ body{
 .kpi-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:16px;
+  gap:18px;
+  margin-bottom:24px;
 }
 
 .kpi-card{
   background:#ffffff;
-  border:1px solid #e0e6ee;
-  border-radius:14px;
-  padding:19px;
-  min-height:118px;
-  box-shadow:0 2px 8px rgba(30,50,80,.04);
+  border:1px solid #dfe5ec;
+  border-radius:16px;
+  padding:21px;
+  min-height:125px;
+  box-shadow:0 4px 15px rgba(28,51,84,.05);
+  position:relative;
+  overflow:hidden;
+}
+
+.kpi-card::after{
+  content:"";
+  position:absolute;
+  right:-20px;
+  bottom:-25px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#f0f5fb;
 }
 
 .kpi-label{
-  color:#758198;
-  font-size:12px;
+  font-size:13px;
   font-weight:600;
-  margin-bottom:10px;
+  color:#71839a;
+  margin-bottom:12px;
+  position:relative;
+  z-index:2;
 }
 
 .kpi-value{
   font-size:27px;
-  line-height:1.1;
   font-weight:700;
-  color:#172033;
+  color:#102f52;
+  position:relative;
+  z-index:2;
 }
 
 .kpi-unit{
-  font-size:12px;
-  color:#7b8799;
-  margin-top:7px;
+  font-size:13px;
+  color:#75869a;
+  margin-left:4px;
+  font-weight:500;
 }
 
 /* =========================================================
-   RECOMMENDATION
+   ARMADA
 ========================================================= */
 
-.recommendation{
+.armada-card{
   background:#ffffff;
-  border:1px solid #e0e6ee;
-  border-radius:14px;
-  padding:22px;
-  box-shadow:0 2px 8px rgba(30,50,80,.04);
+  border:1px solid #dfe5ec;
+  border-radius:17px;
+  padding:24px;
+  margin-bottom:24px;
+  box-shadow:0 4px 15px rgba(28,51,84,.05);
 }
 
-.recommendation-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  margin-bottom:18px;
-}
-
-.recommendation-title{
-  font-size:18px;
+.section-title{
+  font-size:17px;
   font-weight:700;
-}
-
-.armada-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:9px 14px;
-  border-radius:9px;
-  background:#edf4fb;
-  color:#173b68;
-  font-size:14px;
-  font-weight:700;
+  color:#173d66;
+  margin:0 0 20px;
 }
 
 .armada-main{
   display:grid;
-  grid-template-columns:1.2fr 1fr;
-  gap:20px;
+  grid-template-columns:1.1fr 1fr;
+  gap:22px;
+}
+
+.recommendation{
+  border:1px solid #d8e3ee;
+  border-radius:14px;
+  padding:22px;
+  background:#f9fbfd;
+}
+
+.recommendation-title{
+  color:#73869b;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.8px;
+  margin-bottom:7px;
 }
 
 .armada-name{
-  font-size:30px;
+  font-size:29px;
   font-weight:800;
-  color:#173b68;
-  margin-bottom:4px;
+  color:#143a62;
+  margin-bottom:5px;
 }
 
 .armada-unit{
-  font-size:15px;
-  color:#66758b;
-  margin-bottom:20px;
+  font-size:16px;
+  font-weight:700;
+  color:#4d637c;
+  margin-bottom:18px;
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:8px 13px;
+  font-size:12px;
+  font-weight:700;
+  background:#dcfce7;
+  color:#166534;
+}
+
+.status.warning{
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.status.danger{
+  background:#fee2e2;
+  color:#991b1b;
 }
 
 .spec-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
 }
 
-.spec-item{
-  border:1px solid #e5eaf0;
-  border-radius:9px;
-  padding:12px;
-  background:#fafbfd;
+.spec-box{
+  border:1px solid #e0e6ed;
+  background:#ffffff;
+  border-radius:11px;
+  padding:13px;
 }
 
 .spec-label{
   font-size:11px;
-  color:#7a8799;
-  margin-bottom:5px;
+  color:#8291a4;
+  margin-bottom:6px;
 }
 
 .spec-value{
-  font-size:14px;
+  font-size:16px;
   font-weight:700;
+  color:#233f5e;
 }
 
-.capacity-panel{
-  border:1px solid #e5eaf0;
-  border-radius:11px;
-  padding:17px;
-  background:#fafbfd;
+/* =========================================================
+   UTILIZATION
+========================================================= */
+
+.utilization{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
 }
 
-.capacity-title{
-  font-size:13px;
-  font-weight:700;
-  margin-bottom:17px;
+.util-box{
+  border:1px solid #e0e6ed;
+  border-radius:12px;
+  padding:15px;
+  background:#fff;
 }
 
-.progress-row{
-  margin-bottom:17px;
-}
-
-.progress-head{
+.util-header{
   display:flex;
   justify-content:space-between;
   gap:10px;
-  font-size:12px;
-  margin-bottom:7px;
+  font-size:13px;
+  margin-bottom:8px;
+  color:#5f7187;
+  font-weight:600;
 }
 
-.progress-track{
-  width:100%;
+.util-value{
+  color:#173d66;
+  font-weight:800;
+}
+
+.progress{
   height:9px;
-  border-radius:20px;
-  background:#e5eaf0;
+  background:#e8edf3;
+  border-radius:99px;
   overflow:hidden;
 }
 
 .progress-bar{
   height:100%;
-  border-radius:20px;
   width:0%;
-  transition:width .35s ease;
+  background:#3978b8;
+  border-radius:99px;
+  transition:width .4s ease;
 }
 
-.progress-cbm{
-  background:#315f95;
+.progress-bar.warning{
+  background:#e5a11a;
 }
 
-.progress-ton{
-  background:#6b7280;
-}
-
-.status-box{
-  margin-top:15px;
-  padding:13px 15px;
-  border-radius:9px;
-  font-size:13px;
-  font-weight:700;
-  border:1px solid #d9e2ec;
-  background:#f6f9fc;
-}
-
-.status-ok{
-  color:#15803d;
-  background:#f0fdf4;
-  border-color:#bbf7d0;
-}
-
-.status-warning{
-  color:#b45309;
-  background:#fffbeb;
-  border-color:#fde68a;
-}
-
-.status-danger{
-  color:#b91c1c;
-  background:#fef2f2;
-  border-color:#fecaca;
+.progress-bar.danger{
+  background:#dc3545;
 }
 
 /* =========================================================
    MATERIAL TABLE
 ========================================================= */
 
-.table-panel{
+.material-card{
   background:#ffffff;
-  border:1px solid #e0e6ee;
-  border-radius:14px;
-  box-shadow:0 2px 8px rgba(30,50,80,.04);
-  overflow:hidden;
+  border:1px solid #dfe5ec;
+  border-radius:17px;
+  padding:24px;
+  box-shadow:0 4px 15px rgba(28,51,84,.05);
 }
 
-.table-wrap{
+.table-wrapper{
   width:100%;
   overflow-x:auto;
+  border:1px solid #e1e7ee;
+  border-radius:12px;
 }
 
-table{
+.material-table{
   width:100%;
   min-width:1050px;
   border-collapse:collapse;
 }
 
-thead th{
-  background:#f7f9fc;
-  color:#536176;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.3px;
+.material-table th{
+  background:#f4f7fa;
+  color:#51667e;
+  font-size:12px;
+  font-weight:700;
   padding:13px 12px;
   text-align:left;
-  border-bottom:1px solid #e1e7ef;
+  border-bottom:1px solid #dce4ec;
   white-space:nowrap;
 }
 
-tbody td{
+.material-table td{
   padding:12px;
-  border-bottom:1px solid #edf0f4;
-  font-size:12px;
-  white-space:nowrap;
+  border-bottom:1px solid #edf1f5;
+  color:#273d55;
+  font-size:13px;
+  vertical-align:middle;
 }
 
-tbody tr:hover{
-  background:#fafcff;
+.material-table tr:last-child td{
+  border-bottom:none;
 }
 
-.text-right{
-  text-align:right;
+.material-table tbody tr:hover{
+  background:#f8fbfd;
 }
 
 .number{
-  font-variant-numeric:tabular-nums;
+  text-align:right !important;
+  white-space:nowrap;
 }
 
-.material-name{
-  font-weight:600;
-  color:#25354d;
-}
-
-.category{
-  color:#66758b;
+.table-status{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#dcfce7;
+  color:#166534;
+  font-size:11px;
+  font-weight:700;
 }
 
 /* =========================================================
-   EMPTY / LOADING
+   LOADING
 ========================================================= */
 
 .loading{
-  display:flex;
+  display:none;
   align-items:center;
-  justify-content:center;
-  min-height:180px;
-  color:#65748a;
-  font-size:13px;
+  gap:10px;
+  color:#65798f;
+  font-size:14px;
+  padding:20px 0;
+}
+
+.loading.show{
+  display:flex;
 }
 
 .spinner{
-  width:22px;
-  height:22px;
-  border:3px solid #e5eaf0;
-  border-top-color:#315f95;
+  width:19px;
+  height:19px;
+  border:3px solid #dce5ee;
+  border-top-color:#3578b8;
   border-radius:50%;
   animation:spin .8s linear infinite;
-  margin-right:10px;
 }
 
 @keyframes spin{
@@ -437,20 +510,15 @@ tbody tr:hover{
   }
 }
 
-.empty{
-  padding:45px 20px;
-  text-align:center;
-  color:#7b8799;
-  font-size:13px;
-}
+/* =========================================================
+   EMPTY
+========================================================= */
 
-.error-box{
-  padding:15px;
-  border-radius:10px;
-  background:#fef2f2;
-  color:#b91c1c;
-  border:1px solid #fecaca;
-  font-size:13px;
+.empty{
+  padding:35px 20px;
+  text-align:center;
+  color:#8291a4;
+  font-size:14px;
 }
 
 /* =========================================================
@@ -459,40 +527,70 @@ tbody tr:hover{
 
 .footer{
   text-align:center;
-  color:#8792a3;
-  font-size:11px;
-  padding:25px 0 5px;
+  color:#8090a2;
+  font-size:12px;
+  padding:28px 10px 5px;
 }
 
 /* =========================================================
-   RESPONSIVE HP
+   RESPONSIVE
 ========================================================= */
 
-@media(max-width:900px){
-
-  .header{
-    padding:14px 16px;
-  }
-
-  .title-box h1{
-    font-size:17px;
-  }
-
-  .title-box p{
-    font-size:10px;
-  }
-
-  .connection{
-    display:none;
-  }
+@media(max-width:1100px){
 
   .container{
-    padding:16px 12px 30px;
+    padding:24px;
   }
 
   .kpi-grid{
     grid-template-columns:repeat(2,1fr);
-    gap:10px;
+  }
+
+  .armada-main{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:650px){
+
+  .header{
+    padding:15px 16px;
+    align-items:flex-start;
+  }
+
+  .brand-icon{
+    width:45px;
+    height:45px;
+    font-size:22px;
+  }
+
+  .brand-title{
+    font-size:18px;
+  }
+
+  .brand-subtitle{
+    font-size:11px;
+  }
+
+  .api-status{
+    font-size:11px;
+  }
+
+  .container{
+    padding:16px;
+  }
+
+  .project-card,
+  .armada-card,
+  .material-card{
+    padding:17px;
+    border-radius:14px;
+  }
+
+  .kpi-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:11px;
   }
 
   .kpi-card{
@@ -500,121 +598,53 @@ tbody tr:hover{
     padding:15px;
   }
 
+  .kpi-label{
+    font-size:11px;
+  }
+
   .kpi-value{
-    font-size:22px;
+    font-size:21px;
   }
 
-  .armada-main{
-    grid-template-columns:1fr;
-  }
-
-  .recommendation{
-    padding:16px;
-  }
-
-  .recommendation-head{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .armada-name{
-    font-size:25px;
-  }
-
-  .spec-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-}
-
-@media(max-width:520px){
-
-  .logo{
-    width:40px;
-    height:40px;
-    font-size:20px;
-  }
-
-  .title-box h1{
-    font-size:15px;
-  }
-
-  .title-box p{
-    font-size:9px;
-  }
-
-  .project-panel{
-    padding:15px;
-    border-radius:11px;
+  .kpi-unit{
+    font-size:11px;
   }
 
   .project-select{
     max-width:none;
-  }
-
-  .kpi-grid{
-    gap:8px;
-  }
-
-  .kpi-card{
-    padding:13px;
-    min-height:96px;
-  }
-
-  .kpi-label{
-    font-size:10px;
-  }
-
-  .kpi-value{
-    font-size:19px;
-  }
-
-  .kpi-unit{
-    font-size:10px;
-  }
-
-  .section-title{
-    font-size:15px;
-    margin-top:21px;
-  }
-
-  .recommendation{
-    border-radius:11px;
-  }
-
-  .armada-name{
-    font-size:23px;
+    height:48px;
   }
 
   .spec-grid{
     grid-template-columns:1fr 1fr;
-    gap:7px;
+    gap:9px;
   }
 
-  .spec-item{
-    padding:10px;
+  .spec-box{
+    padding:11px;
   }
 
   .spec-label{
-    font-size:9px;
+    font-size:10px;
   }
 
   .spec-value{
-    font-size:12px;
+    font-size:14px;
   }
 
-  .capacity-panel{
-    padding:13px;
+  .utilization{
+    grid-template-columns:1fr;
+    gap:10px;
   }
 
-}
+  .armada-name{
+    font-size:24px;
+  }
 
-/* =========================================================
-   HIDDEN
-========================================================= */
+  .section-title{
+    font-size:16px;
+  }
 
-.hidden{
-  display:none !important;
 }
 </style>
 </head>
@@ -627,32 +657,32 @@ tbody tr:hover{
 
 <header class="header">
 
-  <div class="header-left">
+  <div class="brand">
 
-    <div class="logo">
+    <div class="brand-icon">
       🚛
     </div>
 
-    <div class="title-box">
+    <div>
 
-      <h1>
-        Aplikasi Ekspedisi Material
-      </h1>
+      <div class="brand-title">
+        Materials Expedition Applications
+      </div>
 
-      <p>
-        Sistem perhitungan & rekomendasi armada
-      </p>
+      <div class="brand-subtitle">
+        Fleet calculation & recommendation system
+      </div>
 
     </div>
 
   </div>
 
-  <div class="connection">
+  <div class="api-status">
 
-    <span class="connection-dot"></span>
+    <span id="apiDot" class="api-dot"></span>
 
-    <span id="connectionText">
-      Menghubungkan...
+    <span id="apiStatusText">
+      Connecting API...
     </span>
 
   </div>
@@ -668,20 +698,20 @@ tbody tr:hover{
 
   <!-- PROJECT -->
 
-  <section class="project-panel">
+  <section class="project-card">
 
     <label class="project-label">
-      PILIH PROYEK
+      SELECT PROJECT
     </label>
 
     <select
       id="projectSelect"
       class="project-select"
-      onchange="loadProject()"
+      onchange="loadProject(this.value)"
     >
 
       <option value="">
-        Memuat daftar proyek...
+        Loading a list of projects...
       </option>
 
     </select>
@@ -689,54 +719,39 @@ tbody tr:hover{
   </section>
 
 
+  <!-- MESSAGE -->
+
+  <div id="message" class="message"></div>
+
+
   <!-- LOADING -->
 
-  <section
-    id="loadingBox"
-    class="table-panel"
-  >
+  <div id="loading" class="loading">
 
-    <div class="loading">
+    <span class="spinner"></span>
 
-      <div class="spinner"></div>
+    <span id="loadingText">
+      Loading project data...
+    </span>
 
-      <span>
-        Memuat data aplikasi...
-      </span>
-
-    </div>
-
-  </section>
-
-
-  <!-- ERROR -->
-
-  <section
-    id="errorBox"
-    class="hidden"
-  >
-
-    <div class="error-box">
-      <span id="errorText"></span>
-    </div>
-
-  </section>
+  </div>
 
 
   <!-- DASHBOARD -->
 
-  <section
-    id="dashboard"
-    class="hidden"
-  >
+  <section id="dashboard" class="dashboard">
+
+    <h2
+      id="projectTitle"
+      class="project-title"
+    >
+      -
+    </h2>
+
 
     <!-- =====================================================
-         RINGKASAN
+         KPI
     ====================================================== -->
-
-    <div class="section-title">
-      Ringkasan Pengiriman
-    </div>
 
     <div class="kpi-grid">
 
@@ -746,15 +761,9 @@ tbody tr:hover{
           TOTAL ITEM
         </div>
 
-        <div
-          id="totalItem"
-          class="kpi-value"
-        >
-          0
-        </div>
-
-        <div class="kpi-unit">
-          jenis material
+        <div class="kpi-value">
+          <span id="totalItem">0</span>
+          <span class="kpi-unit">jenis</span>
         </div>
 
       </div>
@@ -766,15 +775,9 @@ tbody tr:hover{
           TOTAL VOLUME
         </div>
 
-        <div
-          id="totalVolume"
-          class="kpi-value"
-        >
-          0
-        </div>
-
-        <div class="kpi-unit">
-          unit
+        <div class="kpi-value">
+          <span id="totalVolume">0</span>
+          <span class="kpi-unit">unit</span>
         </div>
 
       </div>
@@ -786,15 +789,9 @@ tbody tr:hover{
           TOTAL KUBIKASI
         </div>
 
-        <div
-          id="totalCbm"
-          class="kpi-value"
-        >
-          0
-        </div>
-
-        <div class="kpi-unit">
-          m³ / CBM
+        <div class="kpi-value">
+          <span id="totalCbm">0</span>
+          <span class="kpi-unit">m³</span>
         </div>
 
       </div>
@@ -806,15 +803,9 @@ tbody tr:hover{
           TOTAL TONASE
         </div>
 
-        <div
-          id="totalTon"
-          class="kpi-value"
-        >
-          0
-        </div>
-
-        <div class="kpi-unit">
-          Ton
+        <div class="kpi-value">
+          <span id="totalTon">0</span>
+          <span class="kpi-unit">Ton</span>
         </div>
 
       </div>
@@ -823,32 +814,20 @@ tbody tr:hover{
 
 
     <!-- =====================================================
-         REKOMENDASI ARMADA
+         ARMADA
     ====================================================== -->
 
-    <div class="section-title">
-      Rekomendasi Armada
-    </div>
+    <section class="armada-card">
 
-    <section class="recommendation">
-
-      <div class="recommendation-head">
-
-        <div class="recommendation-title">
-          🚛 Armada Pengiriman
-        </div>
-
-        <div
-          id="armadaBadge"
-          class="armada-badge"
-        >
-          -
-        </div>
-
-      </div>
+      <h3 class="section-title">
+        🚛 REKOMENDASI ARMADA
+      </h3>
 
 
-      <div id="armadaContent">
+      <div
+        id="armadaContent"
+        class="armada-main"
+      >
 
         <div class="empty">
           Data armada belum tersedia.
@@ -863,15 +842,16 @@ tbody tr:hover{
          MATERIAL
     ====================================================== -->
 
-    <div class="section-title">
-      Detail Material
-    </div>
+    <section class="material-card">
 
-    <section class="table-panel">
+      <h3 class="section-title">
+        📦 DETAIL MATERIAL SIAP KIRIM
+      </h3>
 
-      <div class="table-wrap">
 
-        <table>
+      <div class="table-wrapper">
+
+        <table class="material-table">
 
           <thead>
 
@@ -881,33 +861,21 @@ tbody tr:hover{
 
               <th>Material</th>
 
-              <th>Kategori</th>
-
-              <th class="text-right">
-                Volume
-              </th>
+              <th>Volume</th>
 
               <th>Unit</th>
 
-              <th class="text-right">
-                CBM / Unit
-              </th>
+              <th>Kategori</th>
 
-              <th class="text-right">
-                Total CBM
-              </th>
+              <th>CBM / Unit</th>
 
-              <th class="text-right">
-                Berat / Unit
-              </th>
+              <th>Total CBM</th>
 
-              <th class="text-right">
-                Total Berat
-              </th>
+              <th>Berat / Unit</th>
 
-              <th class="text-right">
-                Total Ton
-              </th>
+              <th>Total Berat</th>
+
+              <th>Total Ton</th>
 
               <th>Status</th>
 
@@ -929,7 +897,7 @@ tbody tr:hover{
 
 
   <div class="footer">
-    Aplikasi Ekspedisi Material
+    Materials Expedition Applications
   </div>
 
 </main>
@@ -938,7 +906,7 @@ tbody tr:hover{
 <script>
 
 /* ============================================================
-   KONFIGURASI API
+   CONFIG API
 ============================================================ */
 
 const API_URL =
@@ -946,192 +914,64 @@ const API_URL =
 
 
 /* ============================================================
-   FORMAT ANGKA
+   ELEMENT
 ============================================================ */
 
-function numberID(
-  value,
-  decimal = 0
-){
+const projectSelect =
+  document.getElementById('projectSelect');
 
-  const number =
-    Number(value) || 0;
+const dashboard =
+  document.getElementById('dashboard');
 
-  return number.toLocaleString(
-    'id-ID',
-    {
-      minimumFractionDigits: decimal,
-      maximumFractionDigits: decimal
-    }
-  );
+const message =
+  document.getElementById('message');
 
-}
+const loading =
+  document.getElementById('loading');
 
+const loadingText =
+  document.getElementById('loadingText');
 
-/* ============================================================
-   ESCAPE HTML
-============================================================ */
+const apiDot =
+  document.getElementById('apiDot');
 
-function escapeHtml(
-  value
-){
-
-  return String(
-    value ?? ''
-  )
-  .replace(/&/g,'&amp;')
-  .replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;')
-  .replace(/'/g,'&#039;');
-
-}
-
-
-/* ============================================================
-   STATUS CLASS
-============================================================ */
-
-function statusClass(
-  status
-){
-
-  const text =
-    String(status || '').toUpperCase();
-
-  if(
-    text.includes('🟢') ||
-    text.includes('AVAILABLE') ||
-    text.includes('TERSEDIA')
-  ){
-
-    return 'status-ok';
-
-  }
-
-  if(
-    text.includes('🟡') ||
-    text.includes('KURANG') ||
-    text.includes('WARNING')
-  ){
-
-    return 'status-warning';
-
-  }
-
-  if(
-    text.includes('🔴') ||
-    text.includes('MELEBIHI') ||
-    text.includes('EXCEED')
-  ){
-
-    return 'status-danger';
-
-  }
-
-  return '';
-
-}
-
-
-/* ============================================================
-   LOADING
-============================================================ */
-
-function showLoading(){
-
-  document
-    .getElementById('loadingBox')
-    .classList
-    .remove('hidden');
-
-}
-
-
-function hideLoading(){
-
-  document
-    .getElementById('loadingBox')
-    .classList
-    .add('hidden');
-
-}
-
-
-/* ============================================================
-   ERROR
-============================================================ */
-
-function showError(
-  message
-){
-
-  hideLoading();
-
-  document
-    .getElementById('dashboard')
-    .classList
-    .add('hidden');
-
-  document
-    .getElementById('errorBox')
-    .classList
-    .remove('hidden');
-
-  document
-    .getElementById('errorText')
-    .textContent =
-      message || 'Terjadi kesalahan.';
-
-}
-
-
-function hideError(){
-
-  document
-    .getElementById('errorBox')
-    .classList
-    .add('hidden');
-
-}
+const apiStatusText =
+  document.getElementById('apiStatusText');
 
 
 /* ============================================================
    INIT
 ============================================================ */
 
-document.addEventListener(
-  'DOMContentLoaded',
-  function(){
-
-    initApp();
-
-  }
+window.addEventListener(
+  'load',
+  initApp
 );
 
 
-/* ============================================================
-   INIT APP
-============================================================ */
-
 async function initApp(){
+
+  setApiStatus(
+    'connecting',
+    'Connecting API...'
+  );
+
+  hideMessage();
+
+  showLoading(
+    'Loading a list of projects...'
+  );
 
   try{
 
-    showLoading();
-
-    hideError();
-
-    setConnection(
-      false,
-      'Menghubungkan...'
-    );
-
+    const url =
+      API_URL +
+      '?action=projects&_=' +
+      Date.now();
 
     const response =
       await fetch(
-        API_URL +
-        '?action=projects',
+        url,
         {
           method:'GET',
           cache:'no-store'
@@ -1142,7 +982,7 @@ async function initApp(){
     if(!response.ok){
 
       throw new Error(
-        'API tidak dapat dihubungi. HTTP ' +
+        'HTTP ' +
         response.status
       );
 
@@ -1157,73 +997,51 @@ async function initApp(){
 
       throw new Error(
         data.message ||
-        'Gagal mengambil daftar proyek.'
+        'API project gagal.'
       );
 
     }
 
 
-    const projects =
-      Array.isArray(data.data)
-        ? data.data
-        : [];
+    setApiStatus(
+      'online',
+      'API connected'
+    );
 
 
     populateProjects(
-      projects
+      data.data || []
     );
-
-
-    setConnection(
-      true,
-      'API terhubung'
-    );
-
-
-    hideLoading();
-
-
-    /*
-     * Otomatis tampilkan proyek pertama
-     * jika tersedia.
-     */
-
-    if(projects.length > 0){
-
-      const select =
-        document.getElementById(
-          'projectSelect'
-        );
-
-      select.value =
-        projects[0];
-
-      await loadProject();
-
-    }else{
-
-      showEmptyDashboard(
-        'Belum ada proyek pada MESIN_HITUNG.'
-      );
-
-    }
 
 
   }catch(error){
 
     console.error(
+      'API PROJECT ERROR:',
       error
     );
 
-    setConnection(
-      false,
-      'API gagal terhubung'
+
+    setApiStatus(
+      'error',
+      'API fails to connect'
     );
 
-    showError(
-      error.message ||
-      'Gagal menghubungkan aplikasi ke API.'
+
+    showMessage(
+      'Gagal mengambil daftar proyek: ' +
+      error.message,
+      'error'
     );
+
+
+    projectSelect.innerHTML =
+      '<option value="">API tidak dapat dihubungi</option>';
+
+
+  }finally{
+
+    hideLoading();
 
   }
 
@@ -1231,69 +1049,33 @@ async function initApp(){
 
 
 /* ============================================================
-   PROJECT DROPDOWN
+   POPULATE PROJECT
 ============================================================ */
 
-function populateProjects(
-  projects
-){
+function populateProjects(projects){
 
-  const select =
-    document.getElementById(
-      'projectSelect'
-    );
-
-
-  select.innerHTML =
-    '';
+  projectSelect.innerHTML =
+    '<option value="">Pilih proyek...</option>';
 
 
   if(
-    !projects ||
+    !Array.isArray(projects) ||
     projects.length === 0
   ){
 
-    const option =
-      document.createElement(
-        'option'
-      );
-
-    option.value = '';
-
-    option.textContent =
-      'Tidak ada proyek';
-
-    select.appendChild(
-      option
-    );
+    projectSelect.innerHTML =
+      '<option value="">Belum ada proyek</option>';
 
     return;
 
   }
 
 
-  const placeholder =
-    document.createElement(
-      'option'
-    );
-
-  placeholder.value = '';
-
-  placeholder.textContent =
-    'Pilih proyek...';
-
-  select.appendChild(
-    placeholder
-  );
-
-
   projects.forEach(
     function(project){
 
       const option =
-        document.createElement(
-          'option'
-        );
+        document.createElement('option');
 
       option.value =
         project;
@@ -1301,11 +1083,24 @@ function populateProjects(
       option.textContent =
         project;
 
-      select.appendChild(
+      projectSelect.appendChild(
         option
       );
 
     }
+  );
+
+
+  /*
+   * Otomatis tampilkan proyek pertama.
+   * User tetap dapat mengganti melalui dropdown.
+   */
+
+  projectSelect.value =
+    projects[0];
+
+  loadProject(
+    projects[0]
   );
 
 }
@@ -1315,45 +1110,36 @@ function populateProjects(
    LOAD PROJECT
 ============================================================ */
 
-async function loadProject(){
-
-  const select =
-    document.getElementById(
-      'projectSelect'
-    );
-
-
-  const project =
-    select.value;
-
+async function loadProject(project){
 
   if(!project){
 
-    document
-      .getElementById(
-        'dashboard'
-      )
-      .classList
-      .add('hidden');
+    dashboard.classList.remove('show');
 
     return;
 
   }
 
 
+  hideMessage();
+
+  showLoading(
+    'Loading project data...'
+  );
+
+  dashboard.classList.remove(
+    'show'
+  );
+
+
   try{
-
-    showLoading();
-
-    hideError();
-
 
     const url =
       API_URL +
       '?action=project&project=' +
-      encodeURIComponent(
-        project
-      );
+      encodeURIComponent(project) +
+      '&_=' +
+      Date.now();
 
 
     const response =
@@ -1369,7 +1155,7 @@ async function loadProject(){
     if(!response.ok){
 
       throw new Error(
-        'API project gagal. HTTP ' +
+        'HTTP ' +
         response.status
       );
 
@@ -1384,10 +1170,16 @@ async function loadProject(){
 
       throw new Error(
         data.message ||
-        'Data proyek tidak ditemukan.'
+        'Data proyek tidak tersedia.'
       );
 
     }
+
+
+    setApiStatus(
+      'online',
+      'API connected'
+    );
 
 
     renderDashboard(
@@ -1395,25 +1187,35 @@ async function loadProject(){
     );
 
 
-    setConnection(
-      true,
-      'API terhubung'
+    dashboard.classList.add(
+      'show'
     );
-
-
-    hideLoading();
 
 
   }catch(error){
 
     console.error(
+      'API PROJECT DATA ERROR:',
       error
     );
 
-    showError(
-      error.message ||
-      'Gagal mengambil data proyek.'
+
+    showMessage(
+      'Gagal mengambil data proyek: ' +
+      error.message,
+      'error'
     );
+
+
+    setApiStatus(
+      'error',
+      'API fails to connect'
+    );
+
+
+  }finally{
+
+    hideLoading();
 
   }
 
@@ -1424,56 +1226,52 @@ async function loadProject(){
    RENDER DASHBOARD
 ============================================================ */
 
-function renderDashboard(
-  data
-){
+function renderDashboard(data){
+
+  document.getElementById(
+    'projectTitle'
+  ).textContent =
+    data.project || '-';
+
 
   const summary =
     data.summary || {};
 
 
-  document
-    .getElementById(
-      'totalItem'
-    )
-    .textContent =
-      numberID(
-        summary.totalItem,
-        0
-      );
+  document.getElementById(
+    'totalItem'
+  ).textContent =
+    formatNumber(
+      summary.totalItem,
+      0
+    );
 
 
-  document
-    .getElementById(
-      'totalVolume'
-    )
-    .textContent =
-      numberID(
-        summary.totalVolume,
-        0
-      );
+  document.getElementById(
+    'totalVolume'
+  ).textContent =
+    formatNumber(
+      summary.totalVolume,
+      0
+    );
 
 
-  document
-    .getElementById(
-      'totalCbm'
-    )
-    .textContent =
-      numberID(
-        summary.totalCbm,
-        2
-      );
+  document.getElementById(
+    'totalCbm'
+  ).textContent =
+    formatNumber(
+      summary.totalCbm,
+      2
+    );
 
 
-  document
-    .getElementById(
-      'totalTon'
-    )
-    .textContent =
-      numberID(
-        summary.totalTon,
-        2
-      );
+  document.getElementById(
+    'totalTon'
+  ).textContent =
+    formatNumber(
+      summary.totalTon,
+      2
+    );
 
 
   renderArmada(
@@ -1485,14 +1283,6 @@ function renderDashboard(
     data.material || []
   );
 
-
-  document
-    .getElementById(
-      'dashboard'
-    )
-    .classList
-    .remove('hidden');
-
 }
 
 
@@ -1500,16 +1290,9 @@ function renderDashboard(
    RENDER ARMADA
 ============================================================ */
 
-function renderArmada(
-  armada
-){
+function renderArmada(armada){
 
-  const badge =
-    document.getElementById(
-      'armadaBadge'
-    );
-
-  const content =
+  const container =
     document.getElementById(
       'armadaContent'
     );
@@ -1517,12 +1300,9 @@ function renderArmada(
 
   if(!armada){
 
-    badge.textContent =
-      'Belum tersedia';
-
-    content.innerHTML =
+    container.innerHTML =
       '<div class="empty">' +
-      'Belum ada rekomendasi armada.' +
+      'Data rekomendasi armada belum tersedia.' +
       '</div>';
 
     return;
@@ -1530,205 +1310,141 @@ function renderArmada(
   }
 
 
-  badge.textContent =
-    '🚛 ' +
-    (armada.armada || '-');
-
-
   const cbmUsage =
-    Math.max(
-      0,
-      Number(
-        armada.pemakaianCbm
-      ) || 0
-    );
+    Number(
+      armada.pemakaianCbm
+    ) || 0;
 
 
   const tonUsage =
-    Math.max(
-      0,
-      Number(
-        armada.pemakaianTon
-      ) || 0
-    );
+    Number(
+      armada.pemakaianTon
+    ) || 0;
 
 
   const cbmPercent =
-    Math.min(
-      cbmUsage * 100,
-      100
+    Math.max(
+      0,
+      cbmUsage * 100
     );
 
 
   const tonPercent =
-    Math.min(
-      tonUsage * 100,
-      100
+    Math.max(
+      0,
+      tonUsage * 100
     );
 
 
-  const status =
-    armada.status ||
-    'Status belum tersedia';
-
-
-  const statusCls =
-    statusClass(
-      status
+  const cbmBar =
+    getProgressClass(
+      cbmUsage
     );
 
 
-  content.innerHTML = `
-
-    <div class="armada-main">
-
-      <div>
-
-        <div class="armada-name">
-          ${escapeHtml(
-            armada.armada || '-'
-          )}
-        </div>
-
-        <div class="armada-unit">
-          ${numberID(
-            armada.kebutuhanUnit,
-            0
-          )} UNIT
-        </div>
+  const tonBar =
+    getProgressClass(
+      tonUsage
+    );
 
 
-        <div class="spec-grid">
-
-          <div class="spec-item">
-
-            <div class="spec-label">
-              Panjang Bak
-            </div>
-
-            <div class="spec-value">
-              ${numberID(
-                armada.panjangM,
-                2
-              )} m
-            </div>
-
-          </div>
+  const statusClass =
+    getStatusClass(
+      armada.status
+    );
 
 
-          <div class="spec-item">
+  container.innerHTML = `
 
-            <div class="spec-label">
-              Lebar Bak
-            </div>
+    <div class="recommendation">
 
-            <div class="spec-value">
-              ${numberID(
-                armada.lebarM,
-                2
-              )} m
-            </div>
+      <div class="recommendation-title">
+        ARMADA REKOMENDASI
+      </div>
 
-          </div>
+      <div class="armada-name">
+        ${escapeHtml(
+          armada.armada || '-'
+        )}
+      </div>
 
+      <div class="armada-unit">
+        ${formatNumber(
+          armada.kebutuhanUnit,
+          0
+        )} UNIT
+      </div>
 
-          <div class="spec-item">
+      <span class="status ${statusClass}">
+        ${escapeHtml(
+          armada.status || 'Status belum tersedia'
+        )}
+      </span>
 
-            <div class="spec-label">
-              Tinggi Bak
-            </div>
-
-            <div class="spec-value">
-              ${numberID(
-                armada.tinggiM,
-                2
-              )} m
-            </div>
-
-          </div>
+    </div>
 
 
-          <div class="spec-item">
+    <div>
 
-            <div class="spec-label">
-              Kapasitas CBM
-            </div>
+      <div class="spec-grid">
 
-            <div class="spec-value">
-              ${numberID(
-                armada.kapasitasCbm,
-                2
-              )} m³
-            </div>
+        ${specBox(
+          'Panjang Bak',
+          formatNumber(armada.panjangM,2) + ' m'
+        )}
 
-          </div>
+        ${specBox(
+          'Lebar Bak',
+          formatNumber(armada.lebarM,2) + ' m'
+        )}
 
+        ${specBox(
+          'Tinggi Bak',
+          formatNumber(armada.tinggiM,2) + ' m'
+        )}
 
-          <div class="spec-item">
+        ${specBox(
+          'Kapasitas CBM / Unit',
+          formatNumber(armada.kapasitasCbm,2) + ' m³'
+        )}
 
-            <div class="spec-label">
-              Maks. Tonase
-            </div>
+        ${specBox(
+          'Maks. Tonase / Unit',
+          formatNumber(armada.maxTonase,2) + ' Ton'
+        )}
 
-            <div class="spec-value">
-              ${numberID(
-                armada.maxTonase,
-                2
-              )} Ton
-            </div>
-
-          </div>
-
-
-          <div class="spec-item">
-
-            <div class="spec-label">
-              Kapasitas CBM Total
-            </div>
-
-            <div class="spec-value">
-              ${numberID(
-                armada.kapasitasCbmTotal,
-                2
-              )} m³
-            </div>
-
-          </div>
-
-        </div>
+        ${specBox(
+          'Kapasitas CBM Total',
+          formatNumber(armada.kapasitasCbmTotal,2) + ' m³'
+        )}
 
       </div>
 
 
-      <div class="capacity-panel">
+      <div class="utilization">
 
-        <div class="capacity-title">
-          Pemakaian Kapasitas Armada
-        </div>
+        <div class="util-box">
 
-
-        <div class="progress-row">
-
-          <div class="progress-head">
+          <div class="util-header">
 
             <span>
-              Kubikasi / CBM
+              Pemakaian CBM
             </span>
 
-            <strong>
-              ${numberID(
-                cbmUsage * 100,
+            <span class="util-value">
+              ${formatNumber(
+                cbmPercent,
                 1
               )}%
-            </strong>
+            </span>
 
           </div>
 
-          <div class="progress-track">
+          <div class="progress">
 
             <div
-              class="progress-bar progress-cbm"
-              style="width:${cbmPercent}%"
+              class="progress-bar ${cbmBar}"
+              style="width:${Math.min(cbmPercent,100)}%"
             ></div>
 
           </div>
@@ -1736,40 +1452,31 @@ function renderArmada(
         </div>
 
 
-        <div class="progress-row">
+        <div class="util-box">
 
-          <div class="progress-head">
+          <div class="util-header">
 
             <span>
-              Tonase
+              Pemakaian Tonase
             </span>
 
-            <strong>
-              ${numberID(
-                tonUsage * 100,
+            <span class="util-value">
+              ${formatNumber(
+                tonPercent,
                 1
               )}%
-            </strong>
+            </span>
 
           </div>
 
-          <div class="progress-track">
+          <div class="progress">
 
             <div
-              class="progress-bar progress-ton"
-              style="width:${tonPercent}%"
+              class="progress-bar ${tonBar}"
+              style="width:${Math.min(tonPercent,100)}%"
             ></div>
 
           </div>
-
-        </div>
-
-
-        <div class="status-box ${statusCls}">
-
-          ${escapeHtml(
-            status
-          )}
 
         </div>
 
@@ -1783,12 +1490,38 @@ function renderArmada(
 
 
 /* ============================================================
-   RENDER MATERIAL
+   SPEC BOX
 ============================================================ */
 
-function renderMaterial(
-  material
+function specBox(
+  label,
+  value
 ){
+
+  return `
+
+    <div class="spec-box">
+
+      <div class="spec-label">
+        ${escapeHtml(label)}
+      </div>
+
+      <div class="spec-value">
+        ${escapeHtml(value)}
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* ============================================================
+   MATERIAL TABLE
+============================================================ */
+
+function renderMaterial(material){
 
   const body =
     document.getElementById(
@@ -1796,12 +1529,11 @@ function renderMaterial(
     );
 
 
-  body.innerHTML =
-    '';
+  body.innerHTML = '';
 
 
   if(
-    !material ||
+    !Array.isArray(material) ||
     material.length === 0
   ){
 
@@ -1811,9 +1543,9 @@ function renderMaterial(
 
         <td
           colspan="11"
-          style="text-align:center;padding:40px"
+          class="empty"
         >
-          Tidak ada material.
+          Tidak ada material siap kirim.
         </td>
 
       </tr>
@@ -1828,32 +1560,24 @@ function renderMaterial(
   material.forEach(
     function(item,index){
 
-      const row =
-        document.createElement(
-          'tr'
-        );
+      const tr =
+        document.createElement('tr');
 
 
-      row.innerHTML = `
+      tr.innerHTML = `
 
         <td>
           ${index + 1}
         </td>
 
-        <td class="material-name">
+        <td>
           ${escapeHtml(
-            item.material
+            item.material || ''
           )}
         </td>
 
-        <td class="category">
-          ${escapeHtml(
-            item.category
-          )}
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
+        <td class="number">
+          ${formatNumber(
             item.volume,
             0
           )}
@@ -1861,56 +1585,64 @@ function renderMaterial(
 
         <td>
           ${escapeHtml(
-            item.unit
-          )}
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
-            item.cbmUnit,
-            4
-          )}
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
-            item.totalCbm,
-            3
-          )}
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
-            item.weightKgUnit,
-            3
-          )} kg
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
-            item.totalWeightKg,
-            2
-          )} kg
-        </td>
-
-        <td class="text-right number">
-          ${numberID(
-            item.totalTon,
-            3
+            item.unit || ''
           )}
         </td>
 
         <td>
           ${escapeHtml(
-            item.status
+            item.category || ''
           )}
+        </td>
+
+        <td class="number">
+          ${formatNumber(
+            item.cbmUnit,
+            6
+          )}
+        </td>
+
+        <td class="number">
+          ${formatNumber(
+            item.totalCbm,
+            4
+          )}
+        </td>
+
+        <td class="number">
+          ${formatNumber(
+            item.weightKgUnit,
+            4
+          )} kg
+        </td>
+
+        <td class="number">
+          ${formatNumber(
+            item.totalWeightKg,
+            2
+          )} kg
+        </td>
+
+        <td class="number">
+          ${formatNumber(
+            item.totalTon,
+            4
+          )} Ton
+        </td>
+
+        <td>
+          <span class="table-status">
+            ${escapeHtml(
+              item.status || 'OK'
+            )}
+          </span>
         </td>
 
       `;
 
 
       body.appendChild(
-        row
+        tr
       );
 
     }
@@ -1920,39 +1652,139 @@ function renderMaterial(
 
 
 /* ============================================================
-   CONNECTION STATUS
+   FORMAT NUMBER
 ============================================================ */
 
-function setConnection(
-  connected,
+function formatNumber(
+  value,
+  digits
+){
+
+  const number =
+    Number(value);
+
+
+  if(
+    !Number.isFinite(number)
+  ){
+
+    return '0';
+
+  }
+
+
+  return number.toLocaleString(
+    'id-ID',
+    {
+      minimumFractionDigits:0,
+      maximumFractionDigits:digits
+    }
+  );
+
+}
+
+
+/* ============================================================
+   STATUS CLASS
+============================================================ */
+
+function getStatusClass(status){
+
+  const text =
+    String(status || '')
+      .toUpperCase();
+
+
+  if(
+    text.includes('TIDAK') ||
+    text.includes('EXCEED') ||
+    text.includes('OVER') ||
+    text.includes('PENUH') ||
+    text.includes('❌')
+  ){
+
+    return 'danger';
+
+  }
+
+
+  if(
+    text.includes('KURANG') ||
+    text.includes('WARNING') ||
+    text.includes('⚠') ||
+    text.includes('🟡')
+  ){
+
+    return 'warning';
+
+  }
+
+
+  return '';
+
+}
+
+
+/* ============================================================
+   PROGRESS CLASS
+============================================================ */
+
+function getProgressClass(value){
+
+  const n =
+    Number(value) || 0;
+
+
+  if(n > 1){
+
+    return 'danger';
+
+  }
+
+
+  if(n >= .8){
+
+    return 'warning';
+
+  }
+
+
+  return '';
+
+}
+
+
+/* ============================================================
+   API STATUS
+============================================================ */
+
+function setApiStatus(
+  type,
   text
 ){
 
-  const textElement =
-    document.getElementById(
-      'connectionText'
-    );
-
-
-  const dot =
-    document.querySelector(
-      '.connection-dot'
-    );
-
-
-  textElement.textContent =
+  apiStatusText.textContent =
     text;
 
 
-  if(connected){
+  apiDot.className =
+    'api-dot';
 
-    dot.style.background =
-      '#16a34a';
 
-  }else{
+  if(type === 'online'){
 
-    dot.style.background =
-      '#f59e0b';
+    apiDot.classList.add(
+      'online'
+    );
+
+  }
+
+
+  if(type === 'error'){
+
+    apiDot.classList.add(
+      'error'
+    );
 
   }
 
@@ -1960,73 +1792,90 @@ function setConnection(
 
 
 /* ============================================================
-   EMPTY DASHBOARD
+   LOADING
 ============================================================ */
 
-function showEmptyDashboard(
-  message
+function showLoading(text){
+
+  loadingText.textContent =
+    text || 'Loading...';
+
+  loading.classList.add(
+    'show'
+  );
+
+}
+
+
+function hideLoading(){
+
+  loading.classList.remove(
+    'show'
+  );
+
+}
+
+
+/* ============================================================
+   MESSAGE
+============================================================ */
+
+function showMessage(
+  text,
+  type
 ){
 
-  hideLoading();
-
-  document
-    .getElementById(
-      'dashboard'
-    )
-    .classList
-    .remove('hidden');
+  message.textContent =
+    text || '';
 
 
-  document
-    .getElementById(
-      'totalItem'
-    )
-    .textContent =
-      '0';
+  message.className =
+    'message ' +
+    (type || 'info');
+
+}
 
 
-  document
-    .getElementById(
-      'totalVolume'
-    )
-    .textContent =
-      '0';
+function hideMessage(){
+
+  message.textContent =
+    '';
+
+  message.className =
+    'message';
+
+}
 
 
-  document
-    .getElementById(
-      'totalCbm'
-    )
-    .textContent =
-      '0';
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
 
+function escapeHtml(value){
 
-  document
-    .getElementById(
-      'totalTon'
-    )
-    .textContent =
-      '0';
-
-
-  document
-    .getElementById(
-      'armadaContent'
-    )
-    .innerHTML =
-      '<div class="empty">' +
-      escapeHtml(message) +
-      '</div>';
-
-
-  document
-    .getElementById(
-      'materialBody'
-    )
-    .innerHTML =
-      '<tr><td colspan="11" style="text-align:center;padding:40px">' +
-      escapeHtml(message) +
-      '</td></tr>';
+  return String(
+    value == null ? '' : value
+  )
+  .replace(
+    /&/g,
+    '&amp;'
+  )
+  .replace(
+    /</g,
+    '&lt;'
+  )
+  .replace(
+    />/g,
+    '&gt;'
+  )
+  .replace(
+    /"/g,
+    '&quot;'
+  )
+  .replace(
+    /'/g,
+    '&#039;'
+  );
 
 }
 
