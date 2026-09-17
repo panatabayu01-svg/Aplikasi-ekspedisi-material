@@ -1,1 +1,2455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Aplikasi Ekspedisi Material</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #eef3f8;
+  color: #111;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  width: 100%;
+  background: #124d86;
+  color: #fff;
+  padding: 15px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  opacity: .9;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 1900px;
+  margin: 0 auto;
+  padding: 14px;
+}
+
+/* =========================================================
+   PROJECT BAR
+========================================================= */
+
+.project-bar {
+  background: #fff;
+  border: 1px solid #aebdca;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(280px, 520px) 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.project-label {
+  font-size: 17px;
+  font-weight: 700;
+  color: #124d86;
+}
+
+.project-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid #9caebe;
+  background: #fff;
+  color: #111;
+  border-radius: 3px;
+  outline: none;
+}
+
+.project-select:focus {
+  border-color: #124d86;
+  box-shadow: 0 0 0 2px rgba(18,77,134,.12);
+}
+
+.project-name {
+  height: 44px;
+  border: 1px solid #b8c5d0;
+  background: #f5f7f9;
+  padding: 11px 13px;
+  font-size: 15px;
+  color: #333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.refresh-btn {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #124d86;
+  background: #fff;
+  color: #124d86;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.refresh-btn:hover {
+  background: #124d86;
+  color: #fff;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.message {
+  min-height: 24px;
+  padding: 2px 2px 8px;
+  font-size: 13px;
+  color: #536577;
+}
+
+.message.error {
+  color: #b00020;
+  font-weight: 700;
+}
+
+.message.success {
+  color: #187a3c;
+  font-weight: 700;
+}
+
+/* =========================================================
+   KPI
+========================================================= */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kpi-card {
+  background: #fff;
+  border: 1px solid #b6c4d0;
+  min-height: 105px;
+  padding: 15px;
+}
+
+.kpi-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #526579;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.kpi-value {
+  font-size: 27px;
+  font-weight: 800;
+  color: #124d86;
+}
+
+.kpi-unit {
+  font-size: 14px;
+  color: #555;
+  margin-left: 4px;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.section {
+  background: #fff;
+  border: 1px solid #aebdca;
+  margin-bottom: 12px;
+}
+
+.section-header {
+  background: #124d86;
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.section-body {
+  padding: 10px;
+}
+
+/* =========================================================
+   ARMADA
+========================================================= */
+
+.armada-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.armada-card {
+  background: #f3f7fb;
+  border: 1px solid #c4d0da;
+  min-height: 250px;
+  padding: 15px;
+}
+
+.armada-name {
+  font-size: 25px;
+  font-weight: 800;
+  color: #124d86;
+  margin-bottom: 12px;
+}
+
+.vehicle-image-box {
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #edf4fa;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.vehicle-image {
+  max-width: 92%;
+  max-height: 145px;
+  object-fit: contain;
+}
+
+.vehicle-fallback {
+  font-size: 75px;
+}
+
+.vehicle-caption {
+  text-align: center;
+  margin-top: 7px;
+  color: #526579;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #163d63;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #c9d5df;
+  margin-bottom: 3px;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 46% 54%;
+  min-height: 43px;
+  align-items: center;
+  border-bottom: 1px solid #d3dde5;
+  font-size: 14px;
+}
+
+.info-label {
+  font-weight: 700;
+  color: #111;
+}
+
+.info-value {
+  color: #354f67;
+}
+
+.big-result {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   STATUS CARD
+========================================================= */
+
+.status-card {
+  min-height: 250px;
+  border: 1px solid #d4c58c;
+  background: #fff9df;
+  padding: 15px;
+  text-align: center;
+}
+
+.status-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  margin: 0 auto 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edae00;
+  color: #fff;
+  font-size: 31px;
+  font-weight: 800;
+}
+
+.status-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.status-description {
+  font-size: 13px;
+  color: #5e5e5e;
+  margin-bottom: 14px;
+}
+
+.progress-wrap {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.progress {
+  width: 100%;
+  height: 12px;
+  background: #e3e8ed;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: #e9ad00;
+  transition: width .3s ease;
+}
+
+/* STATUS WARNA */
+
+.status-green {
+  background: #e9f8ee !important;
+  border-color: #75bd8b !important;
+}
+
+.status-green .status-icon {
+  background: #1d9a50;
+}
+
+.status-green .status-title {
+  color: #16803f;
+}
+
+.status-yellow {
+  background: #fff9df !important;
+  border-color: #d4c58c !important;
+}
+
+.status-yellow .status-icon {
+  background: #edae00;
+}
+
+.status-yellow .status-title {
+  color: #c28600;
+}
+
+.status-red {
+  background: #fff0f0 !important;
+  border-color: #d99595 !important;
+}
+
+.status-red .status-icon {
+  background: #d73535;
+}
+
+.status-red .status-title {
+  color: #b51f1f;
+}
+
+/* =========================================================
+   MATERIAL TABLE
+========================================================= */
+
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid #aebdca;
+  max-height: 600px;
+}
+
+.material-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+.material-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #e8f0f7;
+  color: #000;
+  border: 1px solid #8ea3b5;
+  padding: 9px 7px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.material-table td {
+  border: 1px solid #b8c7d3;
+  padding: 8px 7px;
+  color: #000;
+  background: #fff;
+  vertical-align: middle;
+}
+
+.material-table td:not(:nth-child(2)) {
+  text-align: center;
+}
+
+.material-table td:nth-child(2) {
+  text-align: left;
+}
+
+.material-table tr:hover td {
+  background: #f5f9fc;
+}
+
+.col-no {
+  width: 50px;
+}
+
+.col-material {
+  width: 30%;
+}
+
+.col-volume {
+  width: 9%;
+}
+
+.col-unit {
+  width: 8%;
+}
+
+.col-category {
+  width: 13%;
+}
+
+.col-cbm {
+  width: 10%;
+}
+
+.col-weight {
+  width: 11%;
+}
+
+.col-ton {
+  width: 9%;
+}
+
+.col-status {
+  width: 10%;
+}
+
+/* =========================================================
+   MATERIAL STATUS
+========================================================= */
+
+.material-status {
+  display: inline-block;
+  min-width: 85px;
+  padding: 5px 8px;
+  border: 1px solid #888;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.material-status.ok {
+  background: #c8f2d6;
+  border-color: #57ad75;
+  color: #11652f;
+}
+
+.material-status.review {
+  background: #fff0b8;
+  border-color: #d6b330;
+  color: #765900;
+}
+
+.material-status.estimasi {
+  background: #c9f1db;
+  border-color: #63b88a;
+  color: #12633a;
+}
+
+.material-status.error {
+  background: #ffd2d2;
+  border-color: #d15a5a;
+  color: #9d1515;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,.72);
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-box {
+  background: #fff;
+  border: 1px solid #9eafbd;
+  padding: 22px 30px;
+  box-shadow: 0 5px 20px rgba(0,0,0,.15);
+  text-align: center;
+  font-weight: 700;
+  color: #124d86;
+}
+
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 4px solid #d9e3eb;
+  border-top-color: #124d86;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+  padding: 35px;
+  text-align: center;
+  color: #68798a;
+  font-size: 15px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .project-bar {
+    grid-template-columns: auto 1fr;
+  }
+
+  .project-name {
+    grid-column: 1 / -1;
+  }
+
+  .refresh-btn {
+    grid-column: 2;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .armada-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .header {
+    padding: 12px 14px;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .header-subtitle {
+    display: none;
+  }
+
+  .container {
+    padding: 8px;
+  }
+
+  .project-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .project-label {
+    font-size: 15px;
+  }
+
+  .project-select,
+  .project-name,
+  .refresh-btn {
+    width: 100%;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .kpi-card {
+    min-height: 90px;
+    padding: 10px;
+  }
+
+  .kpi-title {
+    font-size: 11px;
+  }
+
+  .kpi-value {
+    font-size: 21px;
+  }
+
+  .section-header {
+    font-size: 15px;
+  }
+
+  .armada-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .armada-card,
+  .status-card {
+    min-height: auto;
+  }
+
+  .vehicle-image-box {
+    height: 130px;
+  }
+
+  .armada-name {
+    font-size: 22px;
+  }
+
+  .info-row {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  .material-table {
+    font-size: 13px;
+  }
+
+  .material-table th {
+    font-size: 12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ========================================================
+     HEADER
+========================================================= -->
+
+<header class="header">
+
+  <div class="header-title">
+    🚛 APLIKASI EKSPEDISI MATERIAL
+  </div>
+
+  <div class="header-subtitle">
+    Sistem Perhitungan & Rekomendasi Armada
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <!-- ======================================================
+       PROJECT
+  ======================================================= -->
+
+  <section class="project-bar">
+
+    <div class="project-label">
+      PROYEK
+    </div>
+
+    <select
+      id="projectSelect"
+      class="project-select"
+      onchange="loadProject()"
+    >
+      <option value="">
+        Memuat proyek...
+      </option>
+    </select>
+
+    <div
+      id="projectName"
+      class="project-name"
+    >
+      -
+    </div>
+
+    <button
+      class="refresh-btn"
+      onclick="refreshApplication()"
+    >
+      ↻ Refresh
+    </button>
+
+  </section>
+
+
+  <div
+    id="message"
+    class="message"
+  >
+    Memuat daftar proyek...
+  </div>
+
+
+  <!-- ======================================================
+       KPI
+  ======================================================= -->
+
+  <section class="kpi-grid">
+
+    <div class="kpi-card">
+
+      <div class="kpi-title">
+        Total Item
+      </div>
+
+      <div
+        id="totalItem"
+        class="kpi-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+      <div class="kpi-title">
+        Total Volume
+      </div>
+
+      <div
+        id="totalVolume"
+        class="kpi-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+      <div class="kpi-title">
+        Total Kubikasi
+      </div>
+
+      <div
+        id="totalCbm"
+        class="kpi-value"
+      >
+        0
+        <span class="kpi-unit">m³</span>
+      </div>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+      <div class="kpi-title">
+        Total Tonase
+      </div>
+
+      <div
+        id="totalTon"
+        class="kpi-value"
+      >
+        0
+        <span class="kpi-unit">Ton</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       REKOMENDASI ARMADA
+  ======================================================= -->
+
+  <section class="section">
+
+    <div class="section-header">
+      🚚 REKOMENDASI ARMADA
+    </div>
+
+    <div class="section-body">
+
+      <div class="armada-grid">
+
+        <!-- ARMADA -->
+
+        <div class="armada-card">
+
+          <div
+            id="armadaName"
+            class="armada-name"
+          >
+            -
+          </div>
+
+          <div class="vehicle-image-box">
+
+            <img
+              id="vehicleImage"
+              class="vehicle-image"
+              src=""
+              alt="Armada"
+              style="display:none"
+              onerror="vehicleImageError()"
+            >
+
+            <div
+              id="vehicleFallback"
+              class="vehicle-fallback"
+            >
+              🚛
+            </div>
+
+          </div>
+
+          <div
+            id="vehicleCaption"
+            class="vehicle-caption"
+          >
+            -
+          </div>
+
+        </div>
+
+
+        <!-- SPESIFIKASI -->
+
+        <div class="armada-card">
+
+          <div class="card-title">
+            ⚙ SPESIFIKASI ARMADA
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Dimensi Bak
+            </div>
+
+            <div
+              id="dimension"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Kapasitas CBM
+            </div>
+
+            <div
+              id="capacityCbm"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Maks. Tonase
+            </div>
+
+            <div
+              id="maxTon"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Kebutuhan Unit
+            </div>
+
+            <div
+              id="neededUnit"
+              class="info-value big-result"
+            >
+              -
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- HASIL PERHITUNGAN -->
+
+        <div class="armada-card">
+
+          <div class="card-title">
+            ▣ HASIL PERHITUNGAN
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Total Kubikasi
+            </div>
+
+            <div
+              id="resultCbm"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Total Tonase
+            </div>
+
+            <div
+              id="resultTon"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Pemakaian CBM
+            </div>
+
+            <div
+              id="usageCbm"
+              class="info-value big-result"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Pemakaian Ton
+            </div>
+
+            <div
+              id="usageTon"
+              class="info-value big-result"
+            >
+              -
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <div class="info-label">
+              Sisa Kapasitas
+            </div>
+
+            <div
+              id="remainingCapacity"
+              class="info-value"
+            >
+              -
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div
+          id="statusCard"
+          class="status-card status-yellow"
+        >
+
+          <div
+            id="statusIcon"
+            class="status-icon"
+          >
+            !
+          </div>
+
+          <div
+            id="statusTitle"
+            class="status-title"
+          >
+            MENUNGGU DATA
+          </div>
+
+          <div
+            id="statusDescription"
+            class="status-description"
+          >
+            Pilih proyek untuk melihat status kapasitas.
+          </div>
+
+          <div class="progress-wrap">
+
+            <div class="progress">
+
+              <div
+                id="cbmProgress"
+                class="progress-bar"
+              ></div>
+
+            </div>
+
+            <div class="progress-labels">
+
+              <span id="cbmProgressText">
+                CBM: 0%
+              </span>
+
+              <span id="tonProgressText">
+                Ton: 0%
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       DATA MATERIAL
+  ======================================================= -->
+
+  <section class="section">
+
+    <div class="section-header">
+      📊 DATA MATERIAL
+    </div>
+
+    <div class="section-body">
+
+      <div
+        id="materialContainer"
+        class="table-wrap"
+      >
+
+        <div class="empty">
+          Pilih proyek untuk menampilkan data material.
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<!-- ========================================================
+     LOADING
+========================================================= -->
+
+<div
+  id="loading"
+  class="loading"
+>
+
+  <div class="loading-box">
+
+    <div class="spinner"></div>
+
+    <div id="loadingText">
+      Memuat data...
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   KONFIGURASI API
+========================================================= */
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbzCUxFbqmo9Zjj36ZAUL9EVRD03ZFNsFFvabCRSV-wcCBP3Gp1aCGcsIQHMfs2LaIg/exec';
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  function() {
+
+    loadProjects();
+
+  }
+);
+
+
+/* =========================================================
+   FORMAT ANGKA
+========================================================= */
+
+function numberID(
+  value,
+  decimals = 0
+) {
+
+  const number =
+    Number(value) || 0;
+
+  return number.toLocaleString(
+    'id-ID',
+    {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    }
+  );
+
+}
+
+
+function percentID(
+  value
+) {
+
+  const number =
+    (Number(value) || 0) * 100;
+
+  return number.toLocaleString(
+    'id-ID',
+    {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    }
+  ) + '%';
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+function showLoading(
+  text = 'Memuat data...'
+) {
+
+  document.getElementById(
+    'loadingText'
+  ).textContent = text;
+
+  document.getElementById(
+    'loading'
+  ).style.display = 'flex';
+
+}
+
+
+function hideLoading() {
+
+  document.getElementById(
+    'loading'
+  ).style.display = 'none';
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function setMessage(
+  text,
+  type = ''
+) {
+
+  const el =
+    document.getElementById(
+      'message'
+    );
+
+  el.textContent = text;
+
+  el.className =
+    'message ' + type;
+
+}
+
+
+/* =========================================================
+   LOAD PROJECT LIST
+========================================================= */
+
+async function loadProjects() {
+
+  showLoading(
+    'Memuat daftar proyek...'
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL +
+        '?action=projects'
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        'API tidak dapat diakses.'
+      );
+
+    }
+
+    const result =
+      await response.json();
+
+    if (
+      !result.success
+    ) {
+
+      throw new Error(
+        result.message ||
+        'Gagal mengambil daftar proyek.'
+      );
+
+    }
+
+    const select =
+      document.getElementById(
+        'projectSelect'
+      );
+
+    select.innerHTML =
+      '<option value="">Pilih proyek...</option>';
+
+
+    const projects =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
+
+    projects.forEach(
+      function(project) {
+
+        const option =
+          document.createElement(
+            'option'
+          );
+
+        option.value =
+          project;
+
+        option.textContent =
+          project;
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    if (
+      projects.length > 0
+    ) {
+
+      select.value =
+        projects[0];
+
+      await loadProject();
+
+    } else {
+
+      setMessage(
+        'Belum ada proyek.',
+        'error'
+      );
+
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    setMessage(
+      'Gagal mengambil data proyek: ' +
+      error.message,
+      'error'
+    );
+
+  } finally {
+
+    hideLoading();
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD ONE PROJECT
+========================================================= */
+
+async function loadProject() {
+
+  const select =
+    document.getElementById(
+      'projectSelect'
+    );
+
+  const project =
+    select.value;
+
+
+  if (!project) {
+
+    clearDashboard();
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    'projectName'
+  ).textContent =
+    project;
+
+
+  showLoading(
+    'Memuat data proyek...'
+  );
+
+
+  try {
+
+    const url =
+      API_URL +
+      '?action=project&project=' +
+      encodeURIComponent(
+        project
+      );
+
+
+    const response =
+      await fetch(
+        url
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        'API tidak dapat diakses.'
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (!result.success) {
+
+      throw new Error(
+        result.message ||
+        'Data proyek tidak ditemukan.'
+      );
+
+    }
+
+
+    renderDashboard(
+      result
+    );
+
+
+    setMessage(
+      'Data proyek berhasil dimuat.',
+      'success'
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    setMessage(
+      'Gagal memuat proyek: ' +
+      error.message,
+      'error'
+    );
+
+    clearDashboard();
+
+  } finally {
+
+    hideLoading();
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER DASHBOARD
+========================================================= */
+
+function renderDashboard(
+  data
+) {
+
+  const summary =
+    data.summary || {};
+
+  const armada =
+    data.armada || null;
+
+
+  /* KPI */
+
+  document.getElementById(
+    'totalItem'
+  ).textContent =
+    numberID(
+      summary.totalItem,
+      0
+    );
+
+
+  document.getElementById(
+    'totalVolume'
+  ).textContent =
+    numberID(
+      summary.totalVolume,
+      0
+    );
+
+
+  document.getElementById(
+    'totalCbm'
+  ).innerHTML =
+    numberID(
+      summary.totalCbm,
+      2
+    ) +
+    '<span class="kpi-unit">m³</span>';
+
+
+  document.getElementById(
+    'totalTon'
+  ).innerHTML =
+    numberID(
+      summary.totalTon,
+      3
+    ) +
+    '<span class="kpi-unit">Ton</span>';
+
+
+  /* ARMADA */
+
+  if (armada) {
+
+    renderArmada(
+      armada
+    );
+
+  } else {
+
+    clearArmada();
+
+  }
+
+
+  /* MATERIAL */
+
+  renderMaterial(
+    data.material || []
+  );
+
+}
+
+
+/* =========================================================
+   RENDER ARMADA
+========================================================= */
+
+function renderArmada(
+  armada
+) {
+
+  const name =
+    String(
+      armada.armada || '-'
+    );
+
+
+  document.getElementById(
+    'armadaName'
+  ).textContent =
+    name.toUpperCase() +
+    ' — ' +
+    numberID(
+      armada.kebutuhanUnit,
+      0
+    ) +
+    ' UNIT';
+
+
+  document.getElementById(
+    'vehicleCaption'
+  ).textContent =
+    name.toUpperCase();
+
+
+  document.getElementById(
+    'dimension'
+  ).textContent =
+    numberID(
+      armada.panjangM,
+      2
+    ) +
+    ' × ' +
+    numberID(
+      armada.lebarM,
+      2
+    ) +
+    ' × ' +
+    numberID(
+      armada.tinggiM,
+      2
+    ) +
+    ' m';
+
+
+  document.getElementById(
+    'capacityCbm'
+  ).textContent =
+    numberID(
+      armada.kapasitasCbm,
+      2
+    ) +
+    ' m³ / unit';
+
+
+  document.getElementById(
+    'maxTon'
+  ).textContent =
+    numberID(
+      armada.maxTonase,
+      2
+    ) +
+    ' Ton / unit';
+
+
+  document.getElementById(
+    'neededUnit'
+  ).textContent =
+    numberID(
+      armada.kebutuhanUnit,
+      0
+    ) +
+    ' UNIT';
+
+
+  document.getElementById(
+    'resultCbm'
+  ).textContent =
+    numberID(
+      armada.kapasitasCbmTotal,
+      2
+    ) +
+    ' m³';
+
+
+  document.getElementById(
+    'resultTon'
+  ).textContent =
+    numberID(
+      armada.kapasitasTonTotal,
+      3
+    ) +
+    ' Ton';
+
+
+  const cbmUsage =
+    Number(
+      armada.pemakaianCbm
+    ) || 0;
+
+
+  const tonUsage =
+    Number(
+      armada.pemakaianTon
+    ) || 0;
+
+
+  document.getElementById(
+    'usageCbm'
+  ).textContent =
+    percentID(
+      cbmUsage
+    );
+
+
+  document.getElementById(
+    'usageTon'
+  ).textContent =
+    percentID(
+      tonUsage
+    );
+
+
+  const remainingCbm =
+    Math.max(
+      0,
+      (
+        Number(
+          armada.kapasitasCbmTotal
+        ) || 0
+      ) -
+      (
+        Number(
+          getCurrentTotalCbm()
+        ) || 0
+      )
+    );
+
+
+  const remainingTon =
+    Math.max(
+      0,
+      (
+        Number(
+          armada.kapasitasTonTotal
+        ) || 0
+      ) -
+      (
+        Number(
+          getCurrentTotalTon()
+        ) || 0
+      )
+    );
+
+
+  document.getElementById(
+    'remainingCapacity'
+  ).textContent =
+    numberID(
+      remainingCbm,
+      2
+    ) +
+    ' m³ | ' +
+    numberID(
+      remainingTon,
+      3
+    ) +
+    ' Ton';
+
+
+  /* STATUS */
+
+  renderStatus(
+    armada.status,
+    cbmUsage,
+    tonUsage
+  );
+
+
+  /* GAMBAR ARMADA */
+
+  setVehicleImage(
+    name
+  );
+
+}
+
+
+/* =========================================================
+   TOTAL DARI KPI
+========================================================= */
+
+function getCurrentTotalCbm() {
+
+  const text =
+    document.getElementById(
+      'totalCbm'
+    ).textContent
+      .replace('m³', '')
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .trim();
+
+  return parseFloat(text) || 0;
+
+}
+
+
+function getCurrentTotalTon() {
+
+  const text =
+    document.getElementById(
+      'totalTon'
+    ).textContent
+      .replace('Ton', '')
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .trim();
+
+  return parseFloat(text) || 0;
+
+}
+
+
+/* =========================================================
+   STATUS ARMADA
+========================================================= */
+
+function renderStatus(
+  status,
+  cbmUsage,
+  tonUsage
+) {
+
+  const card =
+    document.getElementById(
+      'statusCard'
+    );
+
+  const icon =
+    document.getElementById(
+      'statusIcon'
+    );
+
+  const title =
+    document.getElementById(
+      'statusTitle'
+    );
+
+  const description =
+    document.getElementById(
+      'statusDescription'
+    );
+
+  const progress =
+    document.getElementById(
+      'cbmProgress'
+    );
+
+
+  const raw =
+    String(
+      status || ''
+    ).toUpperCase();
+
+
+  card.className =
+    'status-card';
+
+
+  let mode =
+    'yellow';
+
+
+  if (
+    raw.includes('TERSEDIA') ||
+    raw.includes('AVAILABLE') ||
+    raw.includes('AMAN')
+  ) {
+
+    mode =
+      'green';
+
+  }
+
+
+  if (
+    raw.includes('LEBIH') ||
+    raw.includes('EXCEED') ||
+    raw.includes('KURANG') ||
+    raw.includes('TIDAK') ||
+    raw.includes('OVER')
+  ) {
+
+    mode =
+      'red';
+
+  }
+
+
+  if (
+    raw.includes('HAMPIR') ||
+    raw.includes('WARNING') ||
+    raw.includes('PERHATIAN')
+  ) {
+
+    mode =
+      'yellow';
+
+  }
+
+
+  card.classList.add(
+    'status-' + mode
+  );
+
+
+  if (
+    mode === 'green'
+  ) {
+
+    icon.textContent =
+      '✓';
+
+    title.textContent =
+      'KUOTA MASIH TERSEDIA';
+
+    description.textContent =
+      'Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+
+  }
+  else if (
+    mode === 'red'
+  ) {
+
+    icon.textContent =
+      '!';
+
+    title.textContent =
+      'KAPASITAS TIDAK MENCUKUPI';
+
+    description.textContent =
+      'Kapasitas armada perlu diperiksa kembali.';
+
+  }
+  else {
+
+    icon.textContent =
+      '!';
+
+    title.textContent =
+      'PERHATIKAN KAPASITAS';
+
+    description.textContent =
+      status ||
+      'Periksa penggunaan kapasitas armada.';
+
+  }
+
+
+  const cbmPercent =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        cbmUsage * 100
+      )
+    );
+
+
+  const tonPercent =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        tonUsage * 100
+      )
+    );
+
+
+  progress.style.width =
+    cbmPercent + '%';
+
+
+  document.getElementById(
+    'cbmProgressText'
+  ).textContent =
+    'CBM: ' +
+    percentID(
+      cbmUsage
+    );
+
+
+  document.getElementById(
+    'tonProgressText'
+  ).textContent =
+    'Ton: ' +
+    percentID(
+      tonUsage
+    );
+
+}
+
+
+/* =========================================================
+   GAMBAR ARMADA
+========================================================= */
+
+function setVehicleImage(
+  armadaName
+) {
+
+  const img =
+    document.getElementById(
+      'vehicleImage'
+    );
+
+  const fallback =
+    document.getElementById(
+      'vehicleFallback'
+    );
+
+
+  const name =
+    String(
+      armadaName || ''
+    ).toUpperCase();
+
+
+  let file =
+    '';
+
+
+  if (
+    name.includes('FUSO')
+  ) {
+
+    file =
+      'assets/fuso.png';
+
+  }
+  else if (
+    name.includes('TRONTON')
+  ) {
+
+    file =
+      'assets/tronton.png';
+
+  }
+  else if (
+    name.includes('KONTainer'.toUpperCase())
+  ) {
+
+    file =
+      'assets/kontainer.png';
+
+  }
+
+
+  if (!file) {
+
+    img.style.display =
+      'none';
+
+    fallback.style.display =
+      'block';
+
+    return;
+
+  }
+
+
+  img.src =
+    file;
+
+  img.style.display =
+    'block';
+
+  fallback.style.display =
+    'none';
+
+}
+
+
+function vehicleImageError() {
+
+  document.getElementById(
+    'vehicleImage'
+  ).style.display =
+    'none';
+
+  document.getElementById(
+    'vehicleFallback'
+  ).style.display =
+    'block';
+
+}
+
+
+/* =========================================================
+   MATERIAL
+========================================================= */
+
+function renderMaterial(
+  material
+) {
+
+  const container =
+    document.getElementById(
+      'materialContainer'
+    );
+
+
+  if (
+    !material ||
+    material.length === 0
+  ) {
+
+    container.innerHTML =
+      '<div class="empty">' +
+      'Tidak ada material untuk proyek ini.' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  let html =
+    '<table class="material-table">';
+
+  html +=
+    '<thead>' +
+    '<tr>' +
+
+    '<th class="col-no">No</th>' +
+
+    '<th class="col-material">MATERIAL</th>' +
+
+    '<th class="col-volume">VOLUME</th>' +
+
+    '<th class="col-unit">UNIT</th>' +
+
+    '<th class="col-category">KATEGORI</th>' +
+
+    '<th class="col-cbm">CBM</th>' +
+
+    '<th class="col-weight">BERAT KG</th>' +
+
+    '<th class="col-ton">TON</th>' +
+
+    '<th class="col-status">STATUS</th>' +
+
+    '</tr>' +
+    '</thead>';
+
+  html +=
+    '<tbody>';
+
+
+  material.forEach(
+    function(item, index) {
+
+      const status =
+        String(
+          item.status || ''
+        ).trim();
+
+
+      const statusClass =
+        getMaterialStatusClass(
+          status
+        );
+
+
+      html +=
+        '<tr>' +
+
+        '<td>' +
+        (index + 1) +
+        '</td>' +
+
+        '<td>' +
+        escapeHtml(
+          item.material
+        ) +
+        '</td>' +
+
+        '<td>' +
+        numberID(
+          item.volume,
+          0
+        ) +
+        '</td>' +
+
+        '<td>' +
+        escapeHtml(
+          item.unit
+        ) +
+        '</td>' +
+
+        '<td>' +
+        escapeHtml(
+          item.category
+        ) +
+        '</td>' +
+
+        '<td>' +
+        numberID(
+          item.totalCbm,
+          6
+        ) +
+        '</td>' +
+
+        '<td>' +
+        numberID(
+          item.totalWeightKg,
+          3
+        ) +
+        '</td>' +
+
+        '<td>' +
+        numberID(
+          item.totalTon,
+          4
+        ) +
+        '</td>' +
+
+        '<td>' +
+        '<span class="material-status ' +
+        statusClass +
+        '">' +
+        escapeHtml(
+          status || '-'
+        ) +
+        '</span>' +
+        '</td>' +
+
+        '</tr>';
+
+    }
+  );
+
+
+  html +=
+    '</tbody></table>';
+
+
+  container.innerHTML =
+    html;
+
+}
+
+
+/* =========================================================
+   MATERIAL STATUS CLASS
+========================================================= */
+
+function getMaterialStatusClass(
+  status
+) {
+
+  const text =
+    String(
+      status || ''
+    ).toUpperCase();
+
+
+  if (
+    text.includes('REVIEW')
+  ) {
+
+    return 'review';
+
+  }
+
+
+  if (
+    text.includes('ESTIMASI')
+  ) {
+
+    return 'estimasi';
+
+  }
+
+
+  if (
+    text.includes('ERROR') ||
+    text.includes('INVALID')
+  ) {
+
+    return 'error';
+
+  }
+
+
+  return 'ok';
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value == null
+      ? ''
+      : value
+  )
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR DASHBOARD
+========================================================= */
+
+function clearDashboard() {
+
+  document.getElementById(
+    'projectName'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'totalItem'
+  ).textContent =
+    '0';
+
+  document.getElementById(
+    'totalVolume'
+  ).textContent =
+    '0';
+
+  document.getElementById(
+    'totalCbm'
+  ).innerHTML =
+    '0 <span class="kpi-unit">m³</span>';
+
+  document.getElementById(
+    'totalTon'
+  ).innerHTML =
+    '0 <span class="kpi-unit">Ton</span>';
+
+  clearArmada();
+
+  document.getElementById(
+    'materialContainer'
+  ).innerHTML =
+    '<div class="empty">' +
+    'Pilih proyek untuk menampilkan data material.' +
+    '</div>';
+
+}
+
+
+function clearArmada() {
+
+  document.getElementById(
+    'armadaName'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'vehicleCaption'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'dimension'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'capacityCbm'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'maxTon'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'neededUnit'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'resultCbm'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'resultTon'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'usageCbm'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'usageTon'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'remainingCapacity'
+  ).textContent =
+    '-';
+
+  document.getElementById(
+    'vehicleImage'
+  ).style.display =
+    'none';
+
+  document.getElementById(
+    'vehicleFallback'
+  ).style.display =
+    'block';
+
+}
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+async function refreshApplication() {
+
+  await loadProjects();
+
+}
+
+</script>
+
+</body>
+</html>
