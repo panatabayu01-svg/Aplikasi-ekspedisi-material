@@ -340,7 +340,11 @@ function loadDaftarProyek(showOverlay){
     setStatus('Memuat daftar proyek...');
   }
 
-  fetch(API_URL + '?action=projects', {cache:'no-store'})
+  fetch(API_URL + '?action=projects&_=' + Date.now(), {
+  method: 'GET',
+  cache: 'no-store',
+  redirect: 'follow'
+})
     .then(function(response){
       if(!response.ok)throw new Error('HTTP '+response.status);
       return response.json();
