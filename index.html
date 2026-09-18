@@ -5,25 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>APLIKASI EKSPEDISI MATERIAL</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
 
-<meta name="theme-color" content="#0f4c81">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ekspedisi Material">
-  <!-- OPEN GRAPH / WHATSAPP PREVIEW -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="APLIKASI EKSPEDISI MATERIAL">
-<meta property="og:description" content="Sistem Perhitungan dan Rekomendasi Armada Ekspedisi Material">
-
-<meta property="og:url" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/?preview=tanpa-gambar-4000">
-<!-- TWITTER / LINK PREVIEW -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="APLIKASI EKSPEDISI MATERIAL">
-<meta name="twitter:description" content="Sistem Perhitungan dan Rekomendasi Armada Ekspedisi Material">
-<meta name="twitter:image" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/icon-512.png">
   <style>
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7;color:#17324d}
@@ -39,8 +21,7 @@
     .project-label{font-weight:700;font-size:14px;color:#0d447f;width:50px}
     .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:14px;border-radius:2px;outline:none}
     .project-select:focus{border-color:#0d6efd}
-    .source-box{flex:1;height:38px;border:1px solid #aeb8c2;background:#fff;display:flex;align-items:center;padding:0 10px;color:#666;font-size:14px}
-    .btn-refresh{height:38px;min-width:110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
+    .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:#eef5fb}
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
@@ -128,7 +109,6 @@
       .header-title{font-size:22px}
       .kpi-grid{grid-template-columns:repeat(2,1fr)}
       .project-bar{flex-wrap:wrap;gap:9px}
-      .source-box{width:100%;flex:none}
       .armada-layout{grid-template-columns:1fr 1fr}
       .status-panel{grid-column:span 2}
     }
@@ -138,7 +118,7 @@
       .header-title{font-size:18px}
       .project-label{width:55px}
       .project-select{flex:1;width:auto}
-      .btn-refresh{width:100%}
+      .btn-refresh{width:auto;flex:0 0 110px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
@@ -173,7 +153,6 @@
     <select id="projectSelect" class="project-select" onchange="pilihProyek()">
       <option value="">Memuat proyek...</option>
     </select>
-    <div id="sourceBox" class="source-box">Sumber Google Sheet project</div>
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
   </div>
 
@@ -261,7 +240,6 @@
 </footer>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzCUxFbqmo9Zjj36ZAUL9EVRD03ZFNsFFvabCRSV-wcCBP3Gp1aCGcsIQHMfs2LaIg/exec';
 let daftarProyek=[];
 let proyekAktif='';
 
@@ -276,37 +254,17 @@ function setStatus(t){document.getElementById('loadingStatus').textContent=t||''
 
 function loadDaftarProyek(){
   showLoading(true); setStatus('Memuat daftar proyek...');
-
-  
-   fetch(API_URL + '?action=projects')
-    .then(function(response){
-      if(!response.ok){
-        throw new Error('HTTP ' + response.status);
-      }
-      return response.json();
-    })
-    .then(function(result){
+  google.script.run
+    .withSuccessHandler(function(data){
       showLoading(false);
-
-      if(!result || result.success !== true){
-        throw new Error(result && result.message ? result.message : 'API gagal.');
-      }
-
-      daftarProyek = Array.isArray(result.data) ? result.data : [];
-
+      daftarProyek=Array.isArray(data)?data:[];
       isiDropdownProyek();
-
-      setStatus(
-        daftarProyek.length
-          ? 'Data proyek berhasil dimuat.'
-          : 'Belum ada proyek.'
-      );
+      setStatus(daftarProyek.length?'Data proyek berhasil dimuat.':'Belum ada proyek.');
     })
-    .catch(function(e){
-      showLoading(false);
-      setStatus('Gagal membaca data proyek.');
-      console.error('API PROJECT ERROR:', e);
-    });
+    .withFailureHandler(function(e){
+      showLoading(false); setStatus('Gagal membaca data proyek.'); console.error(e);
+    })
+    .getDaftarProyekWebApp();
 }
 
 function isiDropdownProyek(){
@@ -327,42 +285,14 @@ function pilihProyek(){
 
 function loadDataProyek(p){
   showLoading(true); setStatus('Memuat data proyek...');
-  fetch(
-    API_URL +
-    '?action=project&project=' +
-    encodeURIComponent(p)
-  )
-    .then(function(response){
-      if(!response.ok){
-        throw new Error('HTTP ' + response.status);
-      }
-      return response.json();
-    })
-    .then(function(result){
-      showLoading(false);
-
-      if(!result || result.success !== true){
-        throw new Error(
-          result && result.message
-            ? result.message
-            : 'Data proyek gagal dimuat.'
-        );
-      }
-
-      tampilkanData(result);
-    })
-    .catch(function(e){
-      showLoading(false);
-      resetTampilan();
-      setStatus('Gagal membaca data proyek.');
-      console.error('API PROJECT DATA ERROR:', e);
-    });
+  google.script.run
+    .withSuccessHandler(function(data){showLoading(false);tampilkanData(data)})
+    .withFailureHandler(function(e){showLoading(false);resetTampilan();setStatus('Gagal membaca data proyek.');console.error(e)})
+    .getDataWebApp(p);
 }
 
 function tampilkanData(data){
   if(!data||!data.success){resetTampilan();setStatus(data&&data.message?data.message:'Data tidak ditemukan.');return}
-  document.getElementById('sourceBox').textContent=data.project||proyekAktif;
-
   const s=data.summary||{};
   document.getElementById('totalItem').textContent=formatNumber(s.totalItem,0)+' jenis';
   document.getElementById('totalVolume').textContent=formatNumber(s.totalVolume,0)+' unit';
@@ -519,7 +449,6 @@ function resetTampilan(){
   document.getElementById('totalVolume').textContent='0 unit';
   document.getElementById('totalCbm').textContent='0 m³';
   document.getElementById('totalTon').textContent='0 Ton';
-  document.getElementById('sourceBox').textContent='Sumber Google Sheet project';
   document.getElementById('armadaEmpty').style.display='block';
   document.getElementById('armadaResult').style.display='none';
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
@@ -529,19 +458,6 @@ function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
-</script>
-  <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js')
-      .then(function () {
-        console.log('Service Worker aktif.');
-      })
-      .catch(function (error) {
-        console.error('Service Worker gagal:', error);
-      });
-  });
-}
 </script>
 </body>
 </html>
