@@ -240,68 +240,243 @@
 </footer>
 
 <script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzCUxFbqmo9Zjj36ZAUL9EVRD03ZFNsFFvabCRSV-wcCBP3Gp1aCGcsIQHMfs2LaIg/exec';
+
+const CACHE_VERSION = 'v2';
+const CACHE_PROJECTS_KEY = 'ekspedisi_projects_' + CACHE_VERSION;
+const CACHE_DATA_PREFIX = 'ekspedisi_project_data_' + CACHE_VERSION + '_';
+
 let daftarProyek=[];
 let proyekAktif='';
 
 document.addEventListener('DOMContentLoaded',function(){
-  loadDaftarProyek();
   updateClock();
   setInterval(updateClock,1000);
+
+  // Tampilkan cache terlebih dahulu agar aplikasi tidak menunggu API.
+  initFromCache();
+
+  // Setelah tampilan siap, sinkronkan data terbaru di belakang layar.
+  loadDaftarProyek(false);
 });
 
-function showLoading(show){document.getElementById('loading').style.display=show?'flex':'none'}
-function setStatus(t){document.getElementById('loadingStatus').textContent=t||''}
-
-function loadDaftarProyek(){
-  showLoading(true); setStatus('Memuat daftar proyek...');
-  google.script.run
-    .withSuccessHandler(function(data){
-      showLoading(false);
-      daftarProyek=Array.isArray(data)?data:[];
-      isiDropdownProyek();
-      setStatus(daftarProyek.length?'Data proyek berhasil dimuat.':'Belum ada proyek.');
-    })
-    .withFailureHandler(function(e){
-      showLoading(false); setStatus('Gagal membaca data proyek.'); console.error(e);
-    })
-    .getDaftarProyekWebApp();
+function showLoading(show){
+  document.getElementById('loading').style.display=show?'flex':'none';
 }
 
-function isiDropdownProyek(){
+function setStatus(t){
+  document.getElementById('loadingStatus').textContent=t||'';
+}
+
+function getCache_(key){
+  try{
+    const raw=localStorage.getItem(key);
+    if(!raw)return null;
+    const obj=JSON.parse(raw);
+    return obj&&obj.data!==undefined?obj.data:null;
+  }catch(e){
+    console.warn('CACHE READ ERROR:',e);
+    return null;
+  }
+}
+
+function setCache_(key,data){
+  try{
+    localStorage.setItem(key,JSON.stringify({
+      savedAt:Date.now(),
+      data:data
+    }));
+  }catch(e){
+    console.warn('CACHE WRITE ERROR:',e);
+  }
+}
+
+function getProjectCacheKey_(project){
+  return CACHE_DATA_PREFIX + encodeURIComponent(String(project||'').trim());
+}
+
+function initFromCache(){
+  const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
+
+  if(Array.isArray(cachedProjects) && cachedProjects.length){
+    daftarProyek=cachedProjects;
+    isiDropdownProyek(false);
+
+    const cachedProject=localStorage.getItem('ekspedisi_last_project_' + CACHE_VERSION) || '';
+    const target= cachedProject && daftarProyek.indexOf(cachedProject)>=0
+      ? cachedProject
+      : daftarProyek.length===1
+        ? daftarProyek[0]
+        : '';
+
+    if(target){
+      const s=document.getElementById('projectSelect');
+      s.value=target;
+      proyekAktif=target;
+
+      const cachedData=getCache_(getProjectCacheKey_(target));
+      if(cachedData && cachedData.success===true){
+        tampilkanData(cachedData);
+        setStatus('Data tersimpan ditampilkan. Memperbarui data...');
+      }else{
+        setStatus('Memuat data terbaru...');
+      }
+    }else{
+      setStatus('Data proyek tersimpan.');
+    }
+
+    showLoading(false);
+  }
+}
+
+function loadDaftarProyek(showOverlay){
+  if(showOverlay){
+    showLoading(true);
+    setStatus('Memuat daftar proyek...');
+  }
+
+  fetch(API_URL + '?action=projects')
+    .then(function(response){
+      if(!response.ok)throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
+    .then(function(result){
+      if(!result || result.success !== true){
+        throw new Error(result && result.message ? result.message : 'API gagal.');
+      }
+
+      daftarProyek=Array.isArray(result.data)?result.data:[];
+      setCache_(CACHE_PROJECTS_KEY,daftarProyek);
+
+      isiDropdownProyek(false);
+
+      const s=document.getElementById('projectSelect');
+      const last=localStorage.getItem('ekspedisi_last_project_' + CACHE_VERSION) || '';
+
+      let target='';
+      if(last && daftarProyek.indexOf(last)>=0){
+        target=last;
+      }else if(daftarProyek.length===1){
+        target=daftarProyek[0];
+      }
+
+      if(target){
+        s.value=target;
+        proyekAktif=target;
+
+        // Kalau cache sudah ditampilkan, cukup refresh di background.
+        loadDataProyek(target,false);
+      }else{
+        if(showOverlay)showLoading(false);
+        setStatus(
+          daftarProyek.length
+            ? 'Data proyek berhasil dimuat.'
+            : 'Belum ada proyek.'
+        );
+      }
+    })
+    .catch(function(e){
+      if(showOverlay)showLoading(false);
+      setStatus(
+        daftarProyek.length
+          ? 'Data tersimpan digunakan. Gagal memperbarui dari server.'
+          : 'Gagal membaca data proyek.'
+      );
+      console.error('API PROJECT ERROR:',e);
+    });
+}
+
+function isiDropdownProyek(autoSelect){
   const s=document.getElementById('projectSelect');
+  const current=s.value;
+
   s.innerHTML='<option value="">Pilih proyek...</option>';
+
   daftarProyek.forEach(function(p){
-    const o=document.createElement('option'); o.value=p; o.textContent=p; s.appendChild(o);
+    const o=document.createElement('option');
+    o.value=p;
+    o.textContent=p;
+    s.appendChild(o);
   });
-  if(daftarProyek.length===1){s.value=daftarProyek[0];pilihProyek();}
+
+  if(current && daftarProyek.indexOf(current)>=0){
+    s.value=current;
+  }else if(autoSelect && daftarProyek.length===1){
+    s.value=daftarProyek[0];
+    pilihProyek();
+  }
 }
 
 function pilihProyek(){
   const p=document.getElementById('projectSelect').value;
   proyekAktif=p;
-  if(!p){resetTampilan();return}
-  loadDataProyek(p);
+
+  if(!p){
+    localStorage.removeItem('ekspedisi_last_project_' + CACHE_VERSION);
+    resetTampilan();
+    setStatus('Pilih proyek untuk menampilkan data.');
+    return;
+  }
+
+  localStorage.setItem('ekspedisi_last_project_' + CACHE_VERSION,p);
+
+  // Jika ada cache, tampilkan langsung tanpa menunggu server.
+  const cachedData=getCache_(getProjectCacheKey_(p));
+  if(cachedData && cachedData.success===true){
+    tampilkanData(cachedData);
+    setStatus('Data tersimpan ditampilkan. Memperbarui data...');
+    loadDataProyek(p,false);
+  }else{
+    loadDataProyek(p,true);
+  }
 }
 
-function loadDataProyek(p){
-  showLoading(true); setStatus('Memuat data proyek...');
-  google.script.run
-    .withSuccessHandler(function(data){showLoading(false);tampilkanData(data)})
-    .withFailureHandler(function(e){showLoading(false);resetTampilan();setStatus('Gagal membaca data proyek.');console.error(e)})
-    .getDataWebApp(p);
-}
+function loadDataProyek(p,showOverlay){
+  if(showOverlay){
+    showLoading(true);
+    setStatus('Memuat data proyek...');
+  }
 
-function tampilkanData(data){
-  if(!data||!data.success){resetTampilan();setStatus(data&&data.message?data.message:'Data tidak ditemukan.');return}
-  const s=data.summary||{};
-  document.getElementById('totalItem').textContent=formatNumber(s.totalItem,0)+' jenis';
-  document.getElementById('totalVolume').textContent=formatNumber(s.totalVolume,0)+' unit';
-  document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
-  document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
+  fetch(
+    API_URL +
+    '?action=project&project=' +
+    encodeURIComponent(p)
+  )
+    .then(function(response){
+      if(!response.ok)throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
+    .then(function(result){
+      if(!result || result.success !== true){
+        throw new Error(
+          result && result.message
+            ? result.message
+            : 'Data proyek gagal dimuat.'
+        );
+      }
 
-  tampilkanArmada(data.armada);
-  tampilkanMaterial(data.material||[]);
-  setStatus('Data proyek berhasil dimuat.');
+      setCache_(getProjectCacheKey_(p),result);
+
+      // Jangan menampilkan data proyek lain jika user sudah pindah pilihan.
+      if(document.getElementById('projectSelect').value===p){
+        tampilkanData(result);
+      }
+
+      if(showOverlay)showLoading(false);
+      setStatus('Data proyek berhasil dimuat.');
+    })
+    .catch(function(e){
+      if(showOverlay){
+        showLoading(false);
+        resetTampilan();
+        setStatus('Gagal membaca data proyek.');
+      }else{
+        setStatus(
+          'Data tersimpan tetap digunakan. Gagal memperbarui dari server.'
+        );
+      }
+      console.error('API PROJECT DATA ERROR:',e);
+    });
 }
 
 function tampilkanArmada(a){
@@ -453,7 +628,11 @@ function resetTampilan(){
   document.getElementById('armadaResult').style.display='none';
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
-function refreshData(){resetTampilan();loadDaftarProyek()}
+function refreshData(){
+  showLoading(true);
+  setStatus('Memperbarui data...');
+  loadDaftarProyek(true);
+}
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
