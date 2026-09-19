@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -752,11 +753,11 @@ function tampilkanData(data){
   document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
   document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
 
-  tampilkanArmada(data.armada);
+  tampilkanArmada(data.armada, s);
   tampilkanMaterial(data.material||[]);
 }
 
-function tampilkanArmada(a){
+function tampilkanArmada(a, summary){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
   if(!a){empty.style.display='block';result.style.display='none';return}
@@ -768,8 +769,8 @@ function tampilkanArmada(a){
   document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
   document.getElementById('armadaTon').textContent=formatNumber(a.maxTonase,2)+' Ton / unit';
   // TOTAL MATERIAL: ambil dari summary hasil mesin hitung, bukan kapasitas armada
-  const totalCbmMaterial=Number(data.summary && data.summary.totalCbm)||0;
-  const totalTonMaterial=Number(data.summary && data.summary.totalTon)||0;
+  const totalCbmMaterial=Number(summary && summary.totalCbm)||0;
+  const totalTonMaterial=Number(summary && summary.totalTon)||0;
 
   document.getElementById('armadaTotalCbm').textContent=formatNumber(totalCbmMaterial,2)+' m³';
   document.getElementById('armadaTotalTon').textContent=formatNumber(totalTonMaterial,2)+' Ton';
