@@ -334,6 +334,7 @@ function initFromCache(){
     setStatus('Data proyek tersimpan.');
   }
 }
+
 function isiDropdownProyek(autoSelect){
 
   const s=document.getElementById('projectSelect');
@@ -528,7 +529,6 @@ function loadDataProyek(p,showOverlay){
   });
 
 }
-
 
   
 function loadDaftarProyek(showOverlay){
@@ -906,17 +906,8 @@ function resetTampilan(){
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
 function refreshData(){
-  const p=document.getElementById('projectSelect').value;
-
-  if(p){
-    showLoading(true);
-    setStatus('Memperbarui data proyek...');
-    loadDataProyek(p,true);
-    return;
-  }
-
   showLoading(true);
-  setStatus('Memuat daftar proyek...');
+  setStatus('Memperbarui data...');
   loadDaftarProyek(true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
