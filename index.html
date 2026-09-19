@@ -116,29 +116,9 @@
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
-
-      /* HP SAJA: dropdown tetap baris pertama,
-         Refresh pindah ke baris kedua dan rata kanan. */
-      .project-bar{
-        display:grid;
-        grid-template-columns:55px minmax(0,1fr);
-        gap:9px;
-      }
-      .project-label{
-        width:auto;
-        align-self:center;
-      }
-      .project-select{
-        width:100%;
-        min-width:0;
-      }
-      .btn-refresh{
-        grid-column:2;
-        justify-self:end;
-        width:110px;
-        min-width:110px;
-      }
-
+      .project-label{width:55px}
+      .project-select{flex:1;width:auto}
+      .btn-refresh{width:auto;flex:0 0 110px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
@@ -926,8 +906,17 @@ function resetTampilan(){
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
 function refreshData(){
+  const p=document.getElementById('projectSelect').value;
+
+  if(p){
+    showLoading(true);
+    setStatus('Memperbarui data proyek...');
+    loadDataProyek(p,true);
+    return;
+  }
+
   showLoading(true);
-  setStatus('Memperbarui data...');
+  setStatus('Memuat daftar proyek...');
   loadDaftarProyek(true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
