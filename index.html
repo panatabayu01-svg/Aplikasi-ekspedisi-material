@@ -242,13 +242,14 @@
 <script>
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
+
 window.CACHE_VERSION = 'v4';
 window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v4';
 window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v4';
 window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v4_';
 
-let daftarProyek=[];
-let proyekAktif='';
+let daftarProyek = [];
+let proyekAktif = '';
 
 document.addEventListener('DOMContentLoaded',function(){
   updateClock();
