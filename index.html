@@ -932,9 +932,25 @@ function resetTampilan(){
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
 function refreshData(){
-  showLoading(true);
-  setStatus('Memperbarui data...');
-  loadDaftarProyek(true);
+
+  const select=document.getElementById('projectSelect');
+  const p=select.value || proyekAktif;
+
+  if(!p){
+    setStatus('Pilih proyek terlebih dahulu.');
+    return;
+  }
+
+  proyekAktif=p;
+
+  localStorage.setItem(
+    CACHE_LAST_PROJECT_KEY,
+    p
+  );
+
+  // REFRESH hanya mengambil data proyek yang sedang aktif.
+  // Tidak memuat ulang daftar proyek dan tidak mereset tampilan.
+  loadDataProyek(p,true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
