@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -117,29 +116,9 @@
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
-
-      /* HP SAJA:
-         Baris 1 = PROYEK + DROPDOWN
-         Baris 2 = REFRESH DI KANAN */
-      .project-bar{
-        display:grid;
-        grid-template-columns:55px minmax(0,1fr);
-        gap:9px;
-        align-items:center;
-      }
-      .project-label{width:auto}
-      .project-select{
-        width:100%;
-        min-width:0;
-      }
-      .btn-refresh{
-        width:110px;
-        min-width:110px;
-        flex:none;
-        grid-column:2;
-        justify-self:end;
-      }
-
+      .project-label{width:55px}
+      .project-select{flex:1;width:auto}
+      .btn-refresh{width:auto;flex:0 0 110px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
@@ -355,6 +334,7 @@ function initFromCache(){
     setStatus('Data proyek tersimpan.');
   }
 }
+
 function isiDropdownProyek(autoSelect){
 
   const s=document.getElementById('projectSelect');
@@ -549,7 +529,6 @@ function loadDataProyek(p,showOverlay){
   });
 
 }
-
 
   
 function loadDaftarProyek(showOverlay){
@@ -773,11 +752,11 @@ function tampilkanData(data){
   document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
   document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
 
-  tampilkanArmada(data.armada, s);
+  tampilkanArmada(data.armada);
   tampilkanMaterial(data.material||[]);
 }
 
-function tampilkanArmada(a, summary){
+function tampilkanArmada(a){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
   if(!a){empty.style.display='block';result.style.display='none';return}
@@ -788,12 +767,8 @@ function tampilkanArmada(a, summary){
   document.getElementById('armadaDimension').textContent=formatNumber(a.panjangM,2)+' × '+formatNumber(a.lebarM,2)+' × '+formatNumber(a.tinggiM,2)+' m';
   document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
   document.getElementById('armadaTon').textContent=formatNumber(a.maxTonase,2)+' Ton / unit';
-  // TOTAL MATERIAL: ambil dari summary hasil mesin hitung, bukan kapasitas armada
-  const totalCbmMaterial=Number(summary && summary.totalCbm)||0;
-  const totalTonMaterial=Number(summary && summary.totalTon)||0;
-
-  document.getElementById('armadaTotalCbm').textContent=formatNumber(totalCbmMaterial,2)+' m³';
-  document.getElementById('armadaTotalTon').textContent=formatNumber(totalTonMaterial,2)+' Ton';
+  document.getElementById('armadaTotalCbm').textContent=formatNumber(a.kapasitasCbmTotal,2)+' m³';
+  document.getElementById('armadaTotalTon').textContent=formatNumber(a.kapasitasTonTotal,2)+' Ton';
   const usageCbmEl=document.getElementById('armadaUsageCbm');
   const usageTonEl=document.getElementById('armadaUsageTon');
 
@@ -803,9 +778,8 @@ function tampilkanArmada(a, summary){
   usageCbmEl.className=(Number(a.pemakaianCbm)>1)?'red':'green';
   usageTonEl.className=(Number(a.pemakaianTon)>1)?'red':'green';
 
-  // SISA KAPASITAS = kapasitas total armada - total material
-  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-totalCbmMaterial);
-  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-totalTonMaterial);
+  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-(Number(a.pemakaianCbm)||0)*(Number(a.kapasitasCbmTotal)||0));
+  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-(Number(a.pemakaianTon)||0)*(Number(a.kapasitasTonTotal)||0));
   document.getElementById('armadaSisa').textContent=formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton';
 
   const st=String(a.status||'').toUpperCase();
