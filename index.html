@@ -6,17 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>APLIKASI EKSPEDISI MATERIAL</title>
 
-  <!-- PWA / ICON HP: hanya menghubungkan file logo yang sudah ada di GitHub -->
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/Aplikasi-ekspedisi-material/apple-touch-icon.png">
-  <meta name="theme-color" content="#0d447f">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="APLIKASI EKSPEDISI MATERIAL">
-
   <style>
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7;color:#17324d}
@@ -127,27 +116,9 @@
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
-
-      /* HP SAJA: PROYEK + DROPDOWN BARIS 1, REFRESH BARIS 2 KANAN */
-      .project-bar{
-        display:grid;
-        grid-template-columns:55px minmax(0,1fr);
-        gap:9px;
-        align-items:center;
-      }
-      .project-label{width:auto}
-      .project-select{
-        width:100%;
-        min-width:0;
-      }
-      .btn-refresh{
-        width:110px;
-        min-width:110px;
-        flex:none;
-        grid-column:2;
-        justify-self:end;
-      }
-
+      .project-label{width:55px}
+      .project-select{flex:1;width:auto}
+      .btn-refresh{width:auto;flex:0 0 110px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
@@ -363,7 +334,6 @@ function initFromCache(){
     setStatus('Data proyek tersimpan.');
   }
 }
-
 function isiDropdownProyek(autoSelect){
 
   const s=document.getElementById('projectSelect');
@@ -558,6 +528,7 @@ function loadDataProyek(p,showOverlay){
   });
 
 }
+
 
   
 function loadDaftarProyek(showOverlay){
@@ -796,8 +767,12 @@ function tampilkanArmada(a){
   document.getElementById('armadaDimension').textContent=formatNumber(a.panjangM,2)+' × '+formatNumber(a.lebarM,2)+' × '+formatNumber(a.tinggiM,2)+' m';
   document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
   document.getElementById('armadaTon').textContent=formatNumber(a.maxTonase,2)+' Ton / unit';
-  document.getElementById('armadaTotalCbm').textContent=formatNumber(a.kapasitasCbmTotal,2)+' m³';
-  document.getElementById('armadaTotalTon').textContent=formatNumber(a.kapasitasTonTotal,2)+' Ton';
+  // TOTAL MATERIAL: ambil dari summary hasil mesin hitung, bukan kapasitas armada
+  const totalCbmMaterial=Number(data.summary && data.summary.totalCbm)||0;
+  const totalTonMaterial=Number(data.summary && data.summary.totalTon)||0;
+
+  document.getElementById('armadaTotalCbm').textContent=formatNumber(totalCbmMaterial,2)+' m³';
+  document.getElementById('armadaTotalTon').textContent=formatNumber(totalTonMaterial,2)+' Ton';
   const usageCbmEl=document.getElementById('armadaUsageCbm');
   const usageTonEl=document.getElementById('armadaUsageTon');
 
@@ -807,8 +782,9 @@ function tampilkanArmada(a){
   usageCbmEl.className=(Number(a.pemakaianCbm)>1)?'red':'green';
   usageTonEl.className=(Number(a.pemakaianTon)>1)?'red':'green';
 
-  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-(Number(a.pemakaianCbm)||0)*(Number(a.kapasitasCbmTotal)||0));
-  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-(Number(a.pemakaianTon)||0)*(Number(a.kapasitasTonTotal)||0));
+  // SISA KAPASITAS = kapasitas total armada - total material
+  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-totalCbmMaterial);
+  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-totalTonMaterial);
   document.getElementById('armadaSisa').textContent=formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton';
 
   const st=String(a.status||'').toUpperCase();
@@ -935,24 +911,8 @@ function resetTampilan(){
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
 function refreshData(){
-  const select=document.getElementById('projectSelect');
-  const p=(select && select.value) ? select.value : (proyekAktif || '');
-
-  /*
-   * REFRESH PROYEK YANG SEDANG DIPILIH SAJA.
-   * Tidak memanggil loadDaftarProyek(), sehingga tidak melakukan
-   * scan semua proyek yang dapat membuat loading sangat lama.
-   */
-  if(p){
-    proyekAktif=p;
-    showLoading(true);
-    setStatus('Memperbarui data proyek...');
-    loadDataProyek(p,true);
-    return;
-  }
-
   showLoading(true);
-  setStatus('Memuat daftar proyek...');
+  setStatus('Memperbarui data...');
   loadDaftarProyek(true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
