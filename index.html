@@ -117,9 +117,29 @@
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
-      .project-label{width:55px}
-      .project-select{flex:1;width:auto}
-      .btn-refresh{width:auto;flex:0 0 110px}
+
+      /* HP SAJA:
+         Baris 1 = PROYEK + DROPDOWN
+         Baris 2 = REFRESH DI KANAN */
+      .project-bar{
+        display:grid;
+        grid-template-columns:55px minmax(0,1fr);
+        gap:9px;
+        align-items:center;
+      }
+      .project-label{width:auto}
+      .project-select{
+        width:100%;
+        min-width:0;
+      }
+      .btn-refresh{
+        width:110px;
+        min-width:110px;
+        flex:none;
+        grid-column:2;
+        justify-self:end;
+      }
+
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
