@@ -116,9 +116,30 @@
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
-      .project-label{width:55px}
-      .project-select{flex:1;width:auto}
-      .btn-refresh{width:auto;flex:0 0 110px}
+      .project-bar{
+        display:grid;
+        grid-template-columns:55px 1fr;
+        gap:9px;
+      }
+      .project-label{
+        grid-column:1;
+        grid-row:1;
+        width:55px;
+      }
+      .project-select{
+        grid-column:2;
+        grid-row:1;
+        width:auto;
+        flex:none;
+      }
+      .btn-refresh{
+        grid-column:2;
+        grid-row:2;
+        justify-self:end;
+        width:110px;
+        min-width:110px;
+        flex:none;
+      }
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
