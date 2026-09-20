@@ -786,17 +786,11 @@ function tampilkanArmada(a){
   document.getElementById('armadaName').textContent=(a.armada||'-')+' — '+(a.kebutuhanUnit||0)+' UNIT';
   document.getElementById('armadaUnit').textContent=(a.kebutuhanUnit||0)+' UNIT';
   // DIMENSI ARMADA SELALU = DIMENSI 1 UNIT.
-  // Khusus CONTAINER 40FT, jangan pernah mengalikan dimensi dengan jumlah unit.
-  let dimPanjang=Number(a.panjangM)||0;
-  let dimLebar=Number(a.lebarM)||0;
-  let dimTinggi=Number(a.tinggiM)||0;
-  const namaArmada=String(a.armada||'').toUpperCase();
-
-  if(namaArmada.includes('CONTAINER 40FT')){
-    dimPanjang=12.03;
-    dimLebar=2.35;
-    dimTinggi=2.39;
-  }
+  // JUMLAH UNIT TIDAK PERNAH DIKALIKAN KE PANJANG/LEBAR/TINGGI.
+  // Nilai dimensi diambil langsung sebagai spesifikasi 1 unit armada.
+  const dimPanjang=Number(a.panjangM)||0;
+  const dimLebar=Number(a.lebarM)||0;
+  const dimTinggi=Number(a.tinggiM)||0;
 
   document.getElementById('armadaDimension').textContent=formatNumber(dimPanjang,2)+' × '+formatNumber(dimLebar,2)+' × '+formatNumber(dimTinggi,2)+' m';
   document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
@@ -961,7 +955,18 @@ function refreshData(){
   loadDataProyek(p,true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
-function formatTableNumber(v){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:3})}
+function formatTableNumber(v){
+  const n=Number(v);
+  if(!isFinite(n))return '0';
+
+  // Tabel PC dan HP memakai format yang sama:
+  // pemisah ribuan = titik, tanpa koma desimal.
+  // Maksimal 3 angka desimal dan nol di belakang dihilangkan.
+  const fixed=n.toFixed(3).replace(/\.?0+$/,'');
+  const parts=fixed.split('.');
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return parts.join('.');
+}
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
