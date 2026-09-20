@@ -919,12 +919,12 @@ function tampilkanMaterial(data){
     const st=tentukanStatusMaterial(item,data);
     tr.innerHTML='<td class="center">'+(i+1)+'</td>'+
       '<td class="material-cell">'+escapeHtml(item.material)+'</td>'+
-      '<td class="number">'+formatNumber(item.volume,3)+'</td>'+
+      '<td class="number">'+formatTableNumber(item.volume)+'</td>'+
       '<td class="center">'+escapeHtml(item.unit)+'</td>'+
       '<td class="center">'+escapeHtml(item.category)+'</td>'+
-      '<td class="number">'+formatNumber(item.totalCbm,6)+'</td>'+
-      '<td class="number">'+formatNumber(item.totalWeightKg,3)+'</td>'+
-      '<td class="number">'+formatNumber(item.totalTon,4)+'</td>'+
+      '<td class="number">'+formatTableNumber(item.totalCbm)+'</td>'+
+      '<td class="number">'+formatTableNumber(item.totalWeightKg)+'</td>'+
+      '<td class="number">'+formatTableNumber(item.totalTon)+'</td>'+
       '<td class="center"><span class="material-status '+st.cls+'">'+st.label+'</span></td>';
     body.appendChild(tr);
   });
@@ -961,6 +961,7 @@ function refreshData(){
   loadDataProyek(p,true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function formatTableNumber(v){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:3})}
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
