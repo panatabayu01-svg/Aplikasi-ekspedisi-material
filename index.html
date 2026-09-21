@@ -768,32 +768,43 @@ function tampilkanData(data){
 }
 
 function ambilArmadaAktual(data,summary){
-  if(
-    data &&
-    Array.isArray(data.armadaAktual) &&
-    data.armadaAktual.length > 0
-  ){
-    return data.armadaAktual.map(function(r){
+  // SUMBER UTAMA: armadaAktual dari HASIL_REKOMENDASI_ARMADA.
+  // Tidak mengubah tampilan atau fungsi tampilkanArmada().
+  const rows =
+    data && Array.isArray(data.armadaAktual)
+      ? data.armadaAktual
+      : [];
+
+  if(rows.length > 0){
+    return rows.map(function(r){
       return {
         armada: r.armada || '-',
-        kebutuhanUnit: Number(r.jumlahUnit) || 0,
+        kebutuhanUnit:
+          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
         panjangM: Number(r.panjangM) || 0,
         lebarM: Number(r.lebarM) || 0,
         tinggiM: Number(r.tinggiM) || 0,
-        kapasitasCbm: Number(r.kapasitasCbmUnit) || 0,
-        maxTonase: Number(r.maxTonaseUnit) || 0,
+        kapasitasCbm: Number(r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm) || 0,
+        maxTonase: Number(r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase) || 0,
         kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
         kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
-        totalCbmProyek: Number(r.cbmTerpakai) || 0,
-        totalTonProyek: Number(r.tonTerpakai) || 0,
+
+        // HASIL_REKOMENDASI_ARMADA memiliki total proyek dan
+        // pemakaian armada secara terpisah.
+        totalCbmProyek:
+          Number(r.totalCbmProyek != null ? r.totalCbmProyek : r.cbmTerpakai) || 0,
+        totalTonProyek:
+          Number(r.totalTonProyek != null ? r.totalTonProyek : r.tonTerpakai) || 0,
+
         pemakaianCbm: Number(r.pemakaianCbm) || 0,
         pemakaianTon: Number(r.pemakaianTon) || 0,
-        status: r.status || ''
+        status: r.status || r.statusBatas || ''
       };
     });
   }
 
-  // Fallback untuk cache/API lama.
+  // Fallback untuk API/cache lama agar rekomendasi yang sudah jadi
+  // tidak hilang bila armadaAktual belum tersedia pada response.
   if(data && data.armada){
     return [data.armada];
   }
