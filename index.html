@@ -58,6 +58,7 @@
     .armada-body{padding:12px 8px 12px;background:#fff}
     .armada-empty{color:#718096;font-size:14px;text-transform:uppercase;padding:25px}
     .armada-result{display:none}
+    .armada-list{display:flex;flex-direction:column;gap:10px}
     .armada-layout{display:grid;grid-template-columns:1.55fr 1.18fr 1.32fr 1fr;gap:8px}
     .armada-panel{min-height:265px;background:#f3f8fc;border:1px solid #d6e1e9;padding:15px 18px}
     .armada-visual{position:relative;overflow:hidden}
@@ -211,40 +212,7 @@
       <div id="armadaEmpty" class="armada-empty">BELUM ADA DATA UNTUK REKOMENDASI ARMADA.</div>
 
       <div id="armadaResult" class="armada-result">
-        <div class="armada-layout">
-
-          <div class="armada-panel armada-visual">
-            <div id="armadaName" class="armada-name">FUSO — 1 UNIT</div>
-            <div id="vehicleImage" class="vehicle-image"></div>
-            <div id="vehicleLabel" class="vehicle-label"></div>
-          </div>
-
-          <div class="armada-panel">
-            <div class="panel-title"><span>⚙</span> SPESIFIKASI ARMADA</div>
-            <div class="detail-row"><strong>Dimensi Bak</strong><span id="armadaDimension">-</span></div>
-            <div class="detail-row"><strong>Kapasitas CBM</strong><span id="armadaCbm">-</span></div>
-            <div class="detail-row"><strong>Maks. Tonase</strong><span id="armadaTon">-</span></div>
-            <div class="detail-row"><strong>Kebutuhan Unit</strong><span id="armadaUnit">-</span></div>
-          </div>
-
-          <div class="armada-panel">
-            <div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>
-            <div class="detail-row"><strong>Total Kubikasi</strong><span id="armadaTotalCbm">-</span></div>
-            <div class="detail-row"><strong>Total Tonase</strong><span id="armadaTotalTon">-</span></div>
-            <div class="detail-row"><strong>Pemakaian CBM</strong><span id="armadaUsageCbm">-</span></div>
-            <div class="detail-row"><strong>Pemakaian Ton</strong><span id="armadaUsageTon">-</span></div>
-            <div class="detail-row"><strong>Sisa Kapasitas</strong><span id="armadaSisa">-</span></div>
-          </div>
-
-          <div id="statusPanel" class="status-panel ok">
-            <div class="status-circle">!</div>
-            <div id="statusTitle" class="status-title">KUOTA MASIH TERSEDIA</div>
-            <div id="statusNote" class="status-note">Kapasitas masih tersedia. Perhatikan tingkat pemakaian.</div>
-            <div class="bar-wrap"><div id="statusBar" class="bar-cbm"></div></div>
-            <div class="status-metrics"><span id="statusCbm">CBM: 0%</span><span id="statusTon">Ton: 0%</span></div>
-          </div>
-
-        </div>
+        <div id="armadaList" class="armada-list"></div>
       </div>
     </div>
   </section>
@@ -283,10 +251,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v4';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v4';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v4';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v4_';
+window.CACHE_VERSION = 'v5';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v5';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v5';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v5_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -792,112 +760,122 @@ function tampilkanData(data){
   document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
   document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
 
-  // Armada aktual dari HASIL_REKOMENDASI_ARMADA menjadi sumber utama.
-  // Fallback ke armada lama agar cache/data lama tetap kompatibel.
-  const armadaUtama=ambilArmadaAktualUtama(data);
-  if(armadaUtama){
-    // TOTAL MATERIAL PROYEK SELALU DIAMBIL DARI SUMMARY API.
-    // Jangan bergantung pada kolom totalCbmProyek/totalTonProyek di armadaAktual.
-    armadaUtama.totalCbmProyek=Number(s.totalCbm)||0;
-    armadaUtama.totalTonProyek=Number(s.totalTon)||0;
-  }
-  tampilkanArmada(armadaUtama);
+  // HASIL_REKOMENDASI_ARMADA adalah sumber utama rekomendasi.
+  // Semua armada aktual ditampilkan, bukan hanya baris pertama.
+  const armadaList=ambilArmadaAktual(data,s);
+  tampilkanArmada(armadaList);
   tampilkanMaterial(data.material||[]);
 }
 
-function ambilArmadaAktualUtama(data){
+function ambilArmadaAktual(data,summary){
   if(
     data &&
     Array.isArray(data.armadaAktual) &&
     data.armadaAktual.length > 0
   ){
-    const r=data.armadaAktual[0] || {};
-
-    return {
-      armada: r.armada || '-',
-      kebutuhanUnit: Number(r.jumlahUnit) || 0,
-      panjangM: Number(r.panjangM) || 0,
-      lebarM: Number(r.lebarM) || 0,
-      tinggiM: Number(r.tinggiM) || 0,
-      kapasitasCbm: Number(r.kapasitasCbmUnit) || 0,
-      maxTonase: Number(r.maxTonaseUnit) || 0,
-      kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
-      kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
-      // TOTAL MATERIAL PROYEK, BUKAN KAPASITAS ARMADA.
-      totalCbmProyek: Number(r.totalCbmProyek) || 0,
-      totalTonProyek: Number(r.totalTonProyek) || 0,
-      pemakaianCbm: Number(r.pemakaianCbm),
-      pemakaianTon: Number(r.pemakaianTon),
-      status: r.status || ''
-    };
+    return data.armadaAktual.map(function(r){
+      return {
+        armada: r.armada || '-',
+        kebutuhanUnit: Number(r.jumlahUnit) || 0,
+        panjangM: Number(r.panjangM) || 0,
+        lebarM: Number(r.lebarM) || 0,
+        tinggiM: Number(r.tinggiM) || 0,
+        kapasitasCbm: Number(r.kapasitasCbmUnit) || 0,
+        maxTonase: Number(r.maxTonaseUnit) || 0,
+        kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
+        kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
+        totalCbmProyek: Number(r.cbmTerpakai) || 0,
+        totalTonProyek: Number(r.tonTerpakai) || 0,
+        pemakaianCbm: Number(r.pemakaianCbm) || 0,
+        pemakaianTon: Number(r.pemakaianTon) || 0,
+        status: r.status || ''
+      };
+    });
   }
 
-  return data ? data.armada : null;
+  // Fallback untuk cache/API lama.
+  if(data && data.armada){
+    return [data.armada];
+  }
+
+  return [];
 }
 
-function tampilkanArmada(a){
+function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
-  if(!a){empty.style.display='block';result.style.display='none';return}
-  empty.style.display='none';result.style.display='block';
+  const container=document.getElementById('armadaList');
 
-  document.getElementById('armadaName').textContent=(a.armada||'-')+' — '+(a.kebutuhanUnit||0)+' UNIT';
-  document.getElementById('armadaUnit').textContent=(a.kebutuhanUnit||0)+' UNIT';
-  // DIMENSI ARMADA SELALU = DIMENSI 1 UNIT.
-  // JUMLAH UNIT TIDAK PERNAH DIKALIKAN KE PANJANG/LEBAR/TINGGI.
-  // Nilai dimensi diambil langsung sebagai spesifikasi 1 unit armada.
-  const dimPanjang=Number(a.panjangM)||0;
-  const dimLebar=Number(a.lebarM)||0;
-  const dimTinggi=Number(a.tinggiM)||0;
-
-  document.getElementById('armadaDimension').textContent=formatNumber(dimPanjang,2)+' × '+formatNumber(dimLebar,2)+' × '+formatNumber(dimTinggi,2)+' m';
-  document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
-  document.getElementById('armadaTon').textContent=formatNumber(a.maxTonase,2)+' Ton / unit';
-  // HASIL PERHITUNGAN = TOTAL MATERIAL PROYEK, BUKAN KAPASITAS ARMADA.
-  document.getElementById('armadaTotalCbm').textContent=formatNumber(a.totalCbmProyek,2)+' m³';
-  document.getElementById('armadaTotalTon').textContent=formatNumber(a.totalTonProyek,3)+' Ton';
-  const usageCbmEl=document.getElementById('armadaUsageCbm');
-  const usageTonEl=document.getElementById('armadaUsageTon');
-
-  usageCbmEl.textContent=formatPercent(a.pemakaianCbm);
-  usageTonEl.textContent=formatPercent(a.pemakaianTon);
-
-  usageCbmEl.className=(Number(a.pemakaianCbm)>1)?'red':'green';
-  usageTonEl.className=(Number(a.pemakaianTon)>1)?'red':'green';
-
-  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-(Number(a.pemakaianCbm)||0)*(Number(a.kapasitasCbmTotal)||0));
-  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-(Number(a.pemakaianTon)||0)*(Number(a.kapasitasTonTotal)||0));
-  document.getElementById('armadaSisa').textContent=formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton';
-
-  const st=String(a.status||'').toUpperCase();
-  const usageCbm=Number(a.pemakaianCbm)||0;
-  const usageTon=Number(a.pemakaianTon)||0;
-  const usageMax=Math.max(usageCbm,usageTon);
-
-  let statusClass='ok';
-  let statusTitle='KUOTA MASIH TERSEDIA';
-  let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
-
-  if(st.includes('TIDAK CUKUP')||st.includes('EXCEED')||usageMax>1){
-    statusClass='danger';
-    statusTitle='KUOTA TIDAK CUKUP';
-    statusNote='Kapasitas armada tidak mencukupi. Perlu tambahan unit atau armada yang lebih besar.';
-  }else if(usageMax>0.70){
-    statusClass='warning';
-    statusTitle='KUOTA MASIH TERSEDIA';
-    statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+  if(!Array.isArray(list) || list.length===0){
+    empty.style.display='block';
+    result.style.display='none';
+    container.innerHTML='';
+    return;
   }
 
-  const panel=document.getElementById('statusPanel');
-  panel.className='status-panel '+statusClass;
-  document.getElementById('statusTitle').textContent=statusTitle;
-  document.getElementById('statusNote').textContent=statusNote;
-  document.getElementById('statusCbm').textContent='CBM: '+formatPercent(a.pemakaianCbm);
-  document.getElementById('statusTon').textContent='Ton: '+formatPercent(a.pemakaianTon);
-  document.getElementById('statusBar').style.width=Math.min(100,Math.max(0,usageCbm*100))+'%';
+  empty.style.display='none';
+  result.style.display='block';
+  container.innerHTML='';
 
-  document.getElementById('vehicleImage').innerHTML=vehicleSvg(a.armada);
-  document.getElementById('vehicleLabel').textContent=(a.armada||'').toUpperCase();
+  list.forEach(function(a){
+    const dimPanjang=Number(a.panjangM)||0;
+    const dimLebar=Number(a.lebarM)||0;
+    const dimTinggi=Number(a.tinggiM)||0;
+    const usageCbm=Number(a.pemakaianCbm)||0;
+    const usageTon=Number(a.pemakaianTon)||0;
+    const usageMax=Math.max(usageCbm,usageTon);
+
+    let statusClass='ok';
+    let statusTitle='KUOTA MASIH TERSEDIA';
+    let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
+
+    const st=String(a.status||'').toUpperCase();
+    if(st.includes('TIDAK CUKUP')||st.includes('EXCEED')||usageMax>1){
+      statusClass='danger';
+      statusTitle='KUOTA TIDAK CUKUP';
+      statusNote='Kapasitas armada tidak mencukupi. Perlu tambahan unit atau armada yang lebih besar.';
+    }else if(usageMax>0.70){
+      statusClass='warning';
+      statusTitle='KUOTA MASIH TERSEDIA';
+      statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+    }
+
+    const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-((Number(a.totalCbmProyek)||0)));
+    const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-((Number(a.totalTonProyek)||0)));
+
+    const card=document.createElement('div');
+    card.className='armada-layout';
+    card.innerHTML=
+      '<div class="armada-panel armada-visual">'+
+        '<div class="armada-name">'+escapeHtml((a.armada||'-'))+' — '+(a.kebutuhanUnit||0)+' UNIT</div>'+
+        '<div class="vehicle-image">'+vehicleSvg(a.armada)+'</div>'+
+        '<div class="vehicle-label">'+escapeHtml((a.armada||'').toUpperCase())+'</div>'+
+      '</div>'+
+      '<div class="armada-panel">'+
+        '<div class="panel-title"><span>⚙</span> SPESIFIKASI ARMADA</div>'+
+        '<div class="detail-row"><strong>Dimensi Bak</strong><span>'+formatNumber(dimPanjang,2)+' × '+formatNumber(dimLebar,2)+' × '+formatNumber(dimTinggi,2)+' m</span></div>'+
+        '<div class="detail-row"><strong>Kapasitas CBM</strong><span>'+formatNumber(a.kapasitasCbm,2)+' m³ / unit</span></div>'+
+        '<div class="detail-row"><strong>Maks. Tonase</strong><span>'+formatNumber(a.maxTonase,2)+' Ton / unit</span></div>'+
+        '<div class="detail-row"><strong>Kebutuhan Unit</strong><span>'+((a.kebutuhanUnit||0))+' UNIT</span></div>'+
+      '</div>'+
+      '<div class="armada-panel">'+
+        '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
+        '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
+        '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(usageCbm>1?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(usageTon>1?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
+        '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
+      '</div>'+
+      '<div class="status-panel '+statusClass+'">'+
+        '<div class="status-circle">!</div>'+
+        '<div class="status-title">'+statusTitle+'</div>'+
+        '<div class="status-note">'+statusNote+'</div>'+
+        '<div class="bar-wrap"><div class="bar-cbm" style="width:'+Math.min(100,Math.max(0,usageCbm*100))+'%"></div></div>'+
+        '<div class="status-metrics"><span>CBM: '+formatPercent(usageCbm)+'</span><span>Ton: '+formatPercent(usageTon)+'</span></div>'+
+      '</div>';
+
+    container.appendChild(card);
+  });
 }
 
 function vehicleSvg(name){
