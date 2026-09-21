@@ -793,10 +793,8 @@ function ambilArmadaAktual(data,summary){
     });
   }
 
-  // Fallback untuk cache/API lama.
-  if(data && data.armada){
-    return [data.armada];
-  }
+  // SUMBER ARMADA HANYA DARI armadaAktual.
+  // Tidak menggunakan data.armada lama.
 
   return [];
 }
