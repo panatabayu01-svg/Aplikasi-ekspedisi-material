@@ -816,6 +816,9 @@ function ambilArmadaAktualUtama(data){
       maxTonase: Number(r.maxTonaseUnit) || 0,
       kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
       kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
+      // TOTAL MATERIAL PROYEK, BUKAN KAPASITAS ARMADA.
+      totalCbmProyek: Number(r.totalCbmProyek) || 0,
+      totalTonProyek: Number(r.totalTonProyek) || 0,
       pemakaianCbm: Number(r.pemakaianCbm),
       pemakaianTon: Number(r.pemakaianTon),
       status: r.status || ''
@@ -843,8 +846,9 @@ function tampilkanArmada(a){
   document.getElementById('armadaDimension').textContent=formatNumber(dimPanjang,2)+' × '+formatNumber(dimLebar,2)+' × '+formatNumber(dimTinggi,2)+' m';
   document.getElementById('armadaCbm').textContent=formatNumber(a.kapasitasCbm,2)+' m³ / unit';
   document.getElementById('armadaTon').textContent=formatNumber(a.maxTonase,2)+' Ton / unit';
-  document.getElementById('armadaTotalCbm').textContent=formatNumber(a.kapasitasCbmTotal,2)+' m³';
-  document.getElementById('armadaTotalTon').textContent=formatNumber(a.kapasitasTonTotal,2)+' Ton';
+  // HASIL PERHITUNGAN = TOTAL MATERIAL PROYEK, BUKAN KAPASITAS ARMADA.
+  document.getElementById('armadaTotalCbm').textContent=formatNumber(a.totalCbmProyek,2)+' m³';
+  document.getElementById('armadaTotalTon').textContent=formatNumber(a.totalTonProyek,3)+' Ton';
   const usageCbmEl=document.getElementById('armadaUsageCbm');
   const usageTonEl=document.getElementById('armadaUsageTon');
 
