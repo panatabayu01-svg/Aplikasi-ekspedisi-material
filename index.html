@@ -769,178 +769,98 @@ function tampilkanData(data){
 
 function ambilArmadaAktual(data,summary){
   /* ==========================================================
-     REKOMENDASI ARMADA - SUMBER HASIL PERHITUNGAN
-     ----------------------------------------------------------
-     Tidak mengubah tampilan. Fungsi ini hanya menentukan baris
-     armada yang akan ditampilkan oleh tampilkanArmada().
+     SUMBER REKOMENDASI ARMADA:
+     REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
 
-     Untuk contoh proyek:
-       Total CBM  = 95,62 m³
-       Total Ton  = 30,100 Ton
+     JANGAN HITUNG ULANG DI SINI.
+     Sheet REKAP_ARMADA_AKTUAL sudah berisi hasil final
+     per proyek dan urutan armada yang harus ditampilkan.
 
-     Hasil yang diinginkan:
-       1 x CONTAINER 40FT = 67,56 m³ / 28 Ton
-       1 x FUSO          = 28,06 m³ / 2,100 Ton
+     Contoh:
+       CONTAINER 40FT — 1 UNIT
+       FUSO          — 1 UNIT
   ========================================================== */
 
-  const totalCbm = Number(summary && summary.totalCbm) || 0;
-  const totalTon = Number(summary && summary.totalTon) || 0;
-
-  const MASTER_ARMADA = [
-    {
-      armada:'CDD', panjangM:4, lebarM:2, tinggiM:2,
-      kapasitasCbm:4, maxTonase:16, prioritas:1
-    },
-    {
-      armada:'FUSO', panjangM:6, lebarM:2.4, tinggiM:2.4,
-      kapasitasCbm:34.56, maxTonase:15, prioritas:2
-    },
-    {
-      armada:'TRONTON', panjangM:8.5, lebarM:2.5, tinggiM:2.5,
-      kapasitasCbm:53.125, maxTonase:15, prioritas:3
-    },
-    {
-      armada:'CONTAINER 20FT', panjangM:5.9, lebarM:2.35, tinggiM:2.39,
-      kapasitasCbm:33.14, maxTonase:28, prioritas:4
-    },
-    {
-      armada:'CONTAINER 40FT', panjangM:12.03, lebarM:2.35, tinggiM:2.39,
-      kapasitasCbm:67.56, maxTonase:28, prioritas:5
-    }
-  ];
-
-  function buatHasil_(m,unit,loadCbm,loadTon){
-    const capCbm = m.kapasitasCbm * unit;
-    const capTon = m.maxTonase * unit;
-    return {
-      armada:m.armada,
-      kebutuhanUnit:unit,
-      panjangM:m.panjangM,
-      lebarM:m.lebarM,
-      tinggiM:m.tinggiM,
-      kapasitasCbm:m.kapasitasCbm,
-      maxTonase:m.maxTonase,
-      kapasitasCbmTotal:capCbm,
-      kapasitasTonTotal:capTon,
-      totalCbmProyek:loadCbm,
-      totalTonProyek:loadTon,
-      pemakaianCbm:capCbm ? loadCbm / capCbm : 0,
-      pemakaianTon:capTon ? loadTon / capTon : 0,
-      status:(loadCbm <= capCbm && loadTon <= capTon)
-        ? 'KUOTA MASIH TERSEDIA'
-        : 'KUOTA TIDAK CUKUP'
-    };
-  }
-
-  /*
-   * Bila summary tersedia, HITUNG ULANG di sini.
-   * Jangan memakai armadaAktual yang masih berisi hasil lama
-   * (misalnya CONTAINER 40FT = 2 UNIT), karena itu justru sumber
-   * masalah yang sedang diperbaiki.
-   */
-  if(totalCbm > 0 || totalTon > 0){
-    let sisaCbm = totalCbm;
-    let sisaTon = totalTon;
-    const hasil = [];
-
-    /*
-     * 1. Pilih kendaraan besar pertama yang paling efisien untuk
-     *    kebutuhan total. Untuk 95,62 m³ + 30,1 Ton, 1 Container
-     *    40FT menampung 67,56 m³ + 28 Ton.
-     */
-    const container40 = MASTER_ARMADA.find(function(m){
-      return m.armada === 'CONTAINER 40FT';
-    });
-
-    if(
-      container40 &&
-      (sisaCbm > 34.56 || sisaTon > 15)
-    ){
-      const loadCbm = Math.min(sisaCbm, container40.kapasitasCbm);
-      const loadTon = Math.min(sisaTon, container40.maxTonase);
-
-      hasil.push(buatHasil_(container40,1,loadCbm,loadTon));
-
-      sisaCbm = Math.max(0,sisaCbm-loadCbm);
-      sisaTon = Math.max(0,sisaTon-loadTon);
-    }
-
-    /*
-     * 2. Untuk sisa, pilih kendaraan PALING KECIL yang memenuhi
-     *    kedua batas sekaligus.
-     *
-     * Urutan prioritas kapasitas efektif:
-     * CDD -> FUSO -> TRONTON -> Container 20 -> Container 40.
-     *
-     * Contoh sisa 28,06 m³ + 2,10 Ton:
-     * FUSO 34,56 m³ + 15 Ton = MUAT.
-     * Container tidak dipilih lagi.
-     */
-    while(sisaCbm > 0.000001 || sisaTon > 0.000001){
-      let pilihan = null;
-
-      const kandidat = MASTER_ARMADA.filter(function(m){
-        return (
-          sisaCbm <= m.kapasitasCbm + 0.000001 &&
-          sisaTon <= m.maxTonase + 0.000001
-        );
-      });
-
-      if(kandidat.length > 0){
-        kandidat.sort(function(a,b){
-          if(a.kapasitasCbm !== b.kapasitasCbm){
-            return a.kapasitasCbm - b.kapasitasCbm;
-          }
-          return a.prioritas - b.prioritas;
-        });
-        pilihan = kandidat[0];
-      }else{
-        // Sisa belum muat 1 unit: gunakan kendaraan terbesar
-        // yang tersedia, lalu lanjutkan ke sisa berikutnya.
-        pilihan = MASTER_ARMADA[MASTER_ARMADA.length-1];
-      }
-
-      const loadCbm = Math.min(sisaCbm,pilihan.kapasitasCbm);
-      const loadTon = Math.min(sisaTon,pilihan.maxTonase);
-
-      hasil.push(buatHasil_(pilihan,1,loadCbm,loadTon));
-
-      sisaCbm = Math.max(0,sisaCbm-loadCbm);
-      sisaTon = Math.max(0,sisaTon-loadTon);
-    }
-
-    return hasil;
-  }
-
-  /* Fallback hanya jika summary belum tersedia. */
-  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length){
+  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length > 0){
     return data.armadaAktual.map(function(r){
       return {
-        armada:r.armada || '-',
-        kebutuhanUnit:Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
-        panjangM:Number(r.panjangM) || 0,
-        lebarM:Number(r.lebarM) || 0,
-        tinggiM:Number(r.tinggiM) || 0,
-        kapasitasCbm:Number(r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm) || 0,
-        maxTonase:Number(r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase) || 0,
-        kapasitasCbmTotal:Number(r.kapasitasCbmTotal) || 0,
-        kapasitasTonTotal:Number(r.kapasitasTonTotal) || 0,
-        totalCbmProyek:Number(r.totalCbmProyek != null ? r.totalCbmProyek : r.cbmTerpakai) || 0,
-        totalTonProyek:Number(r.totalTonProyek != null ? r.totalTonProyek : r.tonTerpakai) || 0,
-        pemakaianCbm:Number(r.pemakaianCbm) || 0,
-        pemakaianTon:Number(r.pemakaianTon) || 0,
-        status:r.status || ''
+        // B ARMADA
+        armada: String(r.armada || '-').trim(),
+
+        // C JUMLAH_UNIT
+        kebutuhanUnit:
+          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
+
+        // D-F DIMENSI
+        panjangM: Number(r.panjangM) || 0,
+        lebarM: Number(r.lebarM) || 0,
+        tinggiM: Number(r.tinggiM) || 0,
+
+        // G-H KAPASITAS PER UNIT
+        kapasitasCbm:
+          Number(
+            r.kapasitasCbmUnit != null
+              ? r.kapasitasCbmUnit
+              : r.kapasitasCbm
+          ) || 0,
+
+        maxTonase:
+          Number(
+            r.maxTonaseUnit != null
+              ? r.maxTonaseUnit
+              : r.maxTonase
+          ) || 0,
+
+        // I-J KAPASITAS TOTAL ARMADA
+        kapasitasCbmTotal:
+          Number(r.kapasitasCbmTotal) || 0,
+
+        kapasitasTonTotal:
+          Number(r.kapasitasTonTotal) || 0,
+
+        // K-L BEBAN AKTUAL YANG DIALOKASIKAN KE ARMADA
+        totalCbmProyek:
+          Number(
+            r.totalCbmTerpakaiTotal != null
+              ? r.totalCbmTerpakaiTotal
+              : r.totalCbmProyek != null
+                ? r.totalCbmProyek
+                : r.cbmTerpakai
+          ) || 0,
+
+        totalTonProyek:
+          Number(
+            r.totalTonTerpakaiTotal != null
+              ? r.totalTonTerpakaiTotal
+              : r.totalTonProyek != null
+                ? r.totalTonProyek
+                : r.tonTerpakai
+          ) || 0,
+
+        // M-N PEMAKAIAN
+        pemakaianCbm:
+          Number(r.pemakaianCbm) || 0,
+
+        pemakaianTon:
+          Number(r.pemakaianTon) || 0,
+
+        // O STATUS
+        status:
+          r.status || ''
       };
     });
   }
 
+  /*
+   * Fallback lama hanya bila armadaAktual memang belum dikirim API.
+   * Tidak mengubah tampilan yang sudah jadi.
+   */
   if(data && data.armada){
     return [data.armada];
   }
 
   return [];
 }
-
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
