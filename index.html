@@ -794,7 +794,14 @@ function tampilkanData(data){
 
   // Armada aktual dari HASIL_REKOMENDASI_ARMADA menjadi sumber utama.
   // Fallback ke armada lama agar cache/data lama tetap kompatibel.
-  tampilkanArmada(ambilArmadaAktualUtama(data));
+  const armadaUtama=ambilArmadaAktualUtama(data);
+  if(armadaUtama){
+    // TOTAL MATERIAL PROYEK SELALU DIAMBIL DARI SUMMARY API.
+    // Jangan bergantung pada kolom totalCbmProyek/totalTonProyek di armadaAktual.
+    armadaUtama.totalCbmProyek=Number(s.totalCbm)||0;
+    armadaUtama.totalTonProyek=Number(s.totalTon)||0;
+  }
+  tampilkanArmada(armadaUtama);
   tampilkanMaterial(data.material||[]);
 }
 
