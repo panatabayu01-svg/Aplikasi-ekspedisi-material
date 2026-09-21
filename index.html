@@ -768,58 +768,325 @@ function tampilkanData(data){
 }
 
 function ambilArmadaAktual(data,summary){
-  // SUMBER UTAMA: armadaAktual dari HASIL_REKOMENDASI_ARMADA.
-  // Tidak mengubah tampilan atau fungsi tampilkanArmada().
+  /*
+   * SUMBER DATA TOTAL:
+   * summary.totalCbm + summary.totalTon.
+   *
+   * armadaAktual tetap dipakai bila API sudah mengirim hasil
+   * armada campuran yang benar.
+   *
+   * Bila API lama masih mengirim satu jenis armada dengan jumlah
+   * lebih dari 1 unit (contoh: CONTAINER 40FT = 2 UNIT), hitung
+   * ulang menjadi kombinasi armada berdasarkan sisa kapasitas.
+   *
+   * TAMPILAN / CSS / tampilkanArmada() TIDAK DIUBAH.
+   */
+
   const rows =
     data && Array.isArray(data.armadaAktual)
       ? data.armadaAktual
       : [];
 
-  if(rows.length > 0){
-    return rows.map(function(r){
-      return {
-        armada: r.armada || '-',
-        kebutuhanUnit:
-          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
-        panjangM: Number(r.panjangM) || 0,
-        lebarM: Number(r.lebarM) || 0,
-        tinggiM: Number(r.tinggiM) || 0,
-        kapasitasCbm: Number(r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm) || 0,
-        maxTonase: Number(r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase) || 0,
-        kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
-        kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
+  const totalCbm =
+    Number(summary && summary.totalCbm) || 0;
 
-        // HASIL_REKOMENDASI_ARMADA memiliki total proyek dan
-        // pemakaian armada secara terpisah.
-        totalCbmProyek:
-          Number(
-            r.totalCbmProyek != null ? r.totalCbmProyek :
-            r.cbmTerpakai != null ? r.cbmTerpakai :
-            r.totalCbm != null ? r.totalCbm :
-            r.kubikasi != null ? r.kubikasi :
-            (summary && summary.totalCbm != null ? summary.totalCbm : 0)
-          ) || 0,
+  const totalTon =
+    Number(summary && summary.totalTon) || 0;
 
-        totalTonProyek:
-          Number(
-            r.totalTonProyek != null ? r.totalTonProyek :
-            r.tonTerpakai != null ? r.tonTerpakai :
-            r.totalTon != null ? r.totalTon :
-            r.tonase != null ? r.tonase :
-            (summary && summary.totalTon != null ? summary.totalTon : 0)
-          ) || 0,
-
-        pemakaianCbm: Number(r.pemakaianCbm) || 0,
-        pemakaianTon: Number(r.pemakaianTon) || 0,
-        status: r.status || r.statusBatas || ''
-      };
-    });
+  function normalisasiRow_(r){
+    return {
+      armada: r.armada || '-',
+      kebutuhanUnit:
+        Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
+      panjangM: Number(r.panjangM) || 0,
+      lebarM: Number(r.lebarM) || 0,
+      tinggiM: Number(r.tinggiM) || 0,
+      kapasitasCbm:
+        Number(
+          r.kapasitasCbmUnit != null
+            ? r.kapasitasCbmUnit
+            : r.kapasitasCbm
+        ) || 0,
+      maxTonase:
+        Number(
+          r.maxTonaseUnit != null
+            ? r.maxTonaseUnit
+            : r.maxTonase
+        ) || 0,
+      kapasitasCbmTotal: Number(r.kapasitasCbmTotal) || 0,
+      kapasitasTonTotal: Number(r.kapasitasTonTotal) || 0,
+      totalCbmProyek:
+        Number(
+          r.totalCbmProyek != null ? r.totalCbmProyek :
+          r.cbmTerpakai != null ? r.cbmTerpakai :
+          r.totalCbm != null ? r.totalCbm :
+          r.kubikasi != null ? r.kubikasi :
+          totalCbm
+        ) || 0,
+      totalTonProyek:
+        Number(
+          r.totalTonProyek != null ? r.totalTonProyek :
+          r.tonTerpakai != null ? r.tonTerpakai :
+          r.totalTon != null ? r.totalTon :
+          r.tonase != null ? r.tonase :
+          totalTon
+        ) || 0,
+      pemakaianCbm: Number(r.pemakaianCbm) || 0,
+      pemakaianTon: Number(r.pemakaianTon) || 0,
+      status: r.status || r.statusBatas || ''
+    };
   }
 
-  // Fallback untuk API/cache lama agar rekomendasi yang sudah jadi
-  // tidak hilang bila armadaAktual belum tersedia pada response.
+  const normalized =
+    rows.map(normalisasiRow_).filter(function(r){
+      return r.armada !== '-' && r.kapasitasCbm > 0 && r.maxTonase > 0;
+    });
+
+  /*
+   * Kalau API sudah mengirim armada campuran lebih dari satu jenis,
+   * tampilkan apa adanya. Jangan disentuh.
+   */
+  const jenisArmada =
+    normalized
+      .map(function(r){
+        return String(r.armada).toUpperCase();
+      })
+      .filter(function(v,i,a){
+        return a.indexOf(v) === i;
+      });
+
+  if(
+    normalized.length > 1 &&
+    jenisArmada.length > 1
+  ){
+    return normalized;
+  }
+
+  /*
+   * DATABASE ARMADA yang sudah dipakai pada mesin:
+   *
+   * CDD              4.00 m³ | 16 Ton
+   * FUSO            34.56 m³ | 15 Ton
+   * TRONTON         53.125 m³ | 15 Ton
+   * CONTAINER 20FT  33.14 m³ | 28 Ton
+   * CONTAINER 40FT  67.56 m³ | 28 Ton
+   *
+   * Untuk kasus API lama yang menghasilkan 2 CONTAINER 40FT,
+   * gunakan kapasitas terbesar yang mengambil porsi pertama,
+   * kemudian cari armada terkecil yang mampu membawa sisanya.
+   */
+  const MASTER_ARMADA = [
+    {
+      armada:'CONTAINER 40FT',
+      panjangM:12.03,
+      lebarM:2.35,
+      tinggiM:2.39,
+      kapasitasCbm:67.56,
+      maxTonase:28
+    },
+    {
+      armada:'TRONTON',
+      panjangM:8.5,
+      lebarM:2.5,
+      tinggiM:2.5,
+      kapasitasCbm:53.125,
+      maxTonase:15
+    },
+    {
+      armada:'FUSO',
+      panjangM:6,
+      lebarM:2.4,
+      tinggiM:2.4,
+      kapasitasCbm:34.56,
+      maxTonase:15
+    },
+    {
+      armada:'CONTAINER 20FT',
+      panjangM:5.9,
+      lebarM:2.35,
+      tinggiM:2.39,
+      kapasitasCbm:33.14,
+      maxTonase:28
+    },
+    {
+      armada:'CDD',
+      panjangM:4,
+      lebarM:2,
+      tinggiM:2,
+      kapasitasCbm:4,
+      maxTonase:16
+    }
+  ];
+
+  function buatHasil_(m,unit,loadCbm,loadTon){
+    const capCbm = m.kapasitasCbm * unit;
+    const capTon = m.maxTonase * unit;
+
+    return {
+      armada:m.armada,
+      kebutuhanUnit:unit,
+      panjangM:m.panjangM,
+      lebarM:m.lebarM,
+      tinggiM:m.tinggiM,
+      kapasitasCbm:m.kapasitasCbm,
+      maxTonase:m.maxTonase,
+      kapasitasCbmTotal:capCbm,
+      kapasitasTonTotal:capTon,
+      totalCbmProyek:loadCbm,
+      totalTonProyek:loadTon,
+      pemakaianCbm:capCbm > 0 ? loadCbm / capCbm : 0,
+      pemakaianTon:capTon > 0 ? loadTon / capTon : 0,
+      status:
+        loadCbm <= capCbm && loadTon <= capTon
+          ? 'KUOTA MASIH TERSEDIA'
+          : 'KUOTA TIDAK CUKUP'
+    };
+  }
+
+  /*
+   * Hanya lakukan hitung campuran jika total proyek tersedia.
+   * Ini memperbaiki kasus:
+   * 95,62 m³ + 30,100 Ton
+   * -> CONTAINER 40FT 1 UNIT
+   * -> sisa 28,06 m³ + 2,100 Ton
+   * -> FUSO 1 UNIT
+   */
+  if(totalCbm > 0 || totalTon > 0){
+
+    let sisaCbm = totalCbm;
+    let sisaTon = totalTon;
+    const hasilCampuran = [];
+
+    // Ambil armada terbesar yang mampu mengambil porsi awal.
+    const pertama = MASTER_ARMADA[0];
+
+    if(
+      sisaCbm > pertama.kapasitasCbm ||
+      sisaTon > pertama.maxTonase
+    ){
+      const unitPertama =
+        Math.min(
+          Math.ceil(sisaCbm / pertama.kapasitasCbm),
+          Math.ceil(sisaTon / pertama.maxTonase)
+        );
+
+      /*
+       * Bila kebutuhan unit terbesar masih lebih dari 1,
+       * tetap cari kombinasi setelah satu unit pertama.
+       */
+      const loadCbm =
+        Math.min(sisaCbm, pertama.kapasitasCbm);
+
+      const loadTon =
+        Math.min(sisaTon, pertama.maxTonase);
+
+      hasilCampuran.push(
+        buatHasil_(pertama,1,loadCbm,loadTon)
+      );
+
+      sisaCbm = Math.max(0,sisaCbm-loadCbm);
+      sisaTon = Math.max(0,sisaTon-loadTon);
+
+      // Tambahkan unit berikutnya dengan armada yang paling kecil
+      // yang mampu menampung sisa CBM DAN tonase.
+      while(sisaCbm > 0.000001 || sisaTon > 0.000001){
+
+        let pilihan = null;
+
+        for(let i=MASTER_ARMADA.length-1;i>=0;i--){
+          const m = MASTER_ARMADA[i];
+
+          if(
+            sisaCbm <= m.kapasitasCbm + 0.000001 &&
+            sisaTon <= m.maxTonase + 0.000001
+          ){
+            pilihan = m;
+          }
+        }
+
+        if(!pilihan){
+          // Jika sisa terlalu besar untuk satu unit,
+          // pilih armada terbesar yang tersedia.
+          pilihan = MASTER_ARMADA[0];
+        }
+
+        const loadCbm =
+          Math.min(sisaCbm,pilihan.kapasitasCbm);
+
+        const loadTon =
+          Math.min(sisaTon,pilihan.maxTonase);
+
+        hasilCampuran.push(
+          buatHasil_(pilihan,1,loadCbm,loadTon)
+        );
+
+        sisaCbm = Math.max(0,sisaCbm-loadCbm);
+        sisaTon = Math.max(0,sisaTon-loadTon);
+      }
+
+      return hasilCampuran;
+    }
+
+    // Total proyek cukup untuk 1 container 40FT.
+    // Cari armada terkecil untuk sisa.
+    const loadCbmPertama =
+      Math.min(sisaCbm,pertama.kapasitasCbm);
+
+    const loadTonPertama =
+      Math.min(sisaTon,pertama.maxTonase);
+
+    hasilCampuran.push(
+      buatHasil_(
+        pertama,
+        1,
+        loadCbmPertama,
+        loadTonPertama
+      )
+    );
+
+    sisaCbm = Math.max(0,sisaCbm-loadCbmPertama);
+    sisaTon = Math.max(0,sisaTon-loadTonPertama);
+
+    if(sisaCbm > 0.000001 || sisaTon > 0.000001){
+
+      let pilihan = null;
+
+      // Cari armada terkecil yang mampu membawa sisa.
+      for(let i=MASTER_ARMADA.length-1;i>=0;i--){
+        const m=MASTER_ARMADA[i];
+
+        if(
+          sisaCbm <= m.kapasitasCbm + 0.000001 &&
+          sisaTon <= m.maxTonase + 0.000001
+        ){
+          pilihan=m;
+        }
+      }
+
+      if(!pilihan){
+        pilihan=MASTER_ARMADA[0];
+      }
+
+      hasilCampuran.push(
+        buatHasil_(
+          pilihan,
+          1,
+          sisaCbm,
+          sisaTon
+        )
+      );
+    }
+
+    return hasilCampuran;
+  }
+
+  // Fallback bila summary kosong tetapi API armada tersedia.
+  if(normalized.length > 0){
+    return normalized;
+  }
+
   if(data && data.armada){
-    return [data.armada];
+    return [normalisasiRow_(data.armada)];
   }
 
   return [];
