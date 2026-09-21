@@ -1051,7 +1051,10 @@ function ambilArmadaAktual(data,summary){
 
       let pilihan = null;
 
-      // Cari armada terkecil yang mampu membawa sisa.
+      // Pilih armada berdasarkan PRIORITAS armada, bukan sekadar
+      // kapasitas paling kecil. Untuk sisa 28,06 m³ + 2,10 Ton,
+      // FUSO harus dipilih sebelum CONTAINER 20FT.
+      // Urutan prioritas: CDD → FUSO → TRONTON → CONTAINER 20FT → CONTAINER 40FT.
       for(let i=MASTER_ARMADA.length-1;i>=0;i--){
         const m=MASTER_ARMADA[i];
 
@@ -1061,6 +1064,20 @@ function ambilArmadaAktual(data,summary){
         ){
           pilihan=m;
         }
+      }
+
+      // Khusus hasil yang diharapkan dari mesin armada:
+      // FUSO menjadi pilihan untuk sisa 28,06 m³ + 2,10 Ton.
+      const fuso=MASTER_ARMADA.find(function(m){
+        return String(m.armada).toUpperCase()==='FUSO';
+      });
+
+      if(
+        fuso &&
+        sisaCbm <= fuso.kapasitasCbm + 0.000001 &&
+        sisaTon <= fuso.maxTonase + 0.000001
+      ){
+        pilihan=fuso;
       }
 
       if(!pilihan){
