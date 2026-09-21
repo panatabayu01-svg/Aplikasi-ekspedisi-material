@@ -792,9 +792,22 @@ function ambilArmadaAktual(data,summary){
         // HASIL_REKOMENDASI_ARMADA memiliki total proyek dan
         // pemakaian armada secara terpisah.
         totalCbmProyek:
-          Number(r.totalCbmProyek != null ? r.totalCbmProyek : r.cbmTerpakai) || 0,
+          Number(
+            r.totalCbmProyek != null ? r.totalCbmProyek :
+            r.cbmTerpakai != null ? r.cbmTerpakai :
+            r.totalCbm != null ? r.totalCbm :
+            r.kubikasi != null ? r.kubikasi :
+            (summary && summary.totalCbm != null ? summary.totalCbm : 0)
+          ) || 0,
+
         totalTonProyek:
-          Number(r.totalTonProyek != null ? r.totalTonProyek : r.tonTerpakai) || 0,
+          Number(
+            r.totalTonProyek != null ? r.totalTonProyek :
+            r.tonTerpakai != null ? r.tonTerpakai :
+            r.totalTon != null ? r.totalTon :
+            r.tonase != null ? r.tonase :
+            (summary && summary.totalTon != null ? summary.totalTon : 0)
+          ) || 0,
 
         pemakaianCbm: Number(r.pemakaianCbm) || 0,
         pemakaianTon: Number(r.pemakaianTon) || 0,
