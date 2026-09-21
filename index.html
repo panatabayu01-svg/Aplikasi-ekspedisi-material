@@ -1026,14 +1026,35 @@ function tampilkanArmada(list){
     const dimPanjang=Number(a.panjangM)||0;
     const dimLebar=Number(a.lebarM)||0;
     const dimTinggi=Number(a.tinggiM)||0;
-    const usageCbm=Number(a.pemakaianCbm)||0;
-    const usageTon=Number(a.pemakaianTon)||0;
+    // HITUNG ULANG PEMAKAIAN DARI ANGKA HASIL, bukan hanya field
+    // pemakaian dari API. Ini mencegah status tetap hijau ketika
+    // total sudah mencapai kapasitas.
+    const totalCbm=Number(a.totalCbmProyek)||0;
+    const totalTon=Number(a.totalTonProyek)||0;
+    const capCbm=Number(a.kapasitasCbmTotal)||0;
+    const capTon=Number(a.kapasitasTonTotal)||0;
+
+    let usageCbm=Number(a.pemakaianCbm)||0;
+    let usageTon=Number(a.pemakaianTon)||0;
+
+    if(capCbm>0 && totalCbm>=0){
+      usageCbm=totalCbm/capCbm;
+    }else if(usageCbm>1){
+      usageCbm=usageCbm/100;
+    }
+
+    if(capTon>0 && totalTon>=0){
+      usageTon=totalTon/capTon;
+    }else if(usageTon>1){
+      usageTon=usageTon/100;
+    }
+
     const usageMax=Math.max(usageCbm,usageTon);
 
     // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
     // armada dianggap sudah mencapai batas.
-    const cbmTercapai=usageCbm>=1;
-    const tonTercapai=usageTon>=1;
+    const cbmTercapai=usageCbm>=0.999999;
+    const tonTercapai=usageTon>=0.999999;
     const kapasitasTercapai=cbmTercapai||tonTercapai;
 
     let statusClass='ok';
@@ -1057,8 +1078,8 @@ function tampilkanArmada(list){
       statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
     }
 
-    const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-((Number(a.totalCbmProyek)||0)));
-    const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-((Number(a.totalTonProyek)||0)));
+    const sisaCbm=Math.max(0,capCbm-totalCbm);
+    const sisaTon=Math.max(0,capTon-totalTon);
 
     const card=document.createElement('div');
     card.className='armada-layout';
@@ -1083,7 +1104,7 @@ function tampilkanArmada(list){
         '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
         '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
       '</div>'+
-      '<div class="status-panel '+statusClass+'">'+
+      '<div class="status-panel '+statusClass+'" data-cbm-tercapai="'+(cbmTercapai?'1':'0')+'" data-ton-tercapai="'+(tonTercapai?'1':'0')+'">'+
         '<div class="status-circle">!</div>'+
         '<div class="status-title">'+statusTitle+'</div>'+
         '<div class="status-note">'+statusNote+'</div>'+
