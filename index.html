@@ -936,15 +936,34 @@ function tampilkanArmada(list){
 
     const usageMax=Math.max(usageCbm,usageTon);
 
+    /*
+     * STATUS ARMADA:
+     * - Jika CBM >= 100% dan Ton < 100%  -> CBM tercapai lebih dulu.
+     * - Jika Ton >= 100% dan CBM < 100%  -> Tonase tercapai lebih dulu.
+     * - Jika keduanya >= 100%             -> keduanya sudah tercapai.
+     * - Jika belum ada yang mencapai 100% -> kuota masih tersedia.
+     *
+     * Nilai 100% dianggap SUDAH TERCAPAI, bukan masih tersedia.
+     */
+    const cbmTercapai = usageCbm >= 1;
+    const tonTercapai = usageTon >= 1;
+
     let statusClass='ok';
     let statusTitle='KUOTA MASIH TERSEDIA';
     let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
 
-    const st=String(a.status||'').toUpperCase();
-    if(st.includes('TIDAK CUKUP')||st.includes('EXCEED')||usageMax>1){
+    if(cbmTercapai && tonTercapai){
       statusClass='danger';
-      statusTitle='KUOTA TIDAK CUKUP';
-      statusNote='Kapasitas armada tidak mencukupi. Perlu tambahan unit atau armada yang lebih besar.';
+      statusTitle='BATAS CBM & TONASE TERCAPAI';
+      statusNote='Kapasitas kubikasi dan tonase sudah mencapai batas maksimum.';
+    }else if(cbmTercapai){
+      statusClass='danger';
+      statusTitle='BATAS CBM TERCAPAI';
+      statusNote='CBM sudah mencapai batas maksimum. Tonase masih tersedia.';
+    }else if(tonTercapai){
+      statusClass='danger';
+      statusTitle='BATAS TONASE TERCAPAI';
+      statusNote='Tonase sudah mencapai batas maksimum. CBM masih tersedia.';
     }else if(usageMax>0.70){
       statusClass='warning';
       statusTitle='KUOTA MASIH TERSEDIA';
@@ -953,6 +972,10 @@ function tampilkanArmada(list){
 
     const sisaCbm=Math.max(0,kapasitasCbmTotal-totalCbmProyek);
     const sisaTon=Math.max(0,kapasitasTonTotal-totalTonProyek);
+
+    // KPI pemakaian: merah jika batas sudah tercapai.
+    const cbmKpiClass = cbmTercapai ? 'red' : 'green';
+    const tonKpiClass = tonTercapai ? 'red' : 'green';
 
     const card=document.createElement('div');
     card.className='armada-layout';
@@ -973,8 +996,8 @@ function tampilkanArmada(list){
         '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
         '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(usageCbm>1?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(usageTon>1?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+cbmKpiClass+'">'+formatPercent(usageCbm)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+tonKpiClass+'">'+formatPercent(usageTon)+'</span></div>'+
         '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
       '</div>'+
       '<div class="status-panel '+statusClass+'">'+
@@ -982,7 +1005,7 @@ function tampilkanArmada(list){
         '<div class="status-title">'+statusTitle+'</div>'+
         '<div class="status-note">'+statusNote+'</div>'+
         '<div class="bar-wrap"><div class="bar-cbm" style="width:'+Math.min(100,Math.max(0,usageCbm*100))+'%"></div></div>'+
-        '<div class="status-metrics"><span>CBM: '+formatPercent(usageCbm)+'</span><span>Ton: '+formatPercent(usageTon)+'</span></div>'+
+        '<div class="status-metrics"><span class="'+(cbmTercapai?'red':'')+'">CBM: '+formatPercent(usageCbm)+'</span><span class="'+(tonTercapai?'red':'')+'">Ton: '+formatPercent(usageTon)+'</span></div>'+
       '</div>';
 
     container.appendChild(card);
