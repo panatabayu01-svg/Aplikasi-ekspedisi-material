@@ -768,243 +768,130 @@ function tampilkanData(data){
 }
 
 function ambilArmadaAktual(data,summary){
-  /* ==========================================================
-     SUMBER REKOMENDASI:
-     REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
+  /*
+   * SUMBER DATA FINAL:
+   * REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
+   *
+   * TIDAK memilih/mengganti jenis armada di frontend.
+   * Jenis dan jumlah unit mengikuti sheet.
+   *
+   * Mapping REKAP_ARMADA_AKTUAL:
+   * A  NAMA_PROYEK
+   * B  ARMADA
+   * C  JUMLAH_UNIT
+   * D  PANJANG_M
+   * E  LEBAR_M
+   * F  TINGGI_M
+   * G  KAPASITAS_CBM_UNIT
+   * H  MAX_TONASE_UNIT
+   * I  KAPASITAS_CBM_TOTAL
+   * J  KAPASITAS_TON_TOTAL
+   * K  TOTAL_CBM_TERPAKAI
+   * L  TOTAL_TON_TERPAKAI
+   * M  PEMAKAIAN_CBM
+   * N  PEMAKAIAN_TON
+   * O  STATUS
+   */
 
-     Mapping dibuat fleksibel terhadap nama field API:
-     - camelCase
-     - SNAKE_CASE / nama header sheet
-     - nama field alternatif
-     - angka dengan format Indonesia (67,56 / 1.250)
+  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length > 0){
+    return data.armadaAktual.map(function(r){
 
-     PERHITUNGAN TAMPILAN:
-     - Total Kubikasi = beban CBM armada tersebut
-     - Total Tonase   = beban tonase armada tersebut
-     - Pemakaian CBM  = Total CBM / Kapasitas CBM Total
-     - Pemakaian Ton   = Total Ton / Kapasitas Ton Total
+      const kapasitasCbmTotal =
+        Number(r.kapasitasCbmTotal) || 0;
 
-     Jadi tampilan TIDAK lagi bergantung pada field
-     PEMAKAIAN_CBM / PEMAKAIAN_TON yang kosong dari API.
-  ========================================================== */
+      const kapasitasTonTotal =
+        Number(r.kapasitasTonTotal) || 0;
 
-  if(!data || !Array.isArray(data.armadaAktual) || data.armadaAktual.length===0){
-    return [];
-  }
+      /*
+       * K dan L adalah MUATAN AKTUAL yang dialokasikan
+       * ke armada tersebut.
+       */
+      const muatanCbm =
+        Number(
+          r.muatanCbm != null ? r.muatanCbm :
+          r.cbmTerpakai != null ? r.cbmTerpakai :
+          r.totalCbmTerpakaiTotal != null ? r.totalCbmTerpakaiTotal :
+          r.totalCbmProyek
+        ) || 0;
 
-  function ambilField(row, aliases){
-    if(!row || typeof row!=='object') return null;
+      const muatanTon =
+        Number(
+          r.muatanTon != null ? r.muatanTon :
+          r.tonTerpakai != null ? r.tonTerpakai :
+          r.totalTonTerpakaiTotal != null ? r.totalTonTerpakaiTotal :
+          r.totalTonProyek
+        ) || 0;
 
-    for(let i=0;i<aliases.length;i++){
-      const key=aliases[i];
+      /*
+       * PEMAKAIAN SELALU dihitung ulang:
+       * CBM = muatan aktual / kapasitas total
+       * TON = tonase aktual / kapasitas tonase total
+       *
+       * Jadi tidak tergantung format persen dari Google Sheets.
+       */
+      const pemakaianCbm =
+        kapasitasCbmTotal > 0
+          ? muatanCbm / kapasitasCbmTotal
+          : 0;
 
-      if(Object.prototype.hasOwnProperty.call(row,key) &&
-         row[key]!==null && row[key]!==undefined && row[key]!==''){
-        return row[key];
-      }
-    }
+      const pemakaianTon =
+        kapasitasTonTotal > 0
+          ? muatanTon / kapasitasTonTotal
+          : 0;
 
-    // Cocokkan tanpa peduli huruf besar/kecil, underscore, spasi, dll.
-    const normalisasi=function(v){
-      return String(v)
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g,'');
-    };
+      /*
+       * SISA KAPASITAS dihitung dari:
+       * kapasitas total - muatan aktual.
+       */
+      const sisaCbm =
+        Math.max(0, kapasitasCbmTotal - muatanCbm);
 
-    const wanted=aliases.map(normalisasi);
+      const sisaTon =
+        Math.max(0, kapasitasTonTotal - muatanTon);
 
-    const keys=Object.keys(row);
-    for(let i=0;i<keys.length;i++){
-      const nk=normalisasi(keys[i]);
+      return {
+        armada: String(r.armada || '-').trim(),
 
-      if(wanted.indexOf(nk)!==-1 &&
-         row[keys[i]]!==null &&
-         row[keys[i]]!==undefined &&
-         row[keys[i]]!==''){
-        return row[keys[i]];
-      }
-    }
+        kebutuhanUnit:
+          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
 
-    return null;
-  }
+        panjangM: Number(r.panjangM) || 0,
+        lebarM: Number(r.lebarM) || 0,
+        tinggiM: Number(r.tinggiM) || 0,
 
-  function angka(v){
-    if(v===null || v===undefined || v==='') return 0;
-    if(typeof v==='number') return isFinite(v)?v:0;
+        kapasitasCbm:
+          Number(
+            r.kapasitasCbmUnit != null
+              ? r.kapasitasCbmUnit
+              : r.kapasitasCbm
+          ) || 0,
 
-    let s=String(v).trim();
-    if(!s) return 0;
+        maxTonase:
+          Number(
+            r.maxTonaseUnit != null
+              ? r.maxTonaseUnit
+              : r.maxTonase
+          ) || 0,
 
-    // Hilangkan satuan jika ikut dikirim API.
-    s=s.replace(/m³|m3|ton|unit/gi,'').trim();
+        kapasitasCbmTotal: kapasitasCbmTotal,
+        kapasitasTonTotal: kapasitasTonTotal,
 
-    // Format Indonesia:
-    // 1.250,50 -> 1250.50
-    // 67,56    -> 67.56
-    // 1250.50  -> 1250.50
-    if(s.indexOf(',')!==-1){
-      s=s.replace(/\./g,'').replace(',', '.');
-    }else{
-      s=s.replace(/,/g,'');
-    }
+        // HASIL AKTUAL PER ARMADA
+        totalCbmProyek: muatanCbm,
+        totalTonProyek: muatanTon,
 
-    const n=Number(s);
-    return isFinite(n)?n:0;
-  }
+        // HASIL RUMUS DISPLAY
+        pemakaianCbm: pemakaianCbm,
+        pemakaianTon: pemakaianTon,
+        sisaCbm: sisaCbm,
+        sisaTon: sisaTon,
 
-  function dariRow(row){
-    /*
-      Jika API suatu saat mengembalikan array sesuai urutan
-      REKAP_ARMADA_AKTUAL:
-      A NAMA_PROYEK
-      B ARMADA
-      C JUMLAH_UNIT
-      D PANJANG_M
-      E LEBAR_M
-      F TINGGI_M
-      G KAPASITAS_CBM_UNIT
-      H MAX_TONASE_UNIT
-      I KAPASITAS_CBM_TOTAL
-      J KAPASITAS_TON_TOTAL
-      K TOTAL_CBM_TERPAKAI_TOTAL
-      L TOTAL_TON_TERPAKAI_TOTAL
-      M PEMAKAIAN_CBM
-      N PEMAKAIAN_TON
-      O STATUS
-    */
-    if(Array.isArray(row)){
-      row={
-        namaProyek:row[0],
-        armada:row[1],
-        jumlahUnit:row[2],
-        panjangM:row[3],
-        lebarM:row[4],
-        tinggiM:row[5],
-        kapasitasCbmUnit:row[6],
-        maxTonaseUnit:row[7],
-        kapasitasCbmTotal:row[8],
-        kapasitasTonTotal:row[9],
-        totalCbmTerpakaiTotal:row[10],
-        totalTonTerpakaiTotal:row[11],
-        pemakaianCbm:row[12],
-        pemakaianTon:row[13],
-        status:row[14]
+        status: r.status || ''
       };
-    }
-
-    const armada=String(ambilField(row,[
-      'armada','ARMADA','namaArmada','NAMA_ARMADA'
-    ]) || '-').trim();
-
-    const jumlahUnit=angka(ambilField(row,[
-      'jumlahUnit','JUMLAH_UNIT','kebutuhanUnit','KEBUTUHAN_UNIT'
-    ]));
-
-    const panjangM=angka(ambilField(row,[
-      'panjangM','PANJANG_M','panjang','PANJANG'
-    ]));
-
-    const lebarM=angka(ambilField(row,[
-      'lebarM','LEBAR_M','lebar','LEBAR'
-    ]));
-
-    const tinggiM=angka(ambilField(row,[
-      'tinggiM','TINGGI_M','tinggi','TINGGI'
-    ]));
-
-    const kapasitasCbm=angka(ambilField(row,[
-      'kapasitasCbmUnit','KAPASITAS_CBM_UNIT','kapasitasCbm','KAPASITAS_CBM'
-    ]));
-
-    const maxTonase=angka(ambilField(row,[
-      'maxTonaseUnit','MAX_TONASE_UNIT','maxTonase','MAX_TONASE'
-    ]));
-
-    const kapasitasCbmTotal=angka(ambilField(row,[
-      'kapasitasCbmTotal','KAPASITAS_CBM_TOTAL'
-    ])) || (kapasitasCbm * jumlahUnit);
-
-    const kapasitasTonTotal=angka(ambilField(row,[
-      'kapasitasTonTotal','KAPASITAS_TON_TOTAL'
-    ])) || (maxTonase * jumlahUnit);
-
-    const totalCbmProyek=angka(ambilField(row,[
-      'totalCbmTerpakaiTotal',
-      'TOTAL_CBM_TERPAKAI_TOTAL',
-      'totalCbmTerpakai',
-      'TOTAL_CBM_TERPAKAI',
-      'totalCbmProyek',
-      'TOTAL_CBM_PROYEK',
-      'cbmTerpakai',
-      'CBM_TERPAKAI',
-      'totalCbm',
-      'TOTAL_CBM'
-    ]));
-
-    const totalTonProyek=angka(ambilField(row,[
-      'totalTonTerpakaiTotal',
-      'TOTAL_TON_TERPAKAI_TOTAL',
-      'totalTonTerpakai',
-      'TOTAL_TON_TERPAKAI',
-      'totalTonProyek',
-      'TOTAL_TON_PROYEK',
-      'tonTerpakai',
-      'TON_TERPAKAI',
-      'totalTon',
-      'TOTAL_TON'
-    ]));
-
-    /*
-      PENTING:
-      Pemakaian dihitung ulang dari angka aktual.
-      Ini memperbaiki kasus UI sebelumnya yang menampilkan 0%.
-    */
-    let pemakaianCbm=0;
-    let pemakaianTon=0;
-
-    if(kapasitasCbmTotal>0){
-      pemakaianCbm=totalCbmProyek/kapasitasCbmTotal;
-    }
-
-    if(kapasitasTonTotal>0){
-      pemakaianTon=totalTonProyek/kapasitasTonTotal;
-    }
-
-    // Bila total beban kosong tetapi API mengirim pemakaian valid,
-    // gunakan pemakaian tersebut sebagai fallback.
-    if(totalCbmProyek===0){
-      const p=angka(ambilField(row,['pemakaianCbm','PEMAKAIAN_CBM']));
-      if(p>0 && kapasitasCbmTotal>0){
-        pemakaianCbm=p>1 ? p/100 : p;
-      }
-    }
-
-    if(totalTonProyek===0){
-      const p=angka(ambilField(row,['pemakaianTon','PEMAKAIAN_TON']));
-      if(p>0 && kapasitasTonTotal>0){
-        pemakaianTon=p>1 ? p/100 : p;
-      }
-    }
-
-    return {
-      armada:armada,
-      kebutuhanUnit:jumlahUnit,
-      panjangM:panjangM,
-      lebarM:lebarM,
-      tinggiM:tinggiM,
-      kapasitasCbm:kapasitasCbm,
-      maxTonase:maxTonase,
-      kapasitasCbmTotal:kapasitasCbmTotal,
-      kapasitasTonTotal:kapasitasTonTotal,
-      totalCbmProyek:totalCbmProyek,
-      totalTonProyek:totalTonProyek,
-      pemakaianCbm:pemakaianCbm,
-      pemakaianTon:pemakaianTon,
-      status:ambilField(row,['status','STATUS']) || ''
-    };
+    });
   }
 
-  return data.armadaAktual.map(dariRow);
+  return [];
 }
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
@@ -1026,60 +913,70 @@ function tampilkanArmada(list){
     const dimPanjang=Number(a.panjangM)||0;
     const dimLebar=Number(a.lebarM)||0;
     const dimTinggi=Number(a.tinggiM)||0;
-    // HITUNG ULANG PEMAKAIAN DARI ANGKA HASIL, bukan hanya field
-    // pemakaian dari API. Ini mencegah status tetap hijau ketika
-    // total sudah mencapai kapasitas.
-    const totalCbm=Number(a.totalCbmProyek)||0;
-    const totalTon=Number(a.totalTonProyek)||0;
-    const capCbm=Number(a.kapasitasCbmTotal)||0;
-    const capTon=Number(a.kapasitasTonTotal)||0;
+    /*
+     * HASIL PERHITUNGAN berasal dari:
+     * totalCbmProyek = K = muatan aktual
+     * totalTonProyek = L = muatan aktual
+     * pemakaian = muatan / kapasitas
+     */
+    const kapasitasCbmTotal=Number(a.kapasitasCbmTotal)||0;
+    const kapasitasTonTotal=Number(a.kapasitasTonTotal)||0;
+    const totalCbmProyek=Number(a.totalCbmProyek)||0;
+    const totalTonProyek=Number(a.totalTonProyek)||0;
 
-    let usageCbm=Number(a.pemakaianCbm)||0;
-    let usageTon=Number(a.pemakaianTon)||0;
+    const usageCbm=
+      kapasitasCbmTotal>0
+        ? totalCbmProyek/kapasitasCbmTotal
+        : 0;
 
-    if(capCbm>0 && totalCbm>=0){
-      usageCbm=totalCbm/capCbm;
-    }else if(usageCbm>1){
-      usageCbm=usageCbm/100;
-    }
-
-    if(capTon>0 && totalTon>=0){
-      usageTon=totalTon/capTon;
-    }else if(usageTon>1){
-      usageTon=usageTon/100;
-    }
+    const usageTon=
+      kapasitasTonTotal>0
+        ? totalTonProyek/kapasitasTonTotal
+        : 0;
 
     const usageMax=Math.max(usageCbm,usageTon);
+    const batasPertama=String(a.batasPertama||'').toUpperCase();
 
-    // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
-    // armada dianggap sudah mencapai batas.
-    const cbmTercapai=usageCbm>=0.999999;
-    const tonTercapai=usageTon>=0.999999;
-    const kapasitasTercapai=cbmTercapai||tonTercapai;
+    /*
+     * STATUS ARMADA:
+     * - Jika CBM >= 100% dan Ton < 100%  -> CBM tercapai lebih dulu.
+     * - Jika Ton >= 100% dan CBM < 100%  -> Tonase tercapai lebih dulu.
+     * - Jika keduanya >= 100%             -> keduanya sudah tercapai.
+     * - Jika belum ada yang mencapai 100% -> kuota masih tersedia.
+     *
+     * Nilai 100% dianggap SUDAH TERCAPAI, bukan masih tersedia.
+     */
+    const cbmTercapai = usageCbm >= 1;
+    const tonTercapai = usageTon >= 1;
 
     let statusClass='ok';
     let statusTitle='KUOTA MASIH TERSEDIA';
     let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
 
-    if(kapasitasTercapai){
+    if(cbmTercapai && tonTercapai){
+      statusClass='danger';
+      statusTitle='BATAS CBM & TONASE TERCAPAI';
+      statusNote='CBM dan tonase sudah mencapai batas maksimum. Armada tidak dapat menerima tambahan material.';
+    }else if(cbmTercapai){
       statusClass='danger';
       statusTitle='KUOTA TERCAPAI';
-
-      if(cbmTercapai && tonTercapai){
-        statusNote='CBM dan tonase sama-sama sudah mencapai batas kapasitas.';
-      }else if(cbmTercapai){
-        statusNote='CBM mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
-      }else{
-        statusNote='Tonase mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
-      }
-    }else if(usageMax>=0.70){
+      statusNote='CBM mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
+    }else if(tonTercapai){
+      statusClass='danger';
+      statusTitle='KUOTA TERCAPAI';
+      statusNote='Tonase mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
+    }else if(usageMax>0.70){
       statusClass='warning';
       statusTitle='KUOTA MASIH TERSEDIA';
       statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
     }
 
-    const sisaCbm=Math.max(0,capCbm-totalCbm);
-    const sisaTon=Math.max(0,capTon-totalTon);
+    const sisaCbm=Math.max(0,kapasitasCbmTotal-totalCbmProyek);
+    const sisaTon=Math.max(0,kapasitasTonTotal-totalTonProyek);
+
+    // KPI pemakaian: merah jika batas sudah tercapai.
+    const cbmKpiClass = cbmTercapai ? 'red' : 'green';
+    const tonKpiClass = tonTercapai ? 'red' : 'green';
 
     const card=document.createElement('div');
     card.className='armada-layout';
@@ -1100,16 +997,16 @@ function tampilkanArmada(list){
         '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
         '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+cbmKpiClass+'">'+formatPercent(usageCbm)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+tonKpiClass+'">'+formatPercent(usageTon)+'</span></div>'+
         '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
       '</div>'+
-      '<div class="status-panel '+statusClass+'" data-cbm-tercapai="'+(cbmTercapai?'1':'0')+'" data-ton-tercapai="'+(tonTercapai?'1':'0')+'">'+
+      '<div class="status-panel '+statusClass+'">'+
         '<div class="status-circle">!</div>'+
         '<div class="status-title">'+statusTitle+'</div>'+
         '<div class="status-note">'+statusNote+'</div>'+
         '<div class="bar-wrap"><div class="bar-cbm" style="width:'+Math.min(100,Math.max(0,usageCbm*100))+'%"></div></div>'+
-        '<div class="status-metrics"><span>CBM: '+formatPercent(usageCbm)+'</span><span>Ton: '+formatPercent(usageTon)+'</span></div>'+
+        '<div class="status-metrics"><span class="'+(cbmTercapai?'red':'')+'">CBM: '+formatPercent(usageCbm)+'</span><span class="'+(tonTercapai?'red':'')+'">Ton: '+formatPercent(usageTon)+'</span></div>'+
       '</div>';
 
     container.appendChild(card);
