@@ -324,13 +324,40 @@ function pilihMode(mode){
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+
+    // Tampilkan cache MANUAL lebih dulu agar tombol tidak terasa muter lama.
+    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    if(cachedManual && cachedManual.success===true){
+      proyekAktif=NAMA_PROYEK_MANUAL;
+      tampilkanData(cachedManual);
+      setStatus('Data manual tersimpan ditampilkan. Memperbarui data...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
+    }else{
+      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    }
     return;
   }
 
   updateModeUI_();
+
+  // Jangan kosongkan layar saat kembali ke DATA OTOMATIS.
+  const cachedProject=localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'';
+  const cachedAuto=
+    cachedProject && cachedProject!==NAMA_PROYEK_MANUAL
+      ? getCache_(getProjectCacheKey_(cachedProject))
+      : null;
+
+  if(cachedAuto && cachedAuto.success===true){
+    proyekAktif=cachedProject;
+    const select=document.getElementById('projectSelect');
+    select.value=cachedProject;
+    tampilkanData(cachedAuto);
+    setStatus('Data tersimpan ditampilkan. Memperbarui data...');
+    loadDataProyek(cachedProject,false);
+    return;
+  }
+
   proyekAktif='';
-  localStorage.removeItem(CACHE_LAST_PROJECT_KEY);
   resetTampilan();
   setStatus('Memuat daftar proyek...');
   loadDaftarProyek(true);
@@ -903,17 +930,47 @@ function tampilkanData(data){
   }
 
   const s=data.summary||{};
-  document.getElementById('totalItem').textContent=formatNumber(s.totalItem,0)+' jenis';
-  document.getElementById('totalVolume').textContent=formatNumber(s.totalVolume,0)+' unit';
-  document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
-  document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
+  const materialData=Array.isArray(data.material)?data.material:[];
+
+  // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
+  // Jadi KPI tidak bisa berbeda dengan tabel akibat summary/cache lama.
+  let kpiItem=materialData.length;
+  let kpiVolume=0;
+  let kpiCbm=0;
+  let kpiTon=0;
+
+  materialData.forEach(function(item){
+    kpiVolume += Number(item.volume)||0;
+    kpiCbm += Number(item.totalCbm)||0;
+    kpiTon += Number(item.totalTon)||0;
+  });
+
+  // Jika material kosong tetapi API masih mengirim summary, pertahankan summary.
+  if(materialData.length===0){
+    kpiItem=Number(s.totalItem)||0;
+    kpiVolume=Number(s.totalVolume)||0;
+    kpiCbm=Number(s.totalCbm)||0;
+    kpiTon=Number(s.totalTon)||0;
+  }
+
+  document.getElementById('totalItem').textContent=formatNumber(kpiItem,0)+' jenis';
+  document.getElementById('totalVolume').textContent=formatNumber(kpiVolume,0)+' unit';
+  document.getElementById('totalCbm').textContent=formatNumber(kpiCbm,2)+' m³';
+  document.getElementById('totalTon').textContent=formatNumber(kpiTon,3)+' Ton';
+
+  const summaryUntukArmada={
+    totalItem:kpiItem,
+    totalVolume:kpiVolume,
+    totalCbm:kpiCbm,
+    totalTon:kpiTon
+  };
 
   // HASIL_REKOMENDASI_ARMADA tetap menjadi sumber utama.
   // Jika DETAIL ARMADA tersedia dan seluruh muatan dapat direkonsiliasi
   // dengan summary proyek, gunakan DETAIL sebagai pembagian aktual
   // per armada/unit. Ini mencegah satu jenis armada terbaca ganda
   // ketika rekap tampilan membawa agregasi yang tidak sesuai alokasi.
-  const armadaList=ambilArmadaAktual(data,s);
+  const armadaList=ambilArmadaAktual(data,summaryUntukArmada);
 
   if(Array.isArray(armadaList) && armadaList.length>0){
     armadaAktualTerakhir=armadaList;
@@ -921,7 +978,7 @@ function tampilkanData(data){
   }
 
   tampilkanArmada(armadaList);
-  tampilkanMaterial(data.material||[]);
+  tampilkanMaterial(materialData);
 }
 
 function ambilArmadaAktual(data,summary){
@@ -1140,10 +1197,16 @@ function tampilkanArmada(list){
   const container=document.getElementById('armadaList');
 
   if(!Array.isArray(list) || list.length===0){
-    empty.style.display='block';
-    result.style.display='none';
-    container.innerHTML='';
-    return;
+    // Jangan menghilangkan rekomendasi yang sudah tampil hanya karena
+    // background refresh sementara belum mengembalikan armada.
+    if(proyekArmadaTerakhir===proyekAktif && Array.isArray(armadaAktualTerakhir) && armadaAktualTerakhir.length>0){
+      list=armadaAktualTerakhir;
+    }else{
+      empty.style.display='block';
+      result.style.display='none';
+      container.innerHTML='';
+      return;
+    }
   }
 
   empty.style.display='none';
@@ -1334,9 +1397,15 @@ function refreshData(){
     p
   );
 
-  // REFRESH hanya mengambil data proyek yang sedang aktif.
-  // Tidak memuat ulang daftar proyek dan tidak mereset tampilan.
-  loadDataProyek(p,true);
+  // REFRESH tidak mengosongkan layar dan tidak menunggu spinner penuh.
+  // Data yang sedang tampil tetap dipakai, server diperbarui di background.
+  const cached=getCache_(getProjectCacheKey_(p));
+  if(cached && cached.success===true){
+    tampilkanData(cached);
+  }
+
+  setStatus('Memperbarui data terbaru...');
+  loadDataProyek(p,false);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatTableNumber(v){
