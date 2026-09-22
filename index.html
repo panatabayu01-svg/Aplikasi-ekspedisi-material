@@ -1185,7 +1185,13 @@ function ambilArmadaDariDetail_(data, summary){
     const x=byType[key];
     x.pemakaianCbm=x.kapasitasCbmTotal>0 ? x.totalCbmProyek/x.kapasitasCbmTotal : 0;
     x.pemakaianTon=x.kapasitasTonTotal>0 ? x.totalTonProyek/x.kapasitasTonTotal : 0;
-    x.status=(x.pemakaianCbm>=1-0.000001 || x.pemakaianTon>=1-0.000001)
+
+    // Status HARUS mengikuti angka persen yang tampil di layar.
+    // Contoh 99,98% akan ditampilkan sebagai 100,0%, sehingga
+    // kartu harus berubah menjadi KUOTA TERCAPAI (merah).
+    const cbmTercapaiTampil = Math.round(x.pemakaianCbm * 1000) / 1000 >= 1;
+    const tonTercapaiTampil = Math.round(x.pemakaianTon * 1000) / 1000 >= 1;
+    x.status=(cbmTercapaiTampil || tonTercapaiTampil)
       ? 'KUOTA TERCAPAI'
       : 'KUOTA MASIH TERSEDIA';
     return x;
@@ -1223,8 +1229,10 @@ function tampilkanArmada(list){
 
     // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
     // armada dianggap sudah mencapai batas.
-    const cbmTercapai=usageCbm>=1;
-    const tonTercapai=usageTon>=1;
+    // Gunakan pembulatan yang sama dengan angka persen di UI.
+    // Jadi 99,98% -> 100,0% dan status menjadi merah.
+    const cbmTercapai=Math.round(usageCbm*1000)/1000>=1;
+    const tonTercapai=Math.round(usageTon*1000)/1000>=1;
     const kapasitasTercapai=cbmTercapai||tonTercapai;
 
     let statusClass='ok';
