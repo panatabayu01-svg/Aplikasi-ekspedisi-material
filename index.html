@@ -285,6 +285,7 @@ window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v6_';
 let daftarProyek = [];
 let proyekAktif = '';
 let modeAplikasi = 'AUTO';
+let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
 let materialDataTerakhir = [];
 
@@ -323,48 +324,64 @@ function updateModeUI_(){
 }
 
 function pilihMode(mode){
+  // Batalkan request lama saat user pindah mode.
+  // Request yang sedang berjalan tidak boleh mengubah tampilan mode baru.
+  requestSerial++;
+
   modeAplikasi=String(mode||'AUTO').toUpperCase()==='MANUAL' ? 'MANUAL' : 'AUTO';
 
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
 
-    // Tampilkan cache MANUAL lebih dulu agar tombol tidak terasa muter lama.
+    // MANUAL tetap menampilkan data yang sudah tersimpan jika ada.
+    // Jika belum ada cache, baru ambil data MANUAL dari server.
     const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
     if(cachedManual && cachedManual.success===true){
       proyekAktif=NAMA_PROYEK_MANUAL;
       tampilkanData(cachedManual);
       setStatus('Data manual tersimpan ditampilkan. Memperbarui data...');
+      showLoading(false);
       loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }else{
+      resetTampilan();
+      showLoading(false);
+      setStatus('Memuat data manual...');
       loadDataProyek(NAMA_PROYEK_MANUAL,true);
     }
     return;
   }
 
+  // ============================================================
+  // KEMBALI KE DATA OTOMATIS
+  // ============================================================
+  // JANGAN langsung mengambil data proyek.
+  // Yang ditampilkan hanya dropdown daftar proyek.
+  // Data baru diambil SETELAH user memilih proyek.
+  // Ini menghilangkan loading panjang saat AUTO <-> MANUAL.
+  // ============================================================
   updateModeUI_();
+  proyekAktif='';
+  localStorage.removeItem(CACHE_LAST_PROJECT_KEY);
+  resetTampilan();
+  showLoading(false);
 
-  // Jangan kosongkan layar saat kembali ke DATA OTOMATIS.
-  const cachedProject=localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'';
-  const cachedAuto=
-    cachedProject && cachedProject!==NAMA_PROYEK_MANUAL
-      ? getCache_(getProjectCacheKey_(cachedProject))
-      : null;
+  const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
 
-  if(cachedAuto && cachedAuto.success===true){
-    proyekAktif=cachedProject;
+  if(Array.isArray(cachedProjects) && cachedProjects.length){
+    daftarProyek=filterProyekOtomatis_(cachedProjects);
+    isiDropdownProyek(false);
     const select=document.getElementById('projectSelect');
-    select.value=cachedProject;
-    tampilkanData(cachedAuto);
-    setStatus('Data tersimpan ditampilkan. Memperbarui data...');
-    loadDataProyek(cachedProject,false);
+    select.value='';
+    proyekAktif='';
+    setStatus('Pilih proyek untuk menampilkan data material.');
     return;
   }
 
-  proyekAktif='';
-  resetTampilan();
+  // Jika daftar proyek belum pernah tersimpan, ambil DAFTAR saja.
+  // Parameter false memastikan tidak ada data proyek yang ikut dimuat.
   setStatus('Memuat daftar proyek...');
-  loadDaftarProyek(true);
+  loadDaftarProyek(false,false);
 }
 
 function bukaInputManual(){
@@ -584,6 +601,8 @@ function pilihProyek(){
 
 function loadDataProyek(p,showOverlay){
 
+  const requestId=++requestSerial;
+
   if(showOverlay){
 
     showLoading(true);
@@ -640,6 +659,12 @@ function loadDataProyek(p,showOverlay){
       result
     );
 
+    // Request lama boleh selesai dan menyimpan cache,
+    // tetapi tidak boleh mengubah UI mode/proyek yang terbaru.
+    if(requestId!==requestSerial){
+      return;
+    }
+
     if(
       document.getElementById(
         'projectSelect'
@@ -687,6 +712,10 @@ function loadDataProyek(p,showOverlay){
       e
     );
 
+    if(requestId!==requestSerial){
+      return;
+    }
+
     if(showOverlay){
 
       showLoading(false);
@@ -710,7 +739,9 @@ function loadDataProyek(p,showOverlay){
 }
 
   
-function loadDaftarProyek(showOverlay){
+function loadDaftarProyek(showOverlay,loadSelected){
+  if(typeof loadSelected==='undefined') loadSelected=true;
+
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     loadDataProyek(NAMA_PROYEK_MANUAL,showOverlay);
@@ -750,6 +781,17 @@ function loadDaftarProyek(showOverlay){
     const currentProject=select.value || '';
 
     isiDropdownProyek(false);
+
+    // Mode ringan: hanya isi dropdown proyek.
+    // Jangan memuat data proyek sampai user memilih proyek.
+    if(loadSelected===false){
+      select.value='';
+      proyekAktif='';
+      resetTampilan();
+      showLoading(false);
+      setStatus('Pilih proyek untuk menampilkan data material.');
+      return;
+    }
 
     /*
      * ==========================================================
