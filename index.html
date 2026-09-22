@@ -1002,7 +1002,15 @@ function ambilArmadaAktual(data,summary){
       : 0;
 
     let status = 'KUOTA MASIH TERSEDIA';
-    if(pemakaianCbm >= 1 - 0.000001 || pemakaianTon >= 1 - 0.000001){
+
+    // Status mengikuti angka pemakaian yang ditampilkan di UI.
+    // Jika pembulatan sudah menjadi 100,0%, kuota dianggap tercapai.
+    // Ini hanya memperbaiki status tampilan; angka KPI dan hasil hitung
+    // armada tetap menggunakan nilai aktual dari API.
+    const cbmTercapai = Math.round(pemakaianCbm * 1000) / 1000 >= 1;
+    const tonTercapai = Math.round(pemakaianTon * 1000) / 1000 >= 1;
+
+    if(cbmTercapai || tonTercapai){
       status = 'KUOTA TERCAPAI';
     }
 
