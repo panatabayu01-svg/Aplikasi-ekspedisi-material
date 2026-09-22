@@ -105,8 +105,11 @@
     .status-panel.danger .bar-cbm{background:#d92929}
 
     .material-section{border-color:#17324d}
-    .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0}
-    .material-body{padding:0 8px 10px}
+    .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
+    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #16834b;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap;margin-left:auto}
+    .btn-export-excel:hover{background:#0f7e3b}
+    .btn-export-excel:disabled{background:#9ab9a8;border-color:#9ab9a8;cursor:not-allowed}
+.material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
     th{position:sticky;top:0;z-index:2;background:#eaf1f7;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#000}
@@ -241,7 +244,7 @@
   </section>
 
   <section class="section material-section">
-    <div class="section-header material-header"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div>
+    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div>
     <div class="material-body">
       <div class="table-wrapper">
         <table>
@@ -283,6 +286,7 @@ let daftarProyek = [];
 let proyekAktif = '';
 let modeAplikasi = 'AUTO';
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
+let materialDataTerakhir = [];
 
 // Menjaga rekomendasi armada tetap tampil jika request refresh/server
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
@@ -931,6 +935,7 @@ function tampilkanData(data){
 
   const s=data.summary||{};
   const materialData=Array.isArray(data.material)?data.material:[];
+  materialDataTerakhir=materialData.slice();
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
   // Jadi KPI tidak bisa berbeda dengan tabel akibat summary/cache lama.
@@ -1378,6 +1383,7 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
+  materialDataTerakhir=[];
   armadaAktualTerakhir=[];
   proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
@@ -1430,6 +1436,99 @@ function formatTableNumber(v){
 }
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function exportExcel(){
+  const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
+
+  if(rows.length===0){
+    alert('Tidak ada data material yang dapat diexport.');
+    return;
+  }
+
+  const proyek = proyekAktif || document.getElementById('projectSelect').value || 'DATA MATERIAL';
+  const mode = modeAplikasi === 'MANUAL' ? 'INPUT MANUAL' : 'DATA OTOMATIS';
+  const totalItem = rows.length;
+  let totalVolume = 0;
+  let totalCbm = 0;
+  let totalTon = 0;
+
+  rows.forEach(function(item){
+    totalVolume += Number(item.volume)||0;
+    totalCbm += Number(item.totalCbm)||0;
+    totalTon += Number(item.totalTon)||0;
+  });
+
+  function esc(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function excelNum(v){
+    const n=Number(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  const now = new Date();
+  const tanggal = now.toLocaleString('id-ID');
+
+  let html = '<html><head><meta charset="UTF-8"></head><body>';
+  html += '<table border="1" cellspacing="0" cellpadding="5">';
+  html += '<tr><th colspan="9" style="font-size:16pt">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<tr><th colspan="9">PROYEK</th></tr>';
+  html += '<tr><td colspan="9">'+esc(proyek)+'</td></tr>';
+  html += '<tr><th colspan="9">METODE INPUT</th></tr>';
+  html += '<tr><td colspan="9">'+esc(mode)+'</td></tr>';
+  html += '<tr><th colspan="9">RINGKASAN</th></tr>';
+  html += '<tr>'+
+    '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="5"></th>'+
+    '</tr>';
+  html += '<tr>'+
+    '<td>'+excelNum(totalItem)+'</td>'+
+    '<td>'+excelNum(totalVolume)+'</td>'+
+    '<td>'+excelNum(totalCbm)+'</td>'+
+    '<td>'+excelNum(totalTon)+'</td>'+
+    '<td colspan="5"></td>'+
+    '</tr>';
+  html += '<tr><td colspan="9"></td></tr>';
+  html += '<tr>'+
+    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th>'+
+    '</tr>';
+
+  rows.forEach(function(item,i){
+    const st = tentukanStatusMaterial(item,rows);
+    html += '<tr>'+
+      '<td>'+excelNum(i+1)+'</td>'+
+      '<td>'+esc(item.material)+'</td>'+
+      '<td>'+excelNum(item.volume)+'</td>'+
+      '<td>'+esc(item.unit)+'</td>'+
+      '<td>'+esc(item.category)+'</td>'+
+      '<td>'+excelNum(item.totalCbm)+'</td>'+
+      '<td>'+excelNum(item.totalWeightKg)+'</td>'+
+      '<td>'+excelNum(item.totalTon)+'</td>'+
+      '<td>'+esc(st.label)+'</td>'+
+      '</tr>';
+  });
+
+  html += '<tr><td colspan="9"></td></tr>';
+  html += '<tr><td colspan="9">Export: '+esc(tanggal)+'</td></tr>';
+  html += '</table></body></html>';
+
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const namaProyek = String(proyek)
+    .replace(/[^a-zA-Z0-9\\u00C0-\\u024F\\u1E00-\\u1EFF]+/g,'_')
+    .replace(/^_+|_+$/g,'') || 'DATA_MATERIAL';
+  a.href = url;
+  a.download = 'EKSPEDISI_MATERIAL_'+namaProyek+'.xls';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 </script>
 </body>
