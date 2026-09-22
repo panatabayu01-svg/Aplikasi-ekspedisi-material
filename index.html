@@ -922,93 +922,71 @@ function tampilkanData(data){
 }
 
 function ambilArmadaAktual(data,summary){
-  /* ==========================================================
-     SUMBER REKOMENDASI ARMADA:
-     REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
+  /*
+   * SUMBER UTAMA:
+   * REKAP_ARMADA_AKTUAL -> data.armadaAktual
+   *
+   * FALLBACK:
+   * HASIL_ARMADA -> data.armada
+   *
+   * Jangan menghitung ulang armada dari total proyek.
+   */
+  let rows=[];
 
-     JANGAN HITUNG ULANG DI SINI.
-     Sheet REKAP_ARMADA_AKTUAL sudah berisi hasil final
-     per proyek dan urutan armada yang harus ditampilkan.
-
-     Contoh:
-       CONTAINER 40FT — 1 UNIT
-       FUSO          — 1 UNIT
-  ========================================================== */
-
-  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length > 0){
-    return data.armadaAktual.map(function(r){
-      return {
-        // B ARMADA
-        armada: String(r.armada || '-').trim(),
-
-        // C JUMLAH_UNIT
-        kebutuhanUnit:
-          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
-
-        // D-F DIMENSI
-        panjangM: Number(r.panjangM) || 0,
-        lebarM: Number(r.lebarM) || 0,
-        tinggiM: Number(r.tinggiM) || 0,
-
-        // G-H KAPASITAS PER UNIT
-        kapasitasCbm:
-          Number(
-            r.kapasitasCbmUnit != null
-              ? r.kapasitasCbmUnit
-              : r.kapasitasCbm
-          ) || 0,
-
-        maxTonase:
-          Number(
-            r.maxTonaseUnit != null
-              ? r.maxTonaseUnit
-              : r.maxTonase
-          ) || 0,
-
-        // I-J KAPASITAS TOTAL ARMADA
-        kapasitasCbmTotal:
-          Number(r.kapasitasCbmTotal) || 0,
-
-        kapasitasTonTotal:
-          Number(r.kapasitasTonTotal) || 0,
-
-        // K-L BEBAN AKTUAL YANG DIALOKASIKAN KE ARMADA
-        totalCbmProyek:
-          Number(
-            r.totalCbmTerpakaiTotal != null
-              ? r.totalCbmTerpakaiTotal
-              : r.totalCbmProyek != null
-                ? r.totalCbmProyek
-                : r.cbmTerpakai
-          ) || 0,
-
-        totalTonProyek:
-          Number(
-            r.totalTonTerpakaiTotal != null
-              ? r.totalTonTerpakaiTotal
-              : r.totalTonProyek != null
-                ? r.totalTonProyek
-                : r.tonTerpakai
-          ) || 0,
-
-        // M-N PEMAKAIAN
-        pemakaianCbm:
-          Number(r.pemakaianCbm) || 0,
-
-        pemakaianTon:
-          Number(r.pemakaianTon) || 0,
-
-        // O STATUS
-        status:
-          r.status || ''
-      };
-    });
+  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length>0){
+    rows=data.armadaAktual;
+  }else if(data && data.armada){
+    rows=Array.isArray(data.armada) ? data.armada : [data.armada];
   }
 
-  // ARMADA HANYA DIAMBIL DARI data.armadaAktual.
-  // Tidak menggunakan data.armada lama agar rekomendasi tidak kembali
-  // menjadi 1 armada/armada lama dari cache.
-  return [];
+  if(rows.length===0){
+    return [];
+  }
+
+  return rows.map(function(r){
+    const jumlahUnit=Number(
+      r.jumlahUnit!=null ? r.jumlahUnit : r.kebutuhanUnit
+    )||0;
+
+    const kapasitasCbm=Number(
+      r.kapasitasCbmUnit!=null ? r.kapasitasCbmUnit : r.kapasitasCbm
+    )||0;
+
+    const maxTonase=Number(
+      r.maxTonaseUnit!=null ? r.maxTonaseUnit : r.maxTonase
+    )||0;
+
+    const kapasitasCbmTotal=Number(r.kapasitasCbmTotal)||
+      (kapasitasCbm*jumlahUnit);
+
+    const kapasitasTonTotal=Number(r.kapasitasTonTotal)||
+      (maxTonase*jumlahUnit);
+
+    return {
+      armada:String(r.armada||'-').trim(),
+      kebutuhanUnit:jumlahUnit,
+      panjangM:Number(r.panjangM)||0,
+      lebarM:Number(r.lebarM)||0,
+      tinggiM:Number(r.tinggiM)||0,
+      kapasitasCbm:kapasitasCbm,
+      maxTonase:maxTonase,
+      kapasitasCbmTotal:kapasitasCbmTotal,
+      kapasitasTonTotal:kapasitasTonTotal,
+      totalCbmProyek:Number(
+        r.totalCbmTerpakaiTotal!=null ? r.totalCbmTerpakaiTotal :
+        r.totalCbmProyek!=null ? r.totalCbmProyek :
+        r.cbmTerpakai!=null ? r.cbmTerpakai : r.totalCbm
+      )||0,
+      totalTonProyek:Number(
+        r.totalTonTerpakaiTotal!=null ? r.totalTonTerpakaiTotal :
+        r.totalTonProyek!=null ? r.totalTonProyek :
+        r.tonTerpakai!=null ? r.tonTerpakai : r.totalTon
+      )||0,
+      pemakaianCbm:Number(r.pemakaianCbm)||0,
+      pemakaianTon:Number(r.pemakaianTon)||0,
+      status:r.status||''
+    };
+  });
 }
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
