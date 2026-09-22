@@ -36,18 +36,9 @@
     .header-title span{color:#ffb000}
 
     .main{width:100%;padding:12px 20px 8px}
-    /* BAR PILIHAN METODE + PROYEK: SATU BARIS */
-    .control-bar{display:flex;align-items:center;gap:8px;min-height:42px;margin-bottom:7px;flex-wrap:nowrap}
-    .project-label{font-weight:700;font-size:14px;color:#0d447f;width:58px;flex:0 0 58px}
-    .mode-btn{height:38px;min-width:170px;padding:0 14px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .mode-btn:hover{background:#eef5fb}
-    .mode-btn.active{background:#0d447f;color:#fff;border-color:#0d447f}
-    .mode-btn.manual.active{background:#149447;border-color:#149447}
-    .manual-actions{display:none;align-items:center;gap:8px;flex:0 0 auto}
-    .btn-input-data{height:38px;min-width:145px;border:1px solid #149447;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
-    .btn-input-data:hover{background:#0f7e3b}
-    .project-select:disabled{background:#eef3f7;color:#526579;cursor:not-allowed}
-    .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:13px;border-radius:2px;outline:none;flex:0 1 330px}
+    .project-bar{display:flex;align-items:center;gap:16px;min-height:42px;margin-bottom:7px}
+    .project-label{font-weight:700;font-size:14px;color:#0d447f;width:50px}
+    .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:14px;border-radius:2px;outline:none}
     .project-select:focus{border-color:#0d6efd}
     .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:#eef5fb}
@@ -133,19 +124,15 @@
       .kpi-icon{margin-right:10px}
     }
     @media(max-width:900px){
-      .control-bar{flex-wrap:wrap}
-      .mode-btn{min-width:165px;flex:1}
       .main{padding:10px}
       .header{padding:0 15px}
       .header-title{font-size:22px}
       .kpi-grid{grid-template-columns:repeat(2,1fr)}
-      .control-bar{flex-wrap:wrap;gap:9px}
+      .project-bar{flex-wrap:wrap;gap:9px}
       .armada-layout{grid-template-columns:1fr 1fr}
       .status-panel{grid-column:span 2}
     }
     @media(max-width:600px){
-      .control-bar{display:flex;flex-wrap:wrap;gap:7px}
-      .mode-btn{min-width:145px;flex:1;font-size:12px;padding:0 8px}
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
@@ -202,21 +189,11 @@
 </header>
 
 <main class="main">
-  <div class="control-bar" aria-label="Pilih metode input dan proyek">
+  <div class="project-bar">
     <div class="project-label">PROYEK</div>
-
     <select id="projectSelect" class="project-select" onchange="pilihProyek()">
       <option value="">Memuat proyek...</option>
     </select>
-
-    <button id="modeAutoBtn" class="mode-btn active" type="button" onclick="pilihMode('AUTO')">① DATA OTOMATIS</button>
-
-    <button id="modeManualBtn" class="mode-btn manual" type="button" onclick="pilihMode('MANUAL')">② INPUT MANUAL</button>
-
-    <div id="manualActions" class="manual-actions">
-      <button id="btnInputData" class="btn-input-data" type="button" onclick="bukaInputManual()">📝 INPUT DATA</button>
-    </div>
-
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
   </div>
 
@@ -281,97 +258,10 @@ window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v5_';
 
 let daftarProyek = [];
 let proyekAktif = '';
-let modeAplikasi = 'AUTO';
-const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
-
-// Menjaga rekomendasi armada tetap tampil jika request refresh/server
-// berikutnya mengembalikan data proyek tanpa field armadaAktual.
-let armadaAktualTerakhir = [];
-let proyekArmadaTerakhir = '';
-
-
-function filterProyekOtomatis_(list){
-  return (Array.isArray(list) ? list : []).filter(function(p){
-    return String(p || '').trim().toUpperCase() !== NAMA_PROYEK_MANUAL;
-  });
-}
-
-function updateModeUI_(){
-  const autoBtn=document.getElementById('modeAutoBtn');
-  const manualBtn=document.getElementById('modeManualBtn');
-  const select=document.getElementById('projectSelect');
-  const actions=document.getElementById('manualActions');
-
-  if(modeAplikasi==='MANUAL'){
-    autoBtn.classList.remove('active');
-    manualBtn.classList.add('active');
-    select.disabled=true;
-    select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
-    select.value=NAMA_PROYEK_MANUAL;
-    proyekAktif=NAMA_PROYEK_MANUAL;
-    actions.style.display='flex';
-  }else{
-    autoBtn.classList.add('active');
-    manualBtn.classList.remove('active');
-    select.disabled=false;
-    actions.style.display='none';
-  }
-}
-
-function pilihMode(mode){
-  modeAplikasi=String(mode||'AUTO').toUpperCase()==='MANUAL' ? 'MANUAL' : 'AUTO';
-
-  if(modeAplikasi==='MANUAL'){
-    updateModeUI_();
-    localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
-    return;
-  }
-
-  updateModeUI_();
-  proyekAktif='';
-  localStorage.removeItem(CACHE_LAST_PROJECT_KEY);
-  resetTampilan();
-  setStatus('Memuat daftar proyek...');
-  loadDaftarProyek(true);
-}
-
-function bukaInputManual(){
-  const btn=document.getElementById('btnInputData');
-  if(btn) btn.disabled=true;
-
-  setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
-
-  fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
-    method:'GET',
-    cache:'no-store',
-    redirect:'follow'
-  })
-  .then(function(response){
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    return response.json();
-  })
-  .then(function(result){
-    if(!result || result.success!==true || !result.url){
-      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
-    }
-    window.open(result.url,'_blank','noopener');
-    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
-  })
-  .catch(function(error){
-    console.error('OPEN INPUT MANUAL ERROR:',error);
-    setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
-  })
-  .finally(function(){
-    if(btn) btn.disabled=false;
-  });
-}
 
 document.addEventListener('DOMContentLoaded',function(){
   updateClock();
   setInterval(updateClock,1000);
-  updateModeUI_();
 
   // Tampilkan data cache secepat mungkin.
   initFromCache();
@@ -422,9 +312,8 @@ function initFromCache(){
     return;
   }
 
-  daftarProyek=filterProyekOtomatis_(cachedProjects);
+  daftarProyek=cachedProjects;
   isiDropdownProyek(false);
-  updateModeUI_();
 
   const last=localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'';
   let target='';
@@ -489,12 +378,6 @@ function isiDropdownProyek(autoSelect){
 
 function pilihProyek(){
 
-  if(modeAplikasi==='MANUAL'){
-    updateModeUI_();
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
-    return;
-  }
-
   const p=document.getElementById('projectSelect').value;
 
   proyekAktif=p;
@@ -518,11 +401,6 @@ function pilihProyek(){
     CACHE_LAST_PROJECT_KEY,
     p
   );
-
-  // Proyek baru harus mulai dari rekomendasi proyek tersebut.
-  if(proyekArmadaTerakhir!==p){
-    armadaAktualTerakhir=[];
-  }
 
   const cachedData=
     getCache_(
@@ -615,24 +493,6 @@ function loadDataProyek(p,showOverlay){
       ).value===p
     ){
 
-      /*
-       * ==========================================================
-       * PERTAHANKAN REKOMENDASI ARMADA
-       * ==========================================================
-       * Pada refresh/background request, API kadang dapat
-       * mengembalikan data material + KPI lebih dulu tanpa
-       * armadaAktual. Jangan hapus rekomendasi yang sudah tampil.
-       * Jika armadaAktual tersedia, gunakan data terbaru.
-       */
-      if(
-        (!Array.isArray(result.armadaAktual) || result.armadaAktual.length===0) &&
-        proyekArmadaTerakhir===p &&
-        Array.isArray(armadaAktualTerakhir) &&
-        armadaAktualTerakhir.length>0
-      ){
-        result.armadaAktual=armadaAktualTerakhir;
-      }
-
       tampilkanData(result);
 
     }
@@ -680,12 +540,6 @@ function loadDataProyek(p,showOverlay){
 
   
 function loadDaftarProyek(showOverlay){
-  if(modeAplikasi==='MANUAL'){
-    updateModeUI_();
-    loadDataProyek(NAMA_PROYEK_MANUAL,showOverlay);
-    return;
-  }
-
   if(showOverlay){
     showLoading(true);
     setStatus('Memuat daftar proyek...');
@@ -709,11 +563,9 @@ function loadDaftarProyek(showOverlay){
       );
     }
 
-    const semuaProyek=Array.isArray(result.data)?result.data:[];
-    daftarProyek=filterProyekOtomatis_(semuaProyek);
+    daftarProyek=Array.isArray(result.data)?result.data:[];
 
     setCache_(CACHE_PROJECTS_KEY,daftarProyek);
-    updateModeUI_();
 
     const select=document.getElementById('projectSelect');
     const currentProject=select.value || '';
@@ -911,12 +763,6 @@ function tampilkanData(data){
   // HASIL_REKOMENDASI_ARMADA adalah sumber utama rekomendasi.
   // Semua armada aktual ditampilkan, bukan hanya baris pertama.
   const armadaList=ambilArmadaAktual(data,s);
-
-  if(Array.isArray(armadaList) && armadaList.length>0){
-    armadaAktualTerakhir=armadaList;
-    proyekArmadaTerakhir=proyekAktif;
-  }
-
   tampilkanArmada(armadaList);
   tampilkanMaterial(data.material||[]);
 }
@@ -924,21 +770,28 @@ function tampilkanData(data){
 function ambilArmadaAktual(data,summary){
   /*
    * ==========================================================
-   * SUMBER ARMADA RESMI
+   * SUMBER ARMADA RESMI UNTUK INDEX.HTML
    * ----------------------------------------------------------
-   * INDEX TIDAK BOLEH MENGHITUNG ULANG REKOMENDASI ARMADA.
-   * Ambil langsung dari REKAP_ARMADA_AKTUAL -> armadaAktual.
+   * REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
    *
-   * Penting:
-   * - TIDAK memakai data.armada lama sebagai fallback.
-   * - TIDAK menghitung kebutuhan armada dari total proyek.
-   * - TIDAK menggabungkan beberapa armada menjadi satu jenis.
-   * - Setiap baris armada aktual = hasil alokasi mesin.
+   * PENTING:
+   * Jangan menghitung ulang armada dari summary.totalCbm /
+   * summary.totalTon di sini.
    *
-   * Untuk Ponpes Al-Khoziny hasil yang sudah diuji:
-   * 1 x CONTAINER 40FT + 1 x FUSO.
+   * Pembagian material ke masing-masing armada sudah dihitung
+   * oleh sumber REKAP_ARMADA_AKTUAL. Jika dihitung ulang hanya
+   * dari TOTAL CBM + TOTAL TON, CBM dan tonase bisa "terpisah"
+   * dan menghasilkan angka yang tidak sesuai pembagian material.
+   *
+   * Jadi INDEX hanya:
+   * 1. Membaca armadaAktual.
+   * 2. Menormalisasi nama field.
+   * 3. Menampilkan hasil yang sama persis dengan rekap.
+   *
+   * TAMPILAN / CSS TIDAK DIUBAH.
    * ==========================================================
    */
+
   const rows =
     data &&
     Array.isArray(data.armadaAktual)
@@ -950,77 +803,117 @@ function ambilArmadaAktual(data,summary){
   }
 
   return rows.map(function(r){
-    const jumlahUnit = Number(
-      r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit
-    ) || 0;
+    const jumlahUnit =
+      Number(
+        r.jumlahUnit != null
+          ? r.jumlahUnit
+          : r.kebutuhanUnit
+      ) || 0;
 
-    const kapasitasCbm = Number(
-      r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm
-    ) || 0;
+    const kapasitasCbm =
+      Number(
+        r.kapasitasCbmUnit != null
+          ? r.kapasitasCbmUnit
+          : r.kapasitasCbm
+      ) || 0;
 
-    const maxTonase = Number(
-      r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase
-    ) || 0;
+    const maxTonase =
+      Number(
+        r.maxTonaseUnit != null
+          ? r.maxTonaseUnit
+          : r.maxTonase
+      ) || 0;
 
-    const kapasitasCbmTotal = Number(r.kapasitasCbmTotal) ||
+    const kapasitasCbmTotal =
+      Number(r.kapasitasCbmTotal) ||
       (kapasitasCbm * jumlahUnit);
 
-    const kapasitasTonTotal = Number(r.kapasitasTonTotal) ||
+    const kapasitasTonTotal =
+      Number(r.kapasitasTonTotal) ||
       (maxTonase * jumlahUnit);
 
-    // Ambil MUATAN AKTUAL dari REKAP, bukan total proyek.
-    const totalCbmProyek = Number(
-      r.cbmTerpakai != null
-        ? r.cbmTerpakai
-        : r.totalCbmTerpakaiTotal != null
-          ? r.totalCbmTerpakaiTotal
-          : r.totalCbmProyek != null
-            ? r.totalCbmProyek
+    const totalCbmProyek =
+      Number(
+        r.totalCbmProyek != null
+          ? r.totalCbmProyek
+          : r.cbmTerpakai != null
+            ? r.cbmTerpakai
             : r.totalCbm
-    ) || 0;
+      ) || 0;
 
-    const totalTonProyek = Number(
-      r.tonTerpakai != null
-        ? r.tonTerpakai
-        : r.totalTonTerpakaiTotal != null
-          ? r.totalTonTerpakaiTotal
-          : r.totalTonProyek != null
-            ? r.totalTonProyek
+    const totalTonProyek =
+      Number(
+        r.totalTonProyek != null
+          ? r.totalTonProyek
+          : r.tonTerpakai != null
+            ? r.tonTerpakai
             : r.totalTon
-    ) || 0;
+      ) || 0;
 
-    // Hitung pemakaian dari angka aktual armada agar konsisten.
-    const pemakaianCbm = kapasitasCbmTotal > 0
-      ? totalCbmProyek / kapasitasCbmTotal
-      : 0;
+    /*
+     * PEMAKAIAN dihitung dari angka aktual armada.
+     * Ini menjaga hasil tetap konsisten dengan:
+     * total terpakai / kapasitas total.
+     */
+    const pemakaianCbm =
+      kapasitasCbmTotal > 0
+        ? totalCbmProyek / kapasitasCbmTotal
+        : 0;
 
-    const pemakaianTon = kapasitasTonTotal > 0
-      ? totalTonProyek / kapasitasTonTotal
-      : 0;
+    const pemakaianTon =
+      kapasitasTonTotal > 0
+        ? totalTonProyek / kapasitasTonTotal
+        : 0;
 
+    /*
+     * STATUS TIDAK lagi dipercaya mentah-mentah dari teks lama.
+     * Batas ditentukan dari angka pemakaian:
+     *
+     * >= 100% salah satu kapasitas = KUOTA TERCAPAI
+     * < 100% keduanya                  = KUOTA MASIH TERSEDIA
+     */
     let status = 'KUOTA MASIH TERSEDIA';
-    if(pemakaianCbm >= 1 - 0.000001 || pemakaianTon >= 1 - 0.000001){
+
+    if(
+      pemakaianCbm >= 1 - 0.000001 ||
+      pemakaianTon >= 1 - 0.000001
+    ){
       status = 'KUOTA TERCAPAI';
     }
 
     return {
       armada: String(r.armada || '-').trim(),
       kebutuhanUnit: jumlahUnit,
+
       panjangM: Number(r.panjangM) || 0,
       lebarM: Number(r.lebarM) || 0,
       tinggiM: Number(r.tinggiM) || 0,
+
       kapasitasCbm: kapasitasCbm,
       maxTonase: maxTonase,
+
       kapasitasCbmTotal: kapasitasCbmTotal,
       kapasitasTonTotal: kapasitasTonTotal,
+
       totalCbmProyek: totalCbmProyek,
       totalTonProyek: totalTonProyek,
+
       pemakaianCbm: pemakaianCbm,
       pemakaianTon: pemakaianTon,
+
       status: status
     };
+  }).filter(function(r){
+    return (
+      r.armada !== '-' &&
+      r.kebutuhanUnit > 0 &&
+      r.kapasitasCbm > 0 &&
+      r.maxTonase > 0
+    );
   });
 }
+
+
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
@@ -1045,22 +938,26 @@ function tampilkanArmada(list){
     const usageTon=Number(a.pemakaianTon)||0;
     const usageMax=Math.max(usageCbm,usageTon);
 
-    // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
-    // armada dianggap sudah mencapai batas.
-    const cbmTercapai=usageCbm>=1;
-    const tonTercapai=usageTon>=1;
-    const kapasitasTercapai=cbmTercapai||tonTercapai;
-
     let statusClass='ok';
     let statusTitle='KUOTA MASIH TERSEDIA';
     let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
 
-    if(kapasitasTercapai){
+    /*
+     * STATUS AKURAT:
+     * Jika CBM atau TONASE sudah mencapai >= 100%,
+     * status langsung MERAH.
+     *
+     * Jika keduanya < 100%, status tetap tersedia.
+     */
+    const cbmTercapai = usageCbm >= 1 - 0.000001;
+    const tonTercapai = usageTon >= 1 - 0.000001;
+
+    if(cbmTercapai || tonTercapai){
       statusClass='danger';
       statusTitle='KUOTA TERCAPAI';
 
       if(cbmTercapai && tonTercapai){
-        statusNote='CBM dan tonase sama-sama sudah mencapai batas kapasitas.';
+        statusNote='CBM dan tonase sudah mencapai batas kapasitas. Armada tidak dapat menampung tambahan material.';
       }else if(cbmTercapai){
         statusNote='CBM mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
       }else{
@@ -1069,7 +966,14 @@ function tampilkanArmada(list){
     }else if(usageMax>=0.70){
       statusClass='warning';
       statusTitle='KUOTA MASIH TERSEDIA';
-      statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+
+      if(usageCbm>usageTon){
+        statusNote='Kapasitas masih tersedia. CBM menjadi batas yang lebih dulu mendekati penuh.';
+      }else if(usageTon>usageCbm){
+        statusNote='Kapasitas masih tersedia. Tonase menjadi batas yang lebih dulu mendekati penuh.';
+      }else{
+        statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+      }
     }
 
     const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-((Number(a.totalCbmProyek)||0)));
@@ -1094,8 +998,8 @@ function tampilkanArmada(list){
         '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
         '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
-        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(usageCbm>=1-0.000001?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
+        '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(usageTon>=1-0.000001?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
         '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
       '</div>'+
       '<div class="status-panel '+statusClass+'">'+
@@ -1194,8 +1098,6 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
-  armadaAktualTerakhir=[];
-  proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
   document.getElementById('totalVolume').textContent='0 unit';
   document.getElementById('totalCbm').textContent='0 m³';
