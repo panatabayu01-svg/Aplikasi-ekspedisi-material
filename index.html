@@ -25,9 +25,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PT. PANATA BAYU NUGRAHA</title>
 
+  <!-- FIX STARTUP PWA: background harus abu-abu sejak first paint -->
+  <style id="startup-background-fix">
+    html { background:#eef3f7 !important; }
+    body { background:#eef3f7 !important; }
+  </style>
+
   <style>
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7;color:#17324d}
+    html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7 !important;color:#17324d}
     body{overflow-x:hidden}
 
     .header{height:58px;background:#eef3f7;color:#17324d;display:flex;align-items:center;padding:0 28px;box-shadow:0 1px 4px rgba(23,50,77,.16);border-bottom:1px solid #d1dce7}
@@ -233,7 +239,7 @@
   </style>
 </head>
 
-<body>
+<body style="background:#eef3f7 !important;">
 <div id="loading" class="loading">
   <div class="loading-box"><div class="spinner"></div><div>Memuat data...</div></div>
 </div>
@@ -323,10 +329,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v6';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v6';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v6';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v6_';
+window.CACHE_VERSION = 'v7';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v7';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v7';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v7_';
 
 let daftarProyek = [];
 let proyekAktif = '';
