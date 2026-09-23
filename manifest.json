@@ -4,8 +4,8 @@
   "description": "Sistem Perhitungan dan Rekomendasi Armada Ekspedisi Material",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f7fb",
-  "theme_color": "#0f4c81",
+"background_color": "#eef3f7",
+"theme_color": "#0d447f",
   "orientation": "portrait-primary",
   "icons": [
     {
