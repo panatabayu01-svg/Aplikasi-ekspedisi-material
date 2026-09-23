@@ -390,6 +390,18 @@ function bukaInputManual(){
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
+  // KHUSUS HP / iPhone:
+  // buka tab baru LANGSUNG saat tombol diklik.
+  // Safari dapat memblokir window.open() jika baru dipanggil
+  // setelah fetch/API selesai.
+  let sheetWindow=null;
+
+  try{
+    sheetWindow=window.open('about:blank','_blank');
+  }catch(e){
+    sheetWindow=null;
+  }
+
   fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
     method:'GET',
     cache:'no-store',
@@ -401,19 +413,40 @@ function bukaInputManual(){
   })
   .then(function(result){
     if(!result || result.success!==true || !result.url){
-      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
+      throw new Error(
+        result && result.message
+          ? result.message
+          : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.'
+      );
     }
-    window.open(result.url,'_blank','noopener');
-    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
+
+    if(sheetWindow && !sheetWindow.closed){
+      sheetWindow.location.href=result.url;
+    }else{
+      window.location.href=result.url;
+    }
+
+    setStatus(
+      'INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.'
+    );
   })
   .catch(function(error){
     console.error('OPEN INPUT MANUAL ERROR:',error);
+
+    if(sheetWindow && !sheetWindow.closed){
+      sheetWindow.close();
+    }
+
     setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
+    alert(
+      'Gagal membuka INPUT_MANUAL_EKSPEDISI. ' +
+      'Pastikan API sudah diperbarui.'
+    );
   })
   .finally(function(){
     if(btn) btn.disabled=false;
   });
+}
 }
 
 document.addEventListener('DOMContentLoaded',function(){
