@@ -390,21 +390,9 @@ function bukaInputManual(){
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
-  /*
-   * ============================================================
-   * FIX HP / iPHONE
-   * ============================================================
-   * window.open() harus dipanggil langsung dari event klik user.
-   * Kalau menunggu fetch(API) selesai lalu baru window.open(),
-   * Safari/iPhone dapat memblokirnya sebagai popup otomatis.
-   *
-   * Kita buka tab kosong terlebih dahulu, lalu setelah API
-   * mengembalikan URL Spreadsheet, tab tersebut diarahkan ke
-   * INPUT_MANUAL_EKSPEDISI.
-   *
-   * TIDAK mengubah API, KPI, armada, tabel, cache, atau layout.
-   * ============================================================
-   */
+  // Buka tab dari event klik user terlebih dahulu.
+  // Ini penting untuk browser HP/Safari yang dapat memblokir
+  // window.open() jika dipanggil setelah fetch selesai.
   let sheetWindow=null;
 
   try{
@@ -434,17 +422,11 @@ function bukaInputManual(){
     if(sheetWindow && !sheetWindow.closed){
       sheetWindow.location.href=result.url;
     }else{
-      /*
-       * Fallback:
-       * Jika browser tidak mengizinkan tab kosong,
-       * buka URL Spreadsheet di halaman aktif.
-       */
+      // Fallback untuk browser yang tidak mengizinkan tab baru.
       window.location.href=result.url;
     }
 
-    setStatus(
-      'INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.'
-    );
+    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
   })
   .catch(function(error){
     console.error('OPEN INPUT MANUAL ERROR:',error);
@@ -454,15 +436,11 @@ function bukaInputManual(){
     }
 
     setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert(
-      'Gagal membuka INPUT_MANUAL_EKSPEDISI. ' +
-      'Pastikan API sudah diperbarui.'
-    );
+    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
   })
   .finally(function(){
     if(btn) btn.disabled=false;
   });
-}
 }
 
 document.addEventListener('DOMContentLoaded',function(){
