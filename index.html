@@ -390,17 +390,6 @@ function bukaInputManual(){
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
-  // Buka tab dari event klik user terlebih dahulu.
-  // Ini penting untuk browser HP/Safari yang dapat memblokir
-  // window.open() jika dipanggil setelah fetch selesai.
-  let sheetWindow=null;
-
-  try{
-    sheetWindow=window.open('about:blank','_blank');
-  }catch(e){
-    sheetWindow=null;
-  }
-
   fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
     method:'GET',
     cache:'no-store',
@@ -412,29 +401,13 @@ function bukaInputManual(){
   })
   .then(function(result){
     if(!result || result.success!==true || !result.url){
-      throw new Error(
-        result && result.message
-          ? result.message
-          : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.'
-      );
+      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
     }
-
-    if(sheetWindow && !sheetWindow.closed){
-      sheetWindow.location.href=result.url;
-    }else{
-      // Fallback untuk browser yang tidak mengizinkan tab baru.
-      window.location.href=result.url;
-    }
-
+    window.open(result.url,'_blank','noopener');
     setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
   })
   .catch(function(error){
     console.error('OPEN INPUT MANUAL ERROR:',error);
-
-    if(sheetWindow && !sheetWindow.closed){
-      sheetWindow.close();
-    }
-
     setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
     alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
   })
