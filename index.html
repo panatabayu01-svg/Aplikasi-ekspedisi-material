@@ -36,18 +36,18 @@
     .header-title span{color:#ffb000}
 
     .main{width:100%;padding:12px 20px 8px}
-    .mode-bar{display:flex;align-items:center;gap:10px;min-height:48px;margin-bottom:9px}
-    .mode-btn{height:40px;min-width:190px;padding:0 18px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:3px}
+    /* BAR PILIHAN METODE + PROYEK: SATU BARIS */
+    .control-bar{display:flex;align-items:center;gap:8px;min-height:42px;margin-bottom:7px;flex-wrap:nowrap}
+    .project-label{font-weight:700;font-size:14px;color:#0d447f;width:58px;flex:0 0 58px}
+    .mode-btn{height:38px;min-width:170px;padding:0 14px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
     .mode-btn:hover{background:#eef5fb}
     .mode-btn.active{background:#0d447f;color:#fff;border-color:#0d447f}
     .mode-btn.manual.active{background:#149447;border-color:#149447}
-    .manual-actions{display:none;align-items:center;gap:10px}
-    .btn-input-data{height:38px;min-width:145px;border:1px solid #149447;background:#149447;color:#fff;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
+    .manual-actions{display:none;align-items:center;gap:8px;flex:0 0 auto}
+    .btn-input-data{height:38px;min-width:145px;border:1px solid #149447;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
     .btn-input-data:hover{background:#0f7e3b}
     .project-select:disabled{background:#eef3f7;color:#526579;cursor:not-allowed}
-    .project-bar{display:flex;align-items:center;gap:16px;min-height:42px;margin-bottom:7px}
-    .project-label{font-weight:700;font-size:14px;color:#0d447f;width:50px}
-    .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:14px;border-radius:2px;outline:none}
+    .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:13px;border-radius:2px;outline:none;flex:0 1 330px}
     .project-select:focus{border-color:#0d6efd}
     .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:#eef5fb}
@@ -105,8 +105,11 @@
     .status-panel.danger .bar-cbm{background:#d92929}
 
     .material-section{border-color:#17324d}
-    .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0}
-    .material-body{padding:0 8px 10px}
+    .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
+    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #16834b;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap;margin-left:auto}
+    .btn-export-excel:hover{background:#0f7e3b}
+    .btn-export-excel:disabled{background:#9ab9a8;border-color:#9ab9a8;cursor:not-allowed}
+.material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
     th{position:sticky;top:0;z-index:2;background:#eaf1f7;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#000}
@@ -133,46 +136,62 @@
       .kpi-icon{margin-right:10px}
     }
     @media(max-width:900px){
-      .mode-bar{flex-wrap:wrap}
+      .control-bar{flex-wrap:wrap}
       .mode-btn{min-width:165px;flex:1}
       .main{padding:10px}
       .header{padding:0 15px}
       .header-title{font-size:22px}
       .kpi-grid{grid-template-columns:repeat(2,1fr)}
-      .project-bar{flex-wrap:wrap;gap:9px}
+      .control-bar{flex-wrap:wrap;gap:9px}
       .armada-layout{grid-template-columns:1fr 1fr}
       .status-panel{grid-column:span 2}
     }
     @media(max-width:600px){
-      .mode-bar{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-      .mode-btn{min-width:0;width:100%;font-size:13px;padding:0 8px}
-      .header{height:62px}
-      .header-icon{font-size:28px}
-      .header-title{font-size:18px}
-      .project-bar{
+      .control-bar{
         display:grid;
-        grid-template-columns:55px 1fr;
-        gap:9px;
+        grid-template-columns:52px minmax(0,1fr);
+        grid-template-rows:38px 38px;
+        gap:7px;
+        align-items:center;
       }
+
+      /* HP: cukup LABEL PROYEK + DROPDOWN + REFRESH.
+         Pilihan DATA OTOMATIS / INPUT MANUAL tetap berada di dropdown. */
       .project-label{
         grid-column:1;
         grid-row:1;
-        width:55px;
+        width:52px;
+        min-width:52px;
+        font-size:12px;
+        font-weight:700;
+        white-space:nowrap;
       }
+
       .project-select{
         grid-column:2;
         grid-row:1;
-        width:auto;
-        flex:none;
+        width:100%;
+        min-width:0;
+        height:38px;
       }
+
+      .mode-btn,
+      .manual-actions{
+        display:none !important;
+      }
+
       .btn-refresh{
         grid-column:2;
         grid-row:2;
         justify-self:end;
         width:110px;
         min-width:110px;
-        flex:none;
+        height:38px;
       }
+
+      .header{height:62px}
+      .header-icon{font-size:28px}
+      .header-title{font-size:18px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
       .kpi-icon{font-size:40px;width:60px}
@@ -202,19 +221,21 @@
 </header>
 
 <main class="main">
-  <div class="mode-bar" aria-label="Pilih mode data">
-    <button id="modeAutoBtn" class="mode-btn active" type="button" onclick="pilihMode('AUTO')">① DATA OTOMATIS</button>
-    <button id="modeManualBtn" class="mode-btn manual" type="button" onclick="pilihMode('MANUAL')">② INPUT MANUAL</button>
-  </div>
-
-  <div class="project-bar">
+  <div class="control-bar" aria-label="Pilih metode input dan proyek">
     <div class="project-label">PROYEK</div>
+
     <select id="projectSelect" class="project-select" onchange="pilihProyek()">
       <option value="">Memuat proyek...</option>
     </select>
+
+    <button id="modeAutoBtn" class="mode-btn active" type="button" onclick="pilihMode('AUTO')">① DATA OTOMATIS</button>
+
+    <button id="modeManualBtn" class="mode-btn manual" type="button" onclick="pilihMode('MANUAL')">② INPUT MANUAL</button>
+
     <div id="manualActions" class="manual-actions">
       <button id="btnInputData" class="btn-input-data" type="button" onclick="bukaInputManual()">📝 INPUT DATA</button>
     </div>
+
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
   </div>
 
@@ -239,7 +260,7 @@
   </section>
 
   <section class="section material-section">
-    <div class="section-header material-header"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div>
+    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div>
     <div class="material-body">
       <div class="table-wrapper">
         <table>
@@ -272,15 +293,23 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v5';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v5';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v5';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v5_';
+window.CACHE_VERSION = 'v6';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v6';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v6';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v6_';
 
 let daftarProyek = [];
 let proyekAktif = '';
 let modeAplikasi = 'AUTO';
+let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
+let materialDataTerakhir = [];
+
+// Menjaga rekomendasi armada tetap tampil jika request refresh/server
+// berikutnya mengembalikan data proyek tanpa field armadaAktual.
+let armadaAktualTerakhir = [];
+let proyekArmadaTerakhir = '';
+
 
 function filterProyekOtomatis_(list){
   return (Array.isArray(list) ? list : []).filter(function(p){
@@ -294,14 +323,24 @@ function updateModeUI_(){
   const select=document.getElementById('projectSelect');
   const actions=document.getElementById('manualActions');
 
+  const isMobile = window.matchMedia &&
+                   window.matchMedia('(max-width: 600px)').matches;
+
   if(modeAplikasi==='MANUAL'){
     autoBtn.classList.remove('active');
     manualBtn.classList.add('active');
-    select.disabled=true;
-    select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
-    select.value=NAMA_PROYEK_MANUAL;
-    proyekAktif=NAMA_PROYEK_MANUAL;
-    actions.style.display='flex';
+
+    if(isMobile){
+      // HP: dropdown tetap aktif karena sekaligus menjadi pemilih metode.
+      select.disabled=false;
+      actions.style.display='none';
+    }else{
+      select.disabled=true;
+      select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
+      select.value=NAMA_PROYEK_MANUAL;
+      proyekAktif=NAMA_PROYEK_MANUAL;
+      actions.style.display='flex';
+    }
   }else{
     autoBtn.classList.add('active');
     manualBtn.classList.remove('active');
@@ -311,21 +350,64 @@ function updateModeUI_(){
 }
 
 function pilihMode(mode){
+  // Batalkan request lama saat user pindah mode.
+  // Request yang sedang berjalan tidak boleh mengubah tampilan mode baru.
+  requestSerial++;
+
   modeAplikasi=String(mode||'AUTO').toUpperCase()==='MANUAL' ? 'MANUAL' : 'AUTO';
 
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+
+    // MANUAL tetap menampilkan data yang sudah tersimpan jika ada.
+    // Jika belum ada cache, baru ambil data MANUAL dari server.
+    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    if(cachedManual && cachedManual.success===true){
+      proyekAktif=NAMA_PROYEK_MANUAL;
+      tampilkanData(cachedManual);
+      setStatus('Data manual tersimpan ditampilkan. Memperbarui data...');
+      showLoading(false);
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
+    }else{
+      resetTampilan();
+      showLoading(false);
+      setStatus('Memuat data manual...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    }
     return;
   }
 
+  // ============================================================
+  // KEMBALI KE DATA OTOMATIS
+  // ============================================================
+  // JANGAN langsung mengambil data proyek.
+  // Yang ditampilkan hanya dropdown daftar proyek.
+  // Data baru diambil SETELAH user memilih proyek.
+  // Ini menghilangkan loading panjang saat AUTO <-> MANUAL.
+  // ============================================================
   updateModeUI_();
   proyekAktif='';
   localStorage.removeItem(CACHE_LAST_PROJECT_KEY);
   resetTampilan();
+  showLoading(false);
+
+  const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
+
+  if(Array.isArray(cachedProjects) && cachedProjects.length){
+    daftarProyek=filterProyekOtomatis_(cachedProjects);
+    isiDropdownProyek(false);
+    const select=document.getElementById('projectSelect');
+    select.value='';
+    proyekAktif='';
+    setStatus('Pilih proyek untuk menampilkan data material.');
+    return;
+  }
+
+  // Jika daftar proyek belum pernah tersimpan, ambil DAFTAR saja.
+  // Parameter false memastikan tidak ada data proyek yang ikut dimuat.
   setStatus('Memuat daftar proyek...');
-  loadDaftarProyek(true);
+  loadDaftarProyek(false,false);
 }
 
 function bukaInputManual(){
@@ -363,36 +445,6 @@ function bukaInputManual(){
 document.addEventListener('DOMContentLoaded',function(){
   updateClock();
   setInterval(updateClock,1000);
-
-  /*
-   * ==========================================================
-   * MODE KHUSUS DARI INPUT MANUAL
-   *
-   * Jika aplikasi dibuka dengan:
-   * ?mode=manual
-   *
-   * maka JANGAN tampilkan proyek otomatis terakhir/cache.
-   * Langsung tampilkan hasil MANUAL EKSPEDISI.
-   *
-   * URL biasa tanpa parameter tetap menggunakan DATA OTOMATIS
-   * seperti sebelumnya.
-   * ==========================================================
-   */
-  const modeUrl = new URLSearchParams(window.location.search).get('mode');
-
-  if(String(modeUrl || '').toLowerCase() === 'manual'){
-    modeAplikasi='MANUAL';
-    updateModeUI_();
-    localStorage.setItem(
-      CACHE_LAST_PROJECT_KEY,
-      NAMA_PROYEK_MANUAL
-    );
-    resetTampilan();
-    setStatus('Memuat hasil INPUT MANUAL EKSPEDISI...');
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
-    return;
-  }
-
   updateModeUI_();
 
   // Tampilkan data cache secepat mungkin.
@@ -494,7 +546,22 @@ function isiDropdownProyek(autoSelect){
 
   });
 
-  if(current && daftarProyek.indexOf(current)>=0){
+  // HP: tambahkan MANUAL EKSPEDISI ke dropdown.
+  // Desktop tetap menggunakan tombol metode input seperti sebelumnya.
+  const isMobile = window.matchMedia &&
+                   window.matchMedia('(max-width: 600px)').matches;
+
+  if(isMobile){
+    const manualOption=document.createElement('option');
+    manualOption.value=NAMA_PROYEK_MANUAL;
+    manualOption.textContent=NAMA_PROYEK_MANUAL;
+    s.appendChild(manualOption);
+  }
+
+  if(current && (
+      daftarProyek.indexOf(current)>=0 ||
+      (isMobile && current===NAMA_PROYEK_MANUAL)
+  )){
 
     s.value=current;
 
@@ -511,13 +578,40 @@ function isiDropdownProyek(autoSelect){
 
 function pilihProyek(){
 
+  const p=document.getElementById('projectSelect').value;
+
+  // HP: MANUAL EKSPEDISI dipilih langsung dari dropdown.
+  // Tidak perlu tombol INPUT MANUAL / INPUT DATA di HP.
+  const isMobile = window.matchMedia &&
+                   window.matchMedia('(max-width: 600px)').matches;
+
+  if(isMobile && p===NAMA_PROYEK_MANUAL){
+    requestSerial++;
+    modeAplikasi='MANUAL';
+    proyekAktif=NAMA_PROYEK_MANUAL;
+    localStorage.setItem(
+      CACHE_LAST_PROJECT_KEY,
+      NAMA_PROYEK_MANUAL
+    );
+
+    resetTampilan();
+    showLoading(false);
+    setStatus('Memuat data manual...');
+
+    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    return;
+  }
+
+  // Jika memilih proyek biasa dari dropdown HP, kembali ke AUTO.
+  if(isMobile){
+    modeAplikasi='AUTO';
+  }
+
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
-
-  const p=document.getElementById('projectSelect').value;
 
   proyekAktif=p;
 
@@ -540,6 +634,11 @@ function pilihProyek(){
     CACHE_LAST_PROJECT_KEY,
     p
   );
+
+  // Proyek baru harus mulai dari rekomendasi proyek tersebut.
+  if(proyekArmadaTerakhir!==p){
+    armadaAktualTerakhir=[];
+  }
 
   const cachedData=
     getCache_(
@@ -569,6 +668,8 @@ function pilihProyek(){
 
 
 function loadDataProyek(p,showOverlay){
+
+  const requestId=++requestSerial;
 
   if(showOverlay){
 
@@ -626,11 +727,35 @@ function loadDataProyek(p,showOverlay){
       result
     );
 
+    // Request lama boleh selesai dan menyimpan cache,
+    // tetapi tidak boleh mengubah UI mode/proyek yang terbaru.
+    if(requestId!==requestSerial){
+      return;
+    }
+
     if(
       document.getElementById(
         'projectSelect'
       ).value===p
     ){
+
+      /*
+       * ==========================================================
+       * PERTAHANKAN REKOMENDASI ARMADA
+       * ==========================================================
+       * Pada refresh/background request, API kadang dapat
+       * mengembalikan data material + KPI lebih dulu tanpa
+       * armadaAktual. Jangan hapus rekomendasi yang sudah tampil.
+       * Jika armadaAktual tersedia, gunakan data terbaru.
+       */
+      if(
+        (!Array.isArray(result.armadaAktual) || result.armadaAktual.length===0) &&
+        proyekArmadaTerakhir===p &&
+        Array.isArray(armadaAktualTerakhir) &&
+        armadaAktualTerakhir.length>0
+      ){
+        result.armadaAktual=armadaAktualTerakhir;
+      }
 
       tampilkanData(result);
 
@@ -655,6 +780,10 @@ function loadDataProyek(p,showOverlay){
       e
     );
 
+    if(requestId!==requestSerial){
+      return;
+    }
+
     if(showOverlay){
 
       showLoading(false);
@@ -678,7 +807,9 @@ function loadDataProyek(p,showOverlay){
 }
 
   
-function loadDaftarProyek(showOverlay){
+function loadDaftarProyek(showOverlay,loadSelected){
+  if(typeof loadSelected==='undefined') loadSelected=true;
+
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     loadDataProyek(NAMA_PROYEK_MANUAL,showOverlay);
@@ -718,6 +849,17 @@ function loadDaftarProyek(showOverlay){
     const currentProject=select.value || '';
 
     isiDropdownProyek(false);
+
+    // Mode ringan: hanya isi dropdown proyek.
+    // Jangan memuat data proyek sampai user memilih proyek.
+    if(loadSelected===false){
+      select.value='';
+      proyekAktif='';
+      resetTampilan();
+      showLoading(false);
+      setStatus('Pilih proyek untuk menampilkan data material.');
+      return;
+    }
 
     /*
      * ==========================================================
@@ -902,106 +1044,273 @@ function tampilkanData(data){
   }
 
   const s=data.summary||{};
-  document.getElementById('totalItem').textContent=formatNumber(s.totalItem,0)+' jenis';
-  document.getElementById('totalVolume').textContent=formatNumber(s.totalVolume,0)+' unit';
-  document.getElementById('totalCbm').textContent=formatNumber(s.totalCbm,2)+' m³';
-  document.getElementById('totalTon').textContent=formatNumber(s.totalTon,3)+' Ton';
+  const materialData=Array.isArray(data.material)?data.material:[];
+  materialDataTerakhir=materialData.slice();
 
-  // HASIL_REKOMENDASI_ARMADA adalah sumber utama rekomendasi.
-  // Semua armada aktual ditampilkan, bukan hanya baris pertama.
-  const armadaList=ambilArmadaAktual(data,s);
+  // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
+  // Jadi KPI tidak bisa berbeda dengan tabel akibat summary/cache lama.
+  let kpiItem=materialData.length;
+  let kpiVolume=0;
+  let kpiCbm=0;
+  let kpiTon=0;
+
+  materialData.forEach(function(item){
+    kpiVolume += Number(item.volume)||0;
+    kpiCbm += Number(item.totalCbm)||0;
+    kpiTon += Number(item.totalTon)||0;
+  });
+
+  // Jika material kosong tetapi API masih mengirim summary, pertahankan summary.
+  if(materialData.length===0){
+    kpiItem=Number(s.totalItem)||0;
+    kpiVolume=Number(s.totalVolume)||0;
+    kpiCbm=Number(s.totalCbm)||0;
+    kpiTon=Number(s.totalTon)||0;
+  }
+
+  document.getElementById('totalItem').textContent=formatNumber(kpiItem,0)+' jenis';
+  document.getElementById('totalVolume').textContent=formatNumber(kpiVolume,0)+' unit';
+  document.getElementById('totalCbm').textContent=formatNumber(kpiCbm,2)+' m³';
+  document.getElementById('totalTon').textContent=formatNumber(kpiTon,3)+' Ton';
+
+  const summaryUntukArmada={
+    totalItem:kpiItem,
+    totalVolume:kpiVolume,
+    totalCbm:kpiCbm,
+    totalTon:kpiTon
+  };
+
+  // HASIL_REKOMENDASI_ARMADA tetap menjadi sumber utama.
+  // Jika DETAIL ARMADA tersedia dan seluruh muatan dapat direkonsiliasi
+  // dengan summary proyek, gunakan DETAIL sebagai pembagian aktual
+  // per armada/unit. Ini mencegah satu jenis armada terbaca ganda
+  // ketika rekap tampilan membawa agregasi yang tidak sesuai alokasi.
+  const armadaList=ambilArmadaAktual(data,summaryUntukArmada);
+
+  if(Array.isArray(armadaList) && armadaList.length>0){
+    armadaAktualTerakhir=armadaList;
+    proyekArmadaTerakhir=proyekAktif;
+  }
+
   tampilkanArmada(armadaList);
-  tampilkanMaterial(data.material||[]);
+  tampilkanMaterial(materialData);
 }
 
 function ambilArmadaAktual(data,summary){
-  /* ==========================================================
-     SUMBER REKOMENDASI ARMADA:
-     REKAP_ARMADA_AKTUAL -> API -> data.armadaAktual
+  /*
+   * ==========================================================
+   * SUMBER ARMADA RESMI
+   * ----------------------------------------------------------
+   * INDEX TIDAK BOLEH MENGHITUNG ULANG REKOMENDASI ARMADA.
+   * Ambil langsung dari REKAP_ARMADA_AKTUAL -> armadaAktual.
+   *
+   * Penting:
+   * - TIDAK memakai data.armada lama sebagai fallback.
+   * - TIDAK menghitung kebutuhan armada dari total proyek.
+   * - TIDAK menggabungkan beberapa armada menjadi satu jenis.
+   * - Setiap baris armada aktual = hasil alokasi mesin.
+   *
+   * Untuk Ponpes Al-Khoziny hasil yang sudah diuji:
+   * 1 x CONTAINER 40FT + 1 x FUSO.
+   * ==========================================================
+   */
+  const rows =
+    data &&
+    Array.isArray(data.armadaAktual)
+      ? data.armadaAktual
+      : [];
 
-     JANGAN HITUNG ULANG DI SINI.
-     Sheet REKAP_ARMADA_AKTUAL sudah berisi hasil final
-     per proyek dan urutan armada yang harus ditampilkan.
-
-     Contoh:
-       CONTAINER 40FT — 1 UNIT
-       FUSO          — 1 UNIT
-  ========================================================== */
-
-  if(data && Array.isArray(data.armadaAktual) && data.armadaAktual.length > 0){
-    return data.armadaAktual.map(function(r){
-      return {
-        // B ARMADA
-        armada: String(r.armada || '-').trim(),
-
-        // C JUMLAH_UNIT
-        kebutuhanUnit:
-          Number(r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit) || 0,
-
-        // D-F DIMENSI
-        panjangM: Number(r.panjangM) || 0,
-        lebarM: Number(r.lebarM) || 0,
-        tinggiM: Number(r.tinggiM) || 0,
-
-        // G-H KAPASITAS PER UNIT
-        kapasitasCbm:
-          Number(
-            r.kapasitasCbmUnit != null
-              ? r.kapasitasCbmUnit
-              : r.kapasitasCbm
-          ) || 0,
-
-        maxTonase:
-          Number(
-            r.maxTonaseUnit != null
-              ? r.maxTonaseUnit
-              : r.maxTonase
-          ) || 0,
-
-        // I-J KAPASITAS TOTAL ARMADA
-        kapasitasCbmTotal:
-          Number(r.kapasitasCbmTotal) || 0,
-
-        kapasitasTonTotal:
-          Number(r.kapasitasTonTotal) || 0,
-
-        // K-L BEBAN AKTUAL YANG DIALOKASIKAN KE ARMADA
-        totalCbmProyek:
-          Number(
-            r.totalCbmTerpakaiTotal != null
-              ? r.totalCbmTerpakaiTotal
-              : r.totalCbmProyek != null
-                ? r.totalCbmProyek
-                : r.cbmTerpakai
-          ) || 0,
-
-        totalTonProyek:
-          Number(
-            r.totalTonTerpakaiTotal != null
-              ? r.totalTonTerpakaiTotal
-              : r.totalTonProyek != null
-                ? r.totalTonProyek
-                : r.tonTerpakai
-          ) || 0,
-
-        // M-N PEMAKAIAN
-        pemakaianCbm:
-          Number(r.pemakaianCbm) || 0,
-
-        pemakaianTon:
-          Number(r.pemakaianTon) || 0,
-
-        // O STATUS
-        status:
-          r.status || ''
-      };
-    });
+  if(rows.length===0){
+    return ambilArmadaDariDetail_(data, summary);
   }
 
-  // ARMADA HANYA DIAMBIL DARI data.armadaAktual.
-  // Tidak menggunakan data.armada lama agar rekomendasi tidak kembali
-  // menjadi 1 armada/armada lama dari cache.
-  return [];
+  const hasilRekap = rows.map(function(r){
+    const jumlahUnit = Number(
+      r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit
+    ) || 0;
+
+    const kapasitasCbm = Number(
+      r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm
+    ) || 0;
+
+    const maxTonase = Number(
+      r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase
+    ) || 0;
+
+    const kapasitasCbmTotal = Number(r.kapasitasCbmTotal) ||
+      (kapasitasCbm * jumlahUnit);
+
+    const kapasitasTonTotal = Number(r.kapasitasTonTotal) ||
+      (maxTonase * jumlahUnit);
+
+    // Ambil MUATAN AKTUAL dari REKAP, bukan total proyek.
+    const totalCbmProyek = Number(
+      r.cbmTerpakai != null
+        ? r.cbmTerpakai
+        : r.totalCbmTerpakaiTotal != null
+          ? r.totalCbmTerpakaiTotal
+          : r.totalCbmProyek != null
+            ? r.totalCbmProyek
+            : r.totalCbm
+    ) || 0;
+
+    const totalTonProyek = Number(
+      r.tonTerpakai != null
+        ? r.tonTerpakai
+        : r.totalTonTerpakaiTotal != null
+          ? r.totalTonTerpakaiTotal
+          : r.totalTonProyek != null
+            ? r.totalTonProyek
+            : r.totalTon
+    ) || 0;
+
+    // Hitung pemakaian dari angka aktual armada agar konsisten.
+    const pemakaianCbm = kapasitasCbmTotal > 0
+      ? totalCbmProyek / kapasitasCbmTotal
+      : 0;
+
+    const pemakaianTon = kapasitasTonTotal > 0
+      ? totalTonProyek / kapasitasTonTotal
+      : 0;
+
+    let status = 'KUOTA MASIH TERSEDIA';
+
+    // Status mengikuti angka pemakaian yang ditampilkan di UI.
+    // Jika pembulatan sudah menjadi 100,0%, kuota dianggap tercapai.
+    // Ini hanya memperbaiki status tampilan; angka KPI dan hasil hitung
+    // armada tetap menggunakan nilai aktual dari API.
+    const cbmTercapai = Math.round(pemakaianCbm * 1000) / 1000 >= 1;
+    const tonTercapai = Math.round(pemakaianTon * 1000) / 1000 >= 1;
+
+    if(cbmTercapai || tonTercapai){
+      status = 'KUOTA TERCAPAI';
+    }
+
+    return {
+      armada: String(r.armada || '-').trim(),
+      kebutuhanUnit: jumlahUnit,
+      panjangM: Number(r.panjangM) || 0,
+      lebarM: Number(r.lebarM) || 0,
+      tinggiM: Number(r.tinggiM) || 0,
+      kapasitasCbm: kapasitasCbm,
+      maxTonase: maxTonase,
+      kapasitasCbmTotal: kapasitasCbmTotal,
+      kapasitasTonTotal: kapasitasTonTotal,
+      totalCbmProyek: totalCbmProyek,
+      totalTonProyek: totalTonProyek,
+      pemakaianCbm: pemakaianCbm,
+      pemakaianTon: pemakaianTon,
+      status: status
+    };
+  });
+
+  // Detail loading adalah data paling granular: satu armada/unit dan
+  // material yang benar-benar dimuat. Bila detail lengkap dan totalnya
+  // cocok dengan summary, pakai detail untuk membentuk kartu armada.
+  // Bila tidak lengkap, tetap aman memakai REKAP_ARMADA_AKTUAL.
+  const hasilDetail = ambilArmadaDariDetail_(data, summary);
+  if(hasilDetail.length>0){
+    return hasilDetail;
+  }
+
+  return hasilRekap;
+}
+
+function ambilArmadaDariDetail_(data, summary){
+  const detail = data && Array.isArray(data.detailArmada)
+    ? data.detailArmada
+    : [];
+
+  if(detail.length===0) return [];
+
+  const groups = {};
+  let totalCbm = 0;
+  let totalTon = 0;
+
+  detail.forEach(function(r){
+    const nama = String(r.armada || '').trim();
+    if(!nama) return;
+
+    const armadaKe = Number(r.armadaKe);
+    const unitArmada = Number(r.unitArmada);
+    const keyUnit = isFinite(armadaKe) && armadaKe>0
+      ? (nama.toUpperCase()+'|KE|'+armadaKe)
+      : (nama.toUpperCase()+'|UNIT|'+(unitArmada||1));
+
+    if(!groups[keyUnit]){
+      groups[keyUnit] = {
+        armada: nama,
+        unitArmada: unitArmada || 1,
+        panjangM: Number(r.panjangM)||0,
+        lebarM: Number(r.lebarM)||0,
+        tinggiM: Number(r.tinggiM)||0,
+        kapasitasCbm: Number(r.kapasitasCbmUnit)||0,
+        maxTonase: Number(r.maxTonaseUnit)||0,
+        totalCbmProyek: 0,
+        totalTonProyek: 0
+      };
+    }
+
+    const cbm = Number(r.cbmMuat);
+    const ton = Number(r.tonMuat);
+    groups[keyUnit].totalCbmProyek += isFinite(cbm) ? cbm : 0;
+    groups[keyUnit].totalTonProyek += isFinite(ton) ? ton : 0;
+  });
+
+  const unitGroups = Object.keys(groups).map(function(k){ return groups[k]; });
+  if(unitGroups.length===0) return [];
+
+  totalCbm = unitGroups.reduce(function(a,g){ return a + g.totalCbmProyek; },0);
+  totalTon = unitGroups.reduce(function(a,g){ return a + g.totalTonProyek; },0);
+
+  const targetCbm = Number(summary && summary.totalCbm)||0;
+  const targetTon = Number(summary && summary.totalTon)||0;
+  const cbmOk = targetCbm <= 0 || Math.abs(totalCbm-targetCbm) <= Math.max(0.01,targetCbm*0.001);
+  const tonOk = targetTon <= 0 || Math.abs(totalTon-targetTon) <= Math.max(0.001,targetTon*0.001);
+
+  if(!cbmOk || !tonOk) return [];
+
+  const byType = {};
+  unitGroups.forEach(function(g){
+    const key = g.armada.toUpperCase();
+    if(!byType[key]){
+      byType[key] = {
+        armada:g.armada,
+        kebutuhanUnit:0,
+        panjangM:g.panjangM,
+        lebarM:g.lebarM,
+        tinggiM:g.tinggiM,
+        kapasitasCbm:g.kapasitasCbm,
+        maxTonase:g.maxTonase,
+        kapasitasCbmTotal:0,
+        kapasitasTonTotal:0,
+        totalCbmProyek:0,
+        totalTonProyek:0
+      };
+    }
+    const x=byType[key];
+    x.kebutuhanUnit++;
+    x.kapasitasCbmTotal += g.kapasitasCbm;
+    x.kapasitasTonTotal += g.maxTonase;
+    x.totalCbmProyek += g.totalCbmProyek;
+    x.totalTonProyek += g.totalTonProyek;
+  });
+
+  return Object.keys(byType).map(function(key){
+    const x=byType[key];
+    x.pemakaianCbm=x.kapasitasCbmTotal>0 ? x.totalCbmProyek/x.kapasitasCbmTotal : 0;
+    x.pemakaianTon=x.kapasitasTonTotal>0 ? x.totalTonProyek/x.kapasitasTonTotal : 0;
+
+    // Status HARUS mengikuti angka persen yang tampil di layar.
+    // Contoh 99,98% akan ditampilkan sebagai 100,0%, sehingga
+    // kartu harus berubah menjadi KUOTA TERCAPAI (merah).
+    const cbmTercapaiTampil = Math.round(x.pemakaianCbm * 1000) / 1000 >= 1;
+    const tonTercapaiTampil = Math.round(x.pemakaianTon * 1000) / 1000 >= 1;
+    x.status=(cbmTercapaiTampil || tonTercapaiTampil)
+      ? 'KUOTA TERCAPAI'
+      : 'KUOTA MASIH TERSEDIA';
+    return x;
+  });
 }
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
@@ -1009,10 +1318,16 @@ function tampilkanArmada(list){
   const container=document.getElementById('armadaList');
 
   if(!Array.isArray(list) || list.length===0){
-    empty.style.display='block';
-    result.style.display='none';
-    container.innerHTML='';
-    return;
+    // Jangan menghilangkan rekomendasi yang sudah tampil hanya karena
+    // background refresh sementara belum mengembalikan armada.
+    if(proyekArmadaTerakhir===proyekAktif && Array.isArray(armadaAktualTerakhir) && armadaAktualTerakhir.length>0){
+      list=armadaAktualTerakhir;
+    }else{
+      empty.style.display='block';
+      result.style.display='none';
+      container.innerHTML='';
+      return;
+    }
   }
 
   empty.style.display='none';
@@ -1029,8 +1344,10 @@ function tampilkanArmada(list){
 
     // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
     // armada dianggap sudah mencapai batas.
-    const cbmTercapai=usageCbm>=1;
-    const tonTercapai=usageTon>=1;
+    // Gunakan pembulatan yang sama dengan angka persen di UI.
+    // Jadi 99,98% -> 100,0% dan status menjadi merah.
+    const cbmTercapai=Math.round(usageCbm*1000)/1000>=1;
+    const tonTercapai=Math.round(usageTon*1000)/1000>=1;
     const kapasitasTercapai=cbmTercapai||tonTercapai;
 
     let statusClass='ok';
@@ -1176,6 +1493,9 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
+  materialDataTerakhir=[];
+  armadaAktualTerakhir=[];
+  proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
   document.getElementById('totalVolume').textContent='0 unit';
   document.getElementById('totalCbm').textContent='0 m³';
@@ -1201,9 +1521,15 @@ function refreshData(){
     p
   );
 
-  // REFRESH hanya mengambil data proyek yang sedang aktif.
-  // Tidak memuat ulang daftar proyek dan tidak mereset tampilan.
-  loadDataProyek(p,true);
+  // REFRESH tidak mengosongkan layar dan tidak menunggu spinner penuh.
+  // Data yang sedang tampil tetap dipakai, server diperbarui di background.
+  const cached=getCache_(getProjectCacheKey_(p));
+  if(cached && cached.success===true){
+    tampilkanData(cached);
+  }
+
+  setStatus('Memperbarui data terbaru...');
+  loadDataProyek(p,false);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatTableNumber(v){
@@ -1220,6 +1546,99 @@ function formatTableNumber(v){
 }
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function exportExcel(){
+  const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
+
+  if(rows.length===0){
+    alert('Tidak ada data material yang dapat diexport.');
+    return;
+  }
+
+  const proyek = proyekAktif || document.getElementById('projectSelect').value || 'DATA MATERIAL';
+  const mode = modeAplikasi === 'MANUAL' ? 'INPUT MANUAL' : 'DATA OTOMATIS';
+  const totalItem = rows.length;
+  let totalVolume = 0;
+  let totalCbm = 0;
+  let totalTon = 0;
+
+  rows.forEach(function(item){
+    totalVolume += Number(item.volume)||0;
+    totalCbm += Number(item.totalCbm)||0;
+    totalTon += Number(item.totalTon)||0;
+  });
+
+  function esc(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function excelNum(v){
+    const n=Number(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  const now = new Date();
+  const tanggal = now.toLocaleString('id-ID');
+
+  let html = '<html><head><meta charset="UTF-8"></head><body>';
+  html += '<table border="1" cellspacing="0" cellpadding="5">';
+  html += '<tr><th colspan="9" style="font-size:16pt">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<tr><th colspan="9">PROYEK</th></tr>';
+  html += '<tr><td colspan="9">'+esc(proyek)+'</td></tr>';
+  html += '<tr><th colspan="9">METODE INPUT</th></tr>';
+  html += '<tr><td colspan="9">'+esc(mode)+'</td></tr>';
+  html += '<tr><th colspan="9">RINGKASAN</th></tr>';
+  html += '<tr>'+
+    '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="5"></th>'+
+    '</tr>';
+  html += '<tr>'+
+    '<td>'+excelNum(totalItem)+'</td>'+
+    '<td>'+excelNum(totalVolume)+'</td>'+
+    '<td>'+excelNum(totalCbm)+'</td>'+
+    '<td>'+excelNum(totalTon)+'</td>'+
+    '<td colspan="5"></td>'+
+    '</tr>';
+  html += '<tr><td colspan="9"></td></tr>';
+  html += '<tr>'+
+    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th>'+
+    '</tr>';
+
+  rows.forEach(function(item,i){
+    const st = tentukanStatusMaterial(item,rows);
+    html += '<tr>'+
+      '<td>'+excelNum(i+1)+'</td>'+
+      '<td>'+esc(item.material)+'</td>'+
+      '<td>'+excelNum(item.volume)+'</td>'+
+      '<td>'+esc(item.unit)+'</td>'+
+      '<td>'+esc(item.category)+'</td>'+
+      '<td>'+excelNum(item.totalCbm)+'</td>'+
+      '<td>'+excelNum(item.totalWeightKg)+'</td>'+
+      '<td>'+excelNum(item.totalTon)+'</td>'+
+      '<td>'+esc(st.label)+'</td>'+
+      '</tr>';
+  });
+
+  html += '<tr><td colspan="9"></td></tr>';
+  html += '<tr><td colspan="9">Export: '+esc(tanggal)+'</td></tr>';
+  html += '</table></body></html>';
+
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const namaProyek = String(proyek)
+    .replace(/[^a-zA-Z0-9\\u00C0-\\u024F\\u1E00-\\u1EFF]+/g,'_')
+    .replace(/^_+|_+$/g,'') || 'DATA_MATERIAL';
+  a.href = url;
+  a.download = 'EKSPEDISI_MATERIAL_'+namaProyek+'.xls';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 </script>
 </body>
