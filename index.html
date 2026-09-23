@@ -65,6 +65,11 @@
     .section-header-icon{font-size:24px;margin-right:10px}
 
     .armada-body{padding:12px 8px 12px;background:#fff}
+    .armada-selector-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 10px;padding:0 2px}
+    .armada-selector-label{font-size:13px;font-weight:700;color:#17324d;white-space:nowrap}
+    .armada-select{height:38px;min-width:245px;border:1px solid #aeb8c2;background:#fff;color:#17324d;padding:0 10px;font-size:13px;font-weight:700;border-radius:3px;outline:none}
+    .armada-select:focus{border-color:#0d6efd}
+    .armada-select:disabled{background:#eef3f7;color:#718096;cursor:not-allowed}
     .armada-empty{color:#718096;font-size:14px;text-transform:uppercase;padding:25px}
     .armada-result{display:none}
     .armada-list{display:flex;flex-direction:column;gap:10px}
@@ -189,6 +194,24 @@
         height:38px;
       }
 
+      .armada-selector-row{
+        justify-content:stretch;
+        align-items:stretch;
+        flex-direction:column;
+        gap:5px;
+        padding:0 2px 8px;
+      }
+
+      .armada-selector-label{
+        font-size:12px;
+      }
+
+      .armada-select{
+        width:100%;
+        min-width:0;
+        height:38px;
+      }
+
       .header{height:62px}
       .header-icon{font-size:28px}
       .header-title{font-size:18px}
@@ -251,6 +274,13 @@
   <section class="section">
     <div class="section-header"><div class="section-header-icon">🚛</div><div>REKOMENDASI ARMADA</div></div>
     <div class="armada-body">
+      <div id="armadaSelectorRow" class="armada-selector-row" style="display:none">
+        <label class="armada-selector-label" for="armadaSelect">JENIS ARMADA</label>
+        <select id="armadaSelect" class="armada-select" onchange="pilihArmadaManual()">
+          <option value="">AUTO</option>
+        </select>
+      </div>
+
       <div id="armadaEmpty" class="armada-empty">BELUM ADA DATA UNTUK REKOMENDASI ARMADA.</div>
 
       <div id="armadaResult" class="armada-result">
@@ -304,6 +334,64 @@ let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
 let materialDataTerakhir = [];
+
+/*
+ * ==========================================================
+ * PILIHAN ARMADA MANUAL
+ * ----------------------------------------------------------
+ * Database ini hanya dipakai untuk:
+ * 1. Mengisi dropdown armada yang mendekati hasil AUTO.
+ * 2. Menghitung ulang kapasitas saat bos memilih armada lain.
+ *
+ * Logika AUTO/API TIDAK diubah.
+ * ==========================================================
+ */
+const MASTER_ARMADA_PILIHAN = [
+  {
+    armada:'CDD',
+    panjangM:4,
+    lebarM:2,
+    tinggiM:2,
+    kapasitasCbm:4,
+    maxTonase:16
+  },
+  {
+    armada:'FUSO',
+    panjangM:6,
+    lebarM:2.4,
+    tinggiM:2.4,
+    kapasitasCbm:34.56,
+    maxTonase:15
+  },
+  {
+    armada:'TRONTON',
+    panjangM:8.5,
+    lebarM:2.5,
+    tinggiM:2.5,
+    kapasitasCbm:53.125,
+    maxTonase:15
+  },
+  {
+    armada:'CONTAINER 20FT',
+    panjangM:5.9,
+    lebarM:2.35,
+    tinggiM:2.39,
+    kapasitasCbm:33.14,
+    maxTonase:28
+  },
+  {
+    armada:'CONTAINER 40FT',
+    panjangM:12.03,
+    lebarM:2.35,
+    tinggiM:2.39,
+    kapasitasCbm:67.56,
+    maxTonase:28
+  }
+];
+
+let armadaModePilihan = 'AUTO';
+let armadaPilihanData = [];
+let armadaSummaryPilihan = null;
 
 // Menjaga rekomendasi armada tetap tampil jika request refresh/server
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
@@ -1128,6 +1216,12 @@ function tampilkanData(data){
   // ketika rekap tampilan membawa agregasi yang tidak sesuai alokasi.
   const armadaList=ambilArmadaAktual(data,summaryUntukArmada);
 
+  /*
+   * Dropdown hanya berisi armada yang mendekati hasil AUTO.
+   * Default tetap AUTO.
+   */
+  siapkanDropdownArmada_(armadaList,summaryUntukArmada);
+
   if(Array.isArray(armadaList) && armadaList.length>0){
     armadaAktualTerakhir=armadaList;
     proyekArmadaTerakhir=proyekAktif;
@@ -1353,6 +1447,287 @@ function ambilArmadaDariDetail_(data, summary){
     return x;
   });
 }
+
+function hitungUnitArmadaPilihan_(m, totalCbm, totalTon){
+  const cbm=Number(totalCbm)||0;
+  const ton=Number(totalTon)||0;
+
+  const unitCbm=m.kapasitasCbm>0
+    ? Math.ceil(cbm/m.kapasitasCbm)
+    : 0;
+
+  const unitTon=m.maxTonase>0
+    ? Math.ceil(ton/m.maxTonase)
+    : 0;
+
+  return Math.max(1,unitCbm,unitTon);
+}
+
+function buatHasilArmadaPilihan_(m,totalCbm,totalTon){
+  const unit=hitungUnitArmadaPilihan_(m,totalCbm,totalTon);
+
+  const kapasitasCbmTotal=m.kapasitasCbm*unit;
+  const kapasitasTonTotal=m.maxTonase*unit;
+
+  const pemakaianCbm=kapasitasCbmTotal>0
+    ? totalCbm/kapasitasCbmTotal
+    : 0;
+
+  const pemakaianTon=kapasitasTonTotal>0
+    ? totalTon/kapasitasTonTotal
+    : 0;
+
+  return {
+    armada:m.armada,
+    kebutuhanUnit:unit,
+    panjangM:m.panjangM,
+    lebarM:m.lebarM,
+    tinggiM:m.tinggiM,
+    kapasitasCbm:m.kapasitasCbm,
+    maxTonase:m.maxTonase,
+    kapasitasCbmTotal:kapasitasCbmTotal,
+    kapasitasTonTotal:kapasitasTonTotal,
+    totalCbmProyek:totalCbm,
+    totalTonProyek:totalTon,
+    pemakaianCbm:pemakaianCbm,
+    pemakaianTon:pemakaianTon,
+    status:(
+      pemakaianCbm>=1 ||
+      pemakaianTon>=1
+    )
+      ? 'KUOTA TERCAPAI'
+      : 'KUOTA MASIH TERSEDIA'
+  };
+}
+
+function normalisasiNamaArmada_(v){
+  return String(v||'')
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g,' ');
+}
+
+function cariMasterArmada_(nama){
+  const target=normalisasiNamaArmada_(nama);
+
+  return MASTER_ARMADA_PILIHAN.find(function(m){
+    return normalisasiNamaArmada_(m.armada)===target;
+  }) || null;
+}
+
+function siapkanDropdownArmada_(autoList,summary){
+  const row=document.getElementById('armadaSelectorRow');
+  const select=document.getElementById('armadaSelect');
+
+  if(!row || !select) return;
+
+  if(!Array.isArray(autoList) || autoList.length===0){
+    row.style.display='none';
+    select.innerHTML='<option value="">AUTO</option>';
+    armadaPilihanData=[];
+    armadaSummaryPilihan=null;
+    armadaModePilihan='AUTO';
+    return;
+  }
+
+  const totalCbm=Number(summary && summary.totalCbm)||0;
+  const totalTon=Number(summary && summary.totalTon)||0;
+
+  /*
+   * AUTO tetap berasal dari mesin/API.
+   * Armada pertama menjadi acuan kedekatan dropdown.
+   */
+  const autoArmada=normalisasiNamaArmada_(
+    autoList[0] && autoList[0].armada
+  );
+
+  const autoMaster=cariMasterArmada_(autoArmada);
+
+  /*
+   * Bila nama AUTO tidak ada di database pilihan,
+   * gunakan kapasitas kartu AUTO sebagai acuan.
+   */
+  const autoCbm=autoMaster
+    ? autoMaster.kapasitasCbm
+    : Number(autoList[0].kapasitasCbm)||0;
+
+  const autoTon=autoMaster
+    ? autoMaster.maxTonase
+    : Number(autoList[0].maxTonase)||0;
+
+  /*
+   * Effective capacity = kapasitas yang paling membatasi.
+   * Nilai lebih besar = armada lebih longgar terhadap muatan.
+   */
+  const autoEffective=Math.min(
+    autoCbm>0 && totalCbm>0 ? autoCbm/totalCbm : Infinity,
+    autoTon>0 && totalTon>0 ? autoTon/totalTon : Infinity
+  );
+
+  const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
+    const effective=Math.min(
+      m.kapasitasCbm>0 && totalCbm>0
+        ? m.kapasitasCbm/totalCbm
+        : Infinity,
+      m.maxTonase>0 && totalTon>0
+        ? m.maxTonase/totalTon
+        : Infinity
+    );
+
+    const unit=hitungUnitArmadaPilihan_(m,totalCbm,totalTon);
+
+    /*
+     * Jarak terhadap kapasitas efektif AUTO.
+     * Semakin kecil = semakin mendekati hasil AUTO.
+     */
+    const score=(
+      isFinite(autoEffective) &&
+      autoEffective>0 &&
+      isFinite(effective) &&
+      effective>0
+    )
+      ? Math.abs(Math.log(effective/autoEffective))
+      : Math.abs(unit-(Number(autoList[0].kebutuhanUnit)||1));
+
+    return {
+      master:m,
+      unit:unit,
+      score:score,
+      isAuto:normalisasiNamaArmada_(m.armada)===autoArmada
+    };
+  });
+
+  /*
+   * Urutkan dari yang paling mendekati AUTO.
+   */
+  kandidat.sort(function(a,b){
+    if(a.isAuto!==b.isAuto) return a.isAuto ? -1 : 1;
+    if(a.score!==b.score) return a.score-b.score;
+    return a.unit-b.unit;
+  });
+
+  /*
+   * Jangan tampilkan semua armada.
+   * AUTO + maksimal 3 alternatif terdekat.
+   * CDD yang sangat jauh dari kebutuhan otomatis tersingkir
+   * pada kebanyakan kasus.
+   */
+  const pilihan=[];
+  kandidat.forEach(function(k){
+    if(pilihan.length>=4) return;
+
+    /*
+     * Selalu masukkan AUTO jika tersedia.
+     * Alternatif dibatasi agar tidak menjadi dropdown seluruh database.
+     */
+    if(k.isAuto){
+      pilihan.push(k);
+      return;
+    }
+
+    if(pilihan.length<4){
+      pilihan.push(k);
+    }
+  });
+
+  /*
+   * Pastikan AUTO benar-benar menjadi pilihan pertama.
+   * Jika AUTO tidak ada di MASTER_ARMADA_PILIHAN, buat opsi
+   * berdasarkan hasil AUTO API sebagai fallback.
+   */
+  const autoHasil=autoList[0];
+  const autoAda=pilihan.some(function(k){return k.isAuto;});
+
+  if(!autoAda){
+    pilihan.unshift({
+      master:{
+        armada:autoHasil.armada,
+        panjangM:Number(autoHasil.panjangM)||0,
+        lebarM:Number(autoHasil.lebarM)||0,
+        tinggiM:Number(autoHasil.tinggiM)||0,
+        kapasitasCbm:Number(autoHasil.kapasitasCbm)||0,
+        maxTonase:Number(autoHasil.maxTonase)||0
+      },
+      unit:Number(autoHasil.kebutuhanUnit)||1,
+      score:0,
+      isAuto:true
+    });
+  }
+
+  armadaPilihanData=pilihan.map(function(k){
+    return k.master;
+  });
+
+  armadaSummaryPilihan={
+    totalCbm:totalCbm,
+    totalTon:totalTon
+  };
+
+  armadaModePilihan='AUTO';
+
+  select.innerHTML='';
+
+  pilihan.forEach(function(k,index){
+    const option=document.createElement('option');
+    option.value=normalisasiNamaArmada_(k.master.armada);
+    option.textContent=index===0
+      ? 'AUTO — '+k.master.armada
+      : k.master.armada;
+    select.appendChild(option);
+  });
+
+  select.value=normalisasiNamaArmada_(autoHasil.armada);
+  row.style.display='flex';
+}
+
+function pilihArmadaManual(){
+  const select=document.getElementById('armadaSelect');
+
+  if(!select) return;
+
+  const nama=normalisasiNamaArmada_(select.value);
+
+  /*
+   * AUTO = kembalikan hasil mesin/API persis seperti sebelumnya.
+   */
+  if(!nama || nama==='AUTO'){
+    armadaModePilihan='AUTO';
+
+    if(Array.isArray(armadaAktualTerakhir) &&
+       armadaAktualTerakhir.length>0){
+      tampilkanArmada(armadaAktualTerakhir);
+    }
+
+    return;
+  }
+
+  const master=cariMasterArmada_(nama);
+
+  if(!master || !armadaSummaryPilihan){
+    return;
+  }
+
+  armadaModePilihan=nama;
+
+  const hasil=buatHasilArmadaPilihan_(
+    master,
+    armadaSummaryPilihan.totalCbm,
+    armadaSummaryPilihan.totalTon
+  );
+
+  /*
+   * Pilihan manual hanya mengganti armada.
+   * Material/KPI tetap sama.
+   */
+  tampilkanArmada([hasil]);
+
+  setStatus(
+    'Armada dipilih manual: '+
+    master.armada+
+    ' — '+hasil.kebutuhanUnit+' UNIT.'
+  );
+}
+
 function tampilkanArmada(list){
   const empty=document.getElementById('armadaEmpty');
   const result=document.getElementById('armadaResult');
@@ -1543,6 +1918,21 @@ function resetTampilan(){
   document.getElementById('totalTon').textContent='0 Ton';
   document.getElementById('armadaEmpty').style.display='block';
   document.getElementById('armadaResult').style.display='none';
+
+  const armadaSelectorRow=document.getElementById('armadaSelectorRow');
+  const armadaSelect=document.getElementById('armadaSelect');
+
+  if(armadaSelectorRow) armadaSelectorRow.style.display='none';
+
+  if(armadaSelect){
+    armadaSelect.innerHTML='<option value="">AUTO</option>';
+    armadaSelect.value='';
+  }
+
+  armadaModePilihan='AUTO';
+  armadaPilihanData=[];
+  armadaSummaryPilihan=null;
+
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
 function refreshData(){
