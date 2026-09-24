@@ -583,15 +583,35 @@ function pilihMode(mode){
 }
 
 function bukaInputManual(){
-  const SHEET_INPUT_MANUAL_URL = 'https://docs.google.com/spreadsheets/d/1tdL-FHRYywfo-GDY-eIWUTpXpT156AWO4FH_iXjXUAM/edit?gid=424638171#gid=424638171';
+  const btn=document.getElementById('btnInputData');
+  if(btn) btn.disabled=true;
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
-  // Buka Google Spreadsheet secara langsung.
-  // Tidak lagi melakukan fetch ke script.google.com hanya untuk mengambil URL Sheet.
-  window.open(SHEET_INPUT_MANUAL_URL, '_blank', 'noopener');
-
-  setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
+  fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
+    method:'GET',
+    cache:'no-store',
+    redirect:'follow'
+  })
+  .then(function(response){
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  })
+  .then(function(result){
+    if(!result || result.success!==true || !result.url){
+      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
+    }
+    window.open(result.url,'_blank','noopener');
+    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
+  })
+  .catch(function(error){
+    console.error('OPEN INPUT MANUAL ERROR:',error);
+    setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
+    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
+  })
+  .finally(function(){
+    if(btn) btn.disabled=false;
+  });
 }
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -643,8 +663,9 @@ document.addEventListener('DOMContentLoaded',function(){
   // Tampilkan data cache secepat mungkin.
   initFromCache();
 
-  // Sinkronisasi server berjalan setelah tampilan siap.
-  loadDaftarProyek(false);
+  // Sinkronisasi server awal memakai 1 request bootstrap:
+  // daftar proyek + proyek awal + data proyek awal.
+  loadBootstrap(false);
 });
 
 function showLoading(show){
@@ -990,6 +1011,88 @@ function loadDataProyek(p,showOverlay){
 }
 
   
+function loadBootstrap(showOverlay){
+  if(showOverlay){
+    showLoading(true);
+    setStatus('Memuat data aplikasi...');
+  }
+
+  fetch(API_URL + '?action=bootstrap&_=' + Date.now(), {
+    method:'GET',
+    cache:'no-store',
+    redirect:'follow'
+  })
+  .then(function(response){
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  })
+  .then(function(result){
+    if(!result || result.success!==true){
+      throw new Error(
+        result && result.message
+          ? result.message
+          : 'Bootstrap API gagal.'
+      );
+    }
+
+    const semuaProyek=Array.isArray(result.projects)?result.projects:[];
+    daftarProyek=filterProyekOtomatis_(semuaProyek);
+    setCache_(CACHE_PROJECTS_KEY,daftarProyek);
+    updateModeUI_();
+
+    const select=document.getElementById('projectSelect');
+    const currentProject=select.value || '';
+
+    // Pertahankan proyek yang sudah tampil/cached.
+    if(currentProject && daftarProyek.indexOf(currentProject)>=0){
+      isiDropdownProyek(false);
+      select.value=currentProject;
+      proyekAktif=currentProject;
+      setStatus('Data tersimpan ditampilkan. Daftar proyek diperbarui.');
+      if(showOverlay) showLoading(false);
+      return;
+    }
+
+    // Startup baru: gunakan proyek awal + data lengkap dari bootstrap.
+    if(result.project && result.projectData && result.projectData.success===true){
+      const p=result.project;
+      isiDropdownProyek(false);
+      select.value=p;
+      proyekAktif=p;
+      setCache_(getProjectCacheKey_(p),result.projectData);
+
+      tampilkanData(result.projectData);
+      localStorage.setItem(CACHE_LAST_PROJECT_KEY,p);
+
+      setStatus('Proyek otomatis dipilih: ' + p);
+      if(showOverlay) showLoading(false);
+      return;
+    }
+
+    isiDropdownProyek(false);
+    select.value='';
+    proyekAktif='';
+    resetTampilan();
+    setStatus(
+      daftarProyek.length
+        ? 'Pilih proyek untuk menampilkan data material.'
+        : 'Belum ada proyek.'
+    );
+    if(showOverlay) showLoading(false);
+  })
+  .catch(function(error){
+    console.error('API BOOTSTRAP ERROR:',error);
+    if(showOverlay) showLoading(false);
+
+    if(daftarProyek.length){
+      setStatus('Data tersimpan tetap digunakan. Gagal memperbarui dari server.');
+    }else{
+      setStatus('Gagal membaca daftar proyek.');
+    }
+  });
+}
+
+
 function loadDaftarProyek(showOverlay,loadSelected){
   if(typeof loadSelected==='undefined') loadSelected=true;
 
