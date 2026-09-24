@@ -458,6 +458,7 @@ function updateModeUI_(){
   const manualBtn=document.getElementById('modeManualBtn');
   const select=document.getElementById('projectSelect');
   const actions=document.getElementById('manualActions');
+  const deliveryDate=document.getElementById('deliveryDate');
 
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
@@ -465,6 +466,10 @@ function updateModeUI_(){
   if(modeAplikasi==='MANUAL'){
     autoBtn.classList.remove('active');
     manualBtn.classList.add('active');
+
+    if(deliveryDate){
+      deliveryDate.style.display='none';
+    }
 
     if(isMobile){
       // HP: dropdown tetap aktif karena sekaligus menjadi pemilih metode.
@@ -482,6 +487,10 @@ function updateModeUI_(){
     manualBtn.classList.remove('active');
     select.disabled=false;
     actions.style.display='none';
+
+    if(deliveryDate){
+      deliveryDate.style.display = isMobile ? 'none' : 'flex';
+    }
   }
 }
 
@@ -1222,15 +1231,21 @@ function tampilkanData(data){
 
   const s=data.summary||{};
 
-  // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L
-  // dan dikirim API sebagai data.tanggalKirim.
-  const tanggalKirim=String(data.tanggalKirim||'').trim();
+  const materialData=Array.isArray(data.material)?data.material:[];
+
+  // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
+  // Utamakan data.tanggalKirim dari API; bila belum tersedia di level
+  // proyek, gunakan tanggalKirim dari item material pertama.
+  const tanggalKirim=String(
+    data.tanggalKirim ||
+    (materialData[0] && materialData[0].tanggalKirim) ||
+    ''
+  ).trim();
+
   const tanggalKirimEl=document.getElementById('deliveryDateValue');
   if(tanggalKirimEl){
     tanggalKirimEl.textContent=tanggalKirim || '-';
   }
-
-  const materialData=Array.isArray(data.material)?data.material:[];
   materialDataTerakhir=materialData.slice();
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
