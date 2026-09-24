@@ -663,9 +663,8 @@ document.addEventListener('DOMContentLoaded',function(){
   // Tampilkan data cache secepat mungkin.
   initFromCache();
 
-  // Sinkronisasi server awal memakai 1 request bootstrap:
-  // daftar proyek + proyek awal + data proyek awal.
-  loadBootstrap(false);
+  // Sinkronisasi server berjalan setelah tampilan siap.
+  loadDaftarProyek(false);
 });
 
 function showLoading(show){
@@ -1011,88 +1010,6 @@ function loadDataProyek(p,showOverlay){
 }
 
   
-function loadBootstrap(showOverlay){
-  if(showOverlay){
-    showLoading(true);
-    setStatus('Memuat data aplikasi...');
-  }
-
-  fetch(API_URL + '?action=bootstrap&_=' + Date.now(), {
-    method:'GET',
-    cache:'no-store',
-    redirect:'follow'
-  })
-  .then(function(response){
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    return response.json();
-  })
-  .then(function(result){
-    if(!result || result.success!==true){
-      throw new Error(
-        result && result.message
-          ? result.message
-          : 'Bootstrap API gagal.'
-      );
-    }
-
-    const semuaProyek=Array.isArray(result.projects)?result.projects:[];
-    daftarProyek=filterProyekOtomatis_(semuaProyek);
-    setCache_(CACHE_PROJECTS_KEY,daftarProyek);
-    updateModeUI_();
-
-    const select=document.getElementById('projectSelect');
-    const currentProject=select.value || '';
-
-    // Pertahankan proyek yang sudah tampil/cached.
-    if(currentProject && daftarProyek.indexOf(currentProject)>=0){
-      isiDropdownProyek(false);
-      select.value=currentProject;
-      proyekAktif=currentProject;
-      setStatus('Data tersimpan ditampilkan. Daftar proyek diperbarui.');
-      if(showOverlay) showLoading(false);
-      return;
-    }
-
-    // Startup baru: gunakan proyek awal + data lengkap dari bootstrap.
-    if(result.project && result.projectData && result.projectData.success===true){
-      const p=result.project;
-      isiDropdownProyek(false);
-      select.value=p;
-      proyekAktif=p;
-      setCache_(getProjectCacheKey_(p),result.projectData);
-
-      tampilkanData(result.projectData);
-      localStorage.setItem(CACHE_LAST_PROJECT_KEY,p);
-
-      setStatus('Proyek otomatis dipilih: ' + p);
-      if(showOverlay) showLoading(false);
-      return;
-    }
-
-    isiDropdownProyek(false);
-    select.value='';
-    proyekAktif='';
-    resetTampilan();
-    setStatus(
-      daftarProyek.length
-        ? 'Pilih proyek untuk menampilkan data material.'
-        : 'Belum ada proyek.'
-    );
-    if(showOverlay) showLoading(false);
-  })
-  .catch(function(error){
-    console.error('API BOOTSTRAP ERROR:',error);
-    if(showOverlay) showLoading(false);
-
-    if(daftarProyek.length){
-      setStatus('Data tersimpan tetap digunakan. Gagal memperbarui dari server.');
-    }else{
-      setStatus('Gagal membaca daftar proyek.');
-    }
-  });
-}
-
-
 function loadDaftarProyek(showOverlay,loadSelected){
   if(typeof loadSelected==='undefined') loadSelected=true;
 
@@ -2320,6 +2237,13 @@ function exportExcel(){
     totalTon += Number(item.totalTon)||0;
   });
 
+  // Ambil tanggal pengiriman dari data API, bukan dari waktu export.
+  const tanggalKirimExport = String(
+    rows.find(function(item){ return item && item.tanggalKirim; })?.tanggalKirim ||
+    (document.getElementById('deliveryDateValue') ? document.getElementById('deliveryDateValue').textContent : '') ||
+    '-'
+  ).trim() || '-';
+
   function esc(v){
     return String(v==null?'':v)
       .replace(/&/g,'&amp;')
@@ -2328,54 +2252,69 @@ function exportExcel(){
       .replace(/"/g,'&quot;');
   }
 
+  // Format angka secara konsisten agar Excel tidak menampilkan digit panjang.
+  function fmt(v, digits){
+    const n = Number(v);
+    if(!isFinite(n)) return '0';
+    return n.toLocaleString('id-ID', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    });
+  }
+
   function excelNum(v){
     const n=Number(v);
     return isFinite(n) ? n : 0;
   }
 
   const now = new Date();
-  const tanggal = now.toLocaleString('id-ID');
+  const tanggalExport = now.toLocaleString('id-ID');
 
   let html = '<html><head><meta charset="UTF-8"></head><body>';
   html += '<table border="1" cellspacing="0" cellpadding="5">';
-  html += '<tr><th colspan="9" style="font-size:16pt">APLIKASI EKSPEDISI MATERIAL</th></tr>';
-  html += '<tr><th colspan="9">PROYEK</th></tr>';
-  html += '<tr><td colspan="9">'+esc(proyek)+'</td></tr>';
-  html += '<tr><th colspan="9">METODE INPUT</th></tr>';
-  html += '<tr><td colspan="9">'+esc(mode)+'</td></tr>';
-  html += '<tr><th colspan="9">RINGKASAN</th></tr>';
+  html += '<tr><th colspan="10" style="font-size:16pt">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<tr><th colspan="10">PROYEK</th></tr>';
+  html += '<tr><td colspan="10">'+esc(proyek)+'</td></tr>';
+  html += '<tr><th colspan="10">METODE INPUT</th></tr>';
+  html += '<tr><td colspan="10">'+esc(mode)+'</td></tr>';
+  html += '<tr><th colspan="10">RENCANA PENGIRIMAN</th></tr>';
+  html += '<tr><th colspan="10">TANGGAL PENGIRIMAN</th></tr>';
+  html += '<tr><td colspan="10">'+esc(tanggalKirimExport)+'</td></tr>';
+  html += '<tr><th colspan="10">RINGKASAN</th></tr>';
   html += '<tr>'+
-    '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="5"></th>'+
+    '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="6"></th>'+
     '</tr>';
   html += '<tr>'+
-    '<td>'+excelNum(totalItem)+'</td>'+
-    '<td>'+excelNum(totalVolume)+'</td>'+
-    '<td>'+excelNum(totalCbm)+'</td>'+
-    '<td>'+excelNum(totalTon)+'</td>'+
-    '<td colspan="5"></td>'+
+    '<td style="mso-number-format:\'0\';">'+excelNum(totalItem)+'</td>'+
+    '<td style="mso-number-format:\'#,##0\';">'+excelNum(totalVolume)+'</td>'+
+    '<td style="mso-number-format:\'0.00\';">'+excelNum(totalCbm)+'</td>'+
+    '<td style="mso-number-format:\'0.000\';">'+excelNum(totalTon)+'</td>'+
+    '<td colspan="6"></td>'+
     '</tr>';
-  html += '<tr><td colspan="9"></td></tr>';
+  html += '<tr><td colspan="10"></td></tr>';
   html += '<tr>'+
-    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th>'+
+    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th><th>TANGGAL PENGIRIMAN</th>'+
     '</tr>';
 
   rows.forEach(function(item,i){
     const st = tentukanStatusMaterial(item,rows);
+    const tanggalRow = String(item && item.tanggalKirim || tanggalKirimExport || '-').trim() || '-';
     html += '<tr>'+
-      '<td>'+excelNum(i+1)+'</td>'+
+      '<td style="mso-number-format:\'0\';">'+excelNum(i+1)+'</td>'+
       '<td>'+esc(item.material)+'</td>'+
-      '<td>'+excelNum(item.volume)+'</td>'+
+      '<td style="mso-number-format:\'#,##0\';">'+excelNum(item.volume)+'</td>'+
       '<td>'+esc(item.unit)+'</td>'+
       '<td>'+esc(item.category)+'</td>'+
-      '<td>'+excelNum(item.totalCbm)+'</td>'+
-      '<td>'+excelNum(item.totalWeightKg)+'</td>'+
-      '<td>'+excelNum(item.totalTon)+'</td>'+
+      '<td style="mso-number-format:\'0.000\';">'+excelNum(item.totalCbm)+'</td>'+
+      '<td style="mso-number-format:\'0.00\';">'+excelNum(item.totalWeightKg)+'</td>'+
+      '<td style="mso-number-format:\'0.000\';">'+excelNum(item.totalTon)+'</td>'+
       '<td>'+esc(st.label)+'</td>'+
+      '<td>'+esc(tanggalRow)+'</td>'+
       '</tr>';
   });
 
-  html += '<tr><td colspan="9"></td></tr>';
-  html += '<tr><td colspan="9">Export: '+esc(tanggal)+'</td></tr>';
+  html += '<tr><td colspan="10"></td></tr>';
+  html += '<tr><td colspan="10">Export: '+esc(tanggalExport)+'</td></tr>';
   html += '</table></body></html>';
 
   const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
