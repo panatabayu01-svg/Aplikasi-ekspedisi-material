@@ -57,6 +57,34 @@
     .project-select:focus{border-color:#0d6efd}
     .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:#eef5fb}
+
+    /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
+    .delivery-date{
+      margin-left:auto;
+      min-width:250px;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:7px;
+      padding:0 10px;
+      border:1px solid #d1dce7;
+      background:#f7fafc;
+      color:#17324d;
+      white-space:nowrap;
+      overflow:hidden;
+    }
+    .delivery-date-label{
+      font-size:12px;
+      font-weight:700;
+      color:#0d447f;
+    }
+    .delivery-date-value{
+      font-size:13px;
+      font-weight:700;
+      color:#17324d;
+    }
+
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
     .kpi-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:9px}
@@ -76,13 +104,6 @@
     .armada-select{height:38px;min-width:245px;border:1px solid #aeb8c2;background:#fff;color:#17324d;padding:0 10px;font-size:13px;font-weight:700;border-radius:3px;outline:none}
     .armada-select:focus{border-color:#0d6efd}
     .armada-select:disabled{background:#eef3f7;color:#718096;cursor:not-allowed}
-    /* HANYA MODE APLIKASI TERINSTALL (PC/standalone) */
-    @media (min-width:601px){
-      html.pwa-standalone .armada-select{
-        width:214px;
-        min-width:214px;
-      }
-    }
     .armada-empty{color:#718096;font-size:14px;text-transform:uppercase;padding:25px}
     .armada-result{display:none}
     .armada-list{display:flex;flex-direction:column;gap:10px}
@@ -209,6 +230,11 @@
         height:38px;
       }
 
+      /* Tanggal kirim tidak ditampilkan di HP agar layout HP yang sudah pas tetap sama. */
+      .delivery-date{
+        display:none !important;
+      }
+
       .armada-selector-row{
         justify-content:stretch;
         align-items:stretch;
@@ -275,6 +301,11 @@
     </div>
 
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
+
+    <div id="deliveryDate" class="delivery-date" aria-label="Rencana Pengiriman">
+      <span class="delivery-date-label">📅 RENCANA KIRIM :</span>
+      <span id="deliveryDateValue" class="delivery-date-value">-</span>
+    </div>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -335,17 +366,6 @@
 </footer>
 
 <script>
-
-(function(){
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const isStandalone = isIOS
-    ? window.navigator.standalone === true
-    : window.matchMedia('(display-mode: standalone)').matches;
-
-  if(isStandalone){
-    document.documentElement.classList.add('pwa-standalone');
-  }
-})();
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
@@ -1199,6 +1219,15 @@ function tampilkanData(data){
   }
 
   const s=data.summary||{};
+
+  // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L
+  // dan dikirim API sebagai data.tanggalKirim.
+  const tanggalKirim=String(data.tanggalKirim||'').trim();
+  const tanggalKirimEl=document.getElementById('deliveryDateValue');
+  if(tanggalKirimEl){
+    tanggalKirimEl.textContent=tanggalKirim || '-';
+  }
+
   const materialData=Array.isArray(data.material)?data.material:[];
   materialDataTerakhir=materialData.slice();
 
@@ -2062,6 +2091,11 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
+  const tanggalKirimEl=document.getElementById('deliveryDateValue');
+  if(tanggalKirimEl){
+    tanggalKirimEl.textContent='-';
+  }
+
   materialDataTerakhir=[];
   armadaAktualTerakhir=[];
   proyekArmadaTerakhir='';
