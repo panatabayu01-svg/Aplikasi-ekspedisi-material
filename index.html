@@ -530,23 +530,18 @@ function pilihMode(mode){
 
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
+    proyekAktif=NAMA_PROYEK_MANUAL;
     localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
 
-    // MANUAL tetap menampilkan data yang sudah tersimpan jika ada.
-    // Jika belum ada cache, baru ambil data MANUAL dari server.
-    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
-    if(cachedManual && cachedManual.success===true){
-      proyekAktif=NAMA_PROYEK_MANUAL;
-      tampilkanData(cachedManual);
-      setStatus('Data manual tersimpan ditampilkan. Memperbarui data...');
-      showLoading(false);
-      loadDataProyek(NAMA_PROYEK_MANUAL,false);
-    }else{
-      resetTampilan();
-      showLoading(false);
-      setStatus('Memuat data manual...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,true);
-    }
+    // MANUAL HARUS SELALU membaca hasil hitung terbaru dari server.
+    // Jangan tampilkan cache lama karena hasil INPUT_MANUAL_EKSPEDISI
+    // dapat berubah setelah user melakukan perhitungan di Google Sheet.
+    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+
+    resetTampilan();
+    showLoading(true);
+    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
+    loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
 
@@ -589,26 +584,18 @@ function bukaInputManual(){
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
   // OPEN SHEET langsung ke Google Spreadsheet.
-  // Tidak lagi memanggil API manual_input_url, sehingga tidak
-  // bergantung pada deploy API dan tidak memunculkan popup error.
+  // Tidak lagi memanggil API manual_input_url.
   const SHEET_INPUT_MANUAL_URL =
     'https://docs.google.com/spreadsheets/d/1tdL-FHRYywfo-GDY-eIWUTpXpT156AWO4FH_iXjXUAM/edit?gid=424638171#gid=424638171';
 
-  try{
-    const opened = window.open(SHEET_INPUT_MANUAL_URL,'_blank','noopener');
+  // Tidak memeriksa return value window.open().
+  // Pada beberapa browser/PWA, tab berhasil terbuka tetapi
+  // window.open() tetap mengembalikan null karena opener/noopener.
+  window.open(SHEET_INPUT_MANUAL_URL,'_blank');
 
-    if(!opened){
-      throw new Error('Browser memblokir pembukaan tab baru.');
-    }
+  setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
 
-    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
-  }catch(error){
-    console.error('OPEN INPUT MANUAL ERROR:',error);
-    setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Silakan izinkan pembukaan tab baru untuk aplikasi ini.');
-  }finally{
-    if(btn) btn.disabled=false;
-  }
+  if(btn) btn.disabled=false;
 }
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -794,9 +781,12 @@ function pilihProyek(){
       NAMA_PROYEK_MANUAL
     );
 
+    // HP juga selalu mengambil hasil hitung manual terbaru.
+    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+
     resetTampilan();
-    showLoading(false);
-    setStatus('Memuat data manual...');
+    showLoading(true);
+    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
 
     loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
@@ -809,6 +799,7 @@ function pilihProyek(){
 
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
+    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
     loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
@@ -2188,8 +2179,16 @@ function refreshData(){
     p
   );
 
-  // REFRESH tidak mengosongkan layar dan tidak menunggu spinner penuh.
-  // Data yang sedang tampil tetap dipakai, server diperbarui di background.
+  // KHUSUS MANUAL: jangan tampilkan cache lama.
+  // Ambil langsung hasil hitung terbaru dari Google Sheet/API.
+  if(modeAplikasi==='MANUAL' || p===NAMA_PROYEK_MANUAL){
+    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
+    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    return;
+  }
+
+  // AUTO tetap memakai cache agar tampilan cepat.
   const cached=getCache_(getProjectCacheKey_(p));
   if(cached && cached.success===true){
     tampilkanData(cached);
