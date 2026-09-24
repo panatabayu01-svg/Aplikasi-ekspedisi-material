@@ -70,21 +70,35 @@
       justify-content:flex-start;
       gap:7px;
       padding:0 10px;
-      border:1px solid #d1dce7;
-      background:#f7fafc;
-      color:#17324d;
+      border:1px solid #0d447f;
+      background:#0d447f;
+      color:#fff;
+      box-shadow:0 1px 3px rgba(13,68,127,.18);
       white-space:nowrap;
       overflow:hidden;
     }
     .delivery-date-label{
-      font-size:12px;
-      font-weight:700;
-      color:#0d447f;
-    }
-    .delivery-date-value{
       font-size:13px;
       font-weight:700;
-      color:#17324d;
+      color:#fff;
+    }
+    .delivery-date-value{
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+    }
+
+    /* ==========================================================
+       PWA / APLIKASI PC: 80% HANYA SAAT TERPASANG (STANDALONE)
+       Browser biasa dan HP TIDAK diubah.
+       ========================================================== */
+    @media (display-mode: standalone) and (min-width:901px){
+      html{overflow-x:hidden}
+      body{
+        zoom:0.8;
+        width:125%;
+        min-height:125%;
+      }
     }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
@@ -189,18 +203,10 @@
       .armada-layout{grid-template-columns:1fr 1fr}
       .status-panel{grid-column:span 2}
     }
-    /* APLIKASI TERINSTAL DI PC (STANDALONE): skala tampilan 80%.
-       Browser biasa dan tampilan HP tidak ikut berubah. */
-    @media (display-mode: standalone){
-      body{
-        zoom:0.8;
-      }
-    }
-
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        grid-template-columns:52px minmax(0,1fr);
+        grid-template-columns:52px minmax(0,1fr) 110px;
         grid-template-rows:38px 38px;
         gap:7px;
         align-items:center;
@@ -219,7 +225,7 @@
       }
 
       .project-select{
-        grid-column:2;
+        grid-column:2 / 4;
         grid-row:1;
         width:100%;
         min-width:0;
@@ -232,38 +238,40 @@
       }
 
       .btn-refresh{
-        grid-column:2;
+        grid-column:3;
         grid-row:2;
-        justify-self:end;
+        justify-self:stretch;
         width:110px;
         min-width:110px;
         height:38px;
       }
 
-      /* HP: tanggal rencana kirim tetap tampil di kiri tombol Refresh. */
+      /* HP: TANGGAL RENCANA KIRIM tepat di sebelah kiri tombol Refresh.
+         Tetap satu baris agar tidak memotong layout KPI/armada. */
       .delivery-date{
-        display:flex !important;
-        grid-column:1;
+        grid-column:2;
         grid-row:2;
-        min-width:0;
+        display:flex !important;
         width:100%;
+        min-width:0;
         max-width:none;
         height:38px;
         margin-left:0;
         padding:0 7px;
         gap:4px;
-        box-sizing:border-box;
         overflow:hidden;
       }
+
       .delivery-date-label{
-        font-size:10px;
         flex:0 0 auto;
+        font-size:10px;
       }
+
       .delivery-date-value{
-        font-size:11px;
+        min-width:0;
         overflow:hidden;
         text-overflow:ellipsis;
-        white-space:nowrap;
+        font-size:11px;
       }
 
       .armada-selector-row{
@@ -518,8 +526,9 @@ function updateModeUI_(){
     actions.style.display='none';
 
     if(deliveryDate){
-      // Tanggal tetap tampil pada DATA OTOMATIS, termasuk di HP.
-      deliveryDate.style.display='flex';
+      // AUTO: tanggal tampil di PC dan HP.
+      // HP posisinya sudah diatur CSS: tepat di kiri tombol Refresh.
+      deliveryDate.style.display = 'flex';
     }
   }
 }
