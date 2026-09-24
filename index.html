@@ -396,10 +396,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v8';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v8';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v8';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v8_';
+window.CACHE_VERSION = 'v7';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v7';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v7';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v7_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -419,29 +419,48 @@ let materialDataTerakhir = [];
  * Logika AUTO/API TIDAK diubah.
  * ==========================================================
  */
-let MASTER_ARMADA_PILIHAN = [];
-
-function setMasterArmadaDariApi_(list){
-  if(!Array.isArray(list)) return;
-
-  MASTER_ARMADA_PILIHAN=list
-    .map(function(m){
-      return {
-        armada:String(m.armada||'').trim(),
-        panjangM:Number(m.panjangM)||0,
-        lebarM:Number(m.lebarM)||0,
-        tinggiM:Number(m.tinggiM)||0,
-        kapasitasCbm:Number(m.kapasitasCbm)||0,
-        maxTonase:Number(m.maxTonase)||0,
-        catatan:String(m.catatan||''),
-        prioritas:Number(m.prioritas)||999999
-      };
-    })
-    .filter(function(m){
-      return m.armada && (m.kapasitasCbm>0 || m.maxTonase>0);
-    });
-}
-
+const MASTER_ARMADA_PILIHAN = [
+  {
+    armada:'CDD',
+    panjangM:4,
+    lebarM:2,
+    tinggiM:2,
+    kapasitasCbm:4,
+    maxTonase:16
+  },
+  {
+    armada:'FUSO',
+    panjangM:6,
+    lebarM:2.4,
+    tinggiM:2.4,
+    kapasitasCbm:34.56,
+    maxTonase:15
+  },
+  {
+    armada:'TRONTON',
+    panjangM:8.5,
+    lebarM:2.5,
+    tinggiM:2.5,
+    kapasitasCbm:53.125,
+    maxTonase:15
+  },
+  {
+    armada:'CONTAINER 20FT',
+    panjangM:5.9,
+    lebarM:2.35,
+    tinggiM:2.39,
+    kapasitasCbm:33.14,
+    maxTonase:28
+  },
+  {
+    armada:'CONTAINER 40FT',
+    panjangM:12.03,
+    lebarM:2.35,
+    tinggiM:2.39,
+    kapasitasCbm:67.56,
+    maxTonase:28
+  }
+];
 
 let armadaModePilihan = 'AUTO';
 let armadaPilihanData = [];
@@ -569,30 +588,27 @@ function bukaInputManual(){
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
-  fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
-    method:'GET',
-    cache:'no-store',
-    redirect:'follow'
-  })
-  .then(function(response){
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    return response.json();
-  })
-  .then(function(result){
-    if(!result || result.success!==true || !result.url){
-      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
+  // OPEN SHEET langsung ke Google Spreadsheet.
+  // Tidak lagi memanggil API manual_input_url, sehingga tidak
+  // bergantung pada deploy API dan tidak memunculkan popup error.
+  const SHEET_INPUT_MANUAL_URL =
+    'https://docs.google.com/spreadsheets/d/1tdL-FHRYywfo-GDY-eIWUTpXpT156AWO4FH_iXjXUAM/edit?gid=424638171#gid=424638171';
+
+  try{
+    const opened = window.open(SHEET_INPUT_MANUAL_URL,'_blank','noopener');
+
+    if(!opened){
+      throw new Error('Browser memblokir pembukaan tab baru.');
     }
-    window.open(result.url,'_blank','noopener');
+
     setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
-  })
-  .catch(function(error){
+  }catch(error){
     console.error('OPEN INPUT MANUAL ERROR:',error);
     setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
-  })
-  .finally(function(){
+    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Silakan izinkan pembukaan tab baru untuk aplikasi ini.');
+  }finally{
     if(btn) btn.disabled=false;
-  });
+  }
 }
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -1230,9 +1246,6 @@ function tampilkanData(data){
   const s=data.summary||{};
 
   const materialData=Array.isArray(data.material)?data.material:[];
-
-  // DATABASE_ARMADA adalah satu-satunya sumber spesifikasi armada untuk frontend.
-  setMasterArmadaDariApi_(data.armadaMaster);
 
   // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
   // Utamakan data.tanggalKirim dari API; bila belum tersedia di level
