@@ -396,10 +396,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v7';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v7';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v7';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v7_';
+window.CACHE_VERSION = 'v8';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v8';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v8';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v8_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -419,48 +419,29 @@ let materialDataTerakhir = [];
  * Logika AUTO/API TIDAK diubah.
  * ==========================================================
  */
-const MASTER_ARMADA_PILIHAN = [
-  {
-    armada:'CDD',
-    panjangM:4,
-    lebarM:2,
-    tinggiM:2,
-    kapasitasCbm:4,
-    maxTonase:16
-  },
-  {
-    armada:'FUSO',
-    panjangM:6,
-    lebarM:2.4,
-    tinggiM:2.4,
-    kapasitasCbm:34.56,
-    maxTonase:15
-  },
-  {
-    armada:'TRONTON',
-    panjangM:8.5,
-    lebarM:2.5,
-    tinggiM:2.5,
-    kapasitasCbm:53.125,
-    maxTonase:15
-  },
-  {
-    armada:'CONTAINER 20FT',
-    panjangM:5.9,
-    lebarM:2.35,
-    tinggiM:2.39,
-    kapasitasCbm:33.14,
-    maxTonase:28
-  },
-  {
-    armada:'CONTAINER 40FT',
-    panjangM:12.03,
-    lebarM:2.35,
-    tinggiM:2.39,
-    kapasitasCbm:67.56,
-    maxTonase:28
-  }
-];
+let MASTER_ARMADA_PILIHAN = [];
+
+function setMasterArmadaDariApi_(list){
+  if(!Array.isArray(list)) return;
+
+  MASTER_ARMADA_PILIHAN=list
+    .map(function(m){
+      return {
+        armada:String(m.armada||'').trim(),
+        panjangM:Number(m.panjangM)||0,
+        lebarM:Number(m.lebarM)||0,
+        tinggiM:Number(m.tinggiM)||0,
+        kapasitasCbm:Number(m.kapasitasCbm)||0,
+        maxTonase:Number(m.maxTonase)||0,
+        catatan:String(m.catatan||''),
+        prioritas:Number(m.prioritas)||999999
+      };
+    })
+    .filter(function(m){
+      return m.armada && (m.kapasitasCbm>0 || m.maxTonase>0);
+    });
+}
+
 
 let armadaModePilihan = 'AUTO';
 let armadaPilihanData = [];
@@ -1249,6 +1230,9 @@ function tampilkanData(data){
   const s=data.summary||{};
 
   const materialData=Array.isArray(data.material)?data.material:[];
+
+  // DATABASE_ARMADA adalah satu-satunya sumber spesifikasi armada untuk frontend.
+  setMasterArmadaDariApi_(data.armadaMaster);
 
   // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
   // Utamakan data.tanggalKirim dari API; bila belum tersedia di level
