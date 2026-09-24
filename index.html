@@ -2237,7 +2237,6 @@ function exportExcel(){
     totalTon += Number(item.totalTon)||0;
   });
 
-  // Ambil tanggal pengiriman dari data API, bukan dari waktu export.
   const tanggalKirimExport = String(
     rows.find(function(item){ return item && item.tanggalKirim; })?.tanggalKirim ||
     (document.getElementById('deliveryDateValue') ? document.getElementById('deliveryDateValue').textContent : '') ||
@@ -2252,8 +2251,9 @@ function exportExcel(){
       .replace(/"/g,'&quot;');
   }
 
-  // Format angka secara konsisten agar Excel tidak menampilkan digit panjang.
-  function fmt(v, digits){
+  // Dibulatkan agar Excel tidak menampilkan koma/desimal panjang.
+  // Hasil dibuat sebagai TEXT supaya format Indonesia tetap utuh.
+  function fmtExport(v, digits){
     const n = Number(v);
     if(!isFinite(n)) return '0';
     return n.toLocaleString('id-ID', {
@@ -2262,9 +2262,8 @@ function exportExcel(){
     });
   }
 
-  function excelNum(v){
-    const n=Number(v);
-    return isFinite(n) ? n : 0;
+  function exportText(v){
+    return '<td style="mso-number-format:\'@\';">'+esc(v)+'</td>';
   }
 
   const now = new Date();
@@ -2285,10 +2284,10 @@ function exportExcel(){
     '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="6"></th>'+
     '</tr>';
   html += '<tr>'+
-    '<td style="mso-number-format:\'0\';">'+excelNum(totalItem)+'</td>'+
-    '<td style="mso-number-format:\'#,##0\';">'+excelNum(totalVolume)+'</td>'+
-    '<td style="mso-number-format:\'0.00\';">'+excelNum(totalCbm)+'</td>'+
-    '<td style="mso-number-format:\'0.000\';">'+excelNum(totalTon)+'</td>'+
+    exportText(fmtExport(totalItem,0))+
+    exportText(fmtExport(totalVolume,0))+
+    exportText(fmtExport(totalCbm,2))+
+    exportText(fmtExport(totalTon,3))+
     '<td colspan="6"></td>'+
     '</tr>';
   html += '<tr><td colspan="10"></td></tr>';
@@ -2300,14 +2299,14 @@ function exportExcel(){
     const st = tentukanStatusMaterial(item,rows);
     const tanggalRow = String(item && item.tanggalKirim || tanggalKirimExport || '-').trim() || '-';
     html += '<tr>'+
-      '<td style="mso-number-format:\'0\';">'+excelNum(i+1)+'</td>'+
+      exportText(fmtExport(i+1,0)) +
       '<td>'+esc(item.material)+'</td>'+
-      '<td style="mso-number-format:\'#,##0\';">'+excelNum(item.volume)+'</td>'+
+      exportText(fmtExport(item.volume,0)) +
       '<td>'+esc(item.unit)+'</td>'+
       '<td>'+esc(item.category)+'</td>'+
-      '<td style="mso-number-format:\'0.000\';">'+excelNum(item.totalCbm)+'</td>'+
-      '<td style="mso-number-format:\'0.00\';">'+excelNum(item.totalWeightKg)+'</td>'+
-      '<td style="mso-number-format:\'0.000\';">'+excelNum(item.totalTon)+'</td>'+
+      exportText(fmtExport(item.totalCbm,3)) +
+      exportText(fmtExport(item.totalWeightKg,2)) +
+      exportText(fmtExport(item.totalTon,3)) +
       '<td>'+esc(st.label)+'</td>'+
       '<td>'+esc(tanggalRow)+'</td>'+
       '</tr>';
