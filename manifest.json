@@ -1,11 +1,11 @@
 {
-  "name": "PT. PANATA BAYU NUGRAHA",
-"short_name": "PT. PANATA BAYU NUGRAHA",
+  "name": "APLIKASI EKSPEDISI MATERIAL",
+  "short_name": "EKSPEDISI MATERIAL",
   "description": "Sistem Perhitungan dan Rekomendasi Armada Ekspedisi Material",
   "start_url": "./",
   "display": "standalone",
-"background_color": "#eef3f7",
-"theme_color": "#0d447f",
+  "background_color": "#eef3f7",
+  "theme_color": "#0d447f",
   "orientation": "portrait-primary",
   "icons": [
     {
