@@ -79,6 +79,8 @@
     .armada-empty{color:#718096;font-size:14px;text-transform:uppercase;padding:25px}
     .armada-result{display:none}
     .armada-list{display:flex;flex-direction:column;gap:10px}
+    .armada-card-wrap{width:100%}
+    .armada-card-selector{margin:0 0 6px}
     .armada-layout{display:grid;grid-template-columns:1.55fr 1.18fr 1.32fr 1fr;gap:8px}
     .armada-panel{min-height:265px;background:#f3f8fc;border:1px solid #d6e1e9;padding:15px 18px}
     .armada-visual{position:relative;overflow:hidden}
@@ -1688,49 +1690,164 @@ function siapkanDropdownArmada_(autoList,summary){
 
 function pilihArmadaManual(){
   const select=document.getElementById('armadaSelect');
-
   if(!select) return;
 
   const nama=normalisasiNamaArmada_(select.value);
 
+  if(!Array.isArray(armadaAktualTerakhir) || armadaAktualTerakhir.length===0){
+    return;
+  }
+
   /*
-   * AUTO = kembalikan hasil mesin/API persis seperti sebelumnya.
+   * Dropdown utama = hanya mengatur ARMADA PERTAMA.
+   * Armada ke-2, ke-3, dst. mempunyai dropdown masing-masing.
    */
   if(!nama || nama==='AUTO'){
     armadaModePilihan='AUTO';
-
-    if(Array.isArray(armadaAktualTerakhir) &&
-       armadaAktualTerakhir.length>0){
-      tampilkanArmada(armadaAktualTerakhir);
-    }
-
+    const list=armadaAktualTerakhir.map(function(a){
+      return Object.assign({},a);
+    });
+    tampilkanArmada(list);
     return;
   }
 
   const master=cariMasterArmada_(nama);
+  if(!master) return;
 
-  if(!master || !armadaSummaryPilihan){
+  const list=armadaAktualTerakhir.map(function(a){
+    return Object.assign({},a);
+  });
+
+  const target=list[0];
+  if(!target) return;
+
+  const totalCbm=Number(target.totalCbmProyek)||0;
+  const totalTon=Number(target.totalTonProyek)||0;
+
+  const hasil=buatHasilArmadaPilihan_(master,totalCbm,totalTon);
+
+  list[0]=hasil;
+  armadaModePilihan=nama;
+  tampilkanArmada(list);
+
+  setStatus(
+    'Armada 1 dipilih manual: '+
+    master.armada+
+    ' — '+hasil.kebutuhanUnit+' UNIT.'
+  );
+}
+
+/*
+ * Isi dropdown untuk setiap kartu armada.
+ * Armada pertama memakai dropdown utama di atas.
+ * Armada kedua, ketiga, dst. mendapat dropdown sendiri.
+ */
+function isiDropdownArmadaKartu_(select,a){
+  if(!select || !a) return;
+
+  const autoNama=normalisasiNamaArmada_(a.armada);
+  const totalCbm=Number(a.totalCbmProyek)||0;
+  const totalTon=Number(a.totalTonProyek)||0;
+
+  const autoMaster=cariMasterArmada_(autoNama);
+  const autoCbm=autoMaster ? Number(autoMaster.kapasitasCbm)||0 : Number(a.kapasitasCbm)||0;
+  const autoTon=autoMaster ? Number(autoMaster.maxTonase)||0 : Number(a.maxTonase)||0;
+
+  const autoEffective=Math.min(
+    autoCbm>0 && totalCbm>0 ? autoCbm/totalCbm : Infinity,
+    autoTon>0 && totalTon>0 ? autoTon/totalTon : Infinity
+  );
+
+  const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
+    const effective=Math.min(
+      m.kapasitasCbm>0 && totalCbm>0 ? m.kapasitasCbm/totalCbm : Infinity,
+      m.maxTonase>0 && totalTon>0 ? m.maxTonase/totalTon : Infinity
+    );
+
+    const unit=hitungUnitArmadaPilihan_(m,totalCbm,totalTon);
+    const score=(
+      isFinite(autoEffective) && autoEffective>0 &&
+      isFinite(effective) && effective>0
+    ) ? Math.abs(Math.log(effective/autoEffective)) : Math.abs(unit-(Number(a.kebutuhanUnit)||1));
+
+    return {master:m,unit:unit,score:score,isAuto:normalisasiNamaArmada_(m.armada)===autoNama};
+  });
+
+  kandidat.sort(function(x,y){
+    if(x.isAuto!==y.isAuto) return x.isAuto ? -1 : 1;
+    if(x.score!==y.score) return x.score-y.score;
+    return x.unit-y.unit;
+  });
+
+  let pilihan=kandidat.filter(function(k){return k.isAuto;});
+  kandidat.forEach(function(k){
+    if(pilihan.length>=4) return;
+    if(!k.isAuto) pilihan.push(k);
+  });
+
+  if(!pilihan.some(function(k){return k.isAuto;})){
+    pilihan.unshift({
+      master:{
+        armada:a.armada,
+        panjangM:Number(a.panjangM)||0,
+        lebarM:Number(a.lebarM)||0,
+        tinggiM:Number(a.tinggiM)||0,
+        kapasitasCbm:Number(a.kapasitasCbm)||0,
+        maxTonase:Number(a.maxTonase)||0
+      },
+      unit:Number(a.kebutuhanUnit)||1,
+      isAuto:true,
+      score:0
+    });
+  }
+
+  select.innerHTML='';
+  pilihan.forEach(function(k,index){
+    const option=document.createElement('option');
+    option.value=normalisasiNamaArmada_(k.master.armada);
+    option.textContent=index===0
+      ? 'AUTO — '+k.master.armada
+      : k.master.armada;
+    select.appendChild(option);
+  });
+
+  select.value=autoNama;
+}
+
+function pilihArmadaKartuManual(index,selectEl){
+  if(!Array.isArray(armadaAktualTerakhir) || !armadaAktualTerakhir[index]) return;
+
+  const nama=normalisasiNamaArmada_(
+    selectEl ? selectEl.value : ''
+  );
+
+  const list=armadaAktualTerakhir.map(function(a){
+    return Object.assign({},a);
+  });
+
+  const target=list[index];
+  if(!target) return;
+
+  /* AUTO = kembalikan kartu tersebut ke hasil rekomendasi AUTO asli. */
+  if(!nama || nama==='AUTO'){
+    tampilkanArmada(list);
     return;
   }
 
-  armadaModePilihan=nama;
+  const master=cariMasterArmada_(nama);
+  if(!master) return;
 
-  const hasil=buatHasilArmadaPilihan_(
-    master,
-    armadaSummaryPilihan.totalCbm,
-    armadaSummaryPilihan.totalTon
-  );
+  const totalCbm=Number(target.totalCbmProyek)||0;
+  const totalTon=Number(target.totalTonProyek)||0;
 
-  /*
-   * Pilihan manual hanya mengganti armada.
-   * Material/KPI tetap sama.
-   */
-  tampilkanArmada([hasil]);
+  const hasil=buatHasilArmadaPilihan_(master,totalCbm,totalTon);
+  list[index]=hasil;
+
+  tampilkanArmada(list);
 
   setStatus(
-    'Armada dipilih manual: '+
-    master.armada+
-    ' — '+hasil.kebutuhanUnit+' UNIT.'
+    'Armada '+(index+1)+' dipilih manual: '+
+    master.armada+' — '+hasil.kebutuhanUnit+' UNIT.'
   );
 }
 
@@ -1740,8 +1857,6 @@ function tampilkanArmada(list){
   const container=document.getElementById('armadaList');
 
   if(!Array.isArray(list) || list.length===0){
-    // Jangan menghilangkan rekomendasi yang sudah tampil hanya karena
-    // background refresh sementara belum mengembalikan armada.
     if(proyekArmadaTerakhir===proyekAktif && Array.isArray(armadaAktualTerakhir) && armadaAktualTerakhir.length>0){
       list=armadaAktualTerakhir;
     }else{
@@ -1756,7 +1871,7 @@ function tampilkanArmada(list){
   result.style.display='block';
   container.innerHTML='';
 
-  list.forEach(function(a){
+  list.forEach(function(a,index){
     const dimPanjang=Number(a.panjangM)||0;
     const dimLebar=Number(a.lebarM)||0;
     const dimTinggi=Number(a.tinggiM)||0;
@@ -1764,10 +1879,6 @@ function tampilkanArmada(list){
     const usageTon=Number(a.pemakaianTon)||0;
     const usageMax=Math.max(usageCbm,usageTon);
 
-    // Batas kapasitas: begitu CBM ATAU TONASE mencapai 100%,
-    // armada dianggap sudah mencapai batas.
-    // Gunakan pembulatan yang sama dengan angka persen di UI.
-    // Jadi 99,98% -> 100,0% dan status menjadi merah.
     const cbmTercapai=Math.round(usageCbm*1000)/1000>=1;
     const tonTercapai=Math.round(usageTon*1000)/1000>=1;
     const kapasitasTercapai=cbmTercapai||tonTercapai;
@@ -1779,7 +1890,6 @@ function tampilkanArmada(list){
     if(kapasitasTercapai){
       statusClass='danger';
       statusTitle='KUOTA TERCAPAI';
-
       if(cbmTercapai && tonTercapai){
         statusNote='CBM dan tonase sama-sama sudah mencapai batas kapasitas.';
       }else if(cbmTercapai){
@@ -1793,8 +1903,21 @@ function tampilkanArmada(list){
       statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
     }
 
-    const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-((Number(a.totalCbmProyek)||0)));
-    const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-((Number(a.totalTonProyek)||0)));
+    const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-(Number(a.totalCbmProyek)||0));
+    const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-(Number(a.totalTonProyek)||0));
+
+    const wrap=document.createElement('div');
+    wrap.className='armada-card-wrap';
+
+    /* Armada ke-2, ke-3, dst. memiliki dropdown sendiri. */
+    if(index>0){
+      const selector=document.createElement('div');
+      selector.className='armada-selector-row armada-card-selector';
+      selector.innerHTML=
+        '<label class="armada-selector-label" for="armadaSelectCard'+index+'">JENIS ARMADA</label>'+
+        '<select id="armadaSelectCard'+index+'" class="armada-select" onchange="pilihArmadaKartuManual('+index+', this)"></select>';
+      wrap.appendChild(selector);
+    }
 
     const card=document.createElement('div');
     card.className='armada-layout';
@@ -1827,7 +1950,13 @@ function tampilkanArmada(list){
         '<div class="status-metrics"><span>CBM: '+formatPercent(usageCbm)+'</span><span>Ton: '+formatPercent(usageTon)+'</span></div>'+
       '</div>';
 
-    container.appendChild(card);
+    wrap.appendChild(card);
+    container.appendChild(wrap);
+
+    if(index>0){
+      const select=wrap.querySelector('#armadaSelectCard'+index);
+      isiDropdownArmadaKartu_(select,a);
+    }
   });
 }
 
