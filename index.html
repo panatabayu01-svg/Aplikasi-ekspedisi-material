@@ -338,7 +338,7 @@ let daftarProyek = [];
 let proyekAktif = '';
 let modeAplikasi = 'AUTO';
 let requestSerial = 0;
-const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
+const NAMA_PROYEK_MANUAL = 'HASIL INPUT MANUAL';
 let materialDataTerakhir = [];
 
 /*
@@ -686,7 +686,7 @@ function isiDropdownProyek(autoSelect){
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
 
-  if(isMobile && daftarProyek.indexOf(NAMA_PROYEK_MANUAL) < 0){
+  if(isMobile){
     const manualOption=document.createElement('option');
     manualOption.value=NAMA_PROYEK_MANUAL;
     manualOption.textContent=NAMA_PROYEK_MANUAL;
