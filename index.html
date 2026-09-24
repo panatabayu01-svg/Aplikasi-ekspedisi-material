@@ -57,6 +57,37 @@
     .project-select:focus{border-color:#0d6efd}
     .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:#eef5fb}
+
+    /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
+    .delivery-date{
+      margin-left:8px;
+      min-width:320px;
+      flex:1 1 320px;
+      max-width:420px;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:7px;
+      padding:0 10px;
+      border:1px solid #0d447f;
+      background:#0d447f;
+      color:#fff;
+      box-shadow:0 1px 3px rgba(13,68,127,.18);
+      white-space:nowrap;
+      overflow:hidden;
+    }
+    .delivery-date-label{
+      font-size:13px;
+      font-weight:700;
+      color:#fff;
+    }
+    .delivery-date-value{
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+    }
+
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
     .kpi-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:9px}
@@ -162,7 +193,7 @@
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        grid-template-columns:52px minmax(0,1fr);
+        grid-template-columns:52px minmax(0,1fr) 110px;
         grid-template-rows:38px 38px;
         gap:7px;
         align-items:center;
@@ -181,7 +212,7 @@
       }
 
       .project-select{
-        grid-column:2;
+        grid-column:2 / 4;
         grid-row:1;
         width:100%;
         min-width:0;
@@ -194,12 +225,41 @@
       }
 
       .btn-refresh{
-        grid-column:2;
+        grid-column:3;
         grid-row:2;
-        justify-self:end;
+        justify-self:stretch;
         width:110px;
         min-width:110px;
         height:38px;
+      }
+
+      /* HP: TANGGAL RENCANA KIRIM tepat di sebelah kiri tombol Refresh.
+         Tetap satu baris agar tidak memotong layout KPI/armada. */
+      .delivery-date{
+        /* HP: kotak tanggal melebar dari kiri sampai sebelum tombol Refresh */
+        grid-column:1 / 3;
+        grid-row:2;
+        display:flex !important;
+        width:100%;
+        min-width:0;
+        max-width:none;
+        height:38px;
+        margin-left:0;
+        padding:0 8px;
+        gap:5px;
+        overflow:hidden;
+      }
+
+      .delivery-date-label{
+        flex:0 0 auto;
+        font-size:10px;
+      }
+
+      .delivery-date-value{
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        font-size:12px;
       }
 
       .armada-selector-row{
@@ -264,10 +324,15 @@
     <button id="modeManualBtn" class="mode-btn manual" type="button" onclick="pilihMode('MANUAL')">② INPUT MANUAL</button>
 
     <div id="manualActions" class="manual-actions">
-      <button id="btnInputData" class="btn-input-data" type="button" onclick="bukaInputManual()">📄 OPEN SHEET</button>
+      <button id="btnInputData" class="btn-input-data" type="button" onclick="bukaInputManual()">📝 INPUT DATA</button>
     </div>
 
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
+
+    <div id="deliveryDate" class="delivery-date" aria-label="Rencana Pengiriman">
+      <span class="delivery-date-label">📅 RENCANA KIRIM :</span>
+      <span id="deliveryDateValue" class="delivery-date-value">-</span>
+    </div>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -418,6 +483,7 @@ function updateModeUI_(){
   const manualBtn=document.getElementById('modeManualBtn');
   const select=document.getElementById('projectSelect');
   const actions=document.getElementById('manualActions');
+  const deliveryDate=document.getElementById('deliveryDate');
 
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
@@ -425,6 +491,10 @@ function updateModeUI_(){
   if(modeAplikasi==='MANUAL'){
     autoBtn.classList.remove('active');
     manualBtn.classList.add('active');
+
+    if(deliveryDate){
+      deliveryDate.style.display='none';
+    }
 
     if(isMobile){
       // HP: dropdown tetap aktif karena sekaligus menjadi pemilih metode.
@@ -442,6 +512,12 @@ function updateModeUI_(){
     manualBtn.classList.remove('active');
     select.disabled=false;
     actions.style.display='none';
+
+    if(deliveryDate){
+      // AUTO: tanggal tampil di PC dan HP.
+      // HP posisinya sudah diatur CSS: tepat di kiri tombol Refresh.
+      deliveryDate.style.display = 'flex';
+    }
   }
 }
 
@@ -683,22 +759,12 @@ function isiDropdownProyek(autoSelect){
 
   });
 
-  // HP: tambahkan MANUAL EKSPEDISI ke dropdown.
+  // HP: MANUAL EKSPEDISI tidak ditampilkan di dropdown.
   // Desktop tetap menggunakan tombol metode input seperti sebelumnya.
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
 
-  if(isMobile){
-    const manualOption=document.createElement('option');
-    manualOption.value=NAMA_PROYEK_MANUAL;
-    manualOption.textContent=NAMA_PROYEK_MANUAL;
-    s.appendChild(manualOption);
-  }
-
-  if(current && (
-      daftarProyek.indexOf(current)>=0 ||
-      (isMobile && current===NAMA_PROYEK_MANUAL)
-  )){
+  if(current && daftarProyek.indexOf(current)>=0){
 
     s.value=current;
 
@@ -1181,7 +1247,40 @@ function tampilkanData(data){
   }
 
   const s=data.summary||{};
+
   const materialData=Array.isArray(data.material)?data.material:[];
+
+  // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
+  // Utamakan data.tanggalKirim dari API; bila belum tersedia di level
+  // proyek, gunakan tanggalKirim dari item material pertama.
+  const tanggalKirim=String(
+    data.tanggalKirim ||
+    (materialData[0] && materialData[0].tanggalKirim) ||
+    ''
+  ).trim();
+
+  // HP: singkatkan nama bulan agar tanggal tidak terpotong.
+  // Desktop tetap menggunakan format tanggal dari API.
+  function formatTanggalKirimHP_(value){
+    if(!value) return '-';
+    const bulan={
+      'Januari':'Jan','Februari':'Feb','Maret':'Mar','April':'Apr',
+      'Mei':'Mei','Juni':'Jun','Juli':'Jul','Agustus':'Agu',
+      'September':'Sep','Oktober':'Okt','November':'Nov','Desember':'Des'
+    };
+    return value.replace(/Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember/g,
+      function(m){return bulan[m]||m;}
+    );
+  }
+
+  const tanggalKirimEl=document.getElementById('deliveryDateValue');
+  if(tanggalKirimEl){
+    const isMobileTanggal=window.matchMedia &&
+                          window.matchMedia('(max-width: 600px)').matches;
+    tanggalKirimEl.textContent=isMobileTanggal
+      ? formatTanggalKirimHP_(tanggalKirim)
+      : (tanggalKirim || '-');
+  }
   materialDataTerakhir=materialData.slice();
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
@@ -2044,6 +2143,11 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
+  const tanggalKirimEl=document.getElementById('deliveryDateValue');
+  if(tanggalKirimEl){
+    tanggalKirimEl.textContent='-';
+  }
+
   materialDataTerakhir=[];
   armadaAktualTerakhir=[];
   proyekArmadaTerakhir='';
