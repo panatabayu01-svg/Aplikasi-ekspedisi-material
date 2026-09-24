@@ -583,35 +583,15 @@ function pilihMode(mode){
 }
 
 function bukaInputManual(){
-  const btn=document.getElementById('btnInputData');
-  if(btn) btn.disabled=true;
+  const SHEET_INPUT_MANUAL_URL = 'https://docs.google.com/spreadsheets/d/1tdL-FHRYywfo-GDY-eIWUTpXpT156AWO4FH_iXjXUAM/edit?gid=424638171#gid=424638171';
 
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
-  fetch(API_URL+'?action=manual_input_url&_='+Date.now(),{
-    method:'GET',
-    cache:'no-store',
-    redirect:'follow'
-  })
-  .then(function(response){
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    return response.json();
-  })
-  .then(function(result){
-    if(!result || result.success!==true || !result.url){
-      throw new Error(result && result.message ? result.message : 'Link INPUT_MANUAL_EKSPEDISI tidak tersedia.');
-    }
-    window.open(result.url,'_blank','noopener');
-    setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
-  })
-  .catch(function(error){
-    console.error('OPEN INPUT MANUAL ERROR:',error);
-    setStatus('Gagal membuka INPUT_MANUAL_EKSPEDISI.');
-    alert('Gagal membuka INPUT_MANUAL_EKSPEDISI. Pastikan API sudah diperbarui.');
-  })
-  .finally(function(){
-    if(btn) btn.disabled=false;
-  });
+  // Buka Google Spreadsheet secara langsung.
+  // Tidak lagi melakukan fetch ke script.google.com hanya untuk mengambil URL Sheet.
+  window.open(SHEET_INPUT_MANUAL_URL, '_blank', 'noopener');
+
+  setStatus('INPUT_MANUAL_EKSPEDISI dibuka. Kembali ke aplikasi lalu klik Refresh.');
 }
 
 document.addEventListener('DOMContentLoaded',function(){
