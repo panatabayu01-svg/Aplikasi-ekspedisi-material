@@ -341,6 +341,7 @@ let proyekAktif = '';
 let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
+const LABEL_PROYEK_MANUAL = 'HASIL INPUT MANUAL';
 let materialDataTerakhir = [];
 
 /*
@@ -432,7 +433,7 @@ function updateModeUI_(){
       actions.style.display='none';
     }else{
       select.disabled=true;
-      select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
+      select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+LABEL_PROYEK_MANUAL+'</option>';
       select.value=NAMA_PROYEK_MANUAL;
       proyekAktif=NAMA_PROYEK_MANUAL;
       actions.style.display='flex';
@@ -691,7 +692,7 @@ function isiDropdownProyek(autoSelect){
   if(isMobile){
     const manualOption=document.createElement('option');
     manualOption.value=NAMA_PROYEK_MANUAL;
-    manualOption.textContent=NAMA_PROYEK_MANUAL;
+    manualOption.textContent=LABEL_PROYEK_MANUAL;
     s.appendChild(manualOption);
   }
 
