@@ -70,22 +70,21 @@
       justify-content:flex-start;
       gap:7px;
       padding:0 10px;
-      border:1px solid #0d447f;
-      background:#0d447f;
-      color:#fff;
-      box-shadow:0 1px 3px rgba(13,68,127,.18);
+      border:1px solid #d1dce7;
+      background:#f7fafc;
+      color:#17324d;
       white-space:nowrap;
       overflow:hidden;
     }
     .delivery-date-label{
-      font-size:13px;
+      font-size:12px;
       font-weight:700;
-      color:#fff;
+      color:#0d447f;
     }
     .delivery-date-value{
-      font-size:14px;
+      font-size:13px;
       font-weight:700;
-      color:#fff;
+      color:#17324d;
     }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
@@ -190,6 +189,14 @@
       .armada-layout{grid-template-columns:1fr 1fr}
       .status-panel{grid-column:span 2}
     }
+    /* APLIKASI TERINSTAL DI PC (STANDALONE): skala tampilan 80%.
+       Browser biasa dan tampilan HP tidak ikut berubah. */
+    @media (display-mode: standalone){
+      body{
+        zoom:0.8;
+      }
+    }
+
     @media(max-width:600px){
       .control-bar{
         display:grid;
@@ -233,9 +240,30 @@
         height:38px;
       }
 
-      /* Tanggal kirim tidak ditampilkan di HP agar layout HP yang sudah pas tetap sama. */
+      /* HP: tanggal rencana kirim tetap tampil di kiri tombol Refresh. */
       .delivery-date{
-        display:none !important;
+        display:flex !important;
+        grid-column:1;
+        grid-row:2;
+        min-width:0;
+        width:100%;
+        max-width:none;
+        height:38px;
+        margin-left:0;
+        padding:0 7px;
+        gap:4px;
+        box-sizing:border-box;
+        overflow:hidden;
+      }
+      .delivery-date-label{
+        font-size:10px;
+        flex:0 0 auto;
+      }
+      .delivery-date-value{
+        font-size:11px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
       }
 
       .armada-selector-row{
@@ -490,7 +518,8 @@ function updateModeUI_(){
     actions.style.display='none';
 
     if(deliveryDate){
-      deliveryDate.style.display = isMobile ? 'none' : 'flex';
+      // Tanggal tetap tampil pada DATA OTOMATIS, termasuk di HP.
+      deliveryDate.style.display='flex';
     }
   }
 }
