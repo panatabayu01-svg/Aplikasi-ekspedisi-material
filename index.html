@@ -2269,6 +2269,22 @@ function isiDropdownArmadaKartu_(select,a,index){
    * Perubahan ini hanya memulihkan opsi AUTO pada dropdown kartu;
    * logika perhitungan, alokasi, dan tampilan lainnya tetap sama.
    */
+  /*
+   * PENTING:
+   * AUTO hanya boleh muncul pada kartu yang memang sedang berstatus
+   * hasil rekomendasi otomatis (_isAutoResult === true).
+   *
+   * Sebelumnya kode menentukan AUTO hanya dari nama armada saat ini.
+   * Akibatnya setelah Armada 2 dipilih manual menjadi CDD, karena nama
+   * kartu berubah menjadi CDD, kode kembali menganggap CDD sebagai AUTO
+   * dan dropdown menampilkan "AUTO — CDD".
+   *
+   * Sekarang status AUTO ditentukan dari FLAG kartu, bukan dari nama.
+   * Jadi:
+   *   - kartu AUTO FUSO       -> tampil "AUTO — FUSO"
+   *   - setelah pilih manual CDD -> tampil "CDD" (tanpa AUTO)
+   *   - kartu manual lainnya   -> tidak punya opsi AUTO
+   */
   const isAutoResult=a._isAutoResult===true;
   const autoNama=normalisasiNamaArmada_(a.armada);
 
@@ -2282,7 +2298,7 @@ function isiDropdownArmadaKartu_(select,a,index){
       master:m,
       unit:unit,
       effective:effective,
-      isAuto:normalisasiNamaArmada_(m.armada)===autoNama
+      isAuto:isAutoResult && normalisasiNamaArmada_(m.armada)===autoNama
     };
   });
 
@@ -2301,8 +2317,11 @@ function isiDropdownArmadaKartu_(select,a,index){
     if(pilihan.length<4) pilihan.push(k);
   });
 
-  /* Jika armada kartu tidak ditemukan di master, tetap tampilkan AUTO-nya. */
-  if(!pilihan.some(function(k){return k.isAuto;})){
+  /*
+   * Fallback AUTO hanya untuk kartu yang benar-benar AUTO.
+   * Kartu manual TIDAK BOLEH dibuatkan opsi AUTO.
+   */
+  if(isAutoResult && !pilihan.some(function(k){return k.isAuto;})){
     pilihan.unshift({
       master:{
         armada:a.armada,
