@@ -502,7 +502,6 @@ window.CACHE_VERSION = 'v8';
 window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v8';
 window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v8';
 window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v8_';
-window.CACHE_ARMADA_MASTER_KEY = 'ekspedisi_armada_master_v8';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -996,10 +995,6 @@ function loadDataProyek(p,showOverlay){
 
     }
 
-    if(Array.isArray(result.armadaMaster) && result.armadaMaster.length>0){
-      setCache_(CACHE_ARMADA_MASTER_KEY,result.armadaMaster);
-    }
-
     setCache_(
       getProjectCacheKey_(p),
       result
@@ -1075,7 +1070,7 @@ function loadDataProyek(p,showOverlay){
     }else{
 
       setStatus(
-        'Data tersimpan tetap digunakan.'
+        'Data tersimpan tetap digunakan. Gagal memperbarui dari server.'
       );
 
     }
@@ -1319,21 +1314,6 @@ function tampilkanData(data){
     resetTampilan();
     setStatus(data&&data.message?data.message:'Data tidak ditemukan.');
     return;
-  }
-
-  /*
-   * MASTER ARMADA juga disimpan terpisah dari cache proyek.
-   * Cache proyek lama dapat berisi material/KPI tanpa armadaMaster.
-   * Pulihkan master lebih dulu agar dropdown Armada 1, 2, 3, dst.
-   * tidak pernah kosong saat data tampil dari cache.
-   */
-  if(Array.isArray(data.armadaMaster) && data.armadaMaster.length>0){
-    setCache_(CACHE_ARMADA_MASTER_KEY,data.armadaMaster);
-  }else if(!Array.isArray(MASTER_ARMADA_PILIHAN) || MASTER_ARMADA_PILIHAN.length===0){
-    const cachedMaster=getCache_(CACHE_ARMADA_MASTER_KEY);
-    if(Array.isArray(cachedMaster) && cachedMaster.length>0){
-      data.armadaMaster=cachedMaster;
-    }
   }
 
   const s=data.summary||{};
@@ -2246,52 +2226,7 @@ function isiDropdownArmadaKartu_(select,a){
     autoTon>0 && totalTon>0 ? autoTon/totalTon : Infinity
   );
 
-  /*
-   * Fallback penting untuk data cache lama: bila master belum
-   * tersedia, gunakan master cache / pilihan global / armada yang
-   * sudah tampil. Minimal dropdown tetap memiliki AUTO dan tidak kosong.
-   */
-  let masterPilihan=Array.isArray(MASTER_ARMADA_PILIHAN)
-    ? MASTER_ARMADA_PILIHAN.slice()
-    : [];
-
-  if(masterPilihan.length===0){
-    const cachedMaster=getCache_(CACHE_ARMADA_MASTER_KEY);
-    if(Array.isArray(cachedMaster) && cachedMaster.length>0){
-      masterPilihan=cachedMaster.map(function(m){
-        return {
-          armada:String(m.armada||'').trim(),
-          panjangM:Number(m.panjangM)||0,
-          lebarM:Number(m.lebarM)||0,
-          tinggiM:Number(m.tinggiM)||0,
-          kapasitasCbm:Number(m.kapasitasCbm)||0,
-          maxTonase:Number(m.maxTonase)||0,
-          catatan:String(m.catatan||'').trim(),
-          prioritas:Number(m.prioritas)||999999
-        };
-      }).filter(function(m){return m.armada;});
-      if(masterPilihan.length>0) MASTER_ARMADA_PILIHAN=masterPilihan.slice();
-    }
-  }
-
-  if(masterPilihan.length===0 && Array.isArray(armadaPilihanData) && armadaPilihanData.length>0){
-    masterPilihan=armadaPilihanData.slice();
-  }
-
-  if(masterPilihan.length===0){
-    masterPilihan=[{
-      armada:autoNama,
-      panjangM:Number(a.panjangM)||0,
-      lebarM:Number(a.lebarM)||0,
-      tinggiM:Number(a.tinggiM)||0,
-      kapasitasCbm:autoCbm,
-      maxTonase:autoTon,
-      catatan:'',
-      prioritas:999999
-    }];
-  }
-
-  const kandidat=masterPilihan.map(function(m){
+  const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
     const effective=Math.min(
       m.kapasitasCbm>0 && totalCbm>0 ? m.kapasitasCbm/totalCbm : Infinity,
       m.maxTonase>0 && totalTon>0 ? m.maxTonase/totalTon : Infinity
