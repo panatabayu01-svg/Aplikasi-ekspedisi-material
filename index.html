@@ -236,20 +236,16 @@
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) 88px;
-        grid-template-rows:38px 38px 38px;
+        grid-template-columns:52px minmax(0,1fr) 110px;
+        grid-template-rows:38px 38px;
         gap:7px;
         align-items:center;
       }
 
-      /*
-       * HP: tombol METODE dan OPEN SHEET sekarang tampil langsung.
-       * Baris 1 = PROYEK + dropdown.
-       * Baris 2 = DATA OTOMATIS + INPUT MANUAL + OPEN SHEET + REFRESH.
-       * Baris 3 = RENCANA KIRIM.
-       */
+      /* HP: cukup LABEL PROYEK + DROPDOWN + REFRESH.
+         Pilihan DATA OTOMATIS / INPUT MANUAL tetap berada di dropdown. */
       .project-label{
-        grid-column:1 / 2;
+        grid-column:1;
         grid-row:1;
         width:52px;
         min-width:52px;
@@ -259,64 +255,33 @@
       }
 
       .project-select{
-        grid-column:2 / 5;
+        grid-column:2 / 4;
         grid-row:1;
         width:100%;
         min-width:0;
         height:38px;
       }
 
-      .mode-btn{
-        display:flex !important;
-        align-items:center;
-        justify-content:center;
-        width:100%;
-        min-width:0;
-        height:38px;
-        padding:0 5px;
-        font-size:10px;
-        line-height:1.05;
-        white-space:normal;
-        text-align:center;
-      }
-
-      #modeAutoBtn{grid-column:1;grid-row:2}
-      #modeManualBtn{grid-column:2;grid-row:2}
-
+      .mode-btn,
       .manual-actions{
-        grid-column:3;
-        grid-row:2;
-        display:flex !important;
-        align-items:stretch;
-        width:100%;
-        min-width:0;
-      }
-
-      .btn-input-data{
-        width:100%;
-        min-width:0;
-        height:38px;
-        padding:0 5px;
-        font-size:10px;
-        line-height:1.05;
-        white-space:normal;
+        display:none !important;
       }
 
       .btn-refresh{
-        grid-column:4;
+        grid-column:3;
         grid-row:2;
         justify-self:stretch;
-        width:88px;
-        min-width:88px;
+        width:110px;
+        min-width:110px;
         height:38px;
-        padding:0 4px;
-        font-size:11px;
       }
 
-      /* HP: RENCANA KIRIM berada di baris sendiri agar 4 tombol tetap lega. */
+      /* HP: TANGGAL RENCANA KIRIM tepat di sebelah kiri tombol Refresh.
+         Tetap satu baris agar tidak memotong layout KPI/armada. */
       .delivery-date{
-        grid-column:1 / 5;
-        grid-row:3;
+        /* HP: kotak tanggal melebar dari kiri sampai sebelum tombol Refresh */
+        grid-column:1 / 3;
+        grid-row:2;
         display:flex !important;
         width:100%;
         min-width:0;
@@ -557,7 +522,7 @@
 </div>
 
 <footer class="footer">
-  <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.3</div>
+  <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.2</div>
   <div id="clock">-</div>
 </footer>
 
@@ -565,10 +530,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v13';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v13';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v13';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v13_';
+window.CACHE_VERSION = 'v12';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v12';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v12';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v12_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -645,14 +610,9 @@ function updateModeUI_(){
     }
 
     if(isMobile){
-      // HP: metode dipilih lewat tombol. Dropdown dikunci ke MANUAL
-      // agar proyek lain tidak mungkin tampil saat mode MANUAL aktif.
-      select.disabled=true;
-      select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
-      select.value=NAMA_PROYEK_MANUAL;
-      proyekAktif=NAMA_PROYEK_MANUAL;
-      // OPEN SHEET selalu terlihat di HP agar mudah membuka Google Sheet.
-      actions.style.display='flex';
+      // HP: dropdown tetap aktif karena sekaligus menjadi pemilih metode.
+      select.disabled=false;
+      actions.style.display='none';
     }else{
       select.disabled=true;
       select.innerHTML='<option value="'+NAMA_PROYEK_MANUAL+'">'+NAMA_PROYEK_MANUAL+'</option>';
@@ -664,8 +624,7 @@ function updateModeUI_(){
     autoBtn.classList.add('active');
     manualBtn.classList.remove('active');
     select.disabled=false;
-    // Di HP OPEN SHEET tetap ditampilkan; di desktop hanya muncul saat MANUAL.
-    actions.style.display=isMobile ? 'flex' : 'none';
+    actions.style.display='none';
 
     if(deliveryDate){
       // AUTO: tanggal tampil di PC dan HP.
@@ -746,8 +705,7 @@ function bukaInputManual(){
   setStatus('Membuka INPUT_MANUAL_EKSPEDISI...');
 
   // OPEN SHEET langsung ke Google Spreadsheet.
-  // Di HP maupun PC, browser akan membuka tab/halaman Google Sheets.
-  // Akses tetap mengikuti permission file Google Sheets.
+  // Tidak lagi memanggil API manual_input_url.
   const SHEET_INPUT_MANUAL_URL =
     'https://docs.google.com/spreadsheets/d/1tdL-FHRYywfo-GDY-eIWUTpXpT156AWO4FH_iXjXUAM/edit?gid=424638171#gid=424638171';
 
