@@ -2081,26 +2081,29 @@ function pilihArmadaManual(){
   const master=cariMasterArmada_(nama);
   if(!master) return;
 
-  const list=armadaAktualTerakhir.map(function(a){
-    return Object.assign({},a);
-  });
-
-  const target=list[0];
-  if(!target) return;
-
-  const totalCbm=Number(target.totalCbmProyek)||0;
-  const totalTon=Number(target.totalTonProyek)||0;
+  /*
+   * Jika user memilih armada manual, pilihan tersebut hanya menjadi
+   * ARMADA PERTAMA. Jangan lagi menampilkan "2 UNIT" dalam satu kartu.
+   * Total muatan tetap memakai TOTAL PROYEK, lalu dipecah berurutan:
+   *   UNIT 1 = armada yang dipilih
+   *   UNIT 2 = rekomendasi armada berikutnya untuk sisa muatan
+   *   UNIT 3 = rekomendasi berikutnya lagi bila masih diperlukan.
+   */
+  const totalCbm = Number(armadaSummaryPilihan && armadaSummaryPilihan.totalCbm)||
+                   Number(document.getElementById('totalCbm')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
+  const totalTon = Number(armadaSummaryPilihan && armadaSummaryPilihan.totalTon)||
+                   Number(document.getElementById('totalTon')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
 
   const hasil=buatHasilArmadaPilihan_(master,totalCbm,totalTon);
+  const pecahan=pecahArmadaBerurutan_([Object.assign({},hasil,{kebutuhanUnit:Math.max(1,hasil.kebutuhanUnit)})]);
 
-  list[0]=hasil;
   armadaModePilihan=nama;
-  tampilkanArmada(list);
+  tampilkanArmada(pecahan.length ? pecahan : [hasil]);
 
   setStatus(
     'Armada 1 dipilih manual: '+
     master.armada+
-    ' — '+hasil.kebutuhanUnit+' UNIT.'
+    ' — 1 UNIT. Sisa muatan direkomendasikan ke armada berikutnya.'
   );
 }
 
