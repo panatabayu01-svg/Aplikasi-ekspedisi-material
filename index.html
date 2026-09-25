@@ -123,6 +123,9 @@
 
     .panel-title{font-size:20px;font-weight:700;color:#17324d;border-bottom:1px solid #d2dde6;padding-bottom:10px;margin-bottom:3px}
     .panel-title span{margin-right:8px}
+    .hasil-panel-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .btn-material-armada{height:31px;padding:0 10px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;font-weight:700;font-size:12px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-material-armada:hover{filter:brightness(1.08)}
     .detail-row{display:grid;grid-template-columns:48% 52%;min-height:48px;border-bottom:1px solid #d2dde6;align-items:center;font-size:13px}
     .detail-row strong{font-size:16px;color:#17324d}
     .detail-row span{font-size:16px;color:#50657a}
@@ -177,6 +180,14 @@
     .nesting-table td{border:1px solid #cbd4de;padding:7px 6px;font-size:13px;color:#17324d;text-align:center;background:#fff}
     .nesting-table td:first-child{text-align:left}
     .nesting-empty{text-align:center;padding:30px 15px;color:#718096;font-size:14px}
+    .armada-material-group{border:1px solid #cbd8e4;margin-bottom:10px;background:#fff}
+    .armada-material-head{background:#eef5fb;border-bottom:1px solid #cbd8e4;padding:10px 12px;font-weight:700;color:#0d447f}
+    .armada-material-head small{display:block;color:#617386;font-weight:500;margin-top:4px}
+    .armada-material-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
+    .armada-material-table th{position:static;background:#0d447f;color:#fff;border:1px solid #17324d;height:34px;padding:6px;font-size:12px}
+    .armada-material-table td{border:1px solid #cbd4de;padding:7px 6px;font-size:13px;color:#17324d;text-align:center;background:#fff}
+    .armada-material-table td:nth-child(2){text-align:left}
+    .armada-material-note{font-size:12px;color:#617386;margin:0 0 10px}
 .material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
@@ -477,6 +488,17 @@
     </div>
   </section>
 </main>
+
+<div id="armadaMaterialOverlay" class="nesting-overlay" style="display:none" onclick="tutupMaterialArmada(event)">
+  <div class="nesting-modal" role="dialog" aria-modal="true" aria-labelledby="armadaMaterialModalTitle" onclick="event.stopPropagation()">
+    <div class="nesting-modal-header">
+      <div id="armadaMaterialModalTitle">📦 MATERIAL DALAM ARMADA</div>
+      <button type="button" class="nesting-close" onclick="tutupMaterialArmada()">✕</button>
+    </div>
+    <div class="nesting-summary" id="armadaMaterialSummary"></div>
+    <div class="nesting-modal-body" id="armadaMaterialModalBody"></div>
+  </div>
+</div>
 
 <div id="nestingOverlay" class="nesting-overlay" style="display:none" onclick="tutupNestingInternal(event)">
   <div class="nesting-modal" role="dialog" aria-modal="true" aria-labelledby="nestingModalTitle" onclick="event.stopPropagation()">
@@ -1311,6 +1333,7 @@ function loadDaftarProyek(showOverlay,loadSelected){
 }
 
 function tampilkanData(data){
+  window.__DATA_TERAKHIR__=data||null;
   if(!data||!data.success){
     resetTampilan();
     setStatus(data&&data.message?data.message:'Data tidak ditemukan.');
@@ -2465,7 +2488,7 @@ function perbaruiKartuArmada_(index,a){
       '<div class="detail-row"><strong>Kebutuhan Unit</strong><span>'+((a.kebutuhanUnit||0))+' UNIT</span></div>'+
     '</div>'+
     '<div class="armada-panel">'+
-      '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
+      '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
       '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
       '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
       '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
@@ -2585,7 +2608,7 @@ function tampilkanArmada(list){
         '<div class="detail-row"><strong>Kebutuhan Unit</strong><span>'+((a.kebutuhanUnit||0))+' UNIT</span></div>'+
       '</div>'+
       '<div class="armada-panel">'+
-        '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
+        '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
         '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
         '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
@@ -2700,6 +2723,7 @@ function resetTampilan(){
   }
 
   materialDataTerakhir=[];
+  window.__DATA_TERAKHIR__=null;
   nestingInternalTerakhir=[];
   updateNestingInternalButton_();
   armadaAktualTerakhir=[];
@@ -2793,6 +2817,69 @@ function updateNestingInternalButton_(){
   btn.title=adaData
     ? 'Lihat material yang masuk di dalam pipa.'
     : 'Tidak ada material yang terdeteksi masuk di dalam pipa.';
+}
+
+function materialRowsUntukArmada_(armadaList, materialRows, index){
+  const rows=Array.isArray(materialRows)?materialRows:[];
+  const cards=Array.isArray(armadaList)?armadaList:[];
+  if(!cards[index] || !rows.length) return [];
+
+  const detail=(window.__DATA_TERAKHIR__ && Array.isArray(window.__DATA_TERAKHIR__.detailArmada))
+    ? window.__DATA_TERAKHIR__.detailArmada : [];
+  if(detail.length){
+    const target=cards[index];
+    const armadaName=normalisasiNamaArmada_(target.armada);
+    const detailRows=detail.filter(function(r){
+      return normalisasiNamaArmada_(r.armada)===armadaName &&
+        (target.armadaKe==null || Number(r.armadaKe||r.unitArmada||0)===Number(target.armadaKe||0));
+    });
+    const mapped=detailRows.map(function(r){
+      const nama=String(r.material||r.namaMaterial||r.itemMaterial||r.item||'').trim();
+      if(!nama) return null;
+      return {material:nama,volume:Number(r.volumeMuat!=null?r.volumeMuat:(r.volume!=null?r.volume:0))||0,unit:String(r.unit||r.satuan||'-'),cbm:Number(r.cbmMuat)||0,ton:Number(r.tonMuat!=null?r.tonMuat:((Number(r.beratMuatKg)||0)/1000))||0};
+    }).filter(function(x){return x && (x.volume>0 || x.cbm>0 || x.ton>0);});
+    if(mapped.length) return mapped;
+  }
+
+  let remaining=rows.map(function(r){return {material:String(r.material||'-'),volume:Number(r.volume)||0,unit:String(r.unit||'-'),cbm:Number(r.totalCbm)||0,ton:Number(r.totalTon)||0};});
+  for(let i=0;i<index;i++){
+    const prev=cards[i];
+    const pCbm=remaining.reduce(function(a,r){return a+r.cbm;},0);
+    const pTon=remaining.reduce(function(a,r){return a+r.ton;},0);
+    const targetCbm=Math.max(0,Number(prev.totalCbmProyek)||0);
+    const targetTon=Math.max(0,Number(prev.totalTonProyek)||0);
+    const frac=Math.min(1,pCbm>0?targetCbm/pCbm:1,pTon>0?targetTon/pTon:1);
+    remaining=remaining.map(function(r){return Object.assign({},r,{volume:Math.max(0,r.volume*(1-frac)),cbm:Math.max(0,r.cbm*(1-frac)),ton:Math.max(0,r.ton*(1-frac))});}).filter(function(r){return r.cbm>0.0000001 || r.ton>0.0000001;});
+  }
+  const remCbm=remaining.reduce(function(a,r){return a+r.cbm;},0);
+  const remTon=remaining.reduce(function(a,r){return a+r.ton;},0);
+  const target=cards[index];
+  const targetCbm=Math.max(0,Number(target.totalCbmProyek)||0);
+  const targetTon=Math.max(0,Number(target.totalTonProyek)||0);
+  const frac=Math.min(1,remCbm>0?targetCbm/remCbm:1,remTon>0?targetTon/remTon:1);
+  return remaining.map(function(r){return Object.assign({},r,{volume:r.volume*frac,cbm:r.cbm*frac,ton:r.ton*frac});}).filter(function(r){return r.volume>0.000001 || r.cbm>0.000001 || r.ton>0.000001;});
+}
+
+function bukaMaterialArmada(index){
+  const cards=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
+  if(!cards[index]) return;
+  const overlay=document.getElementById('armadaMaterialOverlay'),summary=document.getElementById('armadaMaterialSummary'),body=document.getElementById('armadaMaterialModalBody');
+  if(!overlay || !summary || !body) return;
+  const target=cards[index],rows=materialRowsUntukArmada_(cards,materialDataTerakhir,index);
+  const totalCbm=rows.reduce(function(a,r){return a+(Number(r.cbm)||0);},0),totalTon=rows.reduce(function(a,r){return a+(Number(r.ton)||0);},0);
+  summary.innerHTML='ARMADA : <strong>'+escapeHtml(String(target.armada||'-'))+'</strong> &nbsp; | &nbsp; UNIT : '+formatTableNumber(target.kebutuhanUnit||1)+' &nbsp; | &nbsp; MATERIAL : '+formatTableNumber(rows.length)+' jenis &nbsp; | &nbsp; CBM : '+formatNumber(totalCbm,2)+' m³ &nbsp; | &nbsp; TON : '+formatNumber(totalTon,3)+' Ton';
+  let html='<div class="nesting-project-note">Proyek : <strong>'+escapeHtml(proyekAktif || document.getElementById('projectSelect').value || '-')+'</strong></div>';
+  html+='<p class="armada-material-note">Material yang ditampilkan mengikuti pembagian muatan armada pada hasil rekomendasi.</p>';
+  html+='<div class="armada-material-group"><div class="armada-material-head">🚛 '+escapeHtml(String(target.armada||'-'))+' — '+formatTableNumber(target.kebutuhanUnit||1)+' UNIT<small>Target muatan: '+formatNumber(target.totalCbmProyek,2)+' m³ | '+formatNumber(target.totalTonProyek,3)+' Ton</small></div>';
+  html+='<table class="armada-material-table"><thead><tr><th style="width:5%">NO</th><th style="width:43%">MATERIAL</th><th style="width:14%">VOLUME</th><th style="width:10%">UNIT</th><th style="width:14%">CBM</th><th style="width:14%">TON</th></tr></thead><tbody>';
+  if(!rows.length){html+='<tr><td colspan="6" class="nesting-empty">Tidak ada material yang dapat ditampilkan pada armada ini.</td></tr>';}else{rows.forEach(function(r,i){html+='<tr><td>'+formatTableNumber(i+1)+'</td><td>'+escapeHtml(r.material)+'</td><td>'+formatTableNumber(r.volume)+'</td><td>'+escapeHtml(r.unit)+'</td><td>'+formatNumber(r.cbm,3)+'</td><td>'+formatNumber(r.ton,3)+'</td></tr>';});}
+  html+='</tbody></table></div>';
+  body.innerHTML=html;overlay.style.display='flex';
+}
+
+function tutupMaterialArmada(event){
+  if(event && event.target && event.target.id!=='armadaMaterialOverlay') return;
+  const overlay=document.getElementById('armadaMaterialOverlay');if(overlay) overlay.style.display='none';
 }
 
 function bukaNestingInternal(){
@@ -2907,6 +2994,7 @@ function tutupNestingInternal(event){
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     tutupNestingInternal();
+    tutupMaterialArmada();
   }
 });
 
