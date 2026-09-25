@@ -2259,38 +2259,35 @@ function pilihArmadaKartuManual(index,selectEl){
   if(!Array.isArray(armadaAktualTerakhir) || !armadaAktualTerakhir[index]) return;
 
   const nama=normalisasiNamaArmada_(selectEl ? selectEl.value : '');
+  const baseList=(Array.isArray(armadaTampilanTerakhir) && armadaTampilanTerakhir.length>0)
+    ? armadaTampilanTerakhir
+    : armadaAktualTerakhir;
+  const target=baseList[index];
+  if(!target) return;
 
   /*
-   * Simpan pilihan berdasarkan nomor kartu. Ini membuat Armada 2, 3, dst.
-   * independen dan tidak kembali ke AUTO ketika kartu dirender ulang.
+   * Jangan render ulang seluruh daftar kartu.
+   * Dropdown kartu hanya boleh memperbarui kartu yang diklik.
+   * Ini menghindari pembuatan ulang gambar/base64 dan DOM semua armada
+   * yang sebelumnya membuat browser terasa sangat lambat.
    */
   if(!nama || nama==='AUTO'){
     delete armadaKartuPilihanManual[index];
-    const list=armadaAktualTerakhir.map(function(a){
-      return Object.assign({},a);
-    });
-    tampilkanArmada(list);
+    const original=armadaAktualTerakhir[index];
+    if(original){
+      armadaTampilanTerakhir[index]=Object.assign({},original);
+      armadaAktualTerakhir[index]=Object.assign({},original);
+      perbaruiKartuArmadaDom_(index,armadaAktualTerakhir[index]);
+    }
+    setStatus('Armada '+(index+1)+' kembali ke rekomendasi AUTO.');
     return;
   }
 
   const master=cariMasterArmada_(nama);
   if(!master) return;
 
-  /*
-   * Gunakan MUATAN KARTU tersebut, bukan TOTAL PROYEK.
-   * Satu dropdown = satu kartu/unit. Jadi pilihan manual tidak
-   * berubah menjadi "2 UNIT" dan tidak menggeser Armada 1.
-   */
-  const baseList=(Array.isArray(armadaTampilanTerakhir) && armadaTampilanTerakhir.length>0)
-    ? armadaTampilanTerakhir.map(function(a){return Object.assign({},a);})
-    : armadaAktualTerakhir.map(function(a){return Object.assign({},a);});
-
-  const target=baseList[index];
-  if(!target) return;
-
   const totalCbm=Number(target.totalCbmProyek)||0;
   const totalTon=Number(target.totalTonProyek)||0;
-
   const kapasitasCbm=Number(master.kapasitasCbm)||0;
   const kapasitasTon=Number(master.maxTonase)||0;
 
@@ -2315,16 +2312,103 @@ function pilihArmadaKartuManual(index,selectEl){
   };
 
   armadaKartuPilihanManual[index]=nama;
-  baseList[index]=hasil;
-  armadaTampilanTerakhir=baseList.map(function(a){return Object.assign({},a);});
-  armadaAktualTerakhir=baseList.map(function(a){return Object.assign({},a);});
+  armadaTampilanTerakhir[index]=Object.assign({},hasil);
+  armadaAktualTerakhir[index]=Object.assign({},hasil);
 
-  tampilkanArmada(baseList);
+  /* Hanya kartu yang dipilih yang di-update. */
+  perbaruiKartuArmadaDom_(index,hasil);
 
   setStatus(
     'Armada '+(index+1)+' dipilih manual: '+
     master.armada+' — 1 UNIT.'
   );
+}
+
+/*
+ * Update DOM satu kartu armada tanpa memanggil tampilkanArmada().
+ * Dengan cara ini kartu lain, gambar kendaraan lain, dan dropdown lain
+ * tidak ikut dibuat ulang.
+ */
+function perbaruiKartuArmadaDom_(index,a){
+  const container=document.getElementById('armadaList');
+  if(!container || !a) return;
+
+  const wraps=container.querySelectorAll('.armada-card-wrap');
+  const wrap=wraps[index];
+  if(!wrap) return;
+
+  const card=wrap.querySelector('.armada-layout');
+  if(!card) return;
+
+  const dimPanjang=Number(a.panjangM)||0;
+  const dimLebar=Number(a.lebarM)||0;
+  const dimTinggi=Number(a.tinggiM)||0;
+  const usageCbm=Number(a.pemakaianCbm)||0;
+  const usageTon=Number(a.pemakaianTon)||0;
+  const usageMax=Math.max(usageCbm,usageTon);
+
+  const cbmTercapai=Math.round(usageCbm*1000)/1000>=1;
+  const tonTercapai=Math.round(usageTon*1000)/1000>=1;
+  const kapasitasTercapai=cbmTercapai||tonTercapai;
+
+  let statusClass='ok';
+  let statusTitle='KUOTA MASIH TERSEDIA';
+  let statusNote='Kapasitas masih tersedia. Tingkat pemakaian masih aman.';
+
+  if(kapasitasTercapai){
+    statusClass='danger';
+    statusTitle='KUOTA TERCAPAI';
+    if(cbmTercapai && tonTercapai){
+      statusNote='CBM dan tonase sama-sama sudah mencapai batas kapasitas.';
+    }else if(cbmTercapai){
+      statusNote='CBM mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
+    }else{
+      statusNote='Tonase mencapai batas 100% lebih dulu. Armada tidak dapat menampung tambahan material.';
+    }
+  }else if(usageMax>=0.70){
+    statusClass='warning';
+    statusTitle='KUOTA MASIH TERSEDIA';
+    statusNote='Kapasitas masih tersedia. Perhatikan tingkat pemakaian.';
+  }
+
+  const sisaCbm=Math.max(0,(Number(a.kapasitasCbmTotal)||0)-(Number(a.totalCbmProyek)||0));
+  const sisaTon=Math.max(0,(Number(a.kapasitasTonTotal)||0)-(Number(a.totalTonProyek)||0));
+
+  card.innerHTML=
+    '<div class="armada-panel armada-visual">'+
+      '<div class="armada-name">'+escapeHtml((a.armada||'-'))+' — '+(a.kebutuhanUnit||0)+' UNIT</div>'+
+      '<div class="vehicle-image">'+vehicleSvg(a.armada)+'</div>'+
+      '<div class="vehicle-label">'+escapeHtml((a.armada||'').toUpperCase())+'</div>'+
+    '</div>'+
+    '<div class="armada-panel">'+
+      '<div class="panel-title"><span>⚙</span> SPESIFIKASI ARMADA</div>'+
+      '<div class="detail-row"><strong>Dimensi Bak</strong><span>'+formatNumber(dimPanjang,2)+' × '+formatNumber(dimLebar,2)+' × '+formatNumber(dimTinggi,2)+' m</span></div>'+
+      '<div class="detail-row"><strong>Kapasitas CBM</strong><span>'+formatNumber(a.kapasitasCbm,2)+' m³ / unit</span></div>'+
+      '<div class="detail-row"><strong>Maks. Tonase</strong><span>'+formatNumber(a.maxTonase,2)+' Ton / unit</span></div>'+
+      '<div class="detail-row"><strong>Kebutuhan Unit</strong><span>'+((a.kebutuhanUnit||0))+' UNIT</span></div>'+
+    '</div>'+
+    '<div class="armada-panel">'+
+      '<div class="panel-title"><span>▣</span> HASIL PERHITUNGAN</div>'+
+      '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
+      '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
+      '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
+      '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
+      '<div class="detail-row"><strong>Sisa Kapasitas</strong><span>'+formatNumber(sisaCbm,2)+' m³ | '+formatNumber(sisaTon,3)+' Ton</span></div>'+
+    '</div>'+
+    '<div class="status-panel '+statusClass+'">'+
+      '<div class="status-circle">!</div>'+
+      '<div class="status-title">'+statusTitle+'</div>'+
+      '<div class="status-note">'+statusNote+'</div>'+
+      '<div class="bar-wrap"><div class="bar-cbm" style="width:'+Math.min(100,Math.max(0,usageCbm*100))+'%"></div></div>'+
+      '<div class="status-metrics"><span>CBM: '+formatPercent(usageCbm)+'</span><span>Ton: '+formatPercent(usageTon)+'</span></div>'+
+    '</div>';
+
+  /* Perbarui opsi dropdown kartu yang sama tanpa menyentuh kartu lain. */
+  const select=wrap.querySelector('#armadaSelectCard'+index);
+  if(select){
+    isiDropdownArmadaKartu_(select,a);
+    select.value=normalisasiNamaArmada_(a.armada);
+  }
 }
 
 function tampilkanArmada(list){
