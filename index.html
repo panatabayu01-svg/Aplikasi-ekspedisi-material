@@ -150,13 +150,33 @@
 
     .material-section{border-color:#17324d}
     .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
-    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #16834b;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap;margin-left:auto}
+    .material-header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+    .btn-nesting-internal{height:34px;min-width:190px;padding:0 14px;border:1px solid #0d447f;background:#0d447f;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-nesting-internal:hover{background:#0a3768}
+    .btn-nesting-internal:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
+    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #16834b;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
     .btn-export-excel:hover{background:#0f7e3b}
     .btn-export-excel:disabled{background:#9ab9a8;border-color:#9ab9a8;cursor:not-allowed}
+
+    .nesting-overlay{position:fixed;inset:0;background:rgba(23,50,77,.45);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
+    .nesting-modal{width:min(960px,96vw);max-height:84vh;background:#fff;border:1px solid #0d447f;box-shadow:0 12px 35px rgba(0,0,0,.25);display:flex;flex-direction:column}
+    .nesting-modal-header{height:52px;min-height:52px;background:#0d447f;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:17px;font-weight:700}
+    .nesting-close{border:0;background:transparent;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:2px 4px}
+    .nesting-summary{padding:10px 16px;border-bottom:1px solid #d8e2eb;background:#f4f8fb;color:#17324d;font-size:13px;font-weight:700}
+    .nesting-modal-body{padding:12px 14px 16px;overflow:auto}
+    .nesting-project-note{font-size:13px;color:#617386;margin-bottom:10px}
+    .nesting-group{border:1px solid #cbd8e4;margin-bottom:10px;background:#fff}
+    .nesting-parent{background:#eef5fb;border-bottom:1px solid #cbd8e4;padding:10px 12px;font-weight:700;color:#0d447f}
+    .nesting-parent small{display:block;color:#617386;font-weight:500;margin-top:3px}
+    .nesting-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
+    .nesting-table th{position:static;background:#0d447f;color:#fff;border:1px solid #17324d;height:34px;padding:6px;font-size:12px}
+    .nesting-table td{border:1px solid #cbd4de;padding:7px 6px;font-size:13px;color:#17324d;text-align:center;background:#fff}
+    .nesting-table td:first-child{text-align:left}
+    .nesting-empty{text-align:center;padding:30px 15px;color:#718096;font-size:14px}
 .material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
-    th{position:sticky;top:0;z-index:2;background:#0d447f;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#fff}
+    th{position:sticky;top:0;z-index:2;background:#eaf1f7;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#000}
     td{border:1px solid #b8c3cf;padding:8px 7px;font-size:14px;font-weight:500;color:#000;background:#fff;text-align:center;vertical-align:middle}
     td.material-cell{text-align:left}
     td.center{text-align:center}
@@ -295,6 +315,8 @@
       .vehicle-image{height:150px}
       .vehicle-image svg{height:145px}
       .material-body{padding:0 5px 8px}
+      .material-header-actions{gap:5px}
+      .btn-nesting-internal,.btn-export-excel{height:32px;min-width:0;padding:0 9px;font-size:11px}
       table{min-width:950px}
       .footer{font-size:10px;padding:0 8px}
     }
@@ -427,7 +449,7 @@
   </section>
 
   <section class="section material-section">
-    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div>
+    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><div class="material-header-actions"><button id="btnNestingInternal" class="btn-nesting-internal" type="button" onclick="bukaNestingInternal()" disabled>📦 MATERIAL DALAM PIPA</button><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div></div>
     <div class="material-body">
       <div class="table-wrapper">
         <table>
@@ -451,6 +473,17 @@
   </section>
 </main>
 
+<div id="nestingOverlay" class="nesting-overlay" style="display:none" onclick="tutupNestingInternal(event)">
+  <div class="nesting-modal" role="dialog" aria-modal="true" aria-labelledby="nestingModalTitle" onclick="event.stopPropagation()">
+    <div class="nesting-modal-header">
+      <div id="nestingModalTitle">📦 MATERIAL YANG MASUK DI DALAM PIPA</div>
+      <button type="button" class="nesting-close" onclick="tutupNestingInternal()">✕</button>
+    </div>
+    <div class="nesting-summary" id="nestingSummary"></div>
+    <div class="nesting-modal-body" id="nestingModalBody"></div>
+  </div>
+</div>
+
 <footer class="footer">
   <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.0</div>
   <div id="clock">-</div>
@@ -460,10 +493,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v7';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v7';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v7';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v7_';
+window.CACHE_VERSION = 'v8';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v8';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v8';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v8_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -471,6 +504,7 @@ let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
 let materialDataTerakhir = [];
+let nestingInternalTerakhir = [];
 
 /*
  * ==========================================================
@@ -1273,6 +1307,8 @@ function tampilkanData(data){
   const s=data.summary||{};
 
   const materialData=Array.isArray(data.material)?data.material:[];
+  const nestingInternal=Array.isArray(data.nestingInternal)?data.nestingInternal:[];
+  nestingInternalTerakhir=nestingInternal.slice();
 
   /*
    * MASTER ARMADA DINAMIS
@@ -1389,6 +1425,7 @@ function tampilkanData(data){
 
   tampilkanArmada(armadaList);
   tampilkanMaterial(materialData);
+  updateNestingInternalButton_();
 }
 
 function ambilArmadaAktual(data,summary){
@@ -2202,6 +2239,8 @@ function resetTampilan(){
   }
 
   materialDataTerakhir=[];
+  nestingInternalTerakhir=[];
+  updateNestingInternalButton_();
   armadaAktualTerakhir=[];
   proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
@@ -2277,6 +2316,135 @@ function formatTableNumber(v){
 }
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+
+function updateNestingInternalButton_(){
+  const btn=document.getElementById('btnNestingInternal');
+  if(!btn) return;
+
+  const adaData=Array.isArray(nestingInternalTerakhir) &&
+                nestingInternalTerakhir.length>0;
+
+  btn.disabled=!adaData;
+  btn.title=adaData
+    ? 'Lihat material yang masuk di dalam pipa.'
+    : 'Tidak ada material yang terdeteksi masuk di dalam pipa.';
+}
+
+function bukaNestingInternal(){
+  const rows=Array.isArray(nestingInternalTerakhir)
+    ? nestingInternalTerakhir
+    : [];
+
+  if(rows.length===0){
+    alert('Tidak ada material yang terdeteksi masuk di dalam pipa untuk proyek ini.');
+    return;
+  }
+
+  const overlay=document.getElementById('nestingOverlay');
+  const summaryEl=document.getElementById('nestingSummary');
+  const body=document.getElementById('nestingModalBody');
+
+  if(!overlay || !summaryEl || !body) return;
+
+  const groups={};
+  let totalChild=0;
+  let totalHemat=0;
+
+  rows.forEach(function(r){
+    const parent=String(r.parentMaterial || '-').trim();
+    const key=parent.toUpperCase();
+
+    if(!groups[key]){
+      groups[key]={
+        parentMaterial:parent,
+        jumlahParent:Number(r.jumlahParent)||0,
+        items:[]
+      };
+    }
+
+    groups[key].items.push(r);
+    totalChild += Number(r.volumeChildNested)||0;
+    totalHemat += Number(r.cbmHemat)||0;
+  });
+
+  const groupKeys=Object.keys(groups);
+
+  summaryEl.innerHTML=
+    'PARENT PIPA : '+formatTableNumber(groupKeys.length)+
+    ' jenis &nbsp; | &nbsp; '+
+    'MATERIAL NESTED : '+formatTableNumber(totalChild)+
+    ' unit &nbsp; | &nbsp; '+
+    'CBM HEMAT : '+formatTableNumber(totalHemat)+' m³';
+
+  let html='';
+
+  html+='<div class="nesting-project-note">'+
+    'Proyek : <strong>'+
+    escapeHtml(
+      proyekAktif ||
+      document.getElementById('projectSelect').value ||
+      '-'
+    )+
+    '</strong></div>';
+
+  groupKeys.forEach(function(key){
+
+    const g=groups[key];
+
+    html+='<div class="nesting-group">';
+
+    html+='<div class="nesting-parent">'+
+      'PIPA / WADAH : '+escapeHtml(g.parentMaterial)+
+      '<small>Jumlah parent : '+
+      formatTableNumber(g.jumlahParent)+
+      ' unit</small>'+
+      '</div>';
+
+    html+='<table class="nesting-table"><thead><tr>'+
+      '<th style="width:42%">MATERIAL YANG MASUK</th>'+
+      '<th style="width:17%">VOLUME MASUK</th>'+
+      '<th style="width:12%">UNIT</th>'+
+      '<th style="width:15%">CBM HEMAT</th>'+
+      '<th style="width:14%">STATUS</th>'+
+      '</tr></thead><tbody>';
+
+    g.items.forEach(function(r){
+
+      html+='<tr>'+
+        '<td>'+escapeHtml(r.childMaterial)+'</td>'+
+        '<td>'+formatTableNumber(r.volumeChildNested)+'</td>'+
+        '<td>'+escapeHtml(r.unitChild || '-')+'</td>'+
+        '<td>'+formatTableNumber(r.cbmHemat)+'</td>'+
+        '<td>'+escapeHtml(r.status || 'NESTED')+'</td>'+
+      '</tr>';
+
+    });
+
+    html+='</tbody></table>';
+    html+='</div>';
+  });
+
+  body.innerHTML=html;
+  overlay.style.display='flex';
+}
+
+function tutupNestingInternal(event){
+  if(event && event.target && event.target.id!=='nestingOverlay'){
+    return;
+  }
+
+  const overlay=document.getElementById('nestingOverlay');
+  if(overlay){
+    overlay.style.display='none';
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    tutupNestingInternal();
+  }
+});
+
 function exportExcel(){
   const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
 
