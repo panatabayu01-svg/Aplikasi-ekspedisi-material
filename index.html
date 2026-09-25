@@ -1541,6 +1541,16 @@ function ambilArmadaAktual(data,summary){
     };
   });
 
+  // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
+  // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
+  // armada AUTO, lalu sisa muatan memakai armada berikutnya yang
+  // paling kecil tetapi masih mampu menampung sisa CBM dan tonase.
+  // Layout kartu tetap sama; hanya data kartu yang dipecah.
+  const hasilPecah = pecahArmadaBerurutan_(hasilRekap);
+  if(hasilPecah.length > 0){
+    return hasilPecah;
+  }
+
   // Detail loading adalah data paling granular: satu armada/unit dan
   // material yang benar-benar dimuat. Bila detail lengkap dan totalnya
   // cocok dengan summary, pakai detail untuk membentuk kartu armada.
@@ -1551,6 +1561,132 @@ function ambilArmadaAktual(data,summary){
   }
 
   return hasilRekap;
+}
+
+function pecahArmadaBerurutan_(hasilRekap){
+  if(!Array.isArray(hasilRekap) || hasilRekap.length===0) return [];
+
+  const perluPecah=hasilRekap.some(function(a){
+    return (Number(a.kebutuhanUnit)||0)>1;
+  });
+  if(!perluPecah) return hasilRekap;
+
+  const output=[];
+
+  hasilRekap.forEach(function(src){
+    const jumlahAwal=Math.max(1,Number(src.kebutuhanUnit)||1);
+
+    if(jumlahAwal<=1){
+      output.push(src);
+      return;
+    }
+
+    let sisaCbm=Math.max(0,Number(src.totalCbmProyek)||0);
+    let sisaTon=Math.max(0,Number(src.totalTonProyek)||0);
+    let unitKe=0;
+
+    const armadaPertama={
+      armada:String(src.armada||'-').trim(),
+      panjangM:Number(src.panjangM)||0,
+      lebarM:Number(src.lebarM)||0,
+      tinggiM:Number(src.tinggiM)||0,
+      kapasitasCbm:Number(src.kapasitasCbm)||0,
+      maxTonase:Number(src.maxTonase)||0
+    };
+
+    while((sisaCbm>0.000001 || sisaTon>0.000001) && unitKe<20){
+      unitKe++;
+
+      const master=unitKe===1
+        ? armadaPertama
+        : (pilihArmadaBerikutnya_(sisaCbm,sisaTon,armadaPertama.armada)||armadaPertama);
+
+      const capCbm=Number(master.kapasitasCbm)||0;
+      const capTon=Number(master.maxTonase)||0;
+
+      const pCbm=capCbm>0 ? capCbm/sisaCbm : Infinity;
+      const pTon=capTon>0 ? capTon/sisaTon : Infinity;
+      const prop=Math.min(1,pCbm,pTon);
+
+      let muatCbm=capCbm>0 ? Math.min(sisaCbm,sisaCbm*prop) : sisaCbm;
+      let muatTon=capTon>0 ? Math.min(sisaTon,sisaTon*prop) : sisaTon;
+
+      if(!isFinite(muatCbm) || muatCbm<=0) muatCbm=sisaCbm;
+      if(!isFinite(muatTon) || muatTon<=0) muatTon=sisaTon;
+
+      // Pada unit terakhir, semua sisa dimasukkan agar total kembali
+      // sama persis dengan total proyek.
+      if((capCbm<=0 || sisaCbm<=capCbm+0.000001) &&
+         (capTon<=0 || sisaTon<=capTon+0.000001)){
+        muatCbm=sisaCbm;
+        muatTon=sisaTon;
+      }
+
+      const item={
+        armada:String(master.armada||'-').trim(),
+        kebutuhanUnit:1,
+        panjangM:Number(master.panjangM)||0,
+        lebarM:Number(master.lebarM)||0,
+        tinggiM:Number(master.tinggiM)||0,
+        kapasitasCbm:capCbm,
+        maxTonase:capTon,
+        kapasitasCbmTotal:capCbm,
+        kapasitasTonTotal:capTon,
+        totalCbmProyek:muatCbm,
+        totalTonProyek:muatTon,
+        pemakaianCbm:capCbm>0 ? muatCbm/capCbm : 0,
+        pemakaianTon:capTon>0 ? muatTon/capTon : 0,
+        status:'KUOTA MASIH TERSEDIA'
+      };
+
+      const cbmFull=Math.round(item.pemakaianCbm*1000)/1000>=1;
+      const tonFull=Math.round(item.pemakaianTon*1000)/1000>=1;
+      item.status=(cbmFull||tonFull) ? 'KUOTA TERCAPAI' : 'KUOTA MASIH TERSEDIA';
+
+      output.push(item);
+
+      sisaCbm=Math.max(0,sisaCbm-muatCbm);
+      sisaTon=Math.max(0,sisaTon-muatTon);
+    }
+  });
+
+  return output;
+}
+
+function pilihArmadaBerikutnya_(sisaCbm,sisaTon,armadaSebelumnya){
+  const prev=normalisasiNamaArmada_(armadaSebelumnya);
+  const kandidat=(Array.isArray(MASTER_ARMADA_PILIHAN)?MASTER_ARMADA_PILIHAN:[])
+    .filter(function(m){
+      if(!m) return false;
+      if(normalisasiNamaArmada_(m.armada)===prev) return false;
+
+      const capCbm=Number(m.kapasitasCbm)||0;
+      const capTon=Number(m.maxTonase)||0;
+      const cukupCbm=capCbm<=0 || sisaCbm<=capCbm+0.000001;
+      const cukupTon=capTon<=0 || sisaTon<=capTon+0.000001;
+
+      return cukupCbm && cukupTon && (capCbm>0 || capTon>0);
+    });
+
+  if(kandidat.length===0) return null;
+
+  // Pilih armada yang paling pas terhadap sisa muatan.
+  kandidat.sort(function(a,b){
+    function score(m){
+      const c=Number(m.kapasitasCbm)||0;
+      const t=Number(m.maxTonase)||0;
+      const rC=c>0 && sisaCbm>0 ? c/sisaCbm : Infinity;
+      const rT=t>0 && sisaTon>0 ? t/sisaTon : Infinity;
+      return Math.max(rC,rT);
+    }
+
+    const sa=score(a);
+    const sb=score(b);
+    if(sa!==sb) return sa-sb;
+    return (Number(a.prioritas)||999999)-(Number(b.prioritas)||999999);
+  });
+
+  return kandidat[0];
 }
 
 function ambilArmadaDariDetail_(data, summary){
