@@ -548,6 +548,9 @@ let armadaKartuPilihanManual = {};
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
 let armadaAktualTerakhir = [];
 let armadaTampilanTerakhir = [];
+// Baseline AUTO untuk setiap kartu yang sedang tampil.
+// Berbeda dari armadaAktualTerakhir: ini mengikuti konteks Armada 1 manual.
+let armadaAutoTampilanTerakhir = [];
 let proyekArmadaTerakhir = '';
 
 
@@ -1425,6 +1428,18 @@ function tampilkanData(data){
   let armadaList=ambilArmadaAktual(data,summaryUntukArmada);
 
   /*
+   * ==========================================================
+   * SNAPSHOT AUTO HARUS SELALU MURNI DARI HASIL API.
+   * Jangan pernah ditimpa oleh pilihan manual kartu.
+   * Ini yang menjadi sumber ketika Armada 1 dikembalikan ke AUTO.
+   * ==========================================================
+   */
+  if(Array.isArray(armadaList) && armadaList.length>0){
+    armadaAktualTerakhir=armadaList.map(function(a){return Object.assign({},a);});
+    proyekArmadaTerakhir=proyekAktif;
+  }
+
+  /*
    * Jika ada pilihan manual yang sudah dibuat, terapkan kembali ke kartu
    * yang sama setelah background/API refresh. Muatan kartu tetap mengikuti
    * hasil alokasi terbaru dari API.
@@ -1480,15 +1495,10 @@ function tampilkanData(data){
   }
 
   /*
-   * Dropdown hanya berisi armada yang mendekati hasil AUTO.
-   * Default tetap AUTO.
+   * Dropdown utama selalu dibangun dari SNAPSHOT AUTO murni,
+   * bukan dari list yang sudah dimodifikasi manual.
    */
-  siapkanDropdownArmada_(armadaList,summaryUntukArmada);
-
-  if(Array.isArray(armadaList) && armadaList.length>0){
-    armadaAktualTerakhir=armadaList;
-    proyekArmadaTerakhir=proyekAktif;
-  }
+  siapkanDropdownArmada_(armadaAktualTerakhir,summaryUntukArmada);
 
   tampilkanArmada(armadaList);
   tampilkanMaterial(materialData);
@@ -2145,63 +2155,71 @@ function pilihArmadaManual(){
   }
 
   /*
-   * Dropdown utama = hanya mengatur ARMADA PERTAMA.
-   * AUTO mempunyai token khusus agar memilih AUTO — TRONTON
-   * tidak dianggap sebagai memilih TRONTON secara manual.
+   * ==========================================================
+   * ARMADA 1 = MASTER CONTROL
+   *
+   * AUTO  -> tampilkan kembali HANYA hasil rekomendasi AUTO.
+   *          Semua Armada 2, 3, dst otomatis ditutup.
+   * MANUAL -> Armada 1 dipasang manual, lalu sistem membuka
+   *           armada berikutnya untuk sisa muatan.
+   * ==========================================================
    */
   if(!rawValue || rawValue==='__AUTO__' || nama==='AUTO'){
     armadaModePilihan='AUTO';
+    armadaKartuPilihanManual={};
+
     const list=armadaAktualTerakhir.map(function(a){
       return Object.assign({},a);
     });
+
     tampilkanArmada(list);
-    setStatus('Armada kembali ke rekomendasi AUTO.');
+    setStatus('Armada 1 kembali ke AUTO. Armada berikutnya ditutup.');
     return;
   }
 
-  /*
-   * Jika pilihan manual sama persis dengan armada AUTO saat ini,
-   * jangan hitung ulang muatan. Pertahankan alokasi aktual dari API.
-   * Ini mencegah kasus 44,27 m³ / 93,1% tiba-tiba menjadi
-   * 47,56 m³ / 100% hanya karena dropdown disentuh.
-   */
-  const autoSaatIni=normalisasiNamaArmada_(armadaAktualTerakhir[0] && armadaAktualTerakhir[0].armada);
+  /* Memilih jenis yang sama dengan AUTO tetap dianggap AUTO. */
+  const autoSaatIni=normalisasiNamaArmada_(
+    armadaAktualTerakhir[0] && armadaAktualTerakhir[0].armada
+  );
   if(nama===autoSaatIni){
     armadaModePilihan='AUTO';
+    armadaKartuPilihanManual={};
+
     const list=armadaAktualTerakhir.map(function(a){
       return Object.assign({},a);
     });
+
     tampilkanArmada(list);
-    setStatus('Armada 1 tetap mengikuti rekomendasi AUTO: '+armadaAktualTerakhir[0].armada+' — 1 UNIT.');
+    setStatus('Armada 1 kembali ke AUTO. Armada berikutnya ditutup.');
     return;
   }
 
   const master=cariMasterArmada_(nama);
   if(!master) return;
 
-  /*
-   * Jika user memilih armada manual, pilihan tersebut hanya menjadi
-   * ARMADA PERTAMA. Jangan lagi menampilkan "2 UNIT" dalam satu kartu.
-   * Total muatan tetap memakai TOTAL PROYEK, lalu dipecah berurutan:
-   *   UNIT 1 = armada yang dipilih
-   *   UNIT 2 = rekomendasi armada berikutnya untuk sisa muatan
-   *   UNIT 3 = rekomendasi berikutnya lagi bila masih diperlukan.
-   */
-  const totalCbm = Number(armadaSummaryPilihan && armadaSummaryPilihan.totalCbm)||
-                   Number(document.getElementById('totalCbm')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
-  const totalTon = Number(armadaSummaryPilihan && armadaSummaryPilihan.totalTon)||
-                   Number(document.getElementById('totalTon')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
+  const totalCbm=Number(armadaSummaryPilihan && armadaSummaryPilihan.totalCbm)||
+    Number(document.getElementById('totalCbm')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
+  const totalTon=Number(armadaSummaryPilihan && armadaSummaryPilihan.totalTon)||
+    Number(document.getElementById('totalTon')?.textContent.replace(/[^0-9.,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
 
   const hasil=buatHasilArmadaPilihan_(master,totalCbm,totalTon);
-  const pecahan=pecahArmadaBerurutan_([Object.assign({},hasil,{kebutuhanUnit:Math.max(1,hasil.kebutuhanUnit)})]);
+  const pecahan=pecahArmadaBerurutan_([
+    Object.assign({},hasil,{kebutuhanUnit:Math.max(1,hasil.kebutuhanUnit)})
+  ]);
 
   armadaModePilihan=nama;
+
+  /*
+   * Karena Armada 1 berubah, semua pilihan manual kartu lama harus reset.
+   * Kartu berikutnya kembali ke AUTO sesuai rekomendasi baru untuk sisa muatan.
+   */
+  armadaKartuPilihanManual={};
+
   tampilkanArmada(pecahan.length ? pecahan : [hasil]);
 
   setStatus(
-    'Armada 1 dipilih manual: '+
-    master.armada+
-    ' — 1 UNIT. Sisa muatan direkomendasikan ke armada berikutnya.'
+    'Armada 1 dipilih manual: '+master.armada+
+    ' — 1 UNIT. Armada berikutnya otomatis dibuka.'
   );
 }
 
@@ -2210,7 +2228,7 @@ function pilihArmadaManual(){
  * Armada pertama memakai dropdown utama di atas.
  * Armada kedua, ketiga, dst. mendapat dropdown sendiri.
  */
-function isiDropdownArmadaKartu_(select,a){
+function isiDropdownArmadaKartu_(select,a,index){
   if(!select || !a) return;
 
   const autoNama=normalisasiNamaArmada_(a.armada);
@@ -2295,15 +2313,26 @@ function pilihArmadaKartuManual(index,selectEl){
   const target=baseList[index];
   if(!target) return;
 
-  /* AUTO = kembalikan kartu ini ke hasil AUTO terakhir. */
+  /*
+   * AUTO pada dropdown kartu = kembali ke rekomendasi AUTO untuk
+   * kartu tersebut dalam konteks Armada 1 yang sedang dipilih.
+   * Jangan mengambil dari armadaAktualTerakhir jika Armada 1 manual,
+   * karena hasil AUTO proyek bisa hanya memiliki 1 kartu.
+   */
   if(!rawValue || rawValue==='__AUTO__' || nama==='AUTO'){
     delete armadaKartuPilihanManual[index];
-    const autoList=Array.isArray(armadaAktualTerakhir) ? armadaAktualTerakhir : [];
-    if(autoList[index]) baseList[index]=Object.assign({},autoList[index]);
+
+    const autoList=Array.isArray(armadaAutoTampilanTerakhir)
+      ? armadaAutoTampilanTerakhir
+      : [];
+
+    if(autoList[index]){
+      baseList[index]=Object.assign({},autoList[index]);
+    }
+
     armadaTampilanTerakhir=baseList;
-    if(autoList[index]) armadaAktualTerakhir[index]=Object.assign({},autoList[index]);
     perbaruiKartuArmada_(index,baseList[index]);
-    setStatus('Armada '+(index+1)+' kembali ke rekomendasi AUTO.');
+    setStatus('Armada '+(index+1)+' kembali ke AUTO.');
     return;
   }
 
@@ -2344,7 +2373,6 @@ function pilihArmadaKartuManual(index,selectEl){
   armadaKartuPilihanManual[index]=nama;
   baseList[index]=hasil;
   armadaTampilanTerakhir=baseList;
-  armadaAktualTerakhir[index]=Object.assign({},hasil);
 
   /* Hanya kartu yang dipilih yang dirender ulang. */
   perbaruiKartuArmada_(index,hasil);
@@ -2424,7 +2452,7 @@ function perbaruiKartuArmada_(index,a){
 
   const select=wrap.querySelector('select.armada-select');
   if(select){
-    isiDropdownArmadaKartu_(select,a);
+    isiDropdownArmadaKartu_(select,a,index);
   }
 }
 
@@ -2451,6 +2479,13 @@ function tampilkanArmada(list){
   // Simpan daftar yang sedang ditampilkan agar dropdown kartu berikutnya
   // bekerja pada hasil terakhir, bukan kembali ke hasil AUTO awal.
   armadaTampilanTerakhir=list.map(function(a){return Object.assign({},a);});
+
+  /*
+   * Saat render penuh, list yang diterima adalah baseline AUTO untuk konteks
+   * saat itu. Simpan salinan terpisah agar pilihan manual kartu tidak merusak
+   * nilai AUTO yang harus dikembalikan oleh dropdown kartu.
+   */
+  armadaAutoTampilanTerakhir=list.map(function(a){return Object.assign({},a);});
 
   list.forEach(function(a,index){
     const dimPanjang=Number(a.panjangM)||0;
@@ -2536,7 +2571,7 @@ function tampilkanArmada(list){
 
     if(index>0){
       const select=wrap.querySelector('#armadaSelectCard'+index);
-      isiDropdownArmadaKartu_(select,a);
+      isiDropdownArmadaKartu_(select,a,index);
     }
   });
 }
@@ -2635,6 +2670,7 @@ function resetTampilan(){
   updateNestingInternalButton_();
   armadaAktualTerakhir=[];
   armadaTampilanTerakhir=[];
+  armadaAutoTampilanTerakhir=[];
   armadaKartuPilihanManual={};
   proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
