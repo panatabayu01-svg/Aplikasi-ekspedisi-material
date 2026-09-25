@@ -1560,9 +1560,26 @@ function ambilArmadaDariDetail_(data, summary){
 
   if(detail.length===0) return [];
 
+  /*
+   * ==========================================================
+   * PEMBAGIAN ARMADA PER UNIT
+   * ----------------------------------------------------------
+   * PERUBAHAN HANYA DI SINI:
+   * - Tetap memakai detailArmada dari API/mesin.
+   * - Setiap armadaKe/unitArmada tetap menjadi 1 kartu sendiri.
+   * - TIDAK digabung lagi berdasarkan nama armada.
+   * - Semua layout, CSS, HTML, dropdown, KPI, dan fungsi lain
+   *   pada Index asli TETAP.
+   *
+   * Contoh:
+   *   CONTAINER 40FT armadaKe=1 -> 1 kartu
+   *   CONTAINER 40FT armadaKe=2 -> 1 kartu
+   *
+   * Jadi jika satu jenis armada membutuhkan 2 unit,
+   * hasilnya menjadi 2 kartu @ 1 UNIT.
+   * ==========================================================
+   */
   const groups = {};
-  let totalCbm = 0;
-  let totalTon = 0;
 
   detail.forEach(function(r){
     const nama = String(r.armada || '').trim();
@@ -1570,19 +1587,36 @@ function ambilArmadaDariDetail_(data, summary){
 
     const armadaKe = Number(r.armadaKe);
     const unitArmada = Number(r.unitArmada);
-    const keyUnit = isFinite(armadaKe) && armadaKe>0
-      ? (nama.toUpperCase()+'|KE|'+armadaKe)
-      : (nama.toUpperCase()+'|UNIT|'+(unitArmada||1));
+
+    /*
+     * Gunakan identitas unit dari mesin.
+     * Bila armadaKe tersedia, itu menjadi kunci utama.
+     * Bila tidak tersedia, gunakan unitArmada.
+     * Bila keduanya tidak ada, setiap baris detail tetap
+     * diberi unit tersendiri agar tidak menggabungkan muatan.
+     */
+    let keyUnit;
+    if(isFinite(armadaKe) && armadaKe>0){
+      keyUnit = nama.toUpperCase()+'|KE|'+armadaKe;
+    }else if(isFinite(unitArmada) && unitArmada>0){
+      keyUnit = nama.toUpperCase()+'|UNIT|'+unitArmada;
+    }else{
+      keyUnit = nama.toUpperCase()+'|ROW|'+Object.keys(groups).length;
+    }
 
     if(!groups[keyUnit]){
       groups[keyUnit] = {
         armada: nama,
+        kebutuhanUnit: 1,
         unitArmada: unitArmada || 1,
+        armadaKe: (isFinite(armadaKe) && armadaKe>0) ? armadaKe : null,
         panjangM: Number(r.panjangM)||0,
         lebarM: Number(r.lebarM)||0,
         tinggiM: Number(r.tinggiM)||0,
         kapasitasCbm: Number(r.kapasitasCbmUnit)||0,
         maxTonase: Number(r.maxTonaseUnit)||0,
+        kapasitasCbmTotal: Number(r.kapasitasCbmUnit)||0,
+        kapasitasTonTotal: Number(r.maxTonaseUnit)||0,
         totalCbmProyek: 0,
         totalTonProyek: 0
       };
@@ -1590,62 +1624,65 @@ function ambilArmadaDariDetail_(data, summary){
 
     const cbm = Number(r.cbmMuat);
     const ton = Number(r.tonMuat);
+
     groups[keyUnit].totalCbmProyek += isFinite(cbm) ? cbm : 0;
     groups[keyUnit].totalTonProyek += isFinite(ton) ? ton : 0;
   });
 
-  const unitGroups = Object.keys(groups).map(function(k){ return groups[k]; });
+  const unitGroups = Object.keys(groups).map(function(k){
+    return groups[k];
+  });
+
   if(unitGroups.length===0) return [];
 
-  totalCbm = unitGroups.reduce(function(a,g){ return a + g.totalCbmProyek; },0);
-  totalTon = unitGroups.reduce(function(a,g){ return a + g.totalTonProyek; },0);
+  /*
+   * Validasi total detail terhadap summary tetap dipertahankan.
+   * Ini mencegah detail yang tidak lengkap menggantikan hasil resmi.
+   */
+  const totalCbm = unitGroups.reduce(function(a,g){
+    return a + g.totalCbmProyek;
+  },0);
+
+  const totalTon = unitGroups.reduce(function(a,g){
+    return a + g.totalTonProyek;
+  },0);
 
   const targetCbm = Number(summary && summary.totalCbm)||0;
   const targetTon = Number(summary && summary.totalTon)||0;
-  const cbmOk = targetCbm <= 0 || Math.abs(totalCbm-targetCbm) <= Math.max(0.01,targetCbm*0.001);
-  const tonOk = targetTon <= 0 || Math.abs(totalTon-targetTon) <= Math.max(0.001,targetTon*0.001);
+
+  const cbmOk = targetCbm <= 0 ||
+    Math.abs(totalCbm-targetCbm) <= Math.max(0.01,targetCbm*0.001);
+
+  const tonOk = targetTon <= 0 ||
+    Math.abs(totalTon-targetTon) <= Math.max(0.001,targetTon*0.001);
 
   if(!cbmOk || !tonOk) return [];
 
-  const byType = {};
-  unitGroups.forEach(function(g){
-    const key = g.armada.toUpperCase();
-    if(!byType[key]){
-      byType[key] = {
-        armada:g.armada,
-        kebutuhanUnit:0,
-        panjangM:g.panjangM,
-        lebarM:g.lebarM,
-        tinggiM:g.tinggiM,
-        kapasitasCbm:g.kapasitasCbm,
-        maxTonase:g.maxTonase,
-        kapasitasCbmTotal:0,
-        kapasitasTonTotal:0,
-        totalCbmProyek:0,
-        totalTonProyek:0
-      };
-    }
-    const x=byType[key];
-    x.kebutuhanUnit++;
-    x.kapasitasCbmTotal += g.kapasitasCbm;
-    x.kapasitasTonTotal += g.maxTonase;
-    x.totalCbmProyek += g.totalCbmProyek;
-    x.totalTonProyek += g.totalTonProyek;
-  });
+  /*
+   * PENTING:
+   * Jangan membuat byType lagi.
+   * Satu unit = satu hasil = satu kartu di tampilan asli.
+   */
+  return unitGroups.map(function(x){
+    x.pemakaianCbm = x.kapasitasCbmTotal>0
+      ? x.totalCbmProyek/x.kapasitasCbmTotal
+      : 0;
 
-  return Object.keys(byType).map(function(key){
-    const x=byType[key];
-    x.pemakaianCbm=x.kapasitasCbmTotal>0 ? x.totalCbmProyek/x.kapasitasCbmTotal : 0;
-    x.pemakaianTon=x.kapasitasTonTotal>0 ? x.totalTonProyek/x.kapasitasTonTotal : 0;
+    x.pemakaianTon = x.kapasitasTonTotal>0
+      ? x.totalTonProyek/x.kapasitasTonTotal
+      : 0;
 
-    // Status HARUS mengikuti angka persen yang tampil di layar.
-    // Contoh 99,98% akan ditampilkan sebagai 100,0%, sehingga
-    // kartu harus berubah menjadi KUOTA TERCAPAI (merah).
-    const cbmTercapaiTampil = Math.round(x.pemakaianCbm * 1000) / 1000 >= 1;
-    const tonTercapaiTampil = Math.round(x.pemakaianTon * 1000) / 1000 >= 1;
-    x.status=(cbmTercapaiTampil || tonTercapaiTampil)
+    // Status mengikuti angka persen yang tampil di layar.
+    const cbmTercapaiTampil =
+      Math.round(x.pemakaianCbm*1000)/1000 >= 1;
+
+    const tonTercapaiTampil =
+      Math.round(x.pemakaianTon*1000)/1000 >= 1;
+
+    x.status = (cbmTercapaiTampil || tonTercapaiTampil)
       ? 'KUOTA TERCAPAI'
       : 'KUOTA MASIH TERSEDIA';
+
     return x;
   });
 }
