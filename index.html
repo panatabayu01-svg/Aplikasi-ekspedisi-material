@@ -47,12 +47,12 @@
     .control-bar{display:flex;align-items:center;gap:8px;min-height:42px;margin-bottom:7px;flex-wrap:nowrap}
     .project-label{font-weight:700;font-size:14px;color:#0d447f;width:58px;flex:0 0 58px}
     .mode-btn{height:38px;min-width:170px;padding:0 14px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .mode-btn:hover{background:#eef5fb}
+    .mode-btn:hover{background:#eef5fb}.mode-btn.manual:hover{background:#eef9f2;border-color:#7fc89e;color:#188a5a}
     .mode-btn.active{background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;border-color:#0d447f;box-shadow:0 2px 5px rgba(13,68,127,.18)}
     .mode-btn.manual.active{background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);border-color:#168a49;box-shadow:0 2px 5px rgba(20,148,71,.16)}
     .manual-actions{display:none;align-items:center;gap:8px;flex:0 0 auto}
-    .btn-input-data{height:38px;min-width:145px;border:1px solid #168a49;background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
-    .btn-input-data:hover{background:#0f7e3b}
+    .btn-input-data{height:38px;min-width:145px;border:1px solid #d07a00;background:linear-gradient(135deg,#cf7800 0%,#e6930f 55%,#f7b544 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
+    .btn-input-data:hover{background:linear-gradient(135deg,#b96800 0%,#d68100 55%,#e9a125 100%)}
     .project-select:disabled{background:#eef3f7;color:#526579;cursor:not-allowed}
     .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:13px;border-radius:2px;outline:none;flex:0 1 330px}
     .project-select:focus{border-color:#0d6efd}
@@ -126,8 +126,8 @@
     .panel-title{font-size:20px;font-weight:700;color:#17324d;border-bottom:1px solid #d2dde6;padding-bottom:10px;margin-bottom:3px}
     .panel-title span{margin-right:8px}
     .hasil-panel-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .btn-material-armada{height:31px;padding:0 10px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;font-weight:700;font-size:12px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .btn-material-armada:hover{filter:brightness(1.08)}
+    .btn-material-armada{height:31px;padding:0 10px;border:1px solid #0f4f7d;background:linear-gradient(135deg,#0f4f7d 0%,#145a8d 55%,#2b78a8 100%);color:#fff;font-weight:700;font-size:12px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-material-armada:hover{background:linear-gradient(135deg,#0c4369 0%,#124f7c 55%,#23688f 100%)}
     .detail-row{display:grid;grid-template-columns:48% 52%;min-height:48px;border-bottom:1px solid #d2dde6;align-items:center;font-size:13px}
     .detail-row strong{font-size:16px;color:#17324d}
     .detail-row span{font-size:16px;color:#50657a}
@@ -344,6 +344,8 @@
       .footer{font-size:10px;padding:0 8px}
     }
   </style>
+
+  <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
 </head>
 
 <body style="background:#eef3f7 !important;">
