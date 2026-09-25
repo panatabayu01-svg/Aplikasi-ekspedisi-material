@@ -2285,8 +2285,10 @@ function isiDropdownArmadaKartu_(select,a,index){
    *   - setelah pilih manual CDD -> tampil "CDD" (tanpa AUTO)
    *   - kartu manual lainnya   -> tidak punya opsi AUTO
    */
-  const isAutoResult=a._isAutoResult===true;
-  const autoNama=normalisasiNamaArmada_(a.armada);
+  /* AUTO asli kartu ini disimpan agar tetap bisa dipilih kembali
+   * setelah pengguna mengganti kartu menjadi armada manual. */
+  const autoNama=normalisasiNamaArmada_(a._autoArmada || (a._isAutoResult===true ? a.armada : ''));
+  const isAutoResult=!!autoNama;
 
   const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
     const effective=Math.min(
@@ -2369,23 +2371,28 @@ function pilihArmadaKartuManual(index,selectEl){
   const target=baseList[index];
   if(!target) return;
 
-  /* AUTO hanya sah untuk kartu yang memang berasal dari hasil AUTO asli. */
+  /*
+   * Kembali ke AUTO pada kartu ini. AUTO tetap tersedia setelah kartu
+   * diganti manual, tetapi hanya jika kartu tersebut mempunyai _autoArmada
+   * (rekomendasi AUTO asli).
+   */
   if(!rawValue || rawValue==='__AUTO__' || nama==='AUTO'){
-    if(target._isAutoResult!==true){
+    const autoNama=normalisasiNamaArmada_(target._autoArmada || (target._isAutoResult===true ? target.armada : ''));
+    const autoMaster=cariMasterArmada_(autoNama);
+    if(!autoMaster){
       return;
     }
 
     delete armadaKartuPilihanManual[index];
 
-    /* Kartu AUTO dikembalikan ke state otomatis yang sedang tampil.
-     * Jangan mengambil armadaAutoSnapshot[index], karena kartu setelah
-     * Armada 1 manual berasal dari perhitungan SISA muatan, bukan dari
-     * rekomendasi awal seluruh proyek. */
-    const autoTarget=target;
-    baseList[index]=Object.assign({},autoTarget,{_isAutoResult:true});
+    const autoTarget=buatKartuManualDariTarget_(autoMaster,target);
+    baseList[index]=Object.assign({},autoTarget,{
+      _isAutoResult:true,
+      _autoArmada:autoMaster.armada
+    });
     armadaTampilanTerakhir=baseList;
     perbaruiKartuArmada_(index,baseList[index]);
-    setStatus('Armada '+(index+1)+' kembali ke rekomendasi AUTO.');
+    setStatus('Armada '+(index+1)+' kembali ke rekomendasi AUTO — '+autoMaster.armada+'.');
     return;
   }
 
@@ -2501,9 +2508,20 @@ function tampilkanArmada(list){
 
   // Simpan daftar yang sedang ditampilkan agar dropdown kartu berikutnya
   // bekerja pada hasil terakhir, bukan kembali ke hasil AUTO awal.
-  armadaTampilanTerakhir=list.map(function(a){return Object.assign({},a);});
+  armadaTampilanTerakhir=list.map(function(a){
+    const clone=Object.assign({},a);
+    if(clone._isAutoResult===true && !clone._autoArmada){
+      clone._autoArmada=clone.armada;
+    }
+    return clone;
+  });
 
   list.forEach(function(a,index){
+    if(a && a._isAutoResult===true && !a._autoArmada){
+      a._autoArmada=a.armada;
+      if(armadaTampilanTerakhir[index]) armadaTampilanTerakhir[index]._autoArmada=a.armada;
+    }
+
     const dimPanjang=Number(a.panjangM)||0;
     const dimLebar=Number(a.lebarM)||0;
     const dimTinggi=Number(a.tinggiM)||0;
