@@ -522,7 +522,7 @@
 </div>
 
 <footer class="footer">
-  <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.1</div>
+  <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.2</div>
   <div id="clock">-</div>
 </footer>
 
@@ -530,10 +530,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v11';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v11';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v11';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v11_';
+window.CACHE_VERSION = 'v12';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v12';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v12';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v12_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -646,15 +646,23 @@ function pilihMode(mode){
     proyekAktif=NAMA_PROYEK_MANUAL;
     localStorage.setItem(CACHE_LAST_PROJECT_KEY,NAMA_PROYEK_MANUAL);
 
-    // MANUAL HARUS SELALU membaca hasil hitung terbaru dari server.
-    // Jangan tampilkan cache lama karena hasil INPUT_MANUAL_EKSPEDISI
-    // dapat berubah setelah user melakukan perhitungan di Google Sheet.
-    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    // MANUAL: tampilkan cache yang sudah ada terlebih dahulu agar perpindahan
+    // AUTO -> INPUT MANUAL tidak blank/loading lama. Server tetap disinkronkan
+    // di belakang untuk mengambil hasil hitung terbaru.
+    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
 
-    resetTampilan();
-    showLoading(true);
-    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    if(cachedManual && cachedManual.success===true){
+      resetTampilan();
+      tampilkanData(cachedManual);
+      showLoading(false);
+      setStatus('Data MANUAL tersimpan ditampilkan. Memperbarui data...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
+    }else{
+      resetTampilan();
+      showLoading(true);
+      setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    }
     return;
   }
 
@@ -742,12 +750,21 @@ document.addEventListener('DOMContentLoaded',function(){
       NAMA_PROYEK_MANUAL
     );
 
-    resetTampilan();
-    showLoading(true);
-    setStatus('Memuat hasil INPUT MANUAL EKSPEDISI...');
-
-    // Ambil data MANUAL terbaru. Jangan baca proyek otomatis/cache.
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    // Saat aplikasi dibuka langsung dalam mode manual, tampilkan cache
+    // MANUAL terlebih dahulu bila tersedia lalu sinkronkan ke server.
+    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    if(cachedManual && cachedManual.success===true){
+      resetTampilan();
+      tampilkanData(cachedManual);
+      showLoading(false);
+      setStatus('Data MANUAL tersimpan ditampilkan. Memperbarui data...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
+    }else{
+      resetTampilan();
+      showLoading(true);
+      setStatus('Memuat hasil INPUT MANUAL EKSPEDISI...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    }
 
     return;
   }
@@ -894,14 +911,21 @@ function pilihProyek(){
       NAMA_PROYEK_MANUAL
     );
 
-    // HP juga selalu mengambil hasil hitung manual terbaru.
-    localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
-
-    resetTampilan();
-    showLoading(true);
-    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
-
-    loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    // HP: cache MANUAL ditampilkan dulu bila ada, lalu disegarkan
+    // dari server di belakang. Ini mencegah loading lama saat pindah mode.
+    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    if(cachedManual && cachedManual.success===true){
+      resetTampilan();
+      tampilkanData(cachedManual);
+      showLoading(false);
+      setStatus('Data MANUAL tersimpan ditampilkan. Memperbarui data...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
+    }else{
+      resetTampilan();
+      showLoading(true);
+      setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
+      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+    }
     return;
   }
 
@@ -1117,6 +1141,11 @@ function loadDataProyek(p,showOverlay){
 function loadDaftarProyek(showOverlay,loadSelected){
   if(typeof loadSelected==='undefined') loadSelected=true;
 
+  // Setiap pemanggilan daftar proyek mendapat request id sendiri.
+  // Jika user berpindah ke MANUAL/AUTO sebelum request selesai,
+  // response lama tidak boleh menyentuh dropdown atau hasil hitung baru.
+  const requestId=++requestSerial;
+
   if(modeAplikasi==='MANUAL'){
     updateModeUI_();
     loadDataProyek(NAMA_PROYEK_MANUAL,showOverlay);
@@ -1138,6 +1167,11 @@ function loadDaftarProyek(showOverlay,loadSelected){
     return response.json();
   })
   .then(function(result){
+    // Request daftar proyek ini sudah basi karena user pindah mode/proyek.
+    if(requestId!==requestSerial){
+      return;
+    }
+
     if(!result || result.success!==true){
       throw new Error(
         result && result.message
@@ -1198,6 +1232,10 @@ function loadDaftarProyek(showOverlay,loadSelected){
      */
     function cariProyekBerisiMaterial_(index){
 
+      if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
+        return;
+      }
+
       if(index>=daftarProyek.length){
 
         select.value='';
@@ -1239,6 +1277,10 @@ function loadDaftarProyek(showOverlay,loadSelected){
         return response.json();
       })
       .then(function(data){
+
+        if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
+          return;
+        }
 
         /*
          * MATERIAL VALID JIKA:
@@ -1299,6 +1341,10 @@ function loadDaftarProyek(showOverlay,loadSelected){
       })
       .catch(function(error){
 
+        if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
+          return;
+        }
+
         console.warn(
           'Gagal membaca proyek:',
           namaProyek,
@@ -1317,6 +1363,10 @@ function loadDaftarProyek(showOverlay,loadSelected){
     /*
      * MULAI DARI PROYEK PERTAMA
      */
+    if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
+      return;
+    }
+
     cariProyekBerisiMaterial_(0);
 
   })
