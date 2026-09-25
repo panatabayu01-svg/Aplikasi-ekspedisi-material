@@ -2824,6 +2824,10 @@ function materialRowsUntukArmada_(armadaList, materialRows, index){
   const cards=Array.isArray(armadaList)?armadaList:[];
   if(!cards[index] || !rows.length) return [];
 
+  /*
+   * Jika sumber data sudah menyediakan detailArmada, gunakan detail tersebut
+   * karena itu merupakan pembagian muatan yang sebenarnya dari mesin.
+   */
   const detail=(window.__DATA_TERAKHIR__ && Array.isArray(window.__DATA_TERAKHIR__.detailArmada))
     ? window.__DATA_TERAKHIR__.detailArmada : [];
   if(detail.length){
@@ -2836,28 +2840,122 @@ function materialRowsUntukArmada_(armadaList, materialRows, index){
     const mapped=detailRows.map(function(r){
       const nama=String(r.material||r.namaMaterial||r.itemMaterial||r.item||'').trim();
       if(!nama) return null;
-      return {material:nama,volume:Number(r.volumeMuat!=null?r.volumeMuat:(r.volume!=null?r.volume:0))||0,unit:String(r.unit||r.satuan||'-'),cbm:Number(r.cbmMuat)||0,ton:Number(r.tonMuat!=null?r.tonMuat:((Number(r.beratMuatKg)||0)/1000))||0};
+      return {
+        material:nama,
+        volume:Number(r.volumeMuat!=null?r.volumeMuat:(r.volume!=null?r.volume:0))||0,
+        unit:String(r.unit||r.satuan||'-'),
+        cbm:Number(r.cbmMuat)||0,
+        ton:Number(r.tonMuat!=null?r.tonMuat:((Number(r.beratMuatKg)||0)/1000))||0
+      };
     }).filter(function(x){return x && (x.volume>0 || x.cbm>0 || x.ton>0);});
     if(mapped.length) return mapped;
   }
 
-  let remaining=rows.map(function(r){return {material:String(r.material||'-'),volume:Number(r.volume)||0,unit:String(r.unit||'-'),cbm:Number(r.totalCbm)||0,ton:Number(r.totalTon)||0};});
+  /*
+   * FALLBACK / DATA UMUM:
+   * Bagi material SECARA BERURUTAN ke setiap armada.
+   *
+   * Prinsip:
+   * 1. Material yang sudah masuk Armada 1 tidak boleh muncul lagi di Armada 2.
+   * 2. Armada berikutnya hanya mengambil MATERIAL YANG TERSISA.
+   * 3. Jika seluruh material masih muat pada satu armada, semua material tetap
+   *    berada pada Armada 1.
+   * 4. Jika satu baris material terlalu besar untuk sisa kapasitas armada,
+   *    baris tersebut hanya dipecah sebanyak yang memang dapat dimuat; sisanya
+   *    diteruskan ke armada berikutnya. Dengan demikian nama material boleh
+   *    muncul di dua armada hanya jika SATU MATERIAL tersebut memang harus
+   *    dibagi karena kapasitas armada tidak mencukupi.
+   */
+  let remaining=rows.map(function(r){
+    return {
+      material:String(r.material||'-'),
+      volume:Number(r.volume)||0,
+      unit:String(r.unit||'-'),
+      cbm:Number(r.totalCbm)||0,
+      ton:Number(r.totalTon)||0
+    };
+  }).filter(function(r){return r.volume>0.000001 || r.cbm>0.000001 || r.ton>0.000001;});
+
   for(let i=0;i<index;i++){
-    const prev=cards[i];
-    const pCbm=remaining.reduce(function(a,r){return a+r.cbm;},0);
-    const pTon=remaining.reduce(function(a,r){return a+r.ton;},0);
-    const targetCbm=Math.max(0,Number(prev.totalCbmProyek)||0);
-    const targetTon=Math.max(0,Number(prev.totalTonProyek)||0);
-    const frac=Math.min(1,pCbm>0?targetCbm/pCbm:1,pTon>0?targetTon/pTon:1);
-    remaining=remaining.map(function(r){return Object.assign({},r,{volume:Math.max(0,r.volume*(1-frac)),cbm:Math.max(0,r.cbm*(1-frac)),ton:Math.max(0,r.ton*(1-frac))});}).filter(function(r){return r.cbm>0.0000001 || r.ton>0.0000001;});
+    if(!cards[i] || !remaining.length) break;
+    remaining=alokasiMaterialKeArmada_(remaining,cards[i]).remaining;
   }
-  const remCbm=remaining.reduce(function(a,r){return a+r.cbm;},0);
-  const remTon=remaining.reduce(function(a,r){return a+r.ton;},0);
-  const target=cards[index];
-  const targetCbm=Math.max(0,Number(target.totalCbmProyek)||0);
-  const targetTon=Math.max(0,Number(target.totalTonProyek)||0);
-  const frac=Math.min(1,remCbm>0?targetCbm/remCbm:1,remTon>0?targetTon/remTon:1);
-  return remaining.map(function(r){return Object.assign({},r,{volume:r.volume*frac,cbm:r.cbm*frac,ton:r.ton*frac});}).filter(function(r){return r.volume>0.000001 || r.cbm>0.000001 || r.ton>0.000001;});
+
+  if(!remaining.length) return [];
+  return alokasiMaterialKeArmada_(remaining,cards[index]).allocated;
+}
+
+function alokasiMaterialKeArmada_(remainingRows, armada){
+  const source=Array.isArray(remainingRows)?remainingRows:[];
+  if(!source.length || !armada) return {allocated:[],remaining:source};
+
+  const targetCbm=Math.max(0,Number(armada.totalCbmProyek)||0);
+  const targetTon=Math.max(0,Number(armada.totalTonProyek)||0);
+
+  /* Bila target armada mencakup seluruh sisa material, masukkan semuanya. */
+  const totalCbm=source.reduce(function(a,r){return a+(Number(r.cbm)||0);},0);
+  const totalTon=source.reduce(function(a,r){return a+(Number(r.ton)||0);},0);
+  const allFits=(totalCbm<=targetCbm+0.000001 || targetCbm<=0) &&
+                (totalTon<=targetTon+0.000001 || targetTon<=0);
+  if(allFits){
+    return {
+      allocated:source.map(function(r){return Object.assign({},r);}),
+      remaining:[]
+    };
+  }
+
+  let sisaCbm=targetCbm;
+  let sisaTon=targetTon;
+  const allocated=[];
+  const next=[];
+
+  source.forEach(function(r){
+    const rCbm=Math.max(0,Number(r.cbm)||0);
+    const rTon=Math.max(0,Number(r.ton)||0);
+    const rVol=Math.max(0,Number(r.volume)||0);
+    if(rVol<=0 && rCbm<=0 && rTon<=0) return;
+
+    if((targetCbm>0 && sisaCbm<=0.000001) ||
+       (targetTon>0 && sisaTon<=0.000001)){
+      next.push(Object.assign({},r));
+      return;
+    }
+
+    const fCbm=(targetCbm>0 && rCbm>0) ? Math.min(1,sisaCbm/rCbm) : 1;
+    const fTon=(targetTon>0 && rTon>0) ? Math.min(1,sisaTon/rTon) : 1;
+    const frac=Math.max(0,Math.min(1,fCbm,fTon));
+
+    if(frac>=0.999999){
+      allocated.push(Object.assign({},r));
+      sisaCbm=Math.max(0,sisaCbm-rCbm);
+      sisaTon=Math.max(0,sisaTon-rTon);
+    }else if(frac>0.000001){
+      const part={
+        material:r.material,
+        volume:rVol*frac,
+        unit:r.unit,
+        cbm:rCbm*frac,
+        ton:rTon*frac
+      };
+      allocated.push(part);
+      next.push({
+        material:r.material,
+        volume:rVol*(1-frac),
+        unit:r.unit,
+        cbm:rCbm*(1-frac),
+        ton:rTon*(1-frac)
+      });
+      sisaCbm=Math.max(0,sisaCbm-part.cbm);
+      sisaTon=Math.max(0,sisaTon-part.ton);
+    }else{
+      next.push(Object.assign({},r));
+    }
+  });
+
+  return {
+    allocated:allocated.filter(function(r){return r.volume>0.000001 || r.cbm>0.000001 || r.ton>0.000001;}),
+    remaining:next.filter(function(r){return r.volume>0.000001 || r.cbm>0.000001 || r.ton>0.000001;})
+  };
 }
 
 function bukaMaterialArmada(index){
