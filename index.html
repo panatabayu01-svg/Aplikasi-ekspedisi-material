@@ -33,7 +33,6 @@
 
   <style>
     *{box-sizing:border-box}
-    :root{--primary-blue-gradient:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%)}
     html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7 !important;color:#17324d}
     body{overflow-x:hidden}
 
@@ -48,33 +47,33 @@
     .project-label{font-weight:700;font-size:14px;color:#0d447f;width:58px;flex:0 0 58px}
     .mode-btn{height:38px;min-width:170px;padding:0 14px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
     .mode-btn:hover{background:#eef5fb}
-    .mode-btn.active{background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;border-color:#0d447f;box-shadow:0 2px 5px rgba(13,68,127,.18)}
-    .mode-btn.manual.active{background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);border-color:#168a49;box-shadow:0 2px 5px rgba(20,148,71,.16)}
+    .mode-btn.active{background:#0d447f;color:#fff;border-color:#0d447f}
+    .mode-btn.manual.active{background:#149447;border-color:#149447}
     .manual-actions{display:none;align-items:center;gap:8px;flex:0 0 auto}
-    .btn-input-data{height:38px;min-width:145px;border:1px solid #168a49;background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
+    .btn-input-data{height:38px;min-width:145px;border:1px solid #149447;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
     .btn-input-data:hover{background:#0f7e3b}
     .project-select:disabled{background:#eef3f7;color:#526579;cursor:not-allowed}
     .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:13px;border-radius:2px;outline:none;flex:0 1 330px}
     .project-select:focus{border-color:#0d6efd}
-    .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #b5c1cc;background:linear-gradient(135deg,#ffffff 0%,#f1f5f9 55%,#dce6ef 100%);color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
-    .btn-refresh:hover{background:linear-gradient(135deg,#ffffff,#eef3f7)}
+    .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
+    .btn-refresh:hover{background:#eef5fb}
 
     /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
-     .delivery-date{
-      margin-left:0;
+    .delivery-date{
+      margin-left:8px;
       min-width:320px;
-      flex:1 1 auto;
-      max-width:none;
+      flex:1 1 320px;
+      max-width:420px;
       height:38px;
       display:flex;
       align-items:center;
-      justify-content:center;
+      justify-content:flex-start;
       gap:7px;
       padding:0 10px;
       border:1px solid #0d447f;
-      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
+      background:#0d447f;
       color:#fff;
-      box-shadow:0 2px 6px rgba(13,68,127,.18);
+      box-shadow:0 1px 3px rgba(13,68,127,.18);
       white-space:nowrap;
       overflow:hidden;
     }
@@ -99,7 +98,7 @@
     .kpi-value{font-size:29px;font-weight:700;color:#004b95;white-space:nowrap}
 
     .section{background:#fff;border:1.5px solid #0d447f;margin-bottom:9px}
-    .section-header{height:47px;background:var(--primary-blue-gradient) !important;color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
+    .section-header{height:47px;background:#0d447f;color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
     .section-header-icon{font-size:24px;margin-right:10px}
 
     .armada-body{padding:12px 8px 12px;background:#fff}
@@ -114,7 +113,7 @@
     .armada-card-wrap{width:100%}
     .armada-card-selector{margin:0 0 6px}
     .armada-layout{display:grid;grid-template-columns:1.55fr 1.18fr 1.32fr 1fr;gap:8px}
-    .armada-panel{min-height:265px;background:linear-gradient(180deg,#f6faff,#eef5fa);border:1px solid #d6e1e9;padding:15px 18px}
+    .armada-panel{min-height:265px;background:#f3f8fc;border:1px solid #d6e1e9;padding:15px 18px}
     .armada-visual{position:relative;overflow:hidden}
     .armada-name{font-size:30px;font-weight:700;color:#0d447f;margin-bottom:8px}
     .vehicle-image{height:205px;display:flex;align-items:center;justify-content:center;margin-top:2px}
@@ -130,58 +129,34 @@
     .yellow{color:#d99b00!important;font-weight:700!important}
     .red{color:#d92929!important;font-weight:700!important}
 
-    .status-panel{background:linear-gradient(180deg,#fff9df,#fff4cf);border:1px solid #b9b19b;display:flex;flex-direction:column;align-items:center;text-align:center;padding:15px 13px}
-    .status-circle{width:70px;height:70px;border-radius:50%;background:linear-gradient(145deg,#f4bb21,#d99600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:700;margin:2px auto 12px}
+    .status-panel{background:#fff8dc;border:1px solid #b9b19b;display:flex;flex-direction:column;align-items:center;text-align:center;padding:15px 13px}
+    .status-circle{width:70px;height:70px;border-radius:50%;background:#eda900;color:#fff;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:700;margin:2px auto 12px}
     .status-title{font-size:22px;font-weight:700;color:#d89b00;line-height:1.3;margin-bottom:12px}
     .status-note{font-size:15px;color:#6b6250;line-height:1.45;margin-bottom:12px}
     .bar-wrap{width:100%;height:14px;background:#e4e8ea;display:flex;overflow:hidden;margin:2px 0 10px}
-    .bar-cbm{height:100%;background:linear-gradient(90deg,#d99600,#f1b80a);width:0}
+    .bar-cbm{height:100%;background:#e6aa00;width:0}
     .status-metrics{display:flex;justify-content:space-between;width:100%;font-size:15px;font-weight:700;color:#526579}
-    .status-panel.danger .status-circle{background:linear-gradient(145deg,#e45151,#c92b2b)}
+    .status-panel.danger .status-circle{background:#d92929}
     .status-panel.danger .status-title{color:#d92929}
     .status-panel.warning{background:#fff8dc}
-    .status-panel.warning .status-circle{background:linear-gradient(145deg,#f4bb21,#d99600)}
+    .status-panel.warning .status-circle{background:#eda900}
     .status-panel.warning .status-title{color:#d89b00}
     .status-panel.ok{background:#effaf3}
-    .status-panel.ok .status-circle{background:linear-gradient(145deg,#2aa96b,#168a49)}
+    .status-panel.ok .status-circle{background:#149447}
     .status-panel.ok .status-title{color:#149447}
-    .status-panel.ok .bar-cbm{background:linear-gradient(90deg,#168a49,#2aa96b)}
-    .status-panel.warning .bar-cbm{background:linear-gradient(90deg,#d99600,#f1b80a)}
-    .status-panel.danger .bar-cbm{background:linear-gradient(90deg,#c92b2b,#e45151)}
+    .status-panel.ok .bar-cbm{background:#149447}
+    .status-panel.warning .bar-cbm{background:#e6aa00}
+    .status-panel.danger .bar-cbm{background:#d92929}
 
     .material-section{border-color:#17324d}
-    .material-header{background:#fff !important;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
-    
-    .material-header .section-header-icon{color:#17324d}
-    .material-header>div{color:#17324d}
-    .material-header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
-    .btn-nesting-internal{height:34px;min-width:190px;padding:0 14px;border:1px solid #6335b4;background:linear-gradient(135deg,#5f32ad 0%,#7a49d9 55%,#9a76f2 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .btn-nesting-internal:hover{background:linear-gradient(135deg,#52299a 0%,#6a3bc2 55%,#8a63e6 100%)}
-    .btn-nesting-internal:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
-    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #d07a00;background:linear-gradient(135deg,#cf7800 0%,#e6930f 55%,#f7b544 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .btn-export-excel:hover{background:linear-gradient(135deg,#b96800 0%,#d68100 55%,#e9a125 100%)}
-    .btn-export-excel:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
-
-    .nesting-overlay{position:fixed;inset:0;background:rgba(23,50,77,.45);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
-    .nesting-modal{width:min(960px,96vw);max-height:84vh;background:#fff;border:1px solid #0d447f;box-shadow:0 12px 35px rgba(0,0,0,.25);display:flex;flex-direction:column}
-    .nesting-modal-header{height:52px;min-height:52px;background:linear-gradient(135deg,#0b477d,#176ea8);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:17px;font-weight:700}
-    .nesting-close{border:0;background:transparent;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:2px 4px}
-    .nesting-summary{padding:10px 16px;border-bottom:1px solid #d8e2eb;background:#f4f8fb;color:#17324d;font-size:13px;font-weight:700}
-    .nesting-modal-body{padding:12px 14px 16px;overflow:auto}
-    .nesting-project-note{font-size:13px;color:#617386;margin-bottom:10px}
-    .nesting-group{border:1px solid #cbd8e4;margin-bottom:10px;background:#fff}
-    .nesting-parent{background:#eef5fb;border-bottom:1px solid #cbd8e4;padding:10px 12px;font-weight:700;color:#0d447f}
-    .nesting-parent small{display:block;color:#617386;font-weight:500;margin-top:3px}
-    .nesting-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
-    .nesting-table th{position:static;background:#0d447f;color:#fff;border:1px solid #17324d;height:34px;padding:6px;font-size:12px}
-    .nesting-table td{border:1px solid #cbd4de;padding:7px 6px;font-size:13px;color:#17324d;text-align:center;background:#fff}
-    .nesting-table td:first-child{text-align:left}
-    .nesting-empty{text-align:center;padding:30px 15px;color:#718096;font-size:14px}
+    .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
+    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #16834b;background:#149447;color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap;margin-left:auto}
+    .btn-export-excel:hover{background:#0f7e3b}
+    .btn-export-excel:disabled{background:#9ab9a8;border-color:#9ab9a8;cursor:not-allowed}
 .material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
-    table thead tr{background:var(--primary-blue-gradient) !important}
-    th{position:sticky;top:0;z-index:2;background:transparent !important;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#fff}
+    th{position:sticky;top:0;z-index:2;background:#eaf1f7;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#000}
     td{border:1px solid #b8c3cf;padding:8px 7px;font-size:14px;font-weight:500;color:#000;background:#fff;text-align:center;vertical-align:middle}
     td.material-cell{text-align:left}
     td.center{text-align:center}
@@ -320,8 +295,6 @@
       .vehicle-image{height:150px}
       .vehicle-image svg{height:145px}
       .material-body{padding:0 5px 8px}
-      .material-header-actions{gap:5px}
-      .btn-nesting-internal,.btn-export-excel{height:32px;min-width:0;padding:0 9px;font-size:11px}
       table{min-width:950px}
       .footer{font-size:10px;padding:0 8px}
     }
@@ -365,74 +338,10 @@
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
 
   <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" role="img">
-          <defs>
-            <linearGradient id="kpiBoxGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#f3b36b"/>
-              <stop offset="100%" stop-color="#b86a2f"/>
-            </linearGradient>
-          </defs>
-          <path d="M32 7 53 18v28L32 57 11 46V18L32 7Z" fill="url(#kpiBoxGrad)" stroke="#8f4e21" stroke-width="2"/>
-          <path d="M11 18 32 30l21-12M32 30v27" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
-          <path d="m20 13 21 12-10 5-21-12 10-5Z" fill="#ffd79a" opacity=".95"/>
-        </svg>
-      </div>
-      <div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" role="img">
-          <defs>
-            <linearGradient id="kpiVolGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ff9a4d"/>
-              <stop offset="100%" stop-color="#f04b2f"/>
-            </linearGradient>
-          </defs>
-          <rect x="10" y="14" width="44" height="36" rx="8" fill="url(#kpiVolGrad)" stroke="#d83a22" stroke-width="2"/>
-          <path d="M19 24h26M19 32h18M19 40h22" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".95"/>
-          <circle cx="48" cy="24" r="3" fill="#fff"/>
-        </svg>
-      </div>
-      <div class="kpi-content"><div class="kpi-title">TOTAL VOLUME</div><div id="totalVolume" class="kpi-value">0 unit</div></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" role="img">
-          <defs>
-            <linearGradient id="kpiCbmGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#78d9aa"/>
-              <stop offset="100%" stop-color="#2aaf74"/>
-            </linearGradient>
-          </defs>
-          <path d="M32 8 52 19v26L32 56 12 45V19L32 8Z" fill="url(#kpiCbmGrad)" stroke="#168c5a" stroke-width="2"/>
-          <path d="M12 19 32 30l20-11M32 30v26" fill="none" stroke="#fff" stroke-width="2.5"/>
-          <path d="m25 14 14 8-7 4-14-8 7-4Z" fill="#c8f4df"/>
-          <path d="M21 44h22" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
-        </svg>
-      </div>
-      <div class="kpi-content"><div class="kpi-title">TOTAL KUBIKASI</div><div id="totalCbm" class="kpi-value">0 m³</div></div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" role="img">
-          <defs>
-            <linearGradient id="kpiTonGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#f8d56f"/>
-              <stop offset="100%" stop-color="#d4a52a"/>
-            </linearGradient>
-          </defs>
-          <path d="M32 9v37" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
-          <path d="M18 14h28" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
-          <path d="M32 14 18 36M32 14l14 22" fill="none" stroke="#805f16" stroke-width="2.5"/>
-          <path d="M8 36h20l-4 8H12l-4-8Zm28 0h20l-4 8H40l-4-8Z" fill="url(#kpiTonGrad)" stroke="#9c771c" stroke-width="1.5"/>
-          <circle cx="32" cy="14" r="4" fill="#fff" stroke="#805f16" stroke-width="2"/>
-          <path d="M24 51h16" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="kpi-content"><div class="kpi-title">TOTAL TONASE</div><div id="totalTon" class="kpi-value">0 Ton</div></div>
-    </div>
+    <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon">🟧</div><div class="kpi-content"><div class="kpi-title">TOTAL VOLUME</div><div id="totalVolume" class="kpi-value">0 unit</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon">🟩</div><div class="kpi-content"><div class="kpi-title">TOTAL KUBIKASI</div><div id="totalCbm" class="kpi-value">0 m³</div></div></div>
+    <div class="kpi-card"><div class="kpi-icon">⚖️</div><div class="kpi-content"><div class="kpi-title">TOTAL TONASE</div><div id="totalTon" class="kpi-value">0 Ton</div></div></div>
   </div>
 
   <section class="section">
@@ -454,7 +363,7 @@
   </section>
 
   <section class="section material-section">
-    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><div class="material-header-actions"><button id="btnNestingInternal" class="btn-nesting-internal" type="button" onclick="bukaNestingInternal()" disabled>📦 NESTING</button><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div></div>
+    <div class="section-header material-header"><div style="display:flex;align-items:center"><div class="section-header-icon">📊</div><div>DATA MATERIAL</div></div><button id="btnExportExcel" class="btn-export-excel" type="button" onclick="exportExcel()">📥 EXPORT EXCEL</button></div>
     <div class="material-body">
       <div class="table-wrapper">
         <table>
@@ -478,17 +387,6 @@
   </section>
 </main>
 
-<div id="nestingOverlay" class="nesting-overlay" style="display:none" onclick="tutupNestingInternal(event)">
-  <div class="nesting-modal" role="dialog" aria-modal="true" aria-labelledby="nestingModalTitle" onclick="event.stopPropagation()">
-    <div class="nesting-modal-header">
-      <div id="nestingModalTitle">📦 MATERIAL YANG MASUK DI DALAM PIPA</div>
-      <button type="button" class="nesting-close" onclick="tutupNestingInternal()">✕</button>
-    </div>
-    <div class="nesting-summary" id="nestingSummary"></div>
-    <div class="nesting-modal-body" id="nestingModalBody"></div>
-  </div>
-</div>
-
 <footer class="footer">
   <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.0</div>
   <div id="clock">-</div>
@@ -498,10 +396,10 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
-window.CACHE_VERSION = 'v8';
-window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v8';
-window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v8';
-window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v8_';
+window.CACHE_VERSION = 'v7';
+window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v7';
+window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v7';
+window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v7_';
 
 let daftarProyek = [];
 let proyekAktif = '';
@@ -509,7 +407,6 @@ let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
 let materialDataTerakhir = [];
-let nestingInternalTerakhir = [];
 
 /*
  * ==========================================================
@@ -1312,8 +1209,6 @@ function tampilkanData(data){
   const s=data.summary||{};
 
   const materialData=Array.isArray(data.material)?data.material:[];
-  const nestingInternal=Array.isArray(data.nestingInternal)?data.nestingInternal:[];
-  nestingInternalTerakhir=nestingInternal.slice();
 
   /*
    * MASTER ARMADA DINAMIS
@@ -1430,7 +1325,6 @@ function tampilkanData(data){
 
   tampilkanArmada(armadaList);
   tampilkanMaterial(materialData);
-  updateNestingInternalButton_();
 }
 
 function ambilArmadaAktual(data,summary){
@@ -1550,7 +1444,14 @@ function ambilArmadaAktual(data,summary){
     return hasilDetail;
   }
 
-  return hasilRekap;
+  const hasilPecah=[];
+  hasilRekap.forEach(function(r){
+    pecahRekapArmadaPerUnit_(r).forEach(function(unit){
+      hasilPecah.push(unit);
+    });
+  });
+
+  return hasilPecah;
 }
 
 function ambilArmadaDariDetail_(data, summary){
@@ -1560,9 +1461,21 @@ function ambilArmadaDariDetail_(data, summary){
 
   if(detail.length===0) return [];
 
+  /*
+   * DETAIL ARMADA = SUMBER ALOKASI PALING GRANULAR.
+   *
+   * Satu armadaKe = satu kendaraan/unit.
+   * JANGAN digabung kembali berdasarkan nama armada.
+   *
+   * Contoh:
+   * CONTAINER 40FT ke-1 -> 1 kartu
+   * CONTAINER 40FT ke-2 -> 1 kartu
+   * FUSO ke-1           -> 1 kartu
+   *
+   * Dengan begitu jika satu jenis armada membutuhkan 2 unit,
+   * tampilannya benar-benar menjadi 2 armada terpisah.
+   */
   const groups = {};
-  let totalCbm = 0;
-  let totalTon = 0;
 
   detail.forEach(function(r){
     const nama = String(r.armada || '').trim();
@@ -1570,6 +1483,11 @@ function ambilArmadaDariDetail_(data, summary){
 
     const armadaKe = Number(r.armadaKe);
     const unitArmada = Number(r.unitArmada);
+
+    /*
+     * Utamakan nomor armada/unit dari mesin.
+     * Jika armadaKe tidak tersedia, gunakan unitArmada.
+     */
     const keyUnit = isFinite(armadaKe) && armadaKe>0
       ? (nama.toUpperCase()+'|KE|'+armadaKe)
       : (nama.toUpperCase()+'|UNIT|'+(unitArmada||1));
@@ -1577,12 +1495,13 @@ function ambilArmadaDariDetail_(data, summary){
     if(!groups[keyUnit]){
       groups[keyUnit] = {
         armada: nama,
-        unitArmada: unitArmada || 1,
+        armadaKe: isFinite(armadaKe) && armadaKe>0 ? armadaKe : (unitArmada||1),
+        unitArmada: 1,
         panjangM: Number(r.panjangM)||0,
         lebarM: Number(r.lebarM)||0,
         tinggiM: Number(r.tinggiM)||0,
-        kapasitasCbm: Number(r.kapasitasCbmUnit)||0,
-        maxTonase: Number(r.maxTonaseUnit)||0,
+        kapasitasCbm: Number(r.kapasitasCbmUnit)||Number(r.kapasitasCbm)||0,
+        maxTonase: Number(r.maxTonaseUnit)||Number(r.maxTonase)||0,
         totalCbmProyek: 0,
         totalTonProyek: 0
       };
@@ -1590,64 +1509,150 @@ function ambilArmadaDariDetail_(data, summary){
 
     const cbm = Number(r.cbmMuat);
     const ton = Number(r.tonMuat);
+
     groups[keyUnit].totalCbmProyek += isFinite(cbm) ? cbm : 0;
     groups[keyUnit].totalTonProyek += isFinite(ton) ? ton : 0;
   });
 
-  const unitGroups = Object.keys(groups).map(function(k){ return groups[k]; });
+  const unitGroups = Object.keys(groups)
+    .map(function(k){ return groups[k]; })
+    .sort(function(a,b){
+      const namaA=String(a.armada||'').toUpperCase();
+      const namaB=String(b.armada||'').toUpperCase();
+      if(namaA!==namaB) return namaA.localeCompare(namaB);
+      return (Number(a.armadaKe)||0)-(Number(b.armadaKe)||0);
+    });
+
   if(unitGroups.length===0) return [];
 
-  totalCbm = unitGroups.reduce(function(a,g){ return a + g.totalCbmProyek; },0);
-  totalTon = unitGroups.reduce(function(a,g){ return a + g.totalTonProyek; },0);
+  /*
+   * Validasi total detail terhadap KPI proyek.
+   * Validasi ini hanya memastikan detail yang dipakai memang
+   * detail proyek yang sama; TIDAK menggabungkan kartu.
+   */
+  const totalCbm = unitGroups.reduce(function(a,g){
+    return a + (Number(g.totalCbmProyek)||0);
+  },0);
+
+  const totalTon = unitGroups.reduce(function(a,g){
+    return a + (Number(g.totalTonProyek)||0);
+  },0);
 
   const targetCbm = Number(summary && summary.totalCbm)||0;
   const targetTon = Number(summary && summary.totalTon)||0;
-  const cbmOk = targetCbm <= 0 || Math.abs(totalCbm-targetCbm) <= Math.max(0.01,targetCbm*0.001);
-  const tonOk = targetTon <= 0 || Math.abs(totalTon-targetTon) <= Math.max(0.001,targetTon*0.001);
+
+  const cbmOk = targetCbm <= 0 ||
+    Math.abs(totalCbm-targetCbm) <= Math.max(0.01,targetCbm*0.001);
+
+  const tonOk = targetTon <= 0 ||
+    Math.abs(totalTon-targetTon) <= Math.max(0.001,targetTon*0.001);
 
   if(!cbmOk || !tonOk) return [];
 
-  const byType = {};
-  unitGroups.forEach(function(g){
-    const key = g.armada.toUpperCase();
-    if(!byType[key]){
-      byType[key] = {
-        armada:g.armada,
-        kebutuhanUnit:0,
-        panjangM:g.panjangM,
-        lebarM:g.lebarM,
-        tinggiM:g.tinggiM,
-        kapasitasCbm:g.kapasitasCbm,
-        maxTonase:g.maxTonase,
-        kapasitasCbmTotal:0,
-        kapasitasTonTotal:0,
-        totalCbmProyek:0,
-        totalTonProyek:0
-      };
-    }
-    const x=byType[key];
-    x.kebutuhanUnit++;
-    x.kapasitasCbmTotal += g.kapasitasCbm;
-    x.kapasitasTonTotal += g.maxTonase;
-    x.totalCbmProyek += g.totalCbmProyek;
-    x.totalTonProyek += g.totalTonProyek;
-  });
+  /*
+   * PENTING:
+   * Jangan gunakan byType di sini.
+   * byType sebelumnya menggabungkan:
+   *   FUSO ke-1 + FUSO ke-2 -> FUSO — 2 UNIT
+   *
+   * Sekarang setiap unit dikembalikan sebagai satu kartu sendiri.
+   */
+  return unitGroups.map(function(x){
+    const kapasitasCbmTotal=Number(x.kapasitasCbm)||0;
+    const kapasitasTonTotal=Number(x.maxTonase)||0;
+    const totalCbmProyek=Number(x.totalCbmProyek)||0;
+    const totalTonProyek=Number(x.totalTonProyek)||0;
 
-  return Object.keys(byType).map(function(key){
-    const x=byType[key];
-    x.pemakaianCbm=x.kapasitasCbmTotal>0 ? x.totalCbmProyek/x.kapasitasCbmTotal : 0;
-    x.pemakaianTon=x.kapasitasTonTotal>0 ? x.totalTonProyek/x.kapasitasTonTotal : 0;
+    const pemakaianCbm=kapasitasCbmTotal>0
+      ? totalCbmProyek/kapasitasCbmTotal
+      : 0;
 
-    // Status HARUS mengikuti angka persen yang tampil di layar.
-    // Contoh 99,98% akan ditampilkan sebagai 100,0%, sehingga
-    // kartu harus berubah menjadi KUOTA TERCAPAI (merah).
-    const cbmTercapaiTampil = Math.round(x.pemakaianCbm * 1000) / 1000 >= 1;
-    const tonTercapaiTampil = Math.round(x.pemakaianTon * 1000) / 1000 >= 1;
-    x.status=(cbmTercapaiTampil || tonTercapaiTampil)
-      ? 'KUOTA TERCAPAI'
-      : 'KUOTA MASIH TERSEDIA';
-    return x;
+    const pemakaianTon=kapasitasTonTotal>0
+      ? totalTonProyek/kapasitasTonTotal
+      : 0;
+
+    const cbmTercapaiTampil = Math.round(pemakaianCbm*1000)/1000 >= 1;
+    const tonTercapaiTampil = Math.round(pemakaianTon*1000)/1000 >= 1;
+
+    return {
+      armada:x.armada,
+      armadaKe:x.armadaKe,
+      unitArmada:1,
+      kebutuhanUnit:1,
+      panjangM:x.panjangM,
+      lebarM:x.lebarM,
+      tinggiM:x.tinggiM,
+      kapasitasCbm:x.kapasitasCbm,
+      maxTonase:x.maxTonase,
+      kapasitasCbmTotal:kapasitasCbmTotal,
+      kapasitasTonTotal:kapasitasTonTotal,
+      totalCbmProyek:totalCbmProyek,
+      totalTonProyek:totalTonProyek,
+      pemakaianCbm:pemakaianCbm,
+      pemakaianTon:pemakaianTon,
+      status:(cbmTercapaiTampil || tonTercapaiTampil)
+        ? 'KUOTA TERCAPAI'
+        : 'KUOTA MASIH TERSEDIA'
+    };
   });
+}
+
+/*
+ * Fallback jika API hanya mengirim REKAP_ARMADA_AKTUAL tanpa
+ * DETAIL ARMADA. Jika kebutuhan 2 unit, tetap pecah menjadi
+ * 2 kartu dan distribusikan muatan secara berurutan berdasarkan
+ * kapasitas masing-masing unit.
+ */
+function pecahRekapArmadaPerUnit_(r){
+  const jumlahUnit=Math.max(1,Number(r.kebutuhanUnit)||1);
+
+  if(jumlahUnit<=1){
+    return [r];
+  }
+
+  const capCbm=Math.max(0,Number(r.kapasitasCbm)||0);
+  const capTon=Math.max(0,Number(r.maxTonase)||0);
+  let sisaCbm=Math.max(0,Number(r.totalCbmProyek)||0);
+  let sisaTon=Math.max(0,Number(r.totalTonProyek)||0);
+
+  const hasil=[];
+
+  for(let i=1;i<=jumlahUnit;i++){
+    const muatCbm=Math.min(sisaCbm,capCbm);
+    const muatTon=Math.min(sisaTon,capTon);
+
+    const pemakaianCbm=capCbm>0 ? muatCbm/capCbm : 0;
+    const pemakaianTon=capTon>0 ? muatTon/capTon : 0;
+
+    const cbmTercapai=Math.round(pemakaianCbm*1000)/1000>=1;
+    const tonTercapai=Math.round(pemakaianTon*1000)/1000>=1;
+
+    hasil.push({
+      armada:r.armada,
+      armadaKe:i,
+      unitArmada:1,
+      kebutuhanUnit:1,
+      panjangM:Number(r.panjangM)||0,
+      lebarM:Number(r.lebarM)||0,
+      tinggiM:Number(r.tinggiM)||0,
+      kapasitasCbm:capCbm,
+      maxTonase:capTon,
+      kapasitasCbmTotal:capCbm,
+      kapasitasTonTotal:capTon,
+      totalCbmProyek:muatCbm,
+      totalTonProyek:muatTon,
+      pemakaianCbm:pemakaianCbm,
+      pemakaianTon:pemakaianTon,
+      status:(cbmTercapai||tonTercapai)
+        ? 'KUOTA TERCAPAI'
+        : 'KUOTA MASIH TERSEDIA'
+    });
+
+    sisaCbm=Math.max(0,sisaCbm-muatCbm);
+    sisaTon=Math.max(0,sisaTon-muatTon);
+  }
+
+  return hasil;
 }
 
 function hitungUnitArmadaPilihan_(m, totalCbm, totalTon){
@@ -2117,7 +2122,7 @@ function tampilkanArmada(list){
     card.className='armada-layout';
     card.innerHTML=
       '<div class="armada-panel armada-visual">'+
-        '<div class="armada-name">'+escapeHtml((a.armada||'-'))+' — '+(a.kebutuhanUnit||0)+' UNIT</div>'+
+        '<div class="armada-name">'+escapeHtml((a.armada||'-'))+' — '+(a.kebutuhanUnit||1)+' UNIT'+((a.kebutuhanUnit||1)===1 && a.armadaKe ? ' <span style="font-size:.72em;font-weight:600;opacity:.75">(UNIT '+a.armadaKe+')</span>' : '')+'</div>'+
         '<div class="vehicle-image">'+vehicleSvg(a.armada)+'</div>'+
         '<div class="vehicle-label">'+escapeHtml((a.armada||'').toUpperCase())+'</div>'+
       '</div>'+
@@ -2244,8 +2249,6 @@ function resetTampilan(){
   }
 
   materialDataTerakhir=[];
-  nestingInternalTerakhir=[];
-  updateNestingInternalButton_();
   armadaAktualTerakhir=[];
   proyekArmadaTerakhir='';
   document.getElementById('totalItem').textContent='0 jenis';
@@ -2321,135 +2324,6 @@ function formatTableNumber(v){
 }
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
-
-function updateNestingInternalButton_(){
-  const btn=document.getElementById('btnNestingInternal');
-  if(!btn) return;
-
-  const adaData=Array.isArray(nestingInternalTerakhir) &&
-                nestingInternalTerakhir.length>0;
-
-  btn.disabled=!adaData;
-  btn.title=adaData
-    ? 'Lihat material yang masuk di dalam pipa.'
-    : 'Tidak ada material yang terdeteksi masuk di dalam pipa.';
-}
-
-function bukaNestingInternal(){
-  const rows=Array.isArray(nestingInternalTerakhir)
-    ? nestingInternalTerakhir
-    : [];
-
-  if(rows.length===0){
-    alert('Tidak ada material yang terdeteksi masuk di dalam pipa untuk proyek ini.');
-    return;
-  }
-
-  const overlay=document.getElementById('nestingOverlay');
-  const summaryEl=document.getElementById('nestingSummary');
-  const body=document.getElementById('nestingModalBody');
-
-  if(!overlay || !summaryEl || !body) return;
-
-  const groups={};
-  let totalChild=0;
-  let totalHemat=0;
-
-  rows.forEach(function(r){
-    const parent=String(r.parentMaterial || '-').trim();
-    const key=parent.toUpperCase();
-
-    if(!groups[key]){
-      groups[key]={
-        parentMaterial:parent,
-        jumlahParent:Number(r.jumlahParent)||0,
-        items:[]
-      };
-    }
-
-    groups[key].items.push(r);
-    totalChild += Number(r.volumeChildNested)||0;
-    totalHemat += Number(r.cbmHemat)||0;
-  });
-
-  const groupKeys=Object.keys(groups);
-
-  summaryEl.innerHTML=
-    'PARENT PIPA : '+formatTableNumber(groupKeys.length)+
-    ' jenis &nbsp; | &nbsp; '+
-    'MATERIAL NESTED : '+formatTableNumber(totalChild)+
-    ' unit &nbsp; | &nbsp; '+
-    'CBM HEMAT : '+formatTableNumber(totalHemat)+' m³';
-
-  let html='';
-
-  html+='<div class="nesting-project-note">'+
-    'Proyek : <strong>'+
-    escapeHtml(
-      proyekAktif ||
-      document.getElementById('projectSelect').value ||
-      '-'
-    )+
-    '</strong></div>';
-
-  groupKeys.forEach(function(key){
-
-    const g=groups[key];
-
-    html+='<div class="nesting-group">';
-
-    html+='<div class="nesting-parent">'+
-      'PIPA / WADAH : '+escapeHtml(g.parentMaterial)+
-      '<small>Jumlah parent : '+
-      formatTableNumber(g.jumlahParent)+
-      ' unit</small>'+
-      '</div>';
-
-    html+='<table class="nesting-table"><thead><tr>'+
-      '<th style="width:42%">MATERIAL YANG MASUK</th>'+
-      '<th style="width:17%">VOLUME MASUK</th>'+
-      '<th style="width:12%">UNIT</th>'+
-      '<th style="width:15%">CBM HEMAT</th>'+
-      '<th style="width:14%">STATUS</th>'+
-      '</tr></thead><tbody>';
-
-    g.items.forEach(function(r){
-
-      html+='<tr>'+
-        '<td>'+escapeHtml(r.childMaterial)+'</td>'+
-        '<td>'+formatTableNumber(r.volumeChildNested)+'</td>'+
-        '<td>'+escapeHtml(r.unitChild || '-')+'</td>'+
-        '<td>'+formatTableNumber(r.cbmHemat)+'</td>'+
-        '<td>'+escapeHtml(r.status || 'NESTED')+'</td>'+
-      '</tr>';
-
-    });
-
-    html+='</tbody></table>';
-    html+='</div>';
-  });
-
-  body.innerHTML=html;
-  overlay.style.display='flex';
-}
-
-function tutupNestingInternal(event){
-  if(event && event.target && event.target.id!=='nestingOverlay'){
-    return;
-  }
-
-  const overlay=document.getElementById('nestingOverlay');
-  if(overlay){
-    overlay.style.display='none';
-  }
-}
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    tutupNestingInternal();
-  }
-});
-
 function exportExcel(){
   const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
 
