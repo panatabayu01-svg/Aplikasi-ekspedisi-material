@@ -33,6 +33,7 @@
 
   <style>
     *{box-sizing:border-box}
+    :root{--primary-blue-gradient:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%)}
     html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#eef3f7 !important;color:#17324d}
     body{overflow-x:hidden}
 
@@ -61,13 +62,13 @@
     /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
      .delivery-date{
       margin-left:0;
-      min-width:420px;
-      flex:1 1 520px;
-      max-width:700px;
+      min-width:320px;
+      flex:1 1 auto;
+      max-width:none;
       height:38px;
       display:flex;
       align-items:center;
-      justify-content:flex-start;
+      justify-content:center;
       gap:7px;
       padding:0 10px;
       border:1px solid #0d447f;
@@ -98,7 +99,7 @@
     .kpi-value{font-size:29px;font-weight:700;color:#004b95;white-space:nowrap}
 
     .section{background:#fff;border:1.5px solid #0d447f;margin-bottom:9px}
-    .section-header{height:47px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
+    .section-header{height:47px;background:var(--primary-blue-gradient) !important;color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
     .section-header-icon{font-size:24px;margin-right:10px}
 
     .armada-body{padding:12px 8px 12px;background:#fff}
@@ -179,7 +180,7 @@
 .material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
-    th{position:sticky;top:0;z-index:2;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#fff}
+    th{position:sticky;top:0;z-index:2;background:var(--primary-blue-gradient) !important;border:1px solid #17324d;height:38px;padding:7px 6px;text-align:center;font-size:14px;font-weight:700;color:#fff}
     td{border:1px solid #b8c3cf;padding:8px 7px;font-size:14px;font-weight:500;color:#000;background:#fff;text-align:center;vertical-align:middle}
     td.material-cell{text-align:left}
     td.center{text-align:center}
