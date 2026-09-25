@@ -188,6 +188,11 @@
     .armada-material-table td{border:1px solid #cbd4de;padding:7px 6px;font-size:13px;color:#17324d;text-align:center;background:#fff}
     .armada-material-table td:nth-child(2){text-align:left}
     .armada-material-note{font-size:12px;color:#617386;margin:0 0 10px}
+    .armada-material-header-actions{display:flex;align-items:center;gap:7px;margin-left:auto}
+    .btn-export-armada-material{height:34px;min-width:145px;padding:0 12px;border:1px solid #d07a00;background:linear-gradient(135deg,#cf7800 0%,#e6930f 55%,#f7b544 100%);color:#fff;font-weight:700;font-size:12px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-export-armada-material:hover{background:linear-gradient(135deg,#b96800 0%,#d68100 55%,#e9a125 100%)}
+    .btn-export-armada-material:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
+    @media(max-width:600px){.armada-material-header-actions{gap:4px}.btn-export-armada-material{height:32px;min-width:0;padding:0 8px;font-size:10px}.armadaMaterialModalClose{font-size:22px}}
 .material-body{padding:0 8px 10px}
     .table-wrapper{width:100%;max-height:430px;overflow:auto;border:1px solid #17324d}
     table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff}
@@ -493,7 +498,10 @@
   <div class="nesting-modal" role="dialog" aria-modal="true" aria-labelledby="armadaMaterialModalTitle" onclick="event.stopPropagation()">
     <div class="nesting-modal-header">
       <div id="armadaMaterialModalTitle">📦 MATERIAL DALAM ARMADA</div>
-      <button type="button" class="nesting-close" onclick="tutupMaterialArmada()">✕</button>
+      <div class="armada-material-header-actions">
+        <button id="btnExportArmadaMaterial" type="button" class="btn-export-armada-material" onclick="exportMaterialArmadaExcel()">📥 EXPORT EXCEL</button>
+        <button type="button" class="nesting-close armadaMaterialModalClose" onclick="tutupMaterialArmada()">✕</button>
+      </div>
     </div>
     <div class="nesting-summary" id="armadaMaterialSummary"></div>
     <div class="nesting-modal-body" id="armadaMaterialModalBody"></div>
@@ -571,6 +579,7 @@ let armadaKartuPilihanManual = {};
 let armadaAktualTerakhir = [];
 let armadaAutoSnapshot = [];
 let armadaTampilanTerakhir = [];
+let armadaMaterialIndexTerakhir = -1;
 let proyekArmadaTerakhir = '';
 
 
@@ -2981,6 +2990,9 @@ function bukaMaterialArmada(index){
   const overlay=document.getElementById('armadaMaterialOverlay'),summary=document.getElementById('armadaMaterialSummary'),body=document.getElementById('armadaMaterialModalBody');
   if(!overlay || !summary || !body) return;
   const target=cards[index],rows=materialRowsUntukArmada_(cards,materialDataTerakhir,index);
+  armadaMaterialIndexTerakhir=index;
+  const exportBtn=document.getElementById('btnExportArmadaMaterial');
+  if(exportBtn) exportBtn.disabled=rows.length===0;
   const totalCbm=rows.reduce(function(a,r){return a+(Number(r.cbm)||0);},0),totalTon=rows.reduce(function(a,r){return a+(Number(r.ton)||0);},0);
   summary.innerHTML='ARMADA : <strong>'+escapeHtml(String(target.armada||'-'))+'</strong> &nbsp; | &nbsp; UNIT : '+formatTableNumber(target.kebutuhanUnit||1)+' &nbsp; | &nbsp; MATERIAL : '+formatTableNumber(rows.length)+' jenis &nbsp; | &nbsp; CBM : '+formatNumber(totalCbm,2)+' m³ &nbsp; | &nbsp; TON : '+formatNumber(totalTon,3)+' Ton';
   let html='<div class="nesting-project-note">Proyek : <strong>'+escapeHtml(proyekAktif || document.getElementById('projectSelect').value || '-')+'</strong></div>';
@@ -2994,7 +3006,96 @@ function bukaMaterialArmada(index){
 
 function tutupMaterialArmada(event){
   if(event && event.target && event.target.id!=='armadaMaterialOverlay') return;
-  const overlay=document.getElementById('armadaMaterialOverlay');if(overlay) overlay.style.display='none';
+  const overlay=document.getElementById('armadaMaterialOverlay');
+  if(overlay) overlay.style.display='none';
+  armadaMaterialIndexTerakhir=-1;
+}
+
+function exportMaterialArmadaExcel(){
+  const index=Number(armadaMaterialIndexTerakhir);
+  const cards=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
+
+  if(!isFinite(index) || index<0 || !cards[index]){
+    alert('Tidak ada data armada yang sedang ditampilkan.');
+    return;
+  }
+
+  const target=cards[index];
+  const rows=materialRowsUntukArmada_(cards,materialDataTerakhir,index);
+
+  if(!rows.length){
+    alert('Tidak ada material pada armada ini yang dapat diexport.');
+    return;
+  }
+
+  const proyek=proyekAktif || document.getElementById('projectSelect').value || 'DATA MATERIAL';
+  const armada=String(target.armada||'ARMADA').trim() || 'ARMADA';
+  const unit=Math.max(1,Number(target.kebutuhanUnit)||1);
+  const totalCbm=rows.reduce(function(a,r){return a+(Number(r.cbm)||0);},0);
+  const totalTon=rows.reduce(function(a,r){return a+(Number(r.ton)||0);},0);
+  const now=new Date().toLocaleString('id-ID');
+
+  function esc(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/\"/g,'&quot;');
+  }
+
+  function fmt(v,d){
+    const n=Number(v);
+    if(!isFinite(n)) return '0';
+    return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+  }
+
+  function textCell(v){
+    return '<td style="mso-number-format:\'@\';">'+esc(v)+'</td>';
+  }
+
+  let html='<html><head><meta charset="UTF-8"></head><body>';
+  html+='<table border="1" cellspacing="0" cellpadding="5">';
+  html+='<tr><th colspan="6" style="font-size:16pt">MATERIAL DALAM ARMADA</th></tr>';
+  html+='<tr><th colspan="6">PROYEK</th></tr>';
+  html+='<tr><td colspan="6">'+esc(proyek)+'</td></tr>';
+  html+='<tr><th>ARMADA</th><th>UNIT</th><th>MATERIAL</th><th>TOTAL CBM</th><th>TOTAL TON</th><th>EXPORT</th></tr>';
+  html+='<tr>'+
+    '<td>'+esc(armada)+'</td>'+
+    textCell(fmt(unit,0)) +
+    textCell(fmt(rows.length,0)) +
+    textCell(fmt(totalCbm,3)) +
+    textCell(fmt(totalTon,3)) +
+    '<td>'+esc(now)+'</td>'+
+    '</tr>';
+  html+='<tr><td colspan="6"></td></tr>';
+  html+='<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>CBM</th><th>TON</th></tr>';
+
+  rows.forEach(function(r,i){
+    html+='<tr>'+
+      textCell(fmt(i+1,0))+
+      '<td>'+esc(r.material)+'</td>'+
+      textCell(fmt(r.volume,3))+
+      '<td>'+esc(r.unit)+'</td>'+
+      textCell(fmt(r.cbm,3))+
+      textCell(fmt(r.ton,3))+
+      '</tr>';
+  });
+
+  html+='<tr><td colspan="6"></td></tr>';
+  html+='<tr><td colspan="6">Target muatan armada: '+esc(fmt(target.totalCbmProyek,2))+' m³ | '+esc(fmt(target.totalTonProyek,3))+' Ton</td></tr>';
+  html+='</table></body></html>';
+
+  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const namaProyek=String(proyek).replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]+/g,'_').replace(/^_+|_+$/g,'')||'DATA_MATERIAL';
+  const namaArmada=armada.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]+/g,'_').replace(/^_+|_+$/g,'')||'ARMADA';
+  a.href=url;
+  a.download='MATERIAL_ARMADA_'+namaArmada+'_UNIT_'+unit+'_'+namaProyek+'.xls';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 
 function bukaNestingInternal(){
