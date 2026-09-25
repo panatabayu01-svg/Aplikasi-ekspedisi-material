@@ -338,10 +338,74 @@
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
 
   <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div></div>
-    <div class="kpi-card"><div class="kpi-icon">🟧</div><div class="kpi-content"><div class="kpi-title">TOTAL VOLUME</div><div id="totalVolume" class="kpi-value">0 unit</div></div></div>
-    <div class="kpi-card"><div class="kpi-icon">🟩</div><div class="kpi-content"><div class="kpi-title">TOTAL KUBIKASI</div><div id="totalCbm" class="kpi-value">0 m³</div></div></div>
-    <div class="kpi-card"><div class="kpi-icon">⚖️</div><div class="kpi-content"><div class="kpi-title">TOTAL TONASE</div><div id="totalTon" class="kpi-value">0 Ton</div></div></div>
+    <div class="kpi-card">
+      <div class="kpi-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <defs>
+            <linearGradient id="kpiBoxGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f3b36b"/>
+              <stop offset="100%" stop-color="#b86a2f"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 7 53 18v28L32 57 11 46V18L32 7Z" fill="url(#kpiBoxGrad)" stroke="#8f4e21" stroke-width="2"/>
+          <path d="M11 18 32 30l21-12M32 30v27" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="m20 13 21 12-10 5-21-12 10-5Z" fill="#ffd79a" opacity=".95"/>
+        </svg>
+      </div>
+      <div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <defs>
+            <linearGradient id="kpiVolGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff9a4d"/>
+              <stop offset="100%" stop-color="#f04b2f"/>
+            </linearGradient>
+          </defs>
+          <rect x="10" y="14" width="44" height="36" rx="8" fill="url(#kpiVolGrad)" stroke="#d83a22" stroke-width="2"/>
+          <path d="M19 24h26M19 32h18M19 40h22" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".95"/>
+          <circle cx="48" cy="24" r="3" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="kpi-content"><div class="kpi-title">TOTAL VOLUME</div><div id="totalVolume" class="kpi-value">0 unit</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <defs>
+            <linearGradient id="kpiCbmGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#78d9aa"/>
+              <stop offset="100%" stop-color="#2aaf74"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 8 52 19v26L32 56 12 45V19L32 8Z" fill="url(#kpiCbmGrad)" stroke="#168c5a" stroke-width="2"/>
+          <path d="M12 19 32 30l20-11M32 30v26" fill="none" stroke="#fff" stroke-width="2.5"/>
+          <path d="m25 14 14 8-7 4-14-8 7-4Z" fill="#c8f4df"/>
+          <path d="M21 44h22" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+        </svg>
+      </div>
+      <div class="kpi-content"><div class="kpi-title">TOTAL KUBIKASI</div><div id="totalCbm" class="kpi-value">0 m³</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <defs>
+            <linearGradient id="kpiTonGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f8d56f"/>
+              <stop offset="100%" stop-color="#d4a52a"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 9v37" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
+          <path d="M18 14h28" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
+          <path d="M32 14 18 36M32 14l14 22" fill="none" stroke="#805f16" stroke-width="2.5"/>
+          <path d="M8 36h20l-4 8H12l-4-8Zm28 0h20l-4 8H40l-4-8Z" fill="url(#kpiTonGrad)" stroke="#9c771c" stroke-width="1.5"/>
+          <circle cx="32" cy="14" r="4" fill="#fff" stroke="#805f16" stroke-width="2"/>
+          <path d="M24 51h16" stroke="#805f16" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="kpi-content"><div class="kpi-title">TOTAL TONASE</div><div id="totalTon" class="kpi-value">0 Ton</div></div>
+    </div>
   </div>
 
   <section class="section">
