@@ -47,19 +47,19 @@
     .project-label{font-weight:700;font-size:14px;color:#0d447f;width:58px;flex:0 0 58px}
     .mode-btn{height:38px;min-width:170px;padding:0 14px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
     .mode-btn:hover{background:#eef5fb}
-    .mode-btn.active{background:linear-gradient(135deg,#0b477d,#176ea8);color:#fff;border-color:#0d447f;box-shadow:0 2px 5px rgba(13,68,127,.18)}
-    .mode-btn.manual.active{background:linear-gradient(135deg,#168a49,#2aa96b);border-color:#168a49;box-shadow:0 2px 5px rgba(20,148,71,.16)}
+    .mode-btn.active{background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;border-color:#0d447f;box-shadow:0 2px 5px rgba(13,68,127,.18)}
+    .mode-btn.manual.active{background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);border-color:#168a49;box-shadow:0 2px 5px rgba(20,148,71,.16)}
     .manual-actions{display:none;align-items:center;gap:8px;flex:0 0 auto}
-    .btn-input-data{height:38px;min-width:145px;border:1px solid #168a49;background:linear-gradient(135deg,#168a49,#2aa96b);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
+    .btn-input-data{height:38px;min-width:145px;border:1px solid #168a49;background:linear-gradient(135deg,#157f44 0%,#28a364 55%,#39b875 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:2px;white-space:nowrap}
     .btn-input-data:hover{background:#0f7e3b}
     .project-select:disabled{background:#eef3f7;color:#526579;cursor:not-allowed}
     .project-select{width:330px;height:38px;border:1px solid #aeb8c2;background:#fff;padding:0 10px;font-size:13px;border-radius:2px;outline:none;flex:0 1 330px}
     .project-select:focus{border-color:#0d6efd}
-    .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #aeb8c2;background:#fff;color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
+    .btn-refresh{height:38px;min-width:110px;flex:0 0 110px;border:1px solid #b5c1cc;background:linear-gradient(135deg,#ffffff 0%,#f1f5f9 55%,#dce6ef 100%);color:#164a7d;font-weight:700;font-size:14px;cursor:pointer;border-radius:2px}
     .btn-refresh:hover{background:linear-gradient(135deg,#ffffff,#eef3f7)}
 
     /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
-    .delivery-date{
+     .delivery-date{
       margin-left:8px;
       min-width:320px;
       flex:1 1 320px;
@@ -71,7 +71,7 @@
       gap:7px;
       padding:0 10px;
       border:1px solid #0d447f;
-      background:linear-gradient(135deg,#0b477d,#176ea8);
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
       color:#fff;
       box-shadow:0 2px 6px rgba(13,68,127,.18);
       white-space:nowrap;
@@ -98,7 +98,7 @@
     .kpi-value{font-size:29px;font-weight:700;color:#004b95;white-space:nowrap}
 
     .section{background:#fff;border:1.5px solid #0d447f;margin-bottom:9px}
-    .section-header{height:47px;background:linear-gradient(135deg,#0b477d,#176ea8);color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
+    .section-header{height:47px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;display:flex;align-items:center;padding:0 20px;font-size:19px;font-weight:700}
     .section-header-icon{font-size:24px;margin-right:10px}
 
     .armada-body{padding:12px 8px 12px;background:#fff}
@@ -150,12 +150,15 @@
 
     .material-section{border-color:#17324d}
     .material-header{background:#fff;color:#17324d;height:47px;border-bottom:0;justify-content:space-between}
+    
+    .material-header .section-header-icon{color:#17324d}
+    .material-header>div{color:#17324d}
     .material-header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
-    .btn-nesting-internal{height:34px;min-width:190px;padding:0 14px;border:1px solid #6d3bc0;background:linear-gradient(135deg,#6d3bc0,#8b5cf6);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .btn-nesting-internal:hover{background:linear-gradient(135deg,#5f32ad,#7c4ee8)}
+    .btn-nesting-internal{height:34px;min-width:190px;padding:0 14px;border:1px solid #6335b4;background:linear-gradient(135deg,#5f32ad 0%,#7a49d9 55%,#9a76f2 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-nesting-internal:hover{background:linear-gradient(135deg,#52299a 0%,#6a3bc2 55%,#8a63e6 100%)}
     .btn-nesting-internal:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
-    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #d98200;background:linear-gradient(135deg,#d98200,#f59e0b);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
-    .btn-export-excel:hover{background:linear-gradient(135deg,#bd7300,#db8c06)}
+    .btn-export-excel{height:34px;min-width:145px;padding:0 14px;border:1px solid #d07a00;background:linear-gradient(135deg,#cf7800 0%,#e6930f 55%,#f7b544 100%);color:#fff;font-weight:700;font-size:13px;cursor:pointer;border-radius:3px;white-space:nowrap}
+    .btn-export-excel:hover{background:linear-gradient(135deg,#b96800 0%,#d68100 55%,#e9a125 100%)}
     .btn-export-excel:disabled{background:#b9c7d5;border-color:#b9c7d5;color:#fff;cursor:not-allowed}
 
     .nesting-overlay{position:fixed;inset:0;background:rgba(23,50,77,.45);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px}
