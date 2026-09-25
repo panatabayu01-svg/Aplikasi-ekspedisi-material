@@ -2263,14 +2263,14 @@ function isiDropdownArmadaKartu_(select,a,index){
   const totalTon=Number(a.totalTonProyek)||0;
 
   /*
-   * AUTO hanya boleh muncul bila kartu saat ini memang merupakan hasil
-   * rekomendasi otomatis. Untuk kartu yang sudah dipilih MANUAL, semua
-   * opsi AUTO dihilangkan agar tulisan AUTO tidak pernah muncul lagi.
+   * AUTO tetap tersedia pada dropdown setiap kartu.
+   * Khusus Armada 2, 3, dst. AUTO berarti kembali ke armada yang
+   * sedang menjadi hasil otomatis untuk kartu tersebut.
+   * Perubahan ini hanya memulihkan opsi AUTO pada dropdown kartu;
+   * logika perhitungan, alokasi, dan tampilan lainnya tetap sama.
    */
   const isAutoResult=a._isAutoResult===true;
-  const autoNama=isAutoResult
-    ? normalisasiNamaArmada_(a.armada)
-    : '';
+  const autoNama=normalisasiNamaArmada_(a.armada);
 
   const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
     const effective=Math.min(
@@ -2282,7 +2282,7 @@ function isiDropdownArmadaKartu_(select,a,index){
       master:m,
       unit:unit,
       effective:effective,
-      isAuto:isAutoResult && normalisasiNamaArmada_(m.armada)===autoNama
+      isAuto:normalisasiNamaArmada_(m.armada)===autoNama
     };
   });
 
@@ -2301,8 +2301,8 @@ function isiDropdownArmadaKartu_(select,a,index){
     if(pilihan.length<4) pilihan.push(k);
   });
 
-  /* Jika kartu AUTO tidak ditemukan di master, tetap tampilkan AUTO-nya. */
-  if(isAutoResult && !pilihan.some(function(k){return k.isAuto;})){
+  /* Jika armada kartu tidak ditemukan di master, tetap tampilkan AUTO-nya. */
+  if(!pilihan.some(function(k){return k.isAuto;})){
     pilihan.unshift({
       master:{
         armada:a.armada,
@@ -2334,7 +2334,7 @@ function isiDropdownArmadaKartu_(select,a,index){
 
   if(savedAda){
     select.value=savedManual;
-  }else if(isAutoResult && pilihan.some(function(k){return k.isAuto;})){
+  }else if(pilihan.some(function(k){return k.isAuto;})){
     select.value='__AUTO__';
   }else if(select.options.length){
     select.selectedIndex=0;
