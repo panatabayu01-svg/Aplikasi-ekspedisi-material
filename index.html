@@ -2840,10 +2840,27 @@ function materialRowsUntukArmada_(armadaList, materialRows, index){
     const mapped=detailRows.map(function(r){
       const nama=String(r.material||r.namaMaterial||r.itemMaterial||r.item||'').trim();
       if(!nama) return null;
+      /*
+       * DETAIL ARMADA kadang hanya membawa volume/CBM/tonase tanpa kolom
+       * UNIT/SATUAN. Jangan tampilkan '-' jika satuannya sebenarnya sudah
+       * tersedia pada data material utama.
+       */
+      let satuan=String(r.unit||r.satuan||r.unitMaterial||r.satuanMaterial||'').trim();
+      if(!satuan){
+        const sumberMaterial=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
+        const namaNorm=nama.toLowerCase().replace(/\s+/g,' ').trim();
+        const ref=sumberMaterial.find(function(m){
+          const mn=String(m.material||m.namaMaterial||m.itemMaterial||m.item||'').toLowerCase().replace(/\s+/g,' ').trim();
+          return mn===namaNorm;
+        });
+        if(ref){
+          satuan=String(ref.unit||ref.satuan||ref.unitMaterial||ref.satuanMaterial||'').trim();
+        }
+      }
       return {
         material:nama,
         volume:Number(r.volumeMuat!=null?r.volumeMuat:(r.volume!=null?r.volume:0))||0,
-        unit:String(r.unit||r.satuan||'-'),
+        unit:satuan||'-',
         cbm:Number(r.cbmMuat)||0,
         ton:Number(r.tonMuat!=null?r.tonMuat:((Number(r.beratMuatKg)||0)/1000))||0
       };
