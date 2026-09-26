@@ -2867,6 +2867,13 @@ function formatTableNumber(v){
   parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
   return parts.join('.');
 }
+
+function formatVolumeArmadaNumber(v){
+  const n=Number(v);
+  if(!isFinite(n)) return '0';
+  // VOLUME pada popup MATERIAL DALAM ARMADA selalu ditampilkan bulat.
+  return Math.round(n).toLocaleString('id-ID',{maximumFractionDigits:0});
+}
 function formatPercent(v){const n=Number(v);if(!isFinite(n))return '0,0%';return (n*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 
@@ -3054,7 +3061,7 @@ function bukaMaterialArmada(index){
   html+='<p class="armada-material-note">Material yang ditampilkan mengikuti pembagian muatan armada pada hasil rekomendasi.</p>';
   html+='<div class="armada-material-group"><div class="armada-material-head">🚛 '+escapeHtml(String(target.armada||'-'))+' — '+formatTableNumber(target.kebutuhanUnit||1)+' UNIT<small>Target muatan: '+formatNumber(target.totalCbmProyek,2)+' m³ | '+formatNumber(target.totalTonProyek,3)+' Ton</small></div>';
   html+='<table class="armada-material-table"><thead><tr><th style="width:5%">NO</th><th style="width:43%">MATERIAL</th><th style="width:14%">VOLUME</th><th style="width:10%">UNIT</th><th style="width:14%">CBM</th><th style="width:14%">TON</th></tr></thead><tbody>';
-  if(!rows.length){html+='<tr><td colspan="6" class="nesting-empty">Tidak ada material yang dapat ditampilkan pada armada ini.</td></tr>';}else{rows.forEach(function(r,i){html+='<tr><td>'+formatTableNumber(i+1)+'</td><td>'+escapeHtml(r.material)+'</td><td>'+formatTableNumber(r.volume)+'</td><td>'+escapeHtml(r.unit)+'</td><td>'+formatNumber(r.cbm,3)+'</td><td>'+formatNumber(r.ton,3)+'</td></tr>';});}
+  if(!rows.length){html+='<tr><td colspan="6" class="nesting-empty">Tidak ada material yang dapat ditampilkan pada armada ini.</td></tr>';}else{rows.forEach(function(r,i){html+='<tr><td>'+formatTableNumber(i+1)+'</td><td>'+escapeHtml(r.material)+'</td><td>'+formatVolumeArmadaNumber(r.volume)+'</td><td>'+escapeHtml(r.unit)+'</td><td>'+formatNumber(r.cbm,3)+'</td><td>'+formatNumber(r.ton,3)+'</td></tr>';});}
   html+='</tbody></table></div>';
   body.innerHTML=html;overlay.style.display='flex';
 }
