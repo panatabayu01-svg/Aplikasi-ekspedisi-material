@@ -110,7 +110,7 @@
       cursor:not-allowed;
     }
 
-    .btn-reschedule{
+    .btn-reschedule-legacy{
       height:38px;
       min-width:145px;
       flex:0 0 145px;
@@ -123,10 +123,10 @@
       border-radius:2px;
       white-space:nowrap;
     }
-    .btn-reschedule:hover{
+    .btn-reschedule-legacy:hover{
       background:linear-gradient(135deg,#c97900 0%,#df8f00 55%,#f1b13a 100%);
     }
-    .btn-reschedule:disabled{
+    .btn-reschedule-legacy:disabled{
       opacity:.55;
       cursor:not-allowed;
     }
@@ -177,6 +177,40 @@
       cursor:pointer;
     }
     .tanggal-modal-body{padding:16px;}
+
+    .tanggal-modal-combined{
+      width:min(520px,100%);
+      max-height:calc(100vh - 40px);
+      overflow:hidden;
+    }
+    .tanggal-modal-combined .tanggal-modal-body{
+      max-height:calc(100vh - 86px);
+      overflow-y:auto;
+    }
+    .tanggal-section{
+      border:1px solid #d6e3ef;
+      background:#fff;
+      padding:13px;
+      margin-top:12px;
+    }
+    .tanggal-section-input{
+      border-left:4px solid #0d6efd;
+    }
+    .tanggal-section-reschedule{
+      border-left:4px solid #e08a00;
+      background:#fffdf8;
+    }
+    .tanggal-section-title{
+      color:#0d447f;
+      font-size:14px;
+      font-weight:700;
+      padding-bottom:8px;
+      margin-bottom:12px;
+      border-bottom:1px solid #d6e3ef;
+    }
+    .tanggal-section-title-reschedule{
+      color:#b96d00;
+    }
     .tanggal-project-info{
       background:#eef5fb;
       border:1px solid #d6e3ef;
@@ -454,7 +488,7 @@
         font-size:10px;
         padding:0 6px;
       }
-      .btn-reschedule{
+      .btn-reschedule-legacy{
         grid-column:2;
         grid-row:3;
         min-width:0;
@@ -513,37 +547,34 @@
 </div>
 
 <div id="tanggalOverlay" class="tanggal-overlay" onclick="tutupInputTanggalRencanaKirim(event)">
-  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="tanggalModalTitle" onclick="event.stopPropagation()">
+  <div class="tanggal-modal tanggal-modal-combined" role="dialog" aria-modal="true" aria-labelledby="tanggalModalTitle" onclick="event.stopPropagation()">
     <div class="tanggal-modal-header">
-      <span id="tanggalModalTitle">📅 INPUT TANGGAL RENCANA KIRIM</span>
+      <span id="tanggalModalTitle">📅 INPUT TGL KIRIM</span>
       <button type="button" class="tanggal-modal-close" onclick="tutupInputTanggalRencanaKirim()">×</button>
     </div>
+
     <div class="tanggal-modal-body">
       <div id="tanggalProjectInfo" class="tanggal-project-info"></div>
-      <label class="tanggal-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
-      <input id="tanggalRencanaInput" class="tanggal-input" type="date">
-      <div class="tanggal-modal-actions">
-        <button id="tanggalBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
-        <button id="tanggalBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanTanggalRencanaKirim()">SIMPAN</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div id="rescheduleOverlay" class="tanggal-overlay" onclick="tutupRescheduleRencanaKirim(event)">
-  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleModalTitle" onclick="event.stopPropagation()">
-    <div class="tanggal-modal-header">
-      <span id="rescheduleModalTitle">↻ RESCHEDULE RENCANA KIRIM</span>
-      <button type="button" class="tanggal-modal-close" onclick="tutupRescheduleRencanaKirim()">×</button>
-    </div>
-    <div class="tanggal-modal-body">
-      <div id="rescheduleProjectInfo" class="tanggal-project-info"></div>
-      <div class="reschedule-old-date"><b>Tanggal Rencana Saat Ini:</b><br><span id="rescheduleOldDate">-</span></div>
-      <label class="tanggal-label" for="tanggalRescheduleInput">Tanggal Rencana Kirim Baru</label>
-      <input id="tanggalRescheduleInput" class="tanggal-input" type="date">
-      <div class="tanggal-modal-actions">
-        <button id="rescheduleBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupRescheduleRencanaKirim()">BATAL</button>
-        <button id="rescheduleBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanRescheduleRencanaKirim()">SIMPAN RESCHEDULE</button>
+      <div class="tanggal-section tanggal-section-input">
+        <div class="tanggal-section-title">📅 INPUT RENCANA KIRIM</div>
+        <label class="tanggal-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
+        <input id="tanggalRencanaInput" class="tanggal-input" type="date">
+        <div class="tanggal-modal-actions">
+          <button id="tanggalBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
+          <button id="tanggalBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanTanggalRencanaKirim()">SIMPAN</button>
+        </div>
+      </div>
+
+      <div class="tanggal-section tanggal-section-reschedule">
+        <div class="tanggal-section-title tanggal-section-title-reschedule">↻ RESCHEDULE RENCANA KIRIM</div>
+        <div class="reschedule-old-date"><b>Tanggal Rencana Saat Ini:</b><br><span id="rescheduleOldDate">-</span></div>
+        <label class="tanggal-label" for="tanggalRescheduleInput">Tanggal Rencana Kirim Baru</label>
+        <input id="tanggalRescheduleInput" class="tanggal-input" type="date">
+        <div class="tanggal-modal-actions">
+          <button id="rescheduleBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
+          <button id="rescheduleBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanRescheduleRencanaKirim()">SIMPAN RESCHEDULE</button>
+        </div>
       </div>
     </div>
   </div>
@@ -577,8 +608,7 @@
       <span id="deliveryDateValue" class="delivery-date-value">-</span>
     </div>
 
-    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TANGGAL</button>
-    <button id="btnReschedule" class="btn-reschedule" type="button" onclick="bukaRescheduleRencanaKirim()" disabled>↻ RESCHEDULE</button>
+    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -799,7 +829,6 @@ function updateModeUI_(){
   const actions=document.getElementById('manualActions');
   const deliveryDate=document.getElementById('deliveryDate');
   const btnInputTanggal=document.getElementById('btnInputTanggal');
-  const btnReschedule=document.getElementById('btnReschedule');
 
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
@@ -814,7 +843,6 @@ function updateModeUI_(){
     if(btnInputTanggal){
       btnInputTanggal.style.display='none';
       btnInputTanggal.disabled=true;
-      if(btnReschedule){ btnReschedule.style.display='none'; btnReschedule.disabled=true; }
     }
 
     if(isMobile){
@@ -842,10 +870,6 @@ function updateModeUI_(){
     if(btnInputTanggal){
       btnInputTanggal.style.display='block';
       btnInputTanggal.disabled = !String(proyekAktif || '').trim();
-      if(btnReschedule){
-        btnReschedule.style.display='block';
-        btnReschedule.disabled = !(String(proyekAktif || '').trim() && String(document.getElementById('deliveryDateValue')?.textContent || '').trim() && document.getElementById('deliveryDateValue').textContent.trim() !== '-');
-      }
     }
   }
 }
@@ -999,7 +1023,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function bukaInputTanggalRencanaKirim(){
   if(modeAplikasi!=='AUTO'){
-    alert('Input Tanggal Rencana Kirim hanya tersedia untuk DATA OTOMATIS.');
+    alert('Input Tgl Kirim hanya tersedia untuk DATA OTOMATIS.');
     return;
   }
 
@@ -1011,14 +1035,29 @@ function bukaInputTanggalRencanaKirim(){
 
   const overlay=document.getElementById('tanggalOverlay');
   const input=document.getElementById('tanggalRencanaInput');
+  const rescheduleInput=document.getElementById('tanggalRescheduleInput');
   const info=document.getElementById('tanggalProjectInfo');
+  const oldEl=document.getElementById('rescheduleOldDate');
   const data=window.__DATA_TERAKHIR__ || {};
   const currentInput=String(data.tanggalKirimInput || '').trim();
+  const currentText=String(data.tanggalKirim || '-').trim();
+  const today=new Date().toISOString().slice(0,10);
 
-  info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Tanggal saat ini:</b> '+escapeHtml(String(data.tanggalKirim || '-'));
+  if(info){
+    info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Rencana Kirim Saat Ini:</b> '+escapeHtml(currentText || '-');
+  }
 
+  // Bagian INPUT RENCANA KIRIM: bila sudah ada tanggal, tampilkan tanggal aktif.
   if(input){
-    input.value=currentInput || new Date().toISOString().slice(0,10);
+    input.value=currentInput || today;
+  }
+
+  // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
+  if(oldEl){
+    oldEl.textContent=currentText || '-';
+  }
+  if(rescheduleInput){
+    rescheduleInput.value=currentInput || today;
   }
 
   if(overlay){
@@ -1126,8 +1165,8 @@ function bukaRescheduleRencanaKirim(){
 }
 
 function tutupRescheduleRencanaKirim(event){
-  if(event && event.target && event.target.id!=='rescheduleOverlay') return;
-  const overlay=document.getElementById('rescheduleOverlay');
+  if(event && event.target && event.target.id!=='tanggalOverlay') return;
+  const overlay=document.getElementById('tanggalOverlay');
   if(overlay) overlay.style.display='none';
 }
 
@@ -1183,8 +1222,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     const overlay=document.getElementById('tanggalOverlay');
     if(overlay && overlay.style.display==='flex') tutupInputTanggalRencanaKirim();
-    const rescheduleOverlay=document.getElementById('rescheduleOverlay');
-    if(rescheduleOverlay && rescheduleOverlay.style.display==='flex') tutupRescheduleRencanaKirim();
   }
 });
 
@@ -1877,13 +1914,8 @@ function tampilkanData(data){
   materialDataTerakhir=materialData.slice();
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
-  const btnReschedule=document.getElementById('btnReschedule');
   if(btnInputTanggal){
     btnInputTanggal.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
-  }
-  if(btnReschedule){
-    const currentDate=String(document.getElementById('deliveryDateValue')?.textContent || '').trim();
-    btnReschedule.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim() && currentDate && currentDate!=='-');
   }
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
@@ -3201,12 +3233,8 @@ function resetTampilan(){
     tanggalKirimEl.textContent='-';
   }
   const btnInputTanggal=document.getElementById('btnInputTanggal');
-  const btnReschedule=document.getElementById('btnReschedule');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
-  }
-  if(btnReschedule){
-    btnReschedule.disabled=true;
   }
 
   materialDataTerakhir=[];
