@@ -204,8 +204,8 @@
       font-size:12px;
     }
     @media(max-width:600px){
-      .delivery-date-rescheduled-badge{font-size:10px;padding:0 6px;}
-      .delivery-date-detail-btn{font-size:10px;padding:0 6px;}
+      .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
+      .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
       .reschedule-history-modal{width:100%;max-height:86vh;}
       .reschedule-history-grid{grid-template-columns:115px 1fr;}
     }
@@ -525,7 +525,7 @@
       .control-bar{
         display:grid;
         grid-template-columns:52px minmax(0,1fr) 110px;
-        grid-template-rows:38px 38px 38px;
+        grid-template-rows:38px 50px 38px;
         gap:7px;
         align-items:center;
       }
@@ -565,32 +565,39 @@
         width:100%;
         min-width:0;
         max-width:none;
-        height:38px;
+        height:50px;
         margin-left:0;
-        padding:0 8px;
-        gap:5px;
+        padding:0 7px;
+        gap:4px;
         overflow:hidden;
         justify-content:flex-start;
+        align-items:center;
       }
 
       .delivery-date-label{
         flex:0 0 auto;
-        font-size:10px;
+        font-size:9px;
         white-space:nowrap;
       }
 
       .delivery-date-value{
         flex:1 1 auto;
         min-width:0;
-        overflow:hidden;
-        text-overflow:ellipsis;
-        white-space:nowrap;
-        font-size:12px;
+        overflow:visible;
+        text-overflow:clip;
+        white-space:normal;
+        word-break:normal;
+        overflow-wrap:normal;
+        line-height:14px;
+        font-size:11px;
       }
 
       .delivery-date-rescheduled{
         flex:0 0 auto;
         min-width:0;
+        display:flex;
+        align-items:center;
+        gap:4px;
       }
 
       /* HP: Refresh pindah ke baris 3 dan tetap di sebelah kanan. */
