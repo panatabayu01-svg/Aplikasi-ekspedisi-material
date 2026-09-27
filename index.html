@@ -1287,7 +1287,16 @@ document.addEventListener('DOMContentLoaded',function(){
   initFromCache();
 
   // Sinkronisasi server berjalan setelah tampilan siap.
-  loadDaftarProyek(false);
+  //
+  // PENTING:
+  // Saat aplikasi pertama dibuka, JANGAN mencari proyek yang
+  // mempunyai material satu per satu. Proses lama memanggil
+  // loadDataProyek() untuk banyak proyek sehingga dropdown
+  // terlihat "Memuat proyek..." sangat lama.
+  //
+  // Sekarang startup hanya mengambil DAFTAR PROYEK.
+  // Data material baru diambil setelah user memilih proyek.
+  loadDaftarProyek(false,false);
 });
 
 function renderStatusReschedule_(history){
