@@ -571,6 +571,16 @@
         <div class="reschedule-old-date"><b>Tanggal Rencana Saat Ini:</b><br><span id="rescheduleOldDate">-</span></div>
         <label class="tanggal-label" for="tanggalRescheduleInput">Tanggal Rencana Kirim Baru</label>
         <input id="tanggalRescheduleInput" class="tanggal-input" type="date">
+
+        <label class="tanggal-label" for="alasanRescheduleInput">Alasan Reschedule</label>
+        <select id="alasanRescheduleInput" class="tanggal-input">
+          <option value="">-- Pilih Alasan Reschedule --</option>
+          <option value="BELUM DAPAT ARMADA">1. Belum Dapat Armada</option>
+          <option value="ARMADA DI CANCEL">2. Armada di Cancel</option>
+          <option value="TERTUNDA KARENA PELAYARAN">3. Tertunda karena Pelayaran</option>
+          <option value="LAINNYA">4. Lainnya</option>
+        </select>
+
         <div class="tanggal-modal-actions">
           <button id="rescheduleBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
           <button id="rescheduleBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanRescheduleRencanaKirim()">SIMPAN RESCHEDULE</button>
@@ -1036,6 +1046,7 @@ function bukaInputTanggalRencanaKirim(){
   const overlay=document.getElementById('tanggalOverlay');
   const input=document.getElementById('tanggalRencanaInput');
   const rescheduleInput=document.getElementById('tanggalRescheduleInput');
+  const alasanInput=document.getElementById('alasanRescheduleInput');
   const info=document.getElementById('tanggalProjectInfo');
   const oldEl=document.getElementById('rescheduleOldDate');
   const data=window.__DATA_TERAKHIR__ || {};
@@ -1058,6 +1069,9 @@ function bukaInputTanggalRencanaKirim(){
   }
   if(rescheduleInput){
     rescheduleInput.value=currentInput || today;
+  }
+  if(alasanInput){
+    alasanInput.value='';
   }
 
   if(overlay){
@@ -1174,15 +1188,19 @@ function setRescheduleLoading_(loading){
   const save=document.getElementById('rescheduleBtnSimpan');
   const cancel=document.getElementById('rescheduleBtnBatal');
   const input=document.getElementById('tanggalRescheduleInput');
+  const alasan=document.getElementById('alasanRescheduleInput');
   if(save){ save.disabled=loading; save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN RESCHEDULE'; }
   if(cancel) cancel.disabled=loading;
   if(input) input.disabled=loading;
+  if(alasan) alasan.disabled=loading;
 }
 
 function simpanRescheduleRencanaKirim(){
   const project=String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
   const input=document.getElementById('tanggalRescheduleInput');
+  const alasanInput=document.getElementById('alasanRescheduleInput');
   const newDate=String(input?.value || '').trim();
+  const alasan=String(alasanInput?.value || '').trim();
   const data=window.__DATA_TERAKHIR__ || {};
   const oldDate=String(data.tanggalKirimInput || '').trim();
 
@@ -1190,11 +1208,12 @@ function simpanRescheduleRencanaKirim(){
   if(!oldDate){ alert('Tanggal Rencana Kirim lama tidak ditemukan.'); return; }
   if(!newDate){ alert('Pilih tanggal Rencana Kirim baru terlebih dahulu.'); return; }
   if(newDate===oldDate){ alert('Tanggal baru sama dengan tanggal saat ini. Silakan pilih tanggal yang berbeda.'); return; }
+  if(!alasan){ alert('Pilih alasan Reschedule terlebih dahulu.'); return; }
 
   setRescheduleLoading_(true);
   setStatus('Menyimpan Reschedule Rencana Kirim...');
 
-  fetch(API_URL+'?action=reschedule_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(newDate)+'&_='+Date.now(),{
+  fetch(API_URL+'?action=reschedule_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(newDate)+'&reason='+encodeURIComponent(alasan)+'&_='+Date.now(),{
     method:'GET', cache:'no-store', redirect:'follow'
   })
   .then(function(response){
@@ -1208,7 +1227,7 @@ function simpanRescheduleRencanaKirim(){
     tutupRescheduleRencanaKirim();
     setStatus('Reschedule berhasil disimpan. Memuat data terbaru...');
     loadDataProyek(project,true);
-    alert('Rencana Kirim berhasil di-reschedule.\n\nTanggal lama : '+(result.tanggalLama || oldDate)+'\nTanggal baru : '+(result.tanggalBaru || newDate)+'\n'+result.updatedRows+' baris diperbarui.');
+    alert('Rencana Kirim berhasil di-reschedule.\n\nTanggal lama : '+(result.tanggalLama || oldDate)+'\nTanggal baru : '+(result.tanggalBaru || newDate)+'\nAlasan : '+(result.alasan || alasan)+'\n'+result.updatedRows+' baris diperbarui.');
   })
   .catch(function(error){
     console.error('RESCHEDULE DELIVERY DATE ERROR:',error);
