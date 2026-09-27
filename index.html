@@ -61,19 +61,19 @@
 
     /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
     .delivery-date{
-      margin-left:0;min-width:320px;flex:1 1 auto;max-width:none;min-height:38px;display:flex;align-items:center;justify-content:center;gap:12px;padding:5px 10px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;box-shadow:0 2px 6px rgba(13,68,127,.18);overflow:hidden;
+      margin-left:0;min-width:320px;flex:1 1 auto;max-width:none;height:46px;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 12px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;box-shadow:0 2px 6px rgba(13,68,127,.18);overflow:hidden;
     }
-    .delivery-date-lines{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;line-height:1.15}
-    .delivery-date-line{display:flex;align-items:center;gap:5px;min-width:0;white-space:nowrap}
-    .delivery-date-label{font-size:13px;font-weight:700;color:#fff}
-    .delivery-date-value{font-size:14px;font-weight:700;color:#fff}
-    .delivery-date-rescheduled{display:none;align-items:center;gap:5px;min-width:0}
-    .delivery-date-rescheduled-label{font-size:13px;font-weight:700;color:#fff}
-    .delivery-date-rescheduled-value{font-size:14px;font-weight:700;color:#fff}
-    .delivery-date-reschedule-btn{flex:0 0 auto;height:30px;padding:0 11px;border:1px solid #b96d00;background:linear-gradient(135deg,#e08a00 0%,#f0a31a 55%,#ffc45a 100%);color:#fff;font-size:11px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap}
+    .delivery-date-lines{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;min-width:0;line-height:1.2}
+    .delivery-date-line{display:flex;align-items:center;gap:6px;min-width:0;height:18px;white-space:nowrap}
+    .delivery-date-label{font-size:14px;font-weight:800;color:#fff;line-height:18px}
+    .delivery-date-value{font-size:14px;font-weight:800;color:#fff;line-height:18px}
+    .delivery-date-rescheduled{display:none;align-items:center;gap:6px;min-width:0}
+    .delivery-date-rescheduled-label{font-size:14px;font-weight:800;color:#fff;line-height:18px}
+    .delivery-date-rescheduled-value{font-size:14px;font-weight:800;color:#fff;line-height:18px}
+    .delivery-date-reschedule-btn{flex:0 0 auto;height:32px;padding:0 12px;border:1px solid #b96d00;background:linear-gradient(135deg,#e08a00 0%,#f0a31a 55%,#ffc45a 100%);color:#fff;font-size:12px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.12)}
     .delivery-date-reschedule-btn:hover{background:linear-gradient(135deg,#c97900 0%,#df8f00 55%,#f1b13a 100%)}
-    .delivery-date-reschedule-btn:disabled{opacity:.55;cursor:not-allowed}
-    .delivery-date-detail-btn{flex:0 0 auto;height:30px;padding:0 9px;border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap}
+    .delivery-date-reschedule-btn:disabled{opacity:.8;cursor:not-allowed}
+    .delivery-date-detail-btn{flex:0 0 auto;height:32px;padding:0 10px;border:1px solid rgba(255,255,255,.85);background:rgba(255,255,255,.14);color:#fff;font-size:12px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap}
     .delivery-date-detail-btn:hover{background:rgba(255,255,255,.24)}
     .reschedule-history-overlay{
       position:fixed;
@@ -194,10 +194,15 @@
       color:#657786;
     }
     @media(max-width:600px){
-      .delivery-date-rescheduled-label{font-size:9px;}
-      .delivery-date-rescheduled-value{font-size:10px;}
-      .delivery-date-reschedule-btn{height:30px;font-size:9px;padding:0 6px;}
-      .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
+      .delivery-date{height:50px;padding:0 8px;gap:7px;}
+      .delivery-date-lines{gap:1px;}
+      .delivery-date-line{height:17px;gap:4px;}
+      .delivery-date-label{font-size:10px;line-height:17px;}
+      .delivery-date-value{font-size:11px;line-height:17px;}
+      .delivery-date-rescheduled-label{font-size:10px;line-height:17px;}
+      .delivery-date-rescheduled-value{font-size:11px;line-height:17px;}
+      .delivery-date-reschedule-btn{height:30px;font-size:9px;padding:0 7px;}
+      .delivery-date-detail-btn{height:30px;font-size:9px;padding:0 6px;}
       .reschedule-history-modal{width:100%;max-height:86vh;}
       .reschedule-history-grid{grid-template-columns:115px 1fr;}
     }
