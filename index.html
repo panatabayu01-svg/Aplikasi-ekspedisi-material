@@ -525,13 +525,13 @@
       .control-bar{
         display:grid;
         grid-template-columns:52px minmax(0,1fr) 110px;
-        grid-template-rows:38px 38px;
+        grid-template-rows:38px 38px 38px;
         gap:7px;
         align-items:center;
       }
 
-      /* HP: cukup LABEL PROYEK + DROPDOWN + REFRESH.
-         Pilihan DATA OTOMATIS / INPUT MANUAL tetap berada di dropdown. */
+      /* HP: LABEL PROYEK + DROPDOWN pada baris 1.
+         DATA OTOMATIS / INPUT MANUAL tetap tidak mengubah layout HP. */
       .project-label{
         grid-column:1;
         grid-row:1;
@@ -551,24 +551,15 @@
       }
 
       .mode-btn,
-      .manual-actions{
+      .manual-actions,
+      .btn-input-tanggal{
         display:none !important;
       }
 
-      .btn-refresh{
-        grid-column:3;
-        grid-row:2;
-        justify-self:stretch;
-        width:110px;
-        min-width:110px;
-        height:38px;
-      }
-
-      /* HP: TANGGAL RENCANA KIRIM tepat di sebelah kiri tombol Refresh.
-         Tetap satu baris agar tidak memotong layout KPI/armada. */
+      /* HP: RENCANA KIRIM dibuat satu baris penuh pada baris 2
+         supaya teks tanggal tidak terpotong oleh tombol lain. */
       .delivery-date{
-        /* HP: kotak tanggal melebar dari kiri sampai sebelum tombol Refresh */
-        grid-column:1 / 3;
+        grid-column:1 / 4;
         grid-row:2;
         display:flex !important;
         width:100%;
@@ -579,36 +570,39 @@
         padding:0 8px;
         gap:5px;
         overflow:hidden;
+        justify-content:flex-start;
       }
 
       .delivery-date-label{
         flex:0 0 auto;
         font-size:10px;
+        white-space:nowrap;
       }
 
       .delivery-date-value{
+        flex:1 1 auto;
         min-width:0;
         overflow:hidden;
         text-overflow:ellipsis;
+        white-space:nowrap;
         font-size:12px;
       }
 
-      .delivery-date{
-        grid-column:1 / 2;
-        grid-row:2;
-        width:100%;
+      .delivery-date-rescheduled{
+        flex:0 0 auto;
         min-width:0;
-        max-width:none;
       }
-      .btn-input-tanggal{
-        grid-column:2;
-        grid-row:2;
-        min-width:0;
-        width:100%;
+
+      /* HP: Refresh pindah ke baris 3 dan tetap di sebelah kanan. */
+      .btn-refresh{
+        grid-column:3;
+        grid-row:3;
+        justify-self:stretch;
+        width:110px;
+        min-width:110px;
         height:38px;
-        font-size:10px;
-        padding:0 6px;
       }
+
       .btn-reschedule-legacy{
         grid-column:2;
         grid-row:3;
