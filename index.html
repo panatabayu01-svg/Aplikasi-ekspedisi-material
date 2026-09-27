@@ -1193,7 +1193,11 @@ function bukaInputManual(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
-  isiDropdownAlasanReschedule_();
+  // Jangan memuat master alasan saat startup.
+  // Master alasan sudah dimuat saat popup Reschedule dibuka.
+  // Pemanggilan fungsi lama di sini tidak ada definisinya dan
+  // menghentikan JavaScript sebelum loadDaftarProyek() berjalan.
+  setPlaceholderAlasanReschedule_();
   updateClock();
   setInterval(updateClock,1000);
 
