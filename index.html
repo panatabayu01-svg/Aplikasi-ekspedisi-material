@@ -89,14 +89,13 @@
       color:#fff;
     }
     .delivery-date-rescheduled{
-      display:none;
+      display:inline-flex;
       align-items:center;
       gap:6px;
       margin-left:4px;
     }
     .delivery-date-rescheduled-badge{
-    display:none;
-      display:inline-flex;
+      display:none;
       align-items:center;
       height:24px;
       padding:0 8px;
@@ -123,18 +122,7 @@
     .delivery-date-detail-btn:hover{
       background:rgba(255,255,255,.24);
     }
-    .shipment-status-card{margin:0 0 14px;padding:12px 14px;border-radius:10px;border:1px solid #d9e2ec;background:#f7f9fc;}
-.shipment-status-title{font-size:11px;font-weight:800;letter-spacing:.08em;color:#657786;margin-bottom:4px;}
-.shipment-status-value{font-size:16px;font-weight:900;color:#334e68;}
-.shipment-status-note{font-size:11px;color:#7b8794;margin-top:3px;}
-.shipment-status-card.status-ok{border-color:#b7e4c7;background:#f0fff4;}
-.shipment-status-card.status-ok .shipment-status-value{color:#16803c;}
-.shipment-status-card.status-waiting{border-color:#ffd8a8;background:#fff8ef;}
-.shipment-status-card.status-waiting .shipment-status-value{color:#b45309;}
-.shipment-status-card.status-scheduled{border-color:#b6d7ff;background:#f2f7ff;}
-.shipment-status-card.status-scheduled .shipment-status-value{color:#1769aa;}
-
-.reschedule-history-overlay{
+    .reschedule-history-overlay{
       position:fixed;
       inset:0;
       z-index:10000;
@@ -214,6 +202,43 @@
       color:#6d4b12;
       font-weight:700;
       font-size:12px;
+    }
+    .shipment-status-card{
+      padding:12px 14px;
+      margin-bottom:12px;
+      border:1px solid #d7e0e8;
+      border-left:4px solid #e58a00;
+      border-radius:4px;
+    }
+    .shipment-status-card.status-ok{
+      background:#effaf3;
+      border-color:#a9ddbc;
+      border-left-color:#168a49;
+    }
+    .shipment-status-card.status-partial{
+      background:#fff8e8;
+      border-color:#f0d29a;
+      border-left-color:#e58a00;
+    }
+    .shipment-status-title{
+      font-size:12px;
+      font-weight:800;
+      color:#657786;
+      letter-spacing:.4px;
+      margin-bottom:5px;
+    }
+    .shipment-status-value{
+      font-size:16px;
+      font-weight:900;
+      line-height:1.25;
+    }
+    .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
+    .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
+    .shipment-status-note{
+      margin-top:4px;
+      font-size:11px;
+      line-height:1.4;
+      color:#657786;
     }
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
@@ -744,10 +769,10 @@
       <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
     </div>
     <div class="reschedule-history-body">
-      <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
+      <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
         <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">MENUNGGU PENGIRIMAN</div>
-        <div id="shipmentStatusNote" class="shipment-status-note">-</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MATERIAL BELUM SEMUA TERKIRIM</div>
+        <div id="shipmentStatusNote" class="shipment-status-note">Tanggal terakhir rencana kirim: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -1282,30 +1307,46 @@ document.addEventListener('DOMContentLoaded',function(){
 function renderStatusReschedule_(history){
   const wrap=document.getElementById('deliveryDateRescheduled');
   if(!wrap) return;
-  const hasHistory=Array.isArray(history) && history.length>0;
+
+  // DETAIL selalu tampil. Badge orange hanya jika memang ada reschedule.
   wrap.style.display='inline-flex';
   const badge=wrap.querySelector('.delivery-date-rescheduled-badge');
+  const hasHistory=Array.isArray(history) && history.length>0;
   if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
 }
 
 function getStatusRealisasi_(data){
-  const d=data||{};
-  const s=d.summary||{};
-  const material=Array.isArray(d.material)?d.material:[];
-  const totalHistoris=Number(s.totalItem)||Number(s.totalVolume)||Number(s.totalCbm)||Number(s.totalTon)||0;
+  data=data||{};
+  const material=Array.isArray(data.material) ? data.material : [];
 
-  // Tidak menambah kolom baru. Jika seluruh item material yang aktif sudah
-  // kosong/hilang dari data.material, sementara proyek sebelumnya memang
-  // mempunyai muatan, berarti seluruh material sudah terealisasi.
-  if(material.length===0 && totalHistoris>0){
-    return {label:'MATERIAL DI KIRIM', cls:'status-ok', note:'Semua item material sudah kosong / terealisasi.'};
+  // Material yang masih memiliki volume/CBM/tonase berarti masih ada
+  // item yang belum kosong/terkirim. Tidak menambah kolom apa pun.
+  const masihAdaMaterial=material.some(function(item){
+    return (Number(item.volume)||0)>0.000001 ||
+           (Number(item.totalCbm)||0)>0.000001 ||
+           (Number(item.totalWeightKg)||0)>0.000001 ||
+           (Number(item.totalTon)||0)>0.000001;
+  });
+
+  const tanggal=String(
+    data.tanggalKirim ||
+    (material[0] && material[0].tanggalKirim) ||
+    ''
+  ).trim();
+
+  if(masihAdaMaterial){
+    return {
+      cls:'status-partial',
+      value:'🟠 MATERIAL BELUM SEMUA TERKIRIM',
+      note:'Tanggal terakhir rencana kirim: '+(tanggal || '-')
+    };
   }
 
-  if(material.length>0){
-    return {label:'MENUNGGU PENGIRIMAN', cls:'status-waiting', note:'Masih terdapat item material yang belum kosong.'};
-  }
-
-  return {label:'MENUNGGU PENGIRIMAN', cls:'status-waiting', note:'Belum ada data material untuk proyek ini.'};
+  return {
+    cls:'status-ok',
+    value:'🟢 MATERIAL SUDAH TERKIRIM',
+    note:'Tanggal terakhir rencana kirim: '+(tanggal || '-')
+  };
 }
 
 function escapeHtmlSafe_(value){
@@ -1324,13 +1365,17 @@ function bukaDetailReschedule(){
   const overlay=document.getElementById('rescheduleHistoryOverlay');
   const projectEl=document.getElementById('rescheduleHistoryProject');
   const listEl=document.getElementById('rescheduleHistoryList');
+
   const status=getStatusRealisasi_(data);
-  const statusCard=document.getElementById('rescheduleHistoryStatus');
+  const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
-  if(statusCard){ statusCard.className='shipment-status-card '+status.cls; }
-  if(statusValue){ statusValue.textContent=status.label; }
-  if(statusNote){ statusNote.textContent=status.note; }
+  if(statusBox){
+    statusBox.classList.remove('status-ok','status-partial');
+    statusBox.classList.add(status.cls);
+  }
+  if(statusValue) statusValue.textContent=status.value;
+  if(statusNote) statusNote.textContent=status.note;
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
