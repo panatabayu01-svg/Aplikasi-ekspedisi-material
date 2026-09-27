@@ -772,7 +772,7 @@
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
         <div class="shipment-status-title">STATUS REALISASI</div>
         <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
-        <div id="shipmentStatusNote" class="shipment-status-note">rencana kirim: -</div>
+        <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -1338,14 +1338,14 @@ function getStatusRealisasi_(data){
     return {
       cls:'status-partial',
       value:'🟠 MENUNGGU PENGIRIMAN',
-      note:'rencana kirim: '+(tanggal || '-')
+      note:'RENCANA KIRIM: '+(tanggal || '-')
     };
   }
 
   return {
     cls:'status-ok',
     value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note:'rencana kirim: '+(tanggal || '-')
+    note:'RENCANA KIRIM: '+(tanggal || '-')
   };
 }
 
@@ -1387,7 +1387,7 @@ function bukaDetailReschedule(){
     }else{
       listEl.innerHTML=history.map(function(item,index){
         return '<div class="reschedule-history-item">'+
-          '<div class="reschedule-history-item-title">RIWAYAT KE-'+(index+1)+'</div>'+
+          '<div class="reschedule-history-item-title">RESCHEDULE RIWAYAT KE-'+(index+1)+'</div>'+
           '<div class="reschedule-history-grid">'+
             '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(item.timestamp || '-')+'</div>'+
             '<div class="reschedule-history-label">Tanggal Lama</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
