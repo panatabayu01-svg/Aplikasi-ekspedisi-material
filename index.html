@@ -22,6 +22,7 @@
   <meta property="og:url" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/">
   <base target="_top">
   <meta charset="UTF-8">
+  <!-- PC/PWA password-eye visibility fix | build 2026-09-27 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PT. PANATA BAYU NUGRAHA</title>
 
@@ -358,6 +359,64 @@
       font-size:14px;
       outline:none;
     }
+    .password-input-wrap{
+      position:relative;
+      width:100%;
+    }
+    .password-input-wrap .tanggal-input{
+      padding-right:44px;
+    }
+    .password-toggle-btn{
+      position:absolute !important;
+      right:7px !important;
+      top:50% !important;
+      transform:translateY(-50%) !important;
+      width:32px !important;
+      height:32px !important;
+      min-width:32px !important;
+      min-height:32px !important;
+      border:0 !important;
+      background:transparent !important;
+      color:#17324d !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:0 !important;
+      margin:0 !important;
+      cursor:pointer !important;
+      border-radius:4px !important;
+      z-index:20 !important;
+      box-sizing:border-box !important;
+      appearance:none !important;
+      -webkit-appearance:none !important;
+    }
+    .password-toggle-btn:hover{
+      background:#eef5fb;
+    }
+    .password-toggle-btn:focus{
+      outline:2px solid rgba(13,110,253,.25);
+      outline-offset:1px;
+    }
+    .password-toggle-btn svg{
+      width:20px;
+      height:20px;
+      display:block;
+      flex:none;
+    }
+    /* Fallback mata untuk PC/PWA/installed app: tetap terlihat walau SVG tidak dirender. */
+    .password-toggle-btn::before{
+      content:'👁';
+      display:block;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      font-size:18px;
+      text-align:center;
+      pointer-events:none;
+    }
+    .password-toggle-btn svg{
+      display:none !important;
+    }
     .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
     .tanggal-modal-actions{
       display:flex;
@@ -676,7 +735,10 @@
     <div class="tanggal-modal-body">
       <div class="tanggal-project-info">Masukkan password untuk membuka menu <b>INPUT TGL KIRIM</b>.</div>
       <label class="tanggal-label" for="passwordInputTanggal">Password</label>
-      <input id="passwordInputTanggal" class="tanggal-input" type="password" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="Masukkan password">
+      <div class="password-input-wrap">
+        <input id="passwordInputTanggal" class="tanggal-input" type="password" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="Masukkan password">
+        <button id="passwordToggleInputTanggal" class="password-toggle-btn" type="button" aria-label="Tampilkan password" title="Tampilkan password" onclick="togglePasswordInputTanggal(event)"></button>
+      </div>
       <div id="passwordInputTanggalError" style="display:none;margin-top:8px;color:#c62828;font-size:13px;font-weight:600;">Password salah.</div>
       <div class="tanggal-modal-actions">
         <button type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupPasswordInputTanggal()">BATAL</button>
@@ -1193,11 +1255,7 @@ function bukaInputManual(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
-  // Jangan memuat master alasan saat startup.
-  // Master alasan sudah dimuat saat popup Reschedule dibuka.
-  // Pemanggilan fungsi lama di sini tidak ada definisinya dan
-  // menghentikan JavaScript sebelum loadDaftarProyek() berjalan.
-  setPlaceholderAlasanReschedule_();
+  isiDropdownAlasanReschedule_();
   updateClock();
   setInterval(updateClock,1000);
 
@@ -1256,9 +1314,7 @@ document.addEventListener('DOMContentLoaded',function(){
   initFromCache();
 
   // Sinkronisasi server berjalan setelah tampilan siap.
-  // STARTUP AUTO: hanya ambil daftar proyek.
-  // Jangan otomatis mencari/memuat data material proyek.
-  loadDaftarProyek(false,false);
+  loadDaftarProyek(false);
 });
 
 function renderStatusReschedule_(history){
@@ -1346,6 +1402,27 @@ function tutupPasswordInputTanggal(event){
   if(event && event.target && event.target.id!=='passwordInputTanggalOverlay') return;
   const overlay=document.getElementById('passwordInputTanggalOverlay');
   if(overlay) overlay.style.display='none';
+}
+
+function togglePasswordInputTanggal(event){
+  if(event) event.preventDefault();
+  const input=document.getElementById('passwordInputTanggal');
+  const btn=document.getElementById('passwordToggleInputTanggal');
+  if(!input || !btn) return;
+
+  const isHidden=input.type==='password';
+  input.type=isHidden ? 'text' : 'password';
+
+  if(isHidden){
+    btn.setAttribute('aria-label','Sembunyikan password');
+    btn.setAttribute('title','Sembunyikan password');
+    btn.textContent='👁';
+  }else{
+    btn.setAttribute('aria-label','Tampilkan password');
+    btn.setAttribute('title','Tampilkan password');
+    btn.textContent='👁';
+  }
+  input.focus();
 }
 
 function verifikasiPasswordInputTanggal(){
