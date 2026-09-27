@@ -110,6 +110,36 @@
       cursor:not-allowed;
     }
 
+    .btn-reschedule{
+      height:38px;
+      min-width:145px;
+      flex:0 0 145px;
+      border:1px solid #b96d00;
+      background:linear-gradient(135deg,#e08a00 0%,#f0a31a 55%,#ffc45a 100%);
+      color:#fff;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      border-radius:2px;
+      white-space:nowrap;
+    }
+    .btn-reschedule:hover{
+      background:linear-gradient(135deg,#c97900 0%,#df8f00 55%,#f1b13a 100%);
+    }
+    .btn-reschedule:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .reschedule-old-date{
+      background:#fff7e6;
+      border:1px solid #f0d29a;
+      color:#6d4b12;
+      padding:10px 12px;
+      margin-bottom:14px;
+      font-size:12px;
+      line-height:1.55;
+    }
+
     .tanggal-overlay{
       position:fixed;
       inset:0;
@@ -424,6 +454,15 @@
         font-size:10px;
         padding:0 6px;
       }
+      .btn-reschedule{
+        grid-column:2;
+        grid-row:3;
+        min-width:0;
+        width:100%;
+        height:38px;
+        font-size:10px;
+        padding:0 6px;
+      }
 
       .armada-selector-row{
         justify-content:stretch;
@@ -491,6 +530,25 @@
   </div>
 </div>
 
+<div id="rescheduleOverlay" class="tanggal-overlay" onclick="tutupRescheduleRencanaKirim(event)">
+  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleModalTitle" onclick="event.stopPropagation()">
+    <div class="tanggal-modal-header">
+      <span id="rescheduleModalTitle">↻ RESCHEDULE RENCANA KIRIM</span>
+      <button type="button" class="tanggal-modal-close" onclick="tutupRescheduleRencanaKirim()">×</button>
+    </div>
+    <div class="tanggal-modal-body">
+      <div id="rescheduleProjectInfo" class="tanggal-project-info"></div>
+      <div class="reschedule-old-date"><b>Tanggal Rencana Saat Ini:</b><br><span id="rescheduleOldDate">-</span></div>
+      <label class="tanggal-label" for="tanggalRescheduleInput">Tanggal Rencana Kirim Baru</label>
+      <input id="tanggalRescheduleInput" class="tanggal-input" type="date">
+      <div class="tanggal-modal-actions">
+        <button id="rescheduleBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupRescheduleRencanaKirim()">BATAL</button>
+        <button id="rescheduleBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanRescheduleRencanaKirim()">SIMPAN RESCHEDULE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">🏠</div>
   <div class="header-title">APLIKASI <span>EKSPEDISI MATERIAL</span></div>
@@ -520,6 +578,7 @@
     </div>
 
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TANGGAL</button>
+    <button id="btnReschedule" class="btn-reschedule" type="button" onclick="bukaRescheduleRencanaKirim()" disabled>↻ RESCHEDULE</button>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -740,6 +799,7 @@ function updateModeUI_(){
   const actions=document.getElementById('manualActions');
   const deliveryDate=document.getElementById('deliveryDate');
   const btnInputTanggal=document.getElementById('btnInputTanggal');
+  const btnReschedule=document.getElementById('btnReschedule');
 
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
@@ -754,6 +814,7 @@ function updateModeUI_(){
     if(btnInputTanggal){
       btnInputTanggal.style.display='none';
       btnInputTanggal.disabled=true;
+      if(btnReschedule){ btnReschedule.style.display='none'; btnReschedule.disabled=true; }
     }
 
     if(isMobile){
@@ -781,6 +842,10 @@ function updateModeUI_(){
     if(btnInputTanggal){
       btnInputTanggal.style.display='block';
       btnInputTanggal.disabled = !String(proyekAktif || '').trim();
+      if(btnReschedule){
+        btnReschedule.style.display='block';
+        btnReschedule.disabled = !(String(proyekAktif || '').trim() && String(document.getElementById('deliveryDateValue')?.textContent || '').trim() && document.getElementById('deliveryDateValue').textContent.trim() !== '-');
+      }
     }
   }
 }
@@ -1025,10 +1090,101 @@ function simpanTanggalRencanaKirim(){
   });
 }
 
+function bukaRescheduleRencanaKirim(){
+  if(modeAplikasi!=='AUTO'){
+    alert('Reschedule hanya tersedia untuk DATA OTOMATIS.');
+    return;
+  }
+
+  const project=String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
+  const data=window.__DATA_TERAKHIR__ || {};
+  const oldDateText=String(data.tanggalKirim || document.getElementById('deliveryDateValue')?.textContent || '').trim();
+  const oldInput=String(data.tanggalKirimInput || '').trim();
+
+  if(!project){
+    alert('Pilih proyek terlebih dahulu.');
+    return;
+  }
+  if(!oldDateText || oldDateText==='-'){
+    alert('Proyek ini belum memiliki Tanggal Rencana Kirim. Gunakan INPUT TANGGAL terlebih dahulu.');
+    return;
+  }
+
+  const overlay=document.getElementById('rescheduleOverlay');
+  const info=document.getElementById('rescheduleProjectInfo');
+  const oldEl=document.getElementById('rescheduleOldDate');
+  const input=document.getElementById('tanggalRescheduleInput');
+
+  if(info) info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Aksi:</b> Jadwalkan ulang Rencana Kirim';
+  if(oldEl) oldEl.textContent=oldDateText;
+  if(input) input.value=oldInput || new Date().toISOString().slice(0,10);
+
+  if(overlay){
+    overlay.style.display='flex';
+    setTimeout(function(){ if(input) input.focus(); },50);
+  }
+}
+
+function tutupRescheduleRencanaKirim(event){
+  if(event && event.target && event.target.id!=='rescheduleOverlay') return;
+  const overlay=document.getElementById('rescheduleOverlay');
+  if(overlay) overlay.style.display='none';
+}
+
+function setRescheduleLoading_(loading){
+  const save=document.getElementById('rescheduleBtnSimpan');
+  const cancel=document.getElementById('rescheduleBtnBatal');
+  const input=document.getElementById('tanggalRescheduleInput');
+  if(save){ save.disabled=loading; save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN RESCHEDULE'; }
+  if(cancel) cancel.disabled=loading;
+  if(input) input.disabled=loading;
+}
+
+function simpanRescheduleRencanaKirim(){
+  const project=String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
+  const input=document.getElementById('tanggalRescheduleInput');
+  const newDate=String(input?.value || '').trim();
+  const data=window.__DATA_TERAKHIR__ || {};
+  const oldDate=String(data.tanggalKirimInput || '').trim();
+
+  if(!project){ alert('Proyek belum dipilih.'); return; }
+  if(!oldDate){ alert('Tanggal Rencana Kirim lama tidak ditemukan.'); return; }
+  if(!newDate){ alert('Pilih tanggal Rencana Kirim baru terlebih dahulu.'); return; }
+  if(newDate===oldDate){ alert('Tanggal baru sama dengan tanggal saat ini. Silakan pilih tanggal yang berbeda.'); return; }
+
+  setRescheduleLoading_(true);
+  setStatus('Menyimpan Reschedule Rencana Kirim...');
+
+  fetch(API_URL+'?action=reschedule_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(newDate)+'&_='+Date.now(),{
+    method:'GET', cache:'no-store', redirect:'follow'
+  })
+  .then(function(response){
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  })
+  .then(function(result){
+    if(!result || result.success!==true){
+      throw new Error(result && result.message ? result.message : 'Reschedule gagal disimpan.');
+    }
+    tutupRescheduleRencanaKirim();
+    setStatus('Reschedule berhasil disimpan. Memuat data terbaru...');
+    loadDataProyek(project,true);
+    alert('Rencana Kirim berhasil di-reschedule.\n\nTanggal lama : '+(result.tanggalLama || oldDate)+'\nTanggal baru : '+(result.tanggalBaru || newDate)+'\n'+result.updatedRows+' baris diperbarui.');
+  })
+  .catch(function(error){
+    console.error('RESCHEDULE DELIVERY DATE ERROR:',error);
+    alert('Gagal menyimpan Reschedule Rencana Kirim.\n\n'+(error.message || error));
+    setStatus('Gagal menyimpan Reschedule Rencana Kirim.');
+  })
+  .finally(function(){ setRescheduleLoading_(false); });
+}
+
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     const overlay=document.getElementById('tanggalOverlay');
     if(overlay && overlay.style.display==='flex') tutupInputTanggalRencanaKirim();
+    const rescheduleOverlay=document.getElementById('rescheduleOverlay');
+    if(rescheduleOverlay && rescheduleOverlay.style.display==='flex') tutupRescheduleRencanaKirim();
   }
 });
 
@@ -1721,8 +1877,13 @@ function tampilkanData(data){
   materialDataTerakhir=materialData.slice();
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
+  const btnReschedule=document.getElementById('btnReschedule');
   if(btnInputTanggal){
     btnInputTanggal.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
+  }
+  if(btnReschedule){
+    const currentDate=String(document.getElementById('deliveryDateValue')?.textContent || '').trim();
+    btnReschedule.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim() && currentDate && currentDate!=='-');
   }
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
@@ -3040,8 +3201,12 @@ function resetTampilan(){
     tanggalKirimEl.textContent='-';
   }
   const btnInputTanggal=document.getElementById('btnInputTanggal');
+  const btnReschedule=document.getElementById('btnReschedule');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
+  }
+  if(btnReschedule){
+    btnReschedule.disabled=true;
   }
 
   materialDataTerakhir=[];
