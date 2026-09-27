@@ -667,6 +667,25 @@
   <div class="loading-box"><div class="spinner"></div><div>Memuat data...</div></div>
 </div>
 
+<div id="passwordInputTanggalOverlay" class="tanggal-overlay" style="display:none;" onclick="tutupPasswordInputTanggal(event)">
+  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="passwordInputTanggalTitle" onclick="event.stopPropagation()" style="max-width:420px;">
+    <div class="tanggal-modal-header">
+      <span id="passwordInputTanggalTitle">🔐 AKSES INPUT TGL KIRIM</span>
+      <button type="button" class="tanggal-modal-close" onclick="tutupPasswordInputTanggal()">×</button>
+    </div>
+    <div class="tanggal-modal-body">
+      <div class="tanggal-project-info">Masukkan password untuk membuka menu <b>INPUT TGL KIRIM</b>.</div>
+      <label class="tanggal-label" for="passwordInputTanggal">Password</label>
+      <input id="passwordInputTanggal" class="tanggal-input" type="password" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="Masukkan password">
+      <div id="passwordInputTanggalError" style="display:none;margin-top:8px;color:#c62828;font-size:13px;font-weight:600;">Password salah.</div>
+      <div class="tanggal-modal-actions">
+        <button type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupPasswordInputTanggal()">BATAL</button>
+        <button id="passwordInputTanggalBtn" type="button" class="tanggal-btn tanggal-btn-save" onclick="verifikasiPasswordInputTanggal()">BUKA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="tanggalOverlay" class="tanggal-overlay" onclick="tutupInputTanggalRencanaKirim(event)">
   <div class="tanggal-modal tanggal-modal-combined" role="dialog" aria-modal="true" aria-labelledby="tanggalModalTitle" onclick="event.stopPropagation()">
     <div class="tanggal-modal-header">
@@ -750,7 +769,7 @@
       </span>
     </div>
 
-    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TGL KIRIM</button>
+    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -1290,6 +1309,54 @@ function tutupDetailReschedule(event){
   if(event && event.target && event.target.id!=='rescheduleHistoryOverlay') return;
   const overlay=document.getElementById('rescheduleHistoryOverlay');
   if(overlay) overlay.style.display='none';
+}
+
+const PASSWORD_INPUT_TGL_KIRIM = '2026';
+
+function bukaPasswordInputTanggal(){
+  if(modeAplikasi!=='AUTO'){
+    alert('Input Tgl Kirim hanya tersedia untuk DATA OTOMATIS.');
+    return;
+  }
+
+  const project = String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
+  if(!project){
+    alert('Pilih proyek terlebih dahulu.');
+    return;
+  }
+
+  const overlay=document.getElementById('passwordInputTanggalOverlay');
+  const input=document.getElementById('passwordInputTanggal');
+  const error=document.getElementById('passwordInputTanggalError');
+  if(input) input.value='';
+  if(error) error.style.display='none';
+  if(overlay){
+    overlay.style.display='flex';
+    setTimeout(function(){ if(input) input.focus(); },50);
+  }
+}
+
+function tutupPasswordInputTanggal(event){
+  if(event && event.target && event.target.id!=='passwordInputTanggalOverlay') return;
+  const overlay=document.getElementById('passwordInputTanggalOverlay');
+  if(overlay) overlay.style.display='none';
+}
+
+function verifikasiPasswordInputTanggal(){
+  const input=document.getElementById('passwordInputTanggal');
+  const error=document.getElementById('passwordInputTanggalError');
+  const password=String(input?.value || '');
+
+  if(password !== PASSWORD_INPUT_TGL_KIRIM){
+    if(error) error.style.display='block';
+    if(input){ input.value=''; input.focus(); }
+    return;
+  }
+
+  if(error) error.style.display='none';
+  tutupPasswordInputTanggal();
+  // Password benar → langsung buka popup INPUT TGL KIRIM.
+  setTimeout(function(){ bukaInputTanggalRencanaKirim(); }, 50);
 }
 
 function bukaInputTanggalRencanaKirim(){
