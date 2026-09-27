@@ -1252,9 +1252,8 @@ document.addEventListener('DOMContentLoaded',function(){
   initFromCache();
 
   // Sinkronisasi server berjalan setelah tampilan siap.
-  // AUTO startup:
-  // Hanya memuat DAFTAR PROYEK ke dropdown.
-  // Jangan mencari proyek yang berisi material saat aplikasi baru dibuka.
+  // STARTUP AUTO: hanya ambil daftar proyek.
+  // Jangan otomatis mencari/memuat data material proyek.
   loadDaftarProyek(false,false);
 });
 
