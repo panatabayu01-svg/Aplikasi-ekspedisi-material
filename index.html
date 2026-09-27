@@ -771,8 +771,8 @@
     <div class="reschedule-history-body">
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
         <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MATERIAL BELUM SEMUA TERKIRIM</div>
-        <div id="shipmentStatusNote" class="shipment-status-note">Tanggal terakhir rencana kirim: -</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
+        <div id="shipmentStatusNote" class="shipment-status-note">rencana kirim: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -1337,15 +1337,15 @@ function getStatusRealisasi_(data){
   if(masihAdaMaterial){
     return {
       cls:'status-partial',
-      value:'🟠 MATERIAL BELUM SEMUA TERKIRIM',
-      note:'Tanggal terakhir rencana kirim: '+(tanggal || '-')
+      value:'🟠 MENUNGGU PENGIRIMAN',
+      note:'rencana kirim: '+(tanggal || '-')
     };
   }
 
   return {
     cls:'status-ok',
     value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note:'Tanggal terakhir rencana kirim: '+(tanggal || '-')
+    note:'rencana kirim: '+(tanggal || '-')
   };
 }
 
