@@ -555,14 +555,20 @@
         display:none !important;
       }
 
-      /* HP: tombol INPUT TGL KIRIM tidak ditampilkan. */
-      .btn-input-tanggal{display:none !important;}
+      .btn-refresh{
+        grid-column:3;
+        grid-row:2;
+        justify-self:stretch;
+        width:110px;
+        min-width:110px;
+        height:38px;
+      }
 
-      /* HP: baris kedua hanya RENCANA KIRIM + RESCHEDULE + DETAIL. */
-      /* Refresh tetap tampil di HP. Hanya INPUT TGL KIRIM yang disembunyikan. */
-
+      /* HP: TANGGAL RENCANA KIRIM tepat di sebelah kiri tombol Refresh.
+         Tetap satu baris agar tidak memotong layout KPI/armada. */
       .delivery-date{
-        grid-column:1 / 4;
+        /* HP: kotak tanggal melebar dari kiri sampai sebelum tombol Refresh */
+        grid-column:1 / 3;
         grid-row:2;
         display:flex !important;
         width:100%;
@@ -587,6 +593,22 @@
         font-size:12px;
       }
 
+      .delivery-date{
+        grid-column:1 / 2;
+        grid-row:2;
+        width:100%;
+        min-width:0;
+        max-width:none;
+      }
+      .btn-input-tanggal{
+        grid-column:2;
+        grid-row:2;
+        min-width:0;
+        width:100%;
+        height:38px;
+        font-size:10px;
+        padding:0 6px;
+      }
       .btn-reschedule-legacy{
         grid-column:2;
         grid-row:3;
@@ -635,6 +657,15 @@
       table{min-width:950px}
       .footer{font-size:10px;padding:0 8px}
     }
+  
+    /* MOBILE ONLY: sembunyikan INPUT TGL KIRIM.
+       Refresh, RENCANA KIRIM, RESCHEDULE, dan DETAIL tetap tampil. */
+    @media(max-width:600px){
+      .btn-input-tanggal{
+        display:none !important;
+      }
+    }
+
   </style>
 
   <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
