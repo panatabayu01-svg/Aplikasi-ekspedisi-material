@@ -89,13 +89,13 @@
       color:#fff;
     }
     .delivery-date-rescheduled{
-      display:none;
+      display:inline-flex;
       align-items:center;
       gap:6px;
       margin-left:4px;
     }
     .delivery-date-rescheduled-badge{
-      display:inline-flex;
+      display:none;
       align-items:center;
       height:24px;
       padding:0 8px;
@@ -164,6 +164,40 @@
       padding:16px;
       overflow:auto;
     }
+    .shipment-status-card{
+      border:1px solid #d7e0e8;
+      padding:12px 14px;
+      margin-bottom:12px;
+      text-align:center;
+      background:#fff8dc;
+    }
+    .shipment-status-title{
+      font-size:11px;
+      font-weight:800;
+      color:#526779;
+      letter-spacing:.4px;
+      margin-bottom:4px;
+    }
+    .shipment-status-value{
+      font-size:17px;
+      font-weight:800;
+      line-height:1.25;
+    }
+    .shipment-status-note{
+      margin-top:5px;
+      font-size:11px;
+      color:#657786;
+      line-height:1.4;
+    }
+    .shipment-status-card.status-ok{background:#effaf3;border-color:#9bd4b5;}
+    .shipment-status-card.status-ok .shipment-status-value{color:#149447;}
+    .shipment-status-card.status-waiting{background:#fff8dc;border-color:#e4d18b;}
+    .shipment-status-card.status-waiting .shipment-status-value{color:#b77900;}
+    .shipment-status-card.status-scheduled{background:#eef5fb;border-color:#b9d2e7;}
+    .shipment-status-card.status-scheduled .shipment-status-value{color:#0d5b91;}
+    .shipment-status-card.status-info{background:#f3f5f7;border-color:#cbd5df;}
+    .shipment-status-card.status-info .shipment-status-value{color:#526779;}
+
     .reschedule-history-project{
       padding:10px 12px;
       margin-bottom:12px;
@@ -728,10 +762,15 @@
 <div id="rescheduleHistoryOverlay" class="reschedule-history-overlay" onclick="tutupDetailReschedule(event)">
   <div class="reschedule-history-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleHistoryTitle" onclick="event.stopPropagation()">
     <div class="reschedule-history-header">
-      <span id="rescheduleHistoryTitle">↻ RIWAYAT RESCHEDULE</span>
+      <span id="rescheduleHistoryTitle">↻ RIWAYAT</span>
       <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
     </div>
     <div class="reschedule-history-body">
+      <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
+        <div class="shipment-status-title">STATUS KIRIM</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">MENUNGGU PENGIRIMAN</div>
+        <div id="shipmentStatusNote" class="shipment-status-note">-</div>
+      </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
     </div>
@@ -1264,9 +1303,14 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function renderStatusReschedule_(history){
   const wrap=document.getElementById('deliveryDateRescheduled');
+  const badge=document.querySelector('#deliveryDateRescheduled .delivery-date-rescheduled-badge');
   if(!wrap) return;
-  const hasHistory=Array.isArray(history) && history.length>0;
-  wrap.style.display=hasHistory ? 'inline-flex' : 'none';
+
+  // DETAIL selalu tampil. Badge RESCHEDULE hanya tampil jika memang ada riwayat.
+  wrap.style.display='inline-flex';
+  if(badge){
+    badge.style.display=(Array.isArray(history) && history.length>0) ? 'inline-flex' : 'none';
+  }
 }
 
 function escapeHtmlSafe_(value){
@@ -1278,6 +1322,60 @@ function escapeHtmlSafe_(value){
     .replace(/'/g,'&#039;');
 }
 
+function getShipmentStatus_(data, history){
+  data=data||{};
+  history=Array.isArray(history)?history:[];
+
+  // Backend dapat mengirim status/tanggal aktual dengan beberapa nama field.
+  // Frontend mendukung semuanya tanpa mengubah struktur data lama.
+  const statusRaw=String(
+    data.statusKirim || data.statusPengiriman || data.shipmentStatus ||
+    data.statusShipment || data.statusKirimMaterial || ''
+  ).trim().toUpperCase();
+
+  const actualDate=String(
+    data.tanggalKirimAktual || data.tanggalPengirimanAktual ||
+    data.tanggalRealisasiKirim || data.tanggalRealisasiPengiriman ||
+    data.actualShipmentDate || data.shippedDate || ''
+  ).trim();
+
+  const plannedDate=String(
+    data.tanggalKirim || (Array.isArray(data.material) && data.material[0] && data.material[0].tanggalKirim) || ''
+  ).trim();
+
+  // Jika API sudah mengirim status eksplisit, status tersebut menjadi sumber utama.
+  if(statusRaw){
+    if(/KIRIM|SHIP|DELIVER|SUDAH/.test(statusRaw) && !/BELUM|MENUNGGU|TERJADWAL|PENDING/.test(statusRaw)){
+      return {cls:'status-ok',label:'MATERIAL DI KIRIM',note:actualDate ? 'Tanggal kirim: '+actualDate : 'Pengiriman telah tercatat.'};
+    }
+    if(/TERJADWAL|SCHEDULE/.test(statusRaw)){
+      return {cls:'status-scheduled',label:'TERJADWAL KIRIM',note:plannedDate ? 'Rencana kirim: '+plannedDate : 'Menunggu tanggal pengiriman.'};
+    }
+    return {cls:'status-waiting',label:'MENUNGGU PENGIRIMAN',note:plannedDate ? 'Rencana kirim: '+plannedDate : 'Belum ada realisasi pengiriman.'};
+  }
+
+  // Bila tanggal aktual tersedia, material dianggap sudah dikirim.
+  if(actualDate){
+    return {cls:'status-ok',label:'MATERIAL DI KIRIM',note:'Tanggal kirim: '+actualDate};
+  }
+
+  // Tanpa tanggal aktual/status dari backend, jangan mengklaim material sudah dikirim.
+  // Bedakan jadwal yang masih akan datang dengan jadwal yang sudah jatuh tempo.
+  if(plannedDate){
+    const parsed=Date.parse(plannedDate);
+    if(!isNaN(parsed)){
+      const today=new Date();
+      const d0=new Date(today.getFullYear(),today.getMonth(),today.getDate()).getTime();
+      const dp=new Date(new Date(parsed).getFullYear(),new Date(parsed).getMonth(),new Date(parsed).getDate()).getTime();
+      if(dp>d0){
+        return {cls:'status-scheduled',label:'TERJADWAL KIRIM',note:'Rencana kirim: '+plannedDate};
+      }
+    }
+  }
+
+  return {cls:'status-waiting',label:'MENUNGGU PENGIRIMAN',note:plannedDate ? 'Rencana kirim: '+plannedDate : 'Belum ada realisasi pengiriman.'};
+}
+
 function bukaDetailReschedule(){
   const data=window.__DATA_TERAKHIR__ || {};
   const project=String(data.project || proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
@@ -1285,6 +1383,16 @@ function bukaDetailReschedule(){
   const overlay=document.getElementById('rescheduleHistoryOverlay');
   const projectEl=document.getElementById('rescheduleHistoryProject');
   const listEl=document.getElementById('rescheduleHistoryList');
+  const statusEl=document.getElementById('rescheduleHistoryStatus');
+  const statusValueEl=document.getElementById('shipmentStatusValue');
+  const statusNoteEl=document.getElementById('shipmentStatusNote');
+
+  const shipment=getShipmentStatus_(data,history);
+  if(statusEl){
+    statusEl.className='shipment-status-card '+shipment.cls;
+  }
+  if(statusValueEl) statusValueEl.textContent=shipment.label;
+  if(statusNoteEl) statusNoteEl.textContent=shipment.note || '-';
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
@@ -1296,7 +1404,7 @@ function bukaDetailReschedule(){
     }else{
       listEl.innerHTML=history.map(function(item,index){
         return '<div class="reschedule-history-item">'+
-          '<div class="reschedule-history-item-title">RESCHEDULE KE-'+(index+1)+'</div>'+
+          '<div class="reschedule-history-item-title">RIWAYAT KE-'+(index+1)+'</div>'+
           '<div class="reschedule-history-grid">'+
             '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(item.timestamp || '-')+'</div>'+
             '<div class="reschedule-history-label">Tanggal Lama</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
