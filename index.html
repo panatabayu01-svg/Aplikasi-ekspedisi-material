@@ -60,21 +60,68 @@
     .btn-refresh:hover{background:linear-gradient(135deg,#ffffff,#eef3f7)}
 
     /* TANGGAL RENCANA PENGIRIMAN - KOMPAK, SEJAJAR DENGAN CONTROL BAR */
-    .delivery-date{
-      margin-left:0;min-width:320px;flex:1 1 auto;max-width:none;height:46px;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 12px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;box-shadow:0 2px 6px rgba(13,68,127,.18);overflow:hidden;
+     .delivery-date{
+      margin-left:0;
+      min-width:320px;
+      flex:1 1 auto;
+      max-width:none;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      padding:0 10px;
+      border:1px solid #0d447f;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
+      color:#fff;
+      box-shadow:0 2px 6px rgba(13,68,127,.18);
+      white-space:nowrap;
+      overflow:hidden;
     }
-    .delivery-date-lines{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;min-width:0;line-height:1.2}
-    .delivery-date-line{display:flex;align-items:center;gap:6px;min-width:0;height:18px;white-space:nowrap}
-    .delivery-date-label{font-size:14px;font-weight:800;color:#fff;line-height:18px}
-    .delivery-date-value{font-size:14px;font-weight:800;color:#fff;line-height:18px}
-    .delivery-date-rescheduled{display:none;align-items:center;gap:6px;min-width:0}
-    .delivery-date-rescheduled-label{font-size:14px;font-weight:800;color:#fff;line-height:18px}
-    .delivery-date-rescheduled-value{font-size:14px;font-weight:800;color:#fff;line-height:18px}
-    .delivery-date-reschedule-btn{flex:0 0 auto;height:32px;padding:0 12px;border:1px solid #b96d00;background:linear-gradient(135deg,#e08a00 0%,#f0a31a 55%,#ffc45a 100%);color:#fff;font-size:12px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.12)}
-    .delivery-date-reschedule-btn:hover{background:linear-gradient(135deg,#c97900 0%,#df8f00 55%,#f1b13a 100%)}
-    .delivery-date-reschedule-btn:disabled{opacity:.8;cursor:not-allowed}
-    .delivery-date-detail-btn{flex:0 0 auto;height:32px;padding:0 10px;border:1px solid rgba(255,255,255,.85);background:rgba(255,255,255,.14);color:#fff;font-size:12px;font-weight:800;border-radius:3px;cursor:pointer;white-space:nowrap}
-    .delivery-date-detail-btn:hover{background:rgba(255,255,255,.24)}
+    .delivery-date-label{
+      font-size:13px;
+      font-weight:700;
+      color:#fff;
+    }
+    .delivery-date-value{
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+    }
+    .delivery-date-rescheduled{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-left:4px;
+    }
+    .delivery-date-rescheduled-badge{
+      display:none;
+      align-items:center;
+      height:24px;
+      padding:0 8px;
+      border:1px solid rgba(255,255,255,.65);
+      background:#e58a00;
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+      border-radius:3px;
+      white-space:nowrap;
+    }
+    .delivery-date-detail-btn{
+      height:24px;
+      padding:0 8px;
+      border:1px solid rgba(255,255,255,.75);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+      border-radius:3px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .delivery-date-detail-btn:hover{
+      background:rgba(255,255,255,.24);
+    }
     .reschedule-history-overlay{
       position:fixed;
       inset:0;
@@ -194,15 +241,8 @@
       color:#657786;
     }
     @media(max-width:600px){
-      .delivery-date{height:50px;padding:0 8px;gap:7px;}
-      .delivery-date-lines{gap:1px;}
-      .delivery-date-line{height:17px;gap:4px;}
-      .delivery-date-label{font-size:10px;line-height:17px;}
-      .delivery-date-value{font-size:11px;line-height:17px;}
-      .delivery-date-rescheduled-label{font-size:10px;line-height:17px;}
-      .delivery-date-rescheduled-value{font-size:11px;line-height:17px;}
-      .delivery-date-reschedule-btn{height:30px;font-size:9px;padding:0 7px;}
-      .delivery-date-detail-btn{height:30px;font-size:9px;padding:0 6px;}
+      .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
+      .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
       .reschedule-history-modal{width:100%;max-height:86vh;}
       .reschedule-history-grid{grid-template-columns:115px 1fr;}
     }
@@ -555,14 +595,47 @@
 
       /* HP: RENCANA KIRIM dibuat satu baris penuh pada baris 2
          supaya teks tanggal tidak terpotong oleh tombol lain. */
-      .delivery-date{grid-column:1 / 4;grid-row:2;display:flex !important;width:100%;min-width:0;max-width:none;height:58px;margin-left:0;padding:4px 7px;gap:5px;overflow:hidden;justify-content:space-between;align-items:center;}
-      .delivery-date-lines{flex:1 1 auto;min-width:0;gap:2px}
-      .delivery-date-line{min-width:0;overflow:hidden;white-space:nowrap}
-      .delivery-date-label{flex:0 0 auto;font-size:9px;white-space:nowrap}
-      .delivery-date-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
-      .delivery-date-rescheduled{flex:0 0 auto;min-width:0;display:none;align-items:center;gap:3px;overflow:hidden}
-      .delivery-date-rescheduled-label{flex:0 0 auto;font-size:9px;white-space:nowrap}
-      .delivery-date-rescheduled-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+      .delivery-date{
+        grid-column:1 / 4;
+        grid-row:2;
+        display:flex !important;
+        width:100%;
+        min-width:0;
+        max-width:none;
+        height:50px;
+        margin-left:0;
+        padding:0 7px;
+        gap:4px;
+        overflow:hidden;
+        justify-content:flex-start;
+        align-items:center;
+      }
+
+      .delivery-date-label{
+        flex:0 0 auto;
+        font-size:9px;
+        white-space:nowrap;
+      }
+
+      .delivery-date-value{
+        flex:1 1 auto;
+        min-width:0;
+        overflow:visible;
+        text-overflow:clip;
+        white-space:normal;
+        word-break:normal;
+        overflow-wrap:normal;
+        line-height:14px;
+        font-size:11px;
+      }
+
+      .delivery-date-rescheduled{
+        flex:0 0 auto;
+        min-width:0;
+        display:flex;
+        align-items:center;
+        gap:4px;
+      }
 
       /* HP: Refresh pindah ke baris 3 dan tetap di sebelah kanan. */
       .btn-refresh{
@@ -731,18 +804,12 @@
     <button class="btn-refresh" onclick="refreshData()">↻ &nbsp; Refresh</button>
 
     <div id="deliveryDate" class="delivery-date" aria-label="Rencana Pengiriman">
-      <div class="delivery-date-lines">
-        <div class="delivery-date-line">
-          <span class="delivery-date-label">📅 RENCANA KIRIM :</span>
-          <span id="deliveryDateValue" class="delivery-date-value">-</span>
-        </div>
-        <div id="deliveryDateRescheduled" class="delivery-date-rescheduled delivery-date-line">
-          <span class="delivery-date-rescheduled-label">🔄 RESCHEDULE :</span>
-          <span id="deliveryDateRescheduledValue" class="delivery-date-rescheduled-value">-</span>
-        </div>
-      </div>
-      <button id="deliveryDateRescheduleBtn" type="button" class="delivery-date-reschedule-btn" onclick="bukaPasswordInputTanggal()">↻ RESCHEDULE</button>
-      <button id="deliveryDateDetailBtn" type="button" class="delivery-date-detail-btn" onclick="bukaDetailReschedule()">ⓘ DETAIL</button>
+      <span class="delivery-date-label">📅 RENCANA KIRIM :</span>
+      <span id="deliveryDateValue" class="delivery-date-value">-</span>
+      <span id="deliveryDateRescheduled" class="delivery-date-rescheduled">
+        <span class="delivery-date-rescheduled-badge">↻ RESCHEDULE</span>
+        <button id="deliveryDateDetailBtn" type="button" class="delivery-date-detail-btn" onclick="bukaDetailReschedule()">ⓘ DETAIL</button>
+      </span>
     </div>
 
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
@@ -1037,7 +1104,6 @@ function updateModeUI_(){
   const select=document.getElementById('projectSelect');
   const actions=document.getElementById('manualActions');
   const deliveryDate=document.getElementById('deliveryDate');
-  const deliveryDateRescheduleBtn=document.getElementById('deliveryDateRescheduleBtn');
   const btnInputTanggal=document.getElementById('btnInputTanggal');
 
   const isMobile = window.matchMedia &&
@@ -1049,10 +1115,6 @@ function updateModeUI_(){
 
     if(deliveryDate){
       deliveryDate.style.display='none';
-    }
-    if(deliveryDateRescheduleBtn){
-      deliveryDateRescheduleBtn.style.display='none';
-      deliveryDateRescheduleBtn.disabled=true;
     }
     if(btnInputTanggal){
       btnInputTanggal.style.display='none';
@@ -1080,10 +1142,6 @@ function updateModeUI_(){
       // AUTO: tanggal tampil di PC dan HP.
       // HP posisinya sudah diatur CSS.
       deliveryDate.style.display = 'flex';
-    }
-    if(deliveryDateRescheduleBtn){
-      deliveryDateRescheduleBtn.style.display='inline-flex';
-      deliveryDateRescheduleBtn.disabled = !String(proyekAktif || '').trim();
     }
     if(btnInputTanggal){
       btnInputTanggal.style.display='block';
@@ -1248,20 +1306,13 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function renderStatusReschedule_(history){
   const wrap=document.getElementById('deliveryDateRescheduled');
-  const valueEl=document.getElementById('deliveryDateRescheduledValue');
-  const detailBtn=document.getElementById('deliveryDateDetailBtn');
   if(!wrap) return;
 
+  // DETAIL selalu tampil. Badge orange hanya jika memang ada reschedule.
+  wrap.style.display='inline-flex';
+  const badge=wrap.querySelector('.delivery-date-rescheduled-badge');
   const hasHistory=Array.isArray(history) && history.length>0;
-  const latest=hasHistory ? history[history.length-1] : null;
-  const tanggalBaru=latest ? String(latest.tanggalBaru || '').trim() : '';
-
-  // Tanggal pertama tetap tampil sebagai RENCANA KIRIM.
-  // Jika pernah reschedule, tanggal terbaru tampil di baris kedua
-  // dalam kotak yang sama sebagai RESCHEDULE.
-  wrap.style.display=hasHistory && tanggalBaru ? 'flex' : 'none';
-  if(valueEl) valueEl.textContent=tanggalBaru || '-';
-  if(detailBtn) detailBtn.style.display=hasHistory ? 'block' : 'none';
+  if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
 }
 
 function getStatusRealisasi_(data){
@@ -3633,21 +3684,13 @@ function tampilkanMaterial(data){
 
 function resetTampilan(){
   const tanggalKirimEl=document.getElementById('deliveryDateValue');
-  const tanggalRescheduleEl=document.getElementById('deliveryDateRescheduledValue');
   if(tanggalKirimEl){
     tanggalKirimEl.textContent='-';
-  }
-  if(tanggalRescheduleEl){
-    tanggalRescheduleEl.textContent='-';
   }
   renderStatusReschedule_([]);
   const btnInputTanggal=document.getElementById('btnInputTanggal');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
-  }
-  const deliveryDateRescheduleBtn=document.getElementById('deliveryDateRescheduleBtn');
-  if(deliveryDateRescheduleBtn){
-    deliveryDateRescheduleBtn.disabled=true;
   }
 
   materialDataTerakhir=[];
