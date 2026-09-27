@@ -89,11 +89,10 @@
       color:#fff;
     }
 
-    /* TOMBOL INPUT TANGGAL RENCANA KIRIM */
     .btn-input-tanggal{
       height:38px;
-      min-width:150px;
-      flex:0 0 150px;
+      min-width:145px;
+      flex:0 0 145px;
       border:1px solid #d07a00;
       background:linear-gradient(135deg,#cf7800 0%,#e6930f 55%,#f7b544 100%);
       color:#fff;
@@ -102,7 +101,6 @@
       cursor:pointer;
       border-radius:2px;
       white-space:nowrap;
-      box-shadow:0 2px 5px rgba(208,122,0,.15);
     }
     .btn-input-tanggal:hover{
       background:linear-gradient(135deg,#b96800 0%,#d68100 55%,#e9a125 100%);
@@ -112,7 +110,6 @@
       cursor:not-allowed;
     }
 
-    /* MODAL INPUT TANGGAL RENCANA KIRIM */
     .tanggal-overlay{
       position:fixed;
       inset:0;
@@ -120,93 +117,80 @@
       display:none;
       align-items:center;
       justify-content:center;
+      background:rgba(18,38,58,.48);
       padding:20px;
-      background:rgba(13,38,61,.48);
     }
     .tanggal-modal{
-      width:min(470px,100%);
+      width:min(430px,100%);
       background:#fff;
-      border:1px solid #b8c5d2;
       border-radius:4px;
       box-shadow:0 12px 35px rgba(0,0,0,.25);
       overflow:hidden;
     }
     .tanggal-modal-header{
-      min-height:52px;
+      height:46px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:0 16px;
-      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
+      padding:0 14px;
       color:#fff;
-      font-size:17px;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
+      font-size:14px;
       font-weight:700;
     }
-    .tanggal-close{
+    .tanggal-modal-close{
       border:0;
       background:transparent;
       color:#fff;
-      font-size:20px;
+      font-size:24px;
+      line-height:1;
       cursor:pointer;
-      padding:3px 5px;
     }
-    .tanggal-modal-body{
-      padding:18px;
-    }
-    .tanggal-info{
+    .tanggal-modal-body{padding:16px;}
+    .tanggal-project-info{
       background:#eef5fb;
-      border:1px solid #d5e1ec;
-      padding:11px 12px;
-      margin-bottom:15px;
+      border:1px solid #d6e3ef;
+      padding:10px 12px;
+      margin-bottom:14px;
       color:#17324d;
-      font-size:13px;
-      line-height:1.5;
+      font-size:12px;
+      line-height:1.55;
     }
-    .tanggal-info strong{color:#0d447f}
-    .tanggal-field-label{
+    .tanggal-label{
       display:block;
-      margin-bottom:7px;
+      margin-bottom:6px;
+      color:#17324d;
       font-size:13px;
       font-weight:700;
-      color:#17324d;
     }
     .tanggal-input{
       width:100%;
-      height:42px;
-      border:1px solid #aeb8c2;
+      height:40px;
+      box-sizing:border-box;
+      border:1px solid #8fa6ba;
       border-radius:3px;
-      padding:0 11px;
-      font-size:15px;
-      color:#17324d;
-      background:#fff;
+      padding:0 10px;
+      font-size:14px;
       outline:none;
     }
-    .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.08)}
+    .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
     .tanggal-modal-actions{
       display:flex;
       justify-content:flex-end;
       gap:8px;
-      margin-top:18px;
+      margin-top:16px;
     }
-    .tanggal-btn-cancel,.tanggal-btn-save{
-      height:38px;
-      padding:0 16px;
+    .tanggal-btn{
+      height:36px;
+      min-width:82px;
       border-radius:3px;
+      padding:0 14px;
       font-weight:700;
-      font-size:13px;
       cursor:pointer;
     }
-    .tanggal-btn-cancel{
-      border:1px solid #b5c1cc;
-      background:#f1f5f9;
-      color:#164a7d;
-    }
-    .tanggal-btn-save{
-      border:1px solid #0d447f;
-      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
-      color:#fff;
-    }
-    .tanggal-btn-save:disabled{opacity:.6;cursor:not-allowed}
+    .tanggal-btn-cancel{border:1px solid #b5c1cc;background:#fff;color:#164a7d;}
+    .tanggal-btn-save{border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;}
+    .tanggal-btn:disabled{opacity:.55;cursor:not-allowed;}
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
@@ -424,13 +408,18 @@
         font-size:12px;
       }
 
-      /* HP: tanggal tetap di kiri, tombol INPUT TANGGAL di kanan pada baris yang sama. */
-      .btn-input-tanggal{
-        grid-column:3;
+      .delivery-date{
+        grid-column:1 / 2;
         grid-row:2;
-        justify-self:stretch;
         width:100%;
         min-width:0;
+        max-width:none;
+      }
+      .btn-input-tanggal{
+        grid-column:2;
+        grid-row:2;
+        min-width:0;
+        width:100%;
         height:38px;
         font-size:10px;
         padding:0 6px;
@@ -484,6 +473,24 @@
   <div class="loading-box"><div class="spinner"></div><div>Memuat data...</div></div>
 </div>
 
+<div id="tanggalOverlay" class="tanggal-overlay" onclick="tutupInputTanggalRencanaKirim(event)">
+  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="tanggalModalTitle" onclick="event.stopPropagation()">
+    <div class="tanggal-modal-header">
+      <span id="tanggalModalTitle">📅 INPUT TANGGAL RENCANA KIRIM</span>
+      <button type="button" class="tanggal-modal-close" onclick="tutupInputTanggalRencanaKirim()">×</button>
+    </div>
+    <div class="tanggal-modal-body">
+      <div id="tanggalProjectInfo" class="tanggal-project-info"></div>
+      <label class="tanggal-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
+      <input id="tanggalRencanaInput" class="tanggal-input" type="date">
+      <div class="tanggal-modal-actions">
+        <button id="tanggalBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
+        <button id="tanggalBtnSimpan" type="button" class="tanggal-btn tanggal-btn-save" onclick="simpanTanggalRencanaKirim()">SIMPAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">🏠</div>
   <div class="header-title">APLIKASI <span>EKSPEDISI MATERIAL</span></div>
@@ -512,7 +519,7 @@
       <span id="deliveryDateValue" class="delivery-date-value">-</span>
     </div>
 
-    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggal()" disabled>📅 INPUT TANGGAL</button>
+    <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TANGGAL</button>
   </div>
 
   <div id="loadingStatus" class="loading-status">Memuat daftar proyek...</div>
@@ -656,28 +663,6 @@
   </div>
 </div>
 
-<!-- MODAL INPUT TANGGAL RENCANA KIRIM -->
-<div id="tanggalOverlay" class="tanggal-overlay" onclick="tutupInputTanggal(event)">
-  <div class="tanggal-modal" role="dialog" aria-modal="true" aria-labelledby="tanggalModalTitle" onclick="event.stopPropagation()">
-    <div class="tanggal-modal-header">
-      <div id="tanggalModalTitle">📅 INPUT TANGGAL RENCANA KIRIM</div>
-      <button type="button" class="tanggal-close" onclick="tutupInputTanggal()">✕</button>
-    </div>
-    <div class="tanggal-modal-body">
-      <div class="tanggal-info">
-        Proyek: <strong id="tanggalModalProject">-</strong><br>
-        Tanggal saat ini: <strong id="tanggalModalCurrent">-</strong>
-      </div>
-      <label class="tanggal-field-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
-      <input id="tanggalRencanaInput" class="tanggal-input" type="date">
-      <div class="tanggal-modal-actions">
-        <button type="button" class="tanggal-btn-cancel" onclick="tutupInputTanggal()">BATAL</button>
-        <button id="btnSimpanTanggal" type="button" class="tanggal-btn-save" onclick="simpanTanggalRencanaKirim()">SIMPAN</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <footer class="footer">
   <div>ⓘ Aplikasi Ekspedisi Material | Hitung Kubikasi, Tonase dan Rekomendasi Armada | v1.2</div>
   <div id="clock">-</div>
@@ -754,6 +739,7 @@ function updateModeUI_(){
   const select=document.getElementById('projectSelect');
   const actions=document.getElementById('manualActions');
   const deliveryDate=document.getElementById('deliveryDate');
+  const btnInputTanggal=document.getElementById('btnInputTanggal');
 
   const isMobile = window.matchMedia &&
                    window.matchMedia('(max-width: 600px)').matches;
@@ -764,6 +750,10 @@ function updateModeUI_(){
 
     if(deliveryDate){
       deliveryDate.style.display='none';
+    }
+    if(btnInputTanggal){
+      btnInputTanggal.style.display='none';
+      btnInputTanggal.disabled=true;
     }
 
     if(isMobile){
@@ -785,8 +775,12 @@ function updateModeUI_(){
 
     if(deliveryDate){
       // AUTO: tanggal tampil di PC dan HP.
-      // HP posisinya sudah diatur CSS: tepat di kiri tombol Refresh.
+      // HP posisinya sudah diatur CSS.
       deliveryDate.style.display = 'flex';
+    }
+    if(btnInputTanggal){
+      btnInputTanggal.style.display='block';
+      btnInputTanggal.disabled = !String(proyekAktif || '').trim();
     }
   }
 }
@@ -936,6 +930,106 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // Sinkronisasi server berjalan setelah tampilan siap.
   loadDaftarProyek(false);
+});
+
+function bukaInputTanggalRencanaKirim(){
+  if(modeAplikasi!=='AUTO'){
+    alert('Input Tanggal Rencana Kirim hanya tersedia untuk DATA OTOMATIS.');
+    return;
+  }
+
+  const project = String(proyekAktif || document.getElementById('projectSelect').value || '').trim();
+  if(!project){
+    alert('Pilih proyek terlebih dahulu.');
+    return;
+  }
+
+  const overlay=document.getElementById('tanggalOverlay');
+  const input=document.getElementById('tanggalRencanaInput');
+  const info=document.getElementById('tanggalProjectInfo');
+  const data=window.__DATA_TERAKHIR__ || {};
+  const currentInput=String(data.tanggalKirimInput || '').trim();
+
+  info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Tanggal saat ini:</b> '+escapeHtml(String(data.tanggalKirim || '-'));
+
+  if(input){
+    input.value=currentInput || new Date().toISOString().slice(0,10);
+  }
+
+  if(overlay){
+    overlay.style.display='flex';
+    setTimeout(function(){ if(input) input.focus(); },50);
+  }
+}
+
+function tutupInputTanggalRencanaKirim(event){
+  if(event && event.target && event.target.id!=='tanggalOverlay') return;
+  const overlay=document.getElementById('tanggalOverlay');
+  if(overlay) overlay.style.display='none';
+}
+
+function setTanggalInputLoading_(loading){
+  const save=document.getElementById('tanggalBtnSimpan');
+  const cancel=document.getElementById('tanggalBtnBatal');
+  const input=document.getElementById('tanggalRencanaInput');
+  if(save){ save.disabled=loading; save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN'; }
+  if(cancel) cancel.disabled=loading;
+  if(input) input.disabled=loading;
+}
+
+function simpanTanggalRencanaKirim(){
+  const project=String(proyekAktif || document.getElementById('projectSelect').value || '').trim();
+  const input=document.getElementById('tanggalRencanaInput');
+  const dateValue=String(input && input.value || '').trim();
+
+  if(!project){
+    alert('Proyek belum dipilih.');
+    return;
+  }
+  if(!dateValue){
+    alert('Pilih tanggal Rencana Kirim terlebih dahulu.');
+    return;
+  }
+
+  setTanggalInputLoading_(true);
+  setStatus('Menyimpan Tanggal Rencana Kirim...');
+
+  fetch(API_URL+'?action=save_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(dateValue)+'&_='+Date.now(),{
+    method:'GET',
+    cache:'no-store',
+    redirect:'follow'
+  })
+  .then(function(response){
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  })
+  .then(function(result){
+    if(!result || result.success!==true){
+      throw new Error(result && result.message ? result.message : 'Tanggal gagal disimpan.');
+    }
+
+    tutupInputTanggalRencanaKirim();
+    setStatus('Tanggal Rencana Kirim berhasil disimpan. Memuat data terbaru...');
+
+    // Ambil ulang dari server agar sumber tampilan benar-benar RAKAP_PM_PO_SJ.
+    loadDataProyek(project,true);
+    alert('Tanggal Rencana Kirim berhasil disimpan.\n\n'+result.tanggalKirim+'\n'+result.updatedRows+' baris diperbarui.');
+  })
+  .catch(function(error){
+    console.error('SAVE DELIVERY DATE ERROR:',error);
+    alert('Gagal menyimpan Tanggal Rencana Kirim.\n\n'+(error.message || error));
+    setStatus('Gagal menyimpan Tanggal Rencana Kirim.');
+  })
+  .finally(function(){
+    setTanggalInputLoading_(false);
+  });
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    const overlay=document.getElementById('tanggalOverlay');
+    if(overlay && overlay.style.display==='flex') tutupInputTanggalRencanaKirim();
+  }
 });
 
 function showLoading(show){
@@ -1628,7 +1722,7 @@ function tampilkanData(data){
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
   if(btnInputTanggal){
-    btnInputTanggal.disabled=false;
+    btnInputTanggal.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
   }
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
@@ -2983,117 +3077,6 @@ function resetTampilan(){
 
   document.getElementById('materialBody').innerHTML='<tr><td colspan="9" class="no-data">Pilih proyek untuk menampilkan data material.</td></tr>';
 }
-/* ==========================================================
- * INPUT TANGGAL RENCANA KIRIM
- * ----------------------------------------------------------
- * Tahap UI: tombol membuka dialog input tanggal.
- * Penulisan permanen ke REKAP_PM_PO_SJ akan dihubungkan ke
- * endpoint Apps Script setelah fungsi backend disiapkan.
- * ========================================================== */
-function bukaInputTanggal(){
-  const project=String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
-  if(!project){
-    setStatus('Pilih proyek terlebih dahulu sebelum input tanggal.');
-    return;
-  }
-
-  const overlay=document.getElementById('tanggalOverlay');
-  const projectEl=document.getElementById('tanggalModalProject');
-  const currentEl=document.getElementById('tanggalModalCurrent');
-  const input=document.getElementById('tanggalRencanaInput');
-
-  if(projectEl) projectEl.textContent=project;
-
-  const currentText=String(document.getElementById('deliveryDateValue')?.textContent || '').trim();
-  if(currentEl) currentEl.textContent=currentText || '-';
-
-  if(input){
-    input.value=convertTanggalTampilanKeISO_(currentText);
-  }
-
-  if(overlay) overlay.style.display='flex';
-  setTimeout(function(){ if(input) input.focus(); },50);
-}
-
-function tutupInputTanggal(event){
-  if(event && event.target && event.target.id!=='tanggalOverlay') return;
-  const overlay=document.getElementById('tanggalOverlay');
-  if(overlay) overlay.style.display='none';
-}
-
-function convertTanggalTampilanKeISO_(value){
-  const text=String(value || '').trim();
-  if(!text || text==='-') return '';
-
-  // Format API yang umum: Sabtu, 26 September 2026 / 26 September 2026
-  const bulan={
-    Januari:0, Februari:1, Maret:2, April:3, Mei:4, Juni:5,
-    Juli:6, Agustus:7, September:8, Oktober:9, November:10, Desember:11,
-    Jan:0, Feb:1, Mar:2, Apr:3, Mei:4, Jun:5, Jul:6, Agu:7, Sep:8, Okt:9, Nov:10, Des:11
-  };
-
-  let m=text.match(/(\d{1,2})\s+(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember|Jan|Feb|Mar|Apr|Jun|Jul|Agu|Sep|Okt|Nov|Des)\s+(\d{4})/i);
-  if(m){
-    const monthName=Object.keys(bulan).find(function(k){return k.toLowerCase()===m[2].toLowerCase();});
-    const month=monthName!=null?bulan[monthName]:null;
-    if(month!=null) return m[3]+'-'+String(month+1).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
-  }
-
-  // Format ISO langsung.
-  m=text.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if(m) return m[1]+'-'+m[2]+'-'+m[3];
-
-  return '';
-}
-
-function formatTanggalInput_(iso){
-  if(!iso) return '-';
-  const parts=String(iso).split('-');
-  if(parts.length!==3) return iso;
-  const y=Number(parts[0]), m=Number(parts[1]), d=Number(parts[2]);
-  if(!y || !m || !d) return iso;
-  const namaBulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const dt=new Date(y,m-1,d);
-  const namaHari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][dt.getDay()];
-  return namaHari+', '+d+' '+namaBulan[m-1]+' '+y;
-}
-
-function simpanTanggalRencanaKirim(){
-  const project=String(proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
-  const input=document.getElementById('tanggalRencanaInput');
-  const saveBtn=document.getElementById('btnSimpanTanggal');
-  const tanggal=input ? String(input.value || '').trim() : '';
-
-  if(!project){
-    setStatus('Pilih proyek terlebih dahulu.');
-    return;
-  }
-  if(!tanggal){
-    alert('Silakan pilih Tanggal Rencana Kirim.');
-    if(input) input.focus();
-    return;
-  }
-
-  /*
-   * Backend belum diubah pada tahap ini. Kita siapkan satu titik
-   * integrasi agar setelah Apps Script REKAP_PM_PO_SJ siap, hanya
-   * fungsi ini yang perlu dihubungkan ke endpoint penyimpanan.
-   */
-  const hasil=formatTanggalInput_(tanggal);
-  const currentEl=document.getElementById('deliveryDateValue');
-  if(currentEl){
-    const isMobileTanggal=window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
-    currentEl.textContent=isMobileTanggal ? hasil.replace(/Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember/g,function(m){return {Januari:'Jan',Februari:'Feb',Maret:'Mar',April:'Apr',Mei:'Mei',Juni:'Jun',Juli:'Jul',Agustus:'Agu',September:'Sep',Oktober:'Okt',November:'Nov',Desember:'Des'}[m]||m;}) : hasil;
-  }
-
-  try{
-    localStorage.setItem('ekspedisi_tanggal_rencana_pending_'+encodeURIComponent(project),tanggal);
-  }catch(e){}
-
-  tutupInputTanggal();
-  setStatus('Tanggal Rencana Kirim dipilih: '+hasil+'. Siap dihubungkan ke REKAP_PM_PO_SJ.');
-}
-
 function refreshData(){
 
   const select=document.getElementById('projectSelect');
