@@ -29,41 +29,6 @@
   <style id="startup-background-fix">
     html { background:#eef3f7 !important; }
     body { background:#eef3f7 !important; }
-  
-    /* FINAL MOBILE CONTROL BAR: Refresh wajib di kanan. */
-    @media(max-width:600px){
-      .control-bar{
-        display:grid !important;
-        grid-template-columns:52px minmax(0,1fr) 110px !important;
-        grid-template-rows:38px 38px !important;
-        gap:7px !important;
-        align-items:center !important;
-      }
-      .project-label{grid-column:1 !important;grid-row:1 !important;}
-      .project-select{grid-column:2 / 4 !important;grid-row:1 !important;width:100% !important;min-width:0 !important;}
-      .btn-refresh{
-        grid-column:3 !important;
-        grid-row:2 !important;
-        justify-self:end !important;
-        width:110px !important;
-        min-width:110px !important;
-        max-width:110px !important;
-        height:38px !important;
-      }
-      .delivery-date{
-        grid-column:1 / 3 !important;
-        grid-row:2 !important;
-        width:100% !important;
-        min-width:0 !important;
-        max-width:none !important;
-        height:38px !important;
-        margin:0 !important;
-        box-sizing:border-box !important;
-        overflow:hidden !important;
-      }
-      .btn-input-tanggal{display:none !important;}
-    }
-
   </style>
 
   <style>
@@ -1287,15 +1252,9 @@ document.addEventListener('DOMContentLoaded',function(){
   initFromCache();
 
   // Sinkronisasi server berjalan setelah tampilan siap.
-  //
-  // PENTING:
-  // Saat aplikasi pertama dibuka, JANGAN mencari proyek yang
-  // mempunyai material satu per satu. Proses lama memanggil
-  // loadDataProyek() untuk banyak proyek sehingga dropdown
-  // terlihat "Memuat proyek..." sangat lama.
-  //
-  // Sekarang startup hanya mengambil DAFTAR PROYEK.
-  // Data material baru diambil setelah user memilih proyek.
+  // AUTO startup:
+  // Hanya memuat DAFTAR PROYEK ke dropdown.
+  // Jangan mencari proyek yang berisi material saat aplikasi baru dibuka.
   loadDaftarProyek(false,false);
 });
 
