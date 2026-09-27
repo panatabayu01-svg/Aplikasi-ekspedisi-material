@@ -22,7 +22,6 @@
   <meta property="og:url" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/">
   <base target="_top">
   <meta charset="UTF-8">
-  <!-- PC/PWA password-eye visibility fix | build 2026-09-27 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PT. PANATA BAYU NUGRAHA</title>
 
@@ -367,28 +366,24 @@
       padding-right:44px;
     }
     .password-toggle-btn{
-      position:absolute !important;
-      right:7px !important;
-      top:50% !important;
-      transform:translateY(-50%) !important;
-      width:32px !important;
-      height:32px !important;
-      min-width:32px !important;
-      min-height:32px !important;
-      border:0 !important;
-      background:transparent !important;
-      color:#17324d !important;
-      display:flex !important;
-      align-items:center !important;
-      justify-content:center !important;
-      padding:0 !important;
-      margin:0 !important;
-      cursor:pointer !important;
-      border-radius:4px !important;
-      z-index:20 !important;
-      box-sizing:border-box !important;
-      appearance:none !important;
-      -webkit-appearance:none !important;
+      position:absolute;
+      right:7px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border:0;
+      background:transparent;
+      color:#17324d;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      margin:0;
+      cursor:pointer;
+      border-radius:4px;
+      z-index:20;
+      box-sizing:border-box;
     }
     .password-toggle-btn:hover{
       background:#eef5fb;
@@ -401,22 +396,21 @@
       width:20px;
       height:20px;
       display:block;
-      flex:none;
     }
-    /* Fallback mata untuk PC/PWA/installed app: tetap terlihat walau SVG tidak dirender. */
-    .password-toggle-btn::before{
+    /* Tambahan VISUAL saja: fallback mata untuk PC/PWA. Tidak mengubah JS/API/loading. */
+    .password-toggle-btn::after{
       content:'👁';
-      display:block;
-      width:20px;
-      height:20px;
-      line-height:20px;
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       font-size:18px;
-      text-align:center;
+      line-height:1;
       pointer-events:none;
+      z-index:2;
     }
-    .password-toggle-btn svg{
-      display:none !important;
-    }
+    .password-toggle-btn svg{opacity:0;}
     .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
     .tanggal-modal-actions{
       display:flex;
@@ -737,7 +731,12 @@
       <label class="tanggal-label" for="passwordInputTanggal">Password</label>
       <div class="password-input-wrap">
         <input id="passwordInputTanggal" class="tanggal-input" type="password" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="Masukkan password">
-        <button id="passwordToggleInputTanggal" class="password-toggle-btn" type="button" aria-label="Tampilkan password" title="Tampilkan password" onclick="togglePasswordInputTanggal(event)"></button>
+        <button id="passwordToggleInputTanggal" class="password-toggle-btn" type="button" aria-label="Tampilkan password" title="Tampilkan password" onclick="togglePasswordInputTanggal(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+            <circle cx="12" cy="12" r="2.5"></circle>
+          </svg>
+        </button>
       </div>
       <div id="passwordInputTanggalError" style="display:none;margin-top:8px;color:#c62828;font-size:13px;font-weight:600;">Password salah.</div>
       <div class="tanggal-modal-actions">
@@ -1416,11 +1415,11 @@ function togglePasswordInputTanggal(event){
   if(isHidden){
     btn.setAttribute('aria-label','Sembunyikan password');
     btn.setAttribute('title','Sembunyikan password');
-    btn.textContent='👁';
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path><circle cx="12" cy="12" r="2.5"></circle><path d="M4 4l16 16"></path></svg>';
   }else{
     btn.setAttribute('aria-label','Tampilkan password');
     btn.setAttribute('title','Tampilkan password');
-    btn.textContent='👁';
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path><circle cx="12" cy="12" r="2.5"></circle></svg>';
   }
   input.focus();
 }
