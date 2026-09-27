@@ -88,6 +88,127 @@
       font-weight:700;
       color:#fff;
     }
+    .delivery-date-rescheduled{
+      display:none;
+      align-items:center;
+      gap:6px;
+      margin-left:4px;
+    }
+    .delivery-date-rescheduled-badge{
+      display:inline-flex;
+      align-items:center;
+      height:24px;
+      padding:0 8px;
+      border:1px solid rgba(255,255,255,.65);
+      background:#e58a00;
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+      border-radius:3px;
+      white-space:nowrap;
+    }
+    .delivery-date-detail-btn{
+      height:24px;
+      padding:0 8px;
+      border:1px solid rgba(255,255,255,.75);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+      border-radius:3px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .delivery-date-detail-btn:hover{
+      background:rgba(255,255,255,.24);
+    }
+    .reschedule-history-overlay{
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(18,38,58,.48);
+      padding:20px;
+    }
+    .reschedule-history-modal{
+      width:min(720px,100%);
+      max-height:min(80vh,680px);
+      background:#fff;
+      border-radius:4px;
+      box-shadow:0 12px 35px rgba(0,0,0,.25);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .reschedule-history-header{
+      height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 14px;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
+      color:#fff;
+      font-weight:800;
+    }
+    .reschedule-history-close{
+      border:0;
+      background:transparent;
+      color:#fff;
+      font-size:24px;
+      line-height:1;
+      cursor:pointer;
+    }
+    .reschedule-history-body{
+      padding:16px;
+      overflow:auto;
+    }
+    .reschedule-history-project{
+      padding:10px 12px;
+      margin-bottom:12px;
+      background:#eef3f7;
+      border:1px solid #d5e0e8;
+      font-size:13px;
+      color:#18344d;
+    }
+    .reschedule-history-item{
+      border:1px solid #d7e0e8;
+      border-left:4px solid #e58a00;
+      padding:12px;
+      margin-bottom:10px;
+      background:#fff;
+    }
+    .reschedule-history-item-title{
+      font-weight:800;
+      color:#0f4c81;
+      margin-bottom:8px;
+    }
+    .reschedule-history-grid{
+      display:grid;
+      grid-template-columns:150px 1fr;
+      gap:5px 10px;
+      font-size:12px;
+    }
+    .reschedule-history-label{
+      font-weight:700;
+      color:#526779;
+    }
+    .reschedule-history-reason{
+      margin-top:10px;
+      padding:9px 10px;
+      background:#fff7e6;
+      border:1px solid #f0d29a;
+      color:#6d4b12;
+      font-weight:700;
+      font-size:12px;
+    }
+    @media(max-width:600px){
+      .delivery-date-rescheduled-badge{font-size:10px;padding:0 6px;}
+      .delivery-date-detail-btn{font-size:10px;padding:0 6px;}
+      .reschedule-history-modal{width:100%;max-height:86vh;}
+      .reschedule-history-grid{grid-template-columns:115px 1fr;}
+    }
 
     .btn-input-tanggal{
       height:38px;
@@ -584,6 +705,19 @@
   </div>
 </div>
 
+<div id="rescheduleHistoryOverlay" class="reschedule-history-overlay" onclick="tutupDetailReschedule(event)">
+  <div class="reschedule-history-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleHistoryTitle" onclick="event.stopPropagation()">
+    <div class="reschedule-history-header">
+      <span id="rescheduleHistoryTitle">↻ RIWAYAT RESCHEDULE</span>
+      <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
+    </div>
+    <div class="reschedule-history-body">
+      <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
+      <div id="rescheduleHistoryList"></div>
+    </div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">🏠</div>
   <div class="header-title">APLIKASI <span>EKSPEDISI MATERIAL</span></div>
@@ -610,6 +744,10 @@
     <div id="deliveryDate" class="delivery-date" aria-label="Rencana Pengiriman">
       <span class="delivery-date-label">📅 RENCANA KIRIM :</span>
       <span id="deliveryDateValue" class="delivery-date-value">-</span>
+      <span id="deliveryDateRescheduled" class="delivery-date-rescheduled">
+        <span class="delivery-date-rescheduled-badge">↻ RESCHEDULE</span>
+        <button id="deliveryDateDetailBtn" type="button" class="delivery-date-detail-btn" onclick="bukaDetailReschedule()">ⓘ DETAIL</button>
+      </span>
     </div>
 
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaInputTanggalRencanaKirim()" disabled>📅 INPUT TGL KIRIM</button>
@@ -1098,6 +1236,62 @@ document.addEventListener('DOMContentLoaded',function(){
   loadDaftarProyek(false);
 });
 
+function renderStatusReschedule_(history){
+  const wrap=document.getElementById('deliveryDateRescheduled');
+  if(!wrap) return;
+  const hasHistory=Array.isArray(history) && history.length>0;
+  wrap.style.display=hasHistory ? 'inline-flex' : 'none';
+}
+
+function escapeHtmlSafe_(value){
+  return String(value==null?'':value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+function bukaDetailReschedule(){
+  const data=window.__DATA_TERAKHIR__ || {};
+  const project=String(data.project || proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
+  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  const overlay=document.getElementById('rescheduleHistoryOverlay');
+  const projectEl=document.getElementById('rescheduleHistoryProject');
+  const listEl=document.getElementById('rescheduleHistoryList');
+
+  if(projectEl){
+    projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
+  }
+
+  if(listEl){
+    if(history.length===0){
+      listEl.innerHTML='<div style="padding:16px;text-align:center;color:#657786;">Belum ada riwayat Reschedule.</div>';
+    }else{
+      listEl.innerHTML=history.map(function(item,index){
+        return '<div class="reschedule-history-item">'+
+          '<div class="reschedule-history-item-title">RESCHEDULE KE-'+(index+1)+'</div>'+
+          '<div class="reschedule-history-grid">'+
+            '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(item.timestamp || '-')+'</div>'+
+            '<div class="reschedule-history-label">Tanggal Lama</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
+            '<div class="reschedule-history-label">Tanggal Baru</div><div>'+escapeHtmlSafe_(item.tanggalBaru || '-')+'</div>'+
+            '<div class="reschedule-history-label">User</div><div>'+escapeHtmlSafe_(item.user || '-')+'</div>'+
+          '</div>'+
+          '<div class="reschedule-history-reason">Alasan Reschedule: '+escapeHtmlSafe_(item.alasan || '-')+'</div>'+
+        '</div>';
+      }).join('');
+    }
+  }
+
+  if(overlay) overlay.style.display='flex';
+}
+
+function tutupDetailReschedule(event){
+  if(event && event.target && event.target.id!=='rescheduleHistoryOverlay') return;
+  const overlay=document.getElementById('rescheduleHistoryOverlay');
+  if(overlay) overlay.style.display='none';
+}
+
 function bukaInputTanggalRencanaKirim(){
   if(modeAplikasi!=='AUTO'){
     alert('Input Tgl Kirim hanya tersedia untuk DATA OTOMATIS.');
@@ -1311,6 +1505,8 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     const overlay=document.getElementById('tanggalOverlay');
     if(overlay && overlay.style.display==='flex') tutupInputTanggalRencanaKirim();
+    const historyOverlay=document.getElementById('rescheduleHistoryOverlay');
+    if(historyOverlay && historyOverlay.style.display==='flex') tutupDetailReschedule();
   }
 });
 
@@ -2000,6 +2196,11 @@ function tampilkanData(data){
       ? formatTanggalKirimHP_(tanggalKirim)
       : (tanggalKirim || '-');
   }
+
+  // Jika proyek pernah di-reschedule, tampilkan badge + tombol DETAIL
+  // di samping RENCANA KIRIM. Riwayat berasal dari HISTORI_RESCHEDULE FILE 2.
+  const rescheduleHistory=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  renderStatusReschedule_(rescheduleHistory);
   materialDataTerakhir=materialData.slice();
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
@@ -3321,6 +3522,7 @@ function resetTampilan(){
   if(tanggalKirimEl){
     tanggalKirimEl.textContent='-';
   }
+  renderStatusReschedule_([]);
   const btnInputTanggal=document.getElementById('btnInputTanggal');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
