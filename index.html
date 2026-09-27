@@ -30,9 +30,26 @@
     html { background:#eef3f7 !important; }
     body { background:#eef3f7 !important; }
   
-    /* MOBILE FIX FINAL: RENCANA KIRIM jangan terpotong.
-       Override rule lama yang sempat mengunci .delivery-date ke kolom 1 saja. */
+    /* FINAL MOBILE CONTROL BAR: Refresh wajib di kanan. */
     @media(max-width:600px){
+      .control-bar{
+        display:grid !important;
+        grid-template-columns:52px minmax(0,1fr) 110px !important;
+        grid-template-rows:38px 38px !important;
+        gap:7px !important;
+        align-items:center !important;
+      }
+      .project-label{grid-column:1 !important;grid-row:1 !important;}
+      .project-select{grid-column:2 / 4 !important;grid-row:1 !important;width:100% !important;min-width:0 !important;}
+      .btn-refresh{
+        grid-column:3 !important;
+        grid-row:2 !important;
+        justify-self:end !important;
+        width:110px !important;
+        min-width:110px !important;
+        max-width:110px !important;
+        height:38px !important;
+      }
       .delivery-date{
         grid-column:1 / 3 !important;
         grid-row:2 !important;
@@ -41,25 +58,10 @@
         max-width:none !important;
         height:38px !important;
         margin:0 !important;
-        padding:0 8px !important;
         box-sizing:border-box !important;
         overflow:hidden !important;
       }
-      .delivery-date-label{
-        flex:0 0 auto !important;
-        white-space:nowrap !important;
-      }
-      .delivery-date-value{
-        min-width:0 !important;
-        flex:1 1 auto !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-        white-space:nowrap !important;
-      }
-      .delivery-date-rescheduled{
-        flex:0 0 auto !important;
-        min-width:0 !important;
-      }
+      .btn-input-tanggal{display:none !important;}
     }
 
   </style>
@@ -690,15 +692,6 @@
       table{min-width:950px}
       .footer{font-size:10px;padding:0 8px}
     }
-  
-    /* MOBILE ONLY: sembunyikan INPUT TGL KIRIM.
-       Refresh, RENCANA KIRIM, RESCHEDULE, dan DETAIL tetap tampil. */
-    @media(max-width:600px){
-      .btn-input-tanggal{
-        display:none !important;
-      }
-    }
-
   </style>
 
   <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
@@ -1850,13 +1843,31 @@ function loadDataProyek(p,showOverlay){
 
   }
 
-  fetchJsonApi_(
+  fetch(
     API_URL +
     '?action=project&project=' +
     encodeURIComponent(p) +
     '&_=' + Date.now(),
-    30000
+    {
+      method:'GET',
+      cache:'no-store',
+      redirect:'follow'
+    }
   )
+
+  .then(function(response){
+
+    if(!response.ok){
+
+      throw new Error(
+        'HTTP ' + response.status
+      );
+
+    }
+
+    return response.json();
+
+  })
 
   .then(function(result){
 
@@ -1958,62 +1969,6 @@ function loadDataProyek(p,showOverlay){
 }
 
   
-
-function fetchJsonApi_(url, timeoutMs){
-  const ms = Number(timeoutMs) || 25000;
-  let timer = null;
-  let controller = null;
-
-  try{
-    controller = new AbortController();
-  }catch(e){
-    controller = null;
-  }
-
-  const options = {
-    method:'GET',
-    cache:'no-store',
-    redirect:'follow',
-    credentials:'omit'
-  };
-
-  if(controller){
-    options.signal = controller.signal;
-  }
-
-  return new Promise(function(resolve,reject){
-    let selesai = false;
-
-    function finish(fn,value){
-      if(selesai) return;
-      selesai = true;
-      if(timer) clearTimeout(timer);
-      fn(value);
-    }
-
-    timer = setTimeout(function(){
-      try{
-        if(controller) controller.abort();
-      }catch(e){}
-      finish(reject,new Error('TIMEOUT_API'));
-    },ms);
-
-    fetch(url,options)
-      .then(function(response){
-        if(!response.ok){
-          throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-      })
-      .then(function(data){
-        finish(resolve,data);
-      })
-      .catch(function(err){
-        finish(reject,err);
-      });
-  });
-}
-
 function loadDaftarProyek(showOverlay,loadSelected){
   if(typeof loadSelected==='undefined') loadSelected=true;
 
@@ -2033,10 +1988,15 @@ function loadDaftarProyek(showOverlay,loadSelected){
     setStatus('Memuat daftar proyek...');
   }
 
-  fetchJsonApi_(
-    API_URL + '?action=projects&_=' + Date.now(),
-    25000
-  )
+  fetch(API_URL + '?action=projects&_=' + Date.now(), {
+    method: 'GET',
+    cache: 'no-store',
+    redirect: 'follow'
+  })
+  .then(function(response){
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    return response.json();
+  })
   .then(function(result){
     // Request daftar proyek ini sudah basi karena user pindah mode/proyek.
     if(requestId!==requestSerial){
