@@ -573,13 +573,7 @@
         <input id="tanggalRescheduleInput" class="tanggal-input" type="date">
 
         <label class="tanggal-label" for="alasanRescheduleInput">Alasan Reschedule</label>
-        <select id="alasanRescheduleInput" class="tanggal-input">
-          <option value="">-- Pilih Alasan Reschedule --</option>
-          <option value="BELUM DAPAT ARMADA">1. Belum Dapat Armada</option>
-          <option value="ARMADA DI CANCEL">2. Armada di Cancel</option>
-          <option value="TERTUNDA KARENA PELAYARAN">3. Tertunda karena Pelayaran</option>
-          <option value="LAINNYA">4. Lainnya</option>
-        </select>
+        <select id="alasanRescheduleInput" class="tanggal-input" aria-label="Alasan Reschedule"></select>
 
         <div class="tanggal-modal-actions">
           <button id="rescheduleBtnBatal" type="button" class="tanggal-btn tanggal-btn-cancel" onclick="tutupInputTanggalRencanaKirim()">BATAL</button>
@@ -781,6 +775,78 @@ let proyekAktif = '';
 let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
+
+/*
+ * ==========================================================
+ * MASTER ALASAN RESCHEDULE
+ * ----------------------------------------------------------
+ * Daftar alasan TIDAK disimpan di Index.html.
+ * Index mengambil data aktif dari sheet MASTER_ALASAN_RESCHEDULE
+ * melalui API. Jika ingin menambah / mengubah / menonaktifkan
+ * alasan, cukup ubah sheet master di Spreadsheet FILE 2.
+ * ==========================================================
+ */
+function setPlaceholderAlasanReschedule_(){
+  const select = document.getElementById('alasanRescheduleInput');
+  if(!select) return;
+  select.innerHTML = '';
+  const option = document.createElement('option');
+  option.value = '';
+  option.textContent = '-- Pilih Alasan Reschedule --';
+  select.appendChild(option);
+}
+
+function muatAlasanReschedule_(){
+  const select = document.getElementById('alasanRescheduleInput');
+  if(!select) return Promise.resolve();
+
+  setPlaceholderAlasanReschedule_();
+  const loadingOption = document.createElement('option');
+  loadingOption.value = '';
+  loadingOption.textContent = 'Memuat alasan reschedule...';
+  loadingOption.disabled = true;
+  select.appendChild(loadingOption);
+  select.disabled = true;
+
+  return fetch(API_URL+'?action=get_master_alasan_reschedule&_='+Date.now(),{
+    method:'GET',
+    cache:'no-store',
+    redirect:'follow'
+  })
+  .then(function(response){
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  })
+  .then(function(result){
+    if(!result || result.success!==true){
+      throw new Error(result && result.message ? result.message : 'Master Alasan Reschedule gagal dimuat.');
+    }
+
+    setPlaceholderAlasanReschedule_();
+    const data=Array.isArray(result.data) ? result.data : [];
+    data.forEach(function(item,index){
+      const option=document.createElement('option');
+      option.value=String(item.kode || item.alasan || '').trim();
+      option.textContent=(index+1)+'. '+String(item.alasan || item.kode || '').trim();
+      select.appendChild(option);
+    });
+
+    return data;
+  })
+  .catch(function(error){
+    console.error('MASTER ALASAN RESCHEDULE ERROR:',error);
+    setPlaceholderAlasanReschedule_();
+    const option=document.createElement('option');
+    option.value='';
+    option.textContent='Gagal memuat alasan reschedule';
+    option.disabled=true;
+    select.appendChild(option);
+    throw error;
+  })
+  .finally(function(){
+    select.disabled = false;
+  });
+}
 let materialDataTerakhir = [];
 let nestingInternalTerakhir = [];
 
@@ -970,6 +1036,7 @@ function bukaInputManual(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+  isiDropdownAlasanReschedule_();
   updateClock();
   setInterval(updateClock,1000);
 
@@ -1072,6 +1139,9 @@ function bukaInputTanggalRencanaKirim(){
   }
   if(alasanInput){
     alasanInput.value='';
+    muatAlasanReschedule_().catch(function(){
+      // Pesan error sudah ditangani oleh fungsi pemuat master.
+    });
   }
 
   if(overlay){
