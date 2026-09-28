@@ -83,6 +83,30 @@
     }
 </style>
 
+  <style id="pc-delivery-responsive-fix">
+    /* =========================================================
+       PC FIX FINAL - RENCANA KIRIM + INPUT TGL KIRIM
+       Hanya PC/tablet 601-1350px. HP tidak disentuh.
+       ========================================================= */
+    @media (min-width:601px) and (max-width:1350px){
+      .delivery-date{
+        min-width:0 !important;
+        flex:1 1 0 !important;
+        width:auto !important;
+        max-width:none !important;
+      }
+
+      .btn-input-tanggal{
+        min-width:90px !important;
+        flex:0 1 125px !important;
+        width:auto !important;
+        max-width:125px;
+        padding-left:6px !important;
+        padding-right:6px !important;
+      }
+    }
+  </style>
+
   <style>
     *{box-sizing:border-box}
     :root{--primary-blue-gradient:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%)}
