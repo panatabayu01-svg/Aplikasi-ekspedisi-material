@@ -1291,17 +1291,17 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 
   // ==========================================================
-  // ALUR NORMAL — TIDAK DIUBAH
+  // ALUR NORMAL
   // ==========================================================
   updateModeUI_();
 
   // Tampilkan data cache secepat mungkin.
+  // Saat startup, proyek pertama otomatis dipilih.
   initFromCache();
 
   // Sinkronisasi server berjalan setelah tampilan siap.
-  // STARTUP AUTO: hanya ambil daftar proyek.
-  // Jangan otomatis mencari/memuat data material proyek.
-  loadDaftarProyek(false,false);
+  // Startup AUTO langsung memuat proyek pertama.
+  loadDaftarProyek(false,true);
 });
 
 function renderStatusReschedule_(history){
@@ -1390,8 +1390,8 @@ function bukaDetailReschedule(){
           '<div class="reschedule-history-item-title">RESCHEDULE RIWAYAT KE-'+(index+1)+'</div>'+
           '<div class="reschedule-history-grid">'+
             '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(item.timestamp || '-')+'</div>'+
-            '<div class="reschedule-history-label">Tanggal Lama</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
-            '<div class="reschedule-history-label">Tanggal Baru</div><div>'+escapeHtmlSafe_(item.tanggalBaru || '-')+'</div>'+
+            '<div class="reschedule-history-label">RENCANA KIRIM</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
+            '<div class="reschedule-history-label">RESCHEDULE</div><div>'+escapeHtmlSafe_(item.tanggalBaru || '-')+'</div>'+
             '<div class="reschedule-history-label">User</div><div>'+escapeHtmlSafe_(item.user || '-')+'</div>'+
           '</div>'+
           '<div class="reschedule-history-reason">Alasan Reschedule: '+escapeHtmlSafe_(item.alasan || '-')+'</div>'+
@@ -1721,12 +1721,11 @@ function initFromCache(){
   isiDropdownProyek(false);
   updateModeUI_();
 
-  const last=localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'';
+  // STARTUP: selalu tampilkan PROYEK PERTAMA saat aplikasi dibuka.
+  // Jangan gunakan proyek terakhir dari localStorage untuk startup.
   let target='';
 
-  if(last && daftarProyek.indexOf(last)>=0){
-    target=last;
-  }else if(daftarProyek.length===1){
+  if(daftarProyek.length>0){
     target=daftarProyek[0];
   }
 
@@ -2114,154 +2113,44 @@ function loadDaftarProyek(showOverlay,loadSelected){
      * ==========================================================
      * SAAT APLIKASI PERTAMA DIBUKA
      *
-     * CARI PROYEK PERTAMA YANG MEMILIKI ITEM MATERIAL.
-     *
-     * Contoh:
-     * Proyek 1 -> kosong
-     * Proyek 2 -> kosong
-     * Proyek 3 -> ada material
-     *
-     * Maka otomatis tampil Proyek 3.
+     * Otomatis pilih PROYEK PERTAMA sesuai urutan daftar proyek.
+     * Tidak lagi mencari proyek pertama yang memiliki material.
      * ==========================================================
-     */
-    function cariProyekBerisiMaterial_(index){
-
-      if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
-        return;
-      }
-
-      if(index>=daftarProyek.length){
-
-        select.value='';
-        proyekAktif='';
-
-        resetTampilan();
-
-        if(showOverlay){
-          showLoading(false);
-        }
-
-        setStatus(
-          daftarProyek.length
-            ? 'Belum ada item material pada proyek.'
-            : 'Belum ada proyek.'
-        );
-
-        return;
-      }
-
-      const namaProyek=daftarProyek[index];
-
-      fetch(
-        API_URL +
-        '?action=project&project=' +
-        encodeURIComponent(namaProyek) +
-        '&_=' + Date.now(),
-        {
-          method:'GET',
-          cache:'no-store',
-          redirect:'follow'
-        }
-      )
-      .then(function(response){
-        if(!response.ok){
-          throw new Error('HTTP '+response.status);
-        }
-
-        return response.json();
-      })
-      .then(function(data){
-
-        if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
-          return;
-        }
-
-        /*
-         * MATERIAL VALID JIKA:
-         * - response sukses
-         * - material berupa array
-         * - jumlah material > 0
-         */
-        const adaMaterial=
-          data &&
-          data.success===true &&
-          Array.isArray(data.material) &&
-          data.material.length>0;
-
-        if(adaMaterial){
-
-          /*
-           * PROYEK DITEMUKAN
-           */
-          select.value=namaProyek;
-          proyekAktif=namaProyek;
-
-          localStorage.setItem(
-            CACHE_LAST_PROJECT_KEY,
-            namaProyek
-          );
-
-          /*
-           * Simpan cache data proyek
-           */
-          setCache_(
-            getProjectCacheKey_(namaProyek),
-            data
-          );
-
-          /*
-           * Tampilkan data langsung
-           */
-          tampilkanData(data);
-
-          if(showOverlay){
-            showLoading(false);
-          }
-
-          setStatus(
-            'Proyek otomatis dipilih: ' +
-            namaProyek
-          );
-
-          return;
-        }
-
-        /*
-         * PROYEK TIDAK ADA MATERIAL
-         * LANJUT KE PROYEK BERIKUTNYA
-         */
-        cariProyekBerisiMaterial_(index+1);
-
-      })
-      .catch(function(error){
-
-        if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
-          return;
-        }
-
-        console.warn(
-          'Gagal membaca proyek:',
-          namaProyek,
-          error
-        );
-
-        /*
-         * Jika satu proyek error,
-         * jangan hentikan pencarian.
-         * Langsung cek proyek berikutnya.
-         */
-        cariProyekBerisiMaterial_(index+1);
-      });
-    }
-
-    /*
-     * MULAI DARI PROYEK PERTAMA
      */
     if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
       return;
     }
 
-    cariProyekBerisiMaterial_(0);
+    if(daftarProyek.length>0){
+      const namaProyek=daftarProyek[0];
+      select.value=namaProyek;
+      proyekAktif=namaProyek;
+
+      localStorage.setItem(
+        CACHE_LAST_PROJECT_KEY,
+        namaProyek
+      );
+
+      const cachedData=getCache_(getProjectCacheKey_(namaProyek));
+      if(cachedData && cachedData.success===true){
+        tampilkanData(cachedData);
+        if(showOverlay){
+          showLoading(false);
+        }
+        setStatus('Proyek pertama otomatis dipilih: '+namaProyek);
+      }else{
+        loadDataProyek(namaProyek,showOverlay);
+      }
+    }else{
+      select.value='';
+      proyekAktif='';
+      resetTampilan();
+      if(showOverlay){
+        showLoading(false);
+      }
+      setStatus('Belum ada proyek.');
+    }
+
 
   })
   .catch(function(e){
@@ -2331,13 +2220,26 @@ function tampilkanData(data){
   }
 
   // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
-  // Utamakan data.tanggalKirim dari API; bila belum tersedia di level
-  // proyek, gunakan tanggalKirim dari item material pertama.
-  const tanggalKirim=String(
+  // Jika proyek sudah pernah RESCHEDULE, tampilan utama tetap memakai
+  // tanggal awal sebelum RESCHEDULE. Jika belum pernah RESCHEDULE,
+  // gunakan tanggal rencana kirim aktif seperti sebelumnya.
+  const tanggalKirimAktif=String(
     data.tanggalKirim ||
     (materialData[0] && materialData[0].tanggalKirim) ||
     ''
   ).trim();
+
+  const rescheduleHistory=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  let tanggalKirim=tanggalKirimAktif;
+  if(rescheduleHistory.length){
+    // Ambil tanggal lama paling awal sebagai tanggal RENCANA KIRIM awal.
+    const riwayatAwal=rescheduleHistory.find(function(item){
+      return item && String(item.tanggalLama || '').trim();
+    });
+    if(riwayatAwal && String(riwayatAwal.tanggalLama || '').trim()){
+      tanggalKirim=String(riwayatAwal.tanggalLama).trim();
+    }
+  }
 
   // HP: singkatkan nama bulan agar tanggal tidak terpotong.
   // Desktop tetap menggunakan format tanggal dari API.
@@ -2364,7 +2266,6 @@ function tampilkanData(data){
 
   // Jika proyek pernah di-reschedule, tampilkan badge + tombol DETAIL
   // di samping RENCANA KIRIM. Riwayat berasal dari HISTORI_RESCHEDULE FILE 2.
-  const rescheduleHistory=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
   renderStatusReschedule_(rescheduleHistory);
   materialDataTerakhir=materialData.slice();
 
