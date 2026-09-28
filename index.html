@@ -1569,15 +1569,12 @@ function buatPayloadSnapshotPengiriman_(project, rows){
     const category=String(item && item.category || '').trim();
 
     return {
-      /* Composite key menjaga item yang namanya sama tetapi unit/kategori berbeda. */
-      materialKey:[material,unit,category].join(' | '),
+      /* Payload dibuat ringkas agar request GET tetap aman untuk proyek besar.
+         Backend menghitung key dari material + unit + category. */
       material:material,
       unit:unit,
       category:category,
       volume:Number(item && item.volume)||0,
-      totalCbm:Number(item && item.totalCbm)||0,
-      totalWeightKg:Number(item && item.totalWeightKg)||0,
-      totalTon:Number(item && item.totalTon)||0,
       tanggalRencana:String(
         item && (
           item.tanggalKirimInput ||
@@ -1610,11 +1607,7 @@ function sinkronSnapshotPengiriman_(project, rows){
 
     fetch(API_URL+'?action=sync_shipment_snapshot'
       +'&project='+encodeURIComponent(projectName)
-      +'&payload='+encodeURIComponent(JSON.stringify({
-        project:projectName,
-        detectedAt:new Date().toISOString(),
-        rows:payloadRows
-      }))
+      +'&payload='+encodeURIComponent(JSON.stringify({rows:payloadRows}))
       +'&_='+Date.now(),{
         method:'GET',
         cache:'no-store',
