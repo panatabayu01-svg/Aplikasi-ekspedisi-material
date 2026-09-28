@@ -419,14 +419,19 @@
       line-height:1.45;
     }
     @media(max-width:600px){
+      /* HP: REPORT tepat di sebelah kiri REFRESH.
+         Kolom 1 tetap kosong agar posisi kontrol lain tidak berubah. */
       .btn-report{
-        grid-column:1;
+        grid-column:2;
         grid-row:3;
+        justify-self:stretch;
         width:100%;
         min-width:0;
+        max-width:none;
         height:38px;
-        font-size:10px;
-        padding:0 5px;
+        font-size:11px;
+        padding:0 8px;
+        box-sizing:border-box;
       }
       .shipment-report-overlay{padding:10px;}
       .shipment-report-modal{max-height:92vh;}
@@ -1569,12 +1574,15 @@ function buatPayloadSnapshotPengiriman_(project, rows){
     const category=String(item && item.category || '').trim();
 
     return {
-      /* Payload dibuat ringkas agar request GET tetap aman untuk proyek besar.
-         Backend menghitung key dari material + unit + category. */
+      /* Composite key menjaga item yang namanya sama tetapi unit/kategori berbeda. */
+      materialKey:[material,unit,category].join(' | '),
       material:material,
       unit:unit,
       category:category,
       volume:Number(item && item.volume)||0,
+      totalCbm:Number(item && item.totalCbm)||0,
+      totalWeightKg:Number(item && item.totalWeightKg)||0,
+      totalTon:Number(item && item.totalTon)||0,
       tanggalRencana:String(
         item && (
           item.tanggalKirimInput ||
@@ -1584,30 +1592,34 @@ function buatPayloadSnapshotPengiriman_(project, rows){
       ).trim()
     };
   }).filter(function(item){
-    return item.material;
+    return item.materialKey;
   });
 }
 
-function sinkronSnapshotPengiriman_(project, rows, immediate){
+function sinkronSnapshotPengiriman_(project, rows){
   const projectName=String(project || '').trim();
   if(modeAplikasi!=='AUTO' || !projectName || !Array.isArray(rows)){
-    return Promise.resolve(null);
+    return;
   }
 
   const payloadRows=buatPayloadSnapshotPengiriman_(projectName, rows);
   if(payloadRows.length===0){
-    return Promise.resolve(null);
+    return;
   }
 
   clearTimeout(shipmentSnapshotTimer_);
   const serial=++shipmentSnapshotSerial_;
 
-  const kirim=function(){
-    if(serial!==shipmentSnapshotSerial_) return Promise.resolve(null);
+  shipmentSnapshotTimer_=setTimeout(function(){
+    if(serial!==shipmentSnapshotSerial_) return;
 
-    return fetch(API_URL+'?action=sync_shipment_snapshot'
+    fetch(API_URL+'?action=sync_shipment_snapshot'
       +'&project='+encodeURIComponent(projectName)
-      +'&payload='+encodeURIComponent(JSON.stringify({rows:payloadRows}))
+      +'&payload='+encodeURIComponent(JSON.stringify({
+        project:projectName,
+        detectedAt:new Date().toISOString(),
+        rows:payloadRows
+      }))
       +'&_='+Date.now(),{
         method:'GET',
         cache:'no-store',
@@ -1621,28 +1633,15 @@ function sinkronSnapshotPengiriman_(project, rows, immediate){
         if(!result || result.success!==true){
           throw new Error(result && result.message ? result.message : 'Snapshot pengiriman gagal disimpan.');
         }
-        if(result.shipmentCount>0){
-          console.info('SHIPMENT SNAPSHOT:',result.shipmentCount,'histori pengiriman baru.');
+        if(result.created>0){
+          console.info('SHIPMENT SNAPSHOT:',result.created,'histori pengiriman baru.');
         }
-        return result;
+      })
+      .catch(function(error){
+        /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
+        console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
       });
-  };
-
-  if(immediate){
-    return kirim().catch(function(error){
-      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
-      return null;
-    });
-  }
-
-  shipmentSnapshotTimer_=setTimeout(function(){
-    kirim().catch(function(error){
-      /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
-      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
-    });
   },700);
-
-  return Promise.resolve(null);
 }
 
 function bukaReportPengiriman(){
@@ -1681,12 +1680,7 @@ function bukaReportPengiriman(){
     overlay.style.display='flex';
   }
 
-  // Pastikan setiap kali REPORT dibuka, kondisi material terbaru
-  // dikirim ke server terlebih dahulu. Ini membuat snapshot awal
-  // terbentuk walaupun Refresh sebelumnya selesai sebelum timer snapshot.
-  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || [], true)
-    .then(function(){
-      return fetch(API_URL+'?action=get_shipment_report'
+  fetch(API_URL+'?action=get_shipment_report'
     +'&project='+encodeURIComponent(project)
     +'&_='+Date.now(),{
       method:'GET',
@@ -1721,8 +1715,8 @@ function bukaReportPengiriman(){
           '<br><b>Status:</b> Report belum tersedia dari server.';
       }
     });
-    });
 }
+
 function renderReportPengiriman_(project,result){
   const projectEl=document.getElementById('shipmentReportProject');
   const summaryEl=document.getElementById('shipmentReportSummary');
@@ -1731,56 +1725,28 @@ function renderReportPengiriman_(project,result){
   const rows=Array.isArray(result.rows) ? result.rows : [];
   const summary=result.summary || {};
 
-  // Backend REPORT memakai nama summary: totalShipment / totalQty / totalItem.
-  // Frontend lama memakai nama berbeda sehingga KPI terbaca 0 walaupun tabel berisi histori.
-  const totalShipment = Number(
-    summary.totalPengiriman != null ? summary.totalPengiriman :
-    (summary.totalShipment != null ? summary.totalShipment : rows.length)
-  ) || rows.length;
-
-  const totalTerkirim = Number(
-    summary.totalTerkirim != null ? summary.totalTerkirim :
-    (summary.totalQty != null ? summary.totalQty : rows.reduce(function(sum,row){
-      return sum + (Number(row.qtyKirim) || 0);
-    },0))
-  ) || 0;
-
-  // TOTAL SISA = TOTAL VOLUME AKTUAL - TOTAL TERKIRIM.
-  // Hanya memperbaiki KPI REPORT; snapshot dan histori tidak diubah.
-  let totalVolumeAktual = 0;
-  if (Array.isArray(materialDataTerakhir)) {
-    totalVolumeAktual = materialDataTerakhir.reduce(function(sum,item){
-      return sum + (Number(item && item.volume) || 0);
-    },0);
-  } else if (summary.totalVolume != null) {
-    totalVolumeAktual = Number(summary.totalVolume) || 0;
-  }
-  let totalSisa = Math.max(0, totalVolumeAktual - totalTerkirim);
-
-  const totalItem = Number(summary.totalItem) || 0;
-
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(totalShipment,0)+' kali';
+      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali';
   }
 
   if(summaryEl){
     summaryEl.innerHTML=
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL ITEM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalItem,0)+' jenis</div>'+ 
-      '</div>'+ 
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalItem)||0,0)+' jenis</div>'+
+      '</div>'+
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL TERKIRIM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalTerkirim,0)+' unit</div>'+ 
-      '</div>'+ 
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalTerkirim)||0,0)+' unit</div>'+
+      '</div>'+
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL SISA</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalSisa,0)+' unit</div>'+ 
-      '</div>'+ 
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalSisa)||0,0)+' unit</div>'+
+      '</div>'+
       '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+ 
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalShipment,0)+' kali</div>'+ 
+        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali</div>'+
       '</div>';
   }
 
