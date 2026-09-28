@@ -1720,12 +1720,10 @@ function bukaReportPengiriman(){
     overlay.style.display='flex';
   }
 
-  // Pastikan setiap kali REPORT dibuka, kondisi material terbaru
-  // dikirim ke server terlebih dahulu. Ini membuat snapshot awal
-  // terbentuk walaupun Refresh sebelumnya selesai sebelum timer snapshot.
-  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || [], true)
-    .then(function(){
-      return fetch(API_URL+'?action=get_shipment_report'
+  // REPORT hanya membaca histori yang sudah tersimpan di server.
+  // Sinkronisasi SNAPSHOT tetap berjalan otomatis dari proses pemuatan
+  // data material, sehingga klik REPORT tidak perlu menunggu proses snapshot.
+  fetch(API_URL+'?action=get_shipment_report'
     +'&project='+encodeURIComponent(project)
     +'&_='+Date.now(),{
       method:'GET',
@@ -1759,7 +1757,6 @@ function bukaReportPengiriman(){
         projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
           '<br><b>Status:</b> Report belum tersedia dari server.';
       }
-    });
     });
 }
 function renderReportPengiriman_(project,result){
