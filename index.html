@@ -1731,28 +1731,54 @@ function renderReportPengiriman_(project,result){
   const rows=Array.isArray(result.rows) ? result.rows : [];
   const summary=result.summary || {};
 
+  // Backend REPORT memakai nama summary: totalShipment / totalQty / totalItem.
+  // Frontend lama memakai nama berbeda sehingga KPI terbaca 0 walaupun tabel berisi histori.
+  const totalShipment = Number(
+    summary.totalPengiriman != null ? summary.totalPengiriman :
+    (summary.totalShipment != null ? summary.totalShipment : rows.length)
+  ) || rows.length;
+
+  const totalTerkirim = Number(
+    summary.totalTerkirim != null ? summary.totalTerkirim :
+    (summary.totalQty != null ? summary.totalQty : rows.reduce(function(sum,row){
+      return sum + (Number(row.qtyKirim) || 0);
+    },0))
+  ) || 0;
+
+  // Total sisa mengikuti volume material yang sedang tampil di aplikasi.
+  // Ini tidak mengubah logika snapshot/histori.
+  let totalSisa = Number(summary.totalSisa);
+  if (!isFinite(totalSisa)) totalSisa = 0;
+  if (summary.totalSisa == null && Array.isArray(materialDataTerakhir)) {
+    totalSisa = materialDataTerakhir.reduce(function(sum,item){
+      return sum + (Number(item && item.volume) || 0);
+    },0);
+  }
+
+  const totalItem = Number(summary.totalItem) || 0;
+
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali';
+      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(totalShipment,0)+' kali';
   }
 
   if(summaryEl){
     summaryEl.innerHTML=
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL ITEM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalItem)||0,0)+' jenis</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalItem,0)+' jenis</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL TERKIRIM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalTerkirim)||0,0)+' unit</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalTerkirim,0)+' unit</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL SISA</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalSisa)||0,0)+' unit</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalSisa,0)+' unit</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali</div>'+
+        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+ 
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalShipment,0)+' kali</div>'+ 
       '</div>';
   }
 
