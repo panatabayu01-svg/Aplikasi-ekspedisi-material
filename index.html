@@ -268,6 +268,174 @@
       cursor:not-allowed;
     }
 
+    /* REPORT HISTORI PENGIRIMAN */
+    .btn-report{
+      height:38px;
+      min-width:105px;
+      flex:0 0 105px;
+      border:1px solid #0d447f;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
+      color:#fff;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      border-radius:2px;
+      white-space:nowrap;
+    }
+    .btn-report:hover{
+      background:linear-gradient(135deg,#08365f 0%,#1d5f91 55%,#286f9f 100%);
+    }
+    .btn-report:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .shipment-report-overlay{
+      position:fixed;
+      inset:0;
+      z-index:10001;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(18,38,58,.48);
+      padding:20px;
+    }
+    .shipment-report-modal{
+      width:min(1100px,100%);
+      max-height:min(88vh,780px);
+      background:#fff;
+      border-radius:4px;
+      box-shadow:0 12px 35px rgba(0,0,0,.25);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .shipment-report-header{
+      min-height:50px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 15px;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
+      color:#fff;
+      font-weight:800;
+      font-size:16px;
+    }
+    .shipment-report-close{
+      border:0;
+      background:transparent;
+      color:#fff;
+      font-size:25px;
+      line-height:1;
+      cursor:pointer;
+    }
+    .shipment-report-body{
+      padding:14px;
+      overflow:auto;
+    }
+    .shipment-report-project{
+      padding:10px 12px;
+      margin-bottom:12px;
+      background:#eef3f7;
+      border:1px solid #d5e0e8;
+      color:#18344d;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .shipment-report-summary{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .shipment-report-kpi{
+      border:1px solid #d7e0e8;
+      background:#f8fbfd;
+      padding:10px 12px;
+    }
+    .shipment-report-kpi-label{
+      font-size:10px;
+      font-weight:800;
+      color:#657786;
+      margin-bottom:4px;
+    }
+    .shipment-report-kpi-value{
+      font-size:18px;
+      font-weight:900;
+      color:#0d447f;
+    }
+    .shipment-report-table-wrap{
+      width:100%;
+      overflow:auto;
+      border:1px solid #17324d;
+    }
+    .shipment-report-table{
+      width:100%;
+      min-width:920px;
+      border-collapse:collapse;
+      table-layout:fixed;
+    }
+    .shipment-report-table th{
+      position:static;
+      background:#0d447f !important;
+      color:#fff;
+      border:1px solid #17324d;
+      height:36px;
+      padding:6px;
+      font-size:11px;
+    }
+    .shipment-report-table td{
+      border:1px solid #cbd4de;
+      padding:7px 6px;
+      font-size:12px;
+      color:#17324d;
+      text-align:center;
+      background:#fff;
+      vertical-align:middle;
+    }
+    .shipment-report-table td.material{
+      text-align:left;
+      font-weight:700;
+    }
+    .shipment-report-empty{
+      padding:28px 15px;
+      text-align:center;
+      color:#657786;
+      font-size:13px;
+    }
+    .shipment-report-loading{
+      padding:28px 15px;
+      text-align:center;
+      color:#0d447f;
+      font-weight:700;
+    }
+    .shipment-report-note{
+      margin-top:10px;
+      padding:9px 10px;
+      background:#fff7e6;
+      border:1px solid #f0d29a;
+      color:#6d4b12;
+      font-size:11px;
+      line-height:1.45;
+    }
+    @media(max-width:600px){
+      .btn-report{
+        grid-column:1;
+        grid-row:3;
+        width:100%;
+        min-width:0;
+        height:38px;
+        font-size:10px;
+        padding:0 5px;
+      }
+      .shipment-report-overlay{padding:10px;}
+      .shipment-report-modal{max-height:92vh;}
+      .shipment-report-header{font-size:13px;min-height:46px;}
+      .shipment-report-summary{grid-template-columns:repeat(2,1fr);}
+      .shipment-report-kpi-value{font-size:15px;}
+      .shipment-report-body{padding:10px;}
+    }
+
     .btn-reschedule-legacy{
       height:38px;
       min-width:145px;
@@ -762,6 +930,22 @@
   </div>
 </div>
 
+<div id="shipmentReportOverlay" class="shipment-report-overlay" onclick="tutupReportPengiriman(event)">
+  <div class="shipment-report-modal" role="dialog" aria-modal="true" aria-labelledby="shipmentReportTitle" onclick="event.stopPropagation()">
+    <div class="shipment-report-header">
+      <span id="shipmentReportTitle">📋 REPORT HISTORI PENGIRIMAN</span>
+      <button type="button" class="shipment-report-close" onclick="tutupReportPengiriman()">×</button>
+    </div>
+    <div class="shipment-report-body">
+      <div id="shipmentReportProject" class="shipment-report-project">-</div>
+      <div id="shipmentReportSummary" class="shipment-report-summary"></div>
+      <div id="shipmentReportContent">
+        <div class="shipment-report-loading">Memuat histori pengiriman...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="rescheduleHistoryOverlay" class="reschedule-history-overlay" onclick="tutupDetailReschedule(event)">
   <div class="reschedule-history-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleHistoryTitle" onclick="event.stopPropagation()">
     <div class="reschedule-history-header">
@@ -812,6 +996,7 @@
       </span>
     </div>
 
+    <button id="btnReportPengiriman" class="btn-report" type="button" onclick="bukaReportPengiriman()" disabled>📋 REPORT</button>
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
 
@@ -1356,6 +1541,270 @@ function escapeHtmlSafe_(value){
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
+}
+
+
+/* ==========================================================
+ * REPORT HISTORI PENGIRIMAN + SNAPSHOT
+ * ----------------------------------------------------------
+ * Kontrak API FILE 2 yang dipakai Index:
+ *   action=sync_shipment_snapshot
+ *   action=get_shipment_report
+ *
+ * Snapshot disimpan di server, bukan localStorage.
+ * Server bertanggung jawab:
+ *   1. membandingkan qty/sisa sebelumnya vs terbaru;
+ *   2. jika terbaru < sebelumnya, membuat histori baru;
+ *   3. jika terbaru > sebelumnya, tidak dianggap pengiriman;
+ *   4. menjaga histori lama agar tidak tertimpa.
+ * ========================================================== */
+
+let shipmentSnapshotTimer_=null;
+let shipmentSnapshotSerial_=0;
+
+function buatPayloadSnapshotPengiriman_(project, rows){
+  return (Array.isArray(rows) ? rows : []).map(function(item){
+    const material=String(item && item.material || '').trim();
+    const unit=String(item && item.unit || '').trim();
+    const category=String(item && item.category || '').trim();
+
+    return {
+      /* Composite key menjaga item yang namanya sama tetapi unit/kategori berbeda. */
+      materialKey:[material,unit,category].join(' | '),
+      material:material,
+      unit:unit,
+      category:category,
+      volume:Number(item && item.volume)||0,
+      totalCbm:Number(item && item.totalCbm)||0,
+      totalWeightKg:Number(item && item.totalWeightKg)||0,
+      totalTon:Number(item && item.totalTon)||0,
+      tanggalRencana:String(
+        item && (
+          item.tanggalKirimInput ||
+          item.tanggalKirim ||
+          ''
+        ) || ''
+      ).trim()
+    };
+  }).filter(function(item){
+    return item.materialKey;
+  });
+}
+
+function sinkronSnapshotPengiriman_(project, rows){
+  const projectName=String(project || '').trim();
+  if(modeAplikasi!=='AUTO' || !projectName || !Array.isArray(rows)){
+    return;
+  }
+
+  const payloadRows=buatPayloadSnapshotPengiriman_(projectName, rows);
+  if(payloadRows.length===0){
+    return;
+  }
+
+  clearTimeout(shipmentSnapshotTimer_);
+  const serial=++shipmentSnapshotSerial_;
+
+  shipmentSnapshotTimer_=setTimeout(function(){
+    if(serial!==shipmentSnapshotSerial_) return;
+
+    fetch(API_URL+'?action=sync_shipment_snapshot'
+      +'&project='+encodeURIComponent(projectName)
+      +'&payload='+encodeURIComponent(JSON.stringify({
+        project:projectName,
+        detectedAt:new Date().toISOString(),
+        rows:payloadRows
+      }))
+      +'&_='+Date.now(),{
+        method:'GET',
+        cache:'no-store',
+        redirect:'follow'
+      })
+      .then(function(response){
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        return response.json();
+      })
+      .then(function(result){
+        if(!result || result.success!==true){
+          throw new Error(result && result.message ? result.message : 'Snapshot pengiriman gagal disimpan.');
+        }
+        if(result.created>0){
+          console.info('SHIPMENT SNAPSHOT:',result.created,'histori pengiriman baru.');
+        }
+      })
+      .catch(function(error){
+        /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
+        console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+      });
+  },700);
+}
+
+function bukaReportPengiriman(){
+  if(modeAplikasi!=='AUTO'){
+    alert('REPORT Pengiriman hanya tersedia untuk DATA OTOMATIS.');
+    return;
+  }
+
+  const project=String(
+    proyekAktif ||
+    document.getElementById('projectSelect')?.value ||
+    ''
+  ).trim();
+
+  if(!project){
+    alert('Pilih proyek terlebih dahulu.');
+    return;
+  }
+
+  const overlay=document.getElementById('shipmentReportOverlay');
+  const projectEl=document.getElementById('shipmentReportProject');
+  const summaryEl=document.getElementById('shipmentReportSummary');
+  const contentEl=document.getElementById('shipmentReportContent');
+
+  if(projectEl){
+    projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
+      '<br><b>Status:</b> Memuat histori pengiriman...';
+  }
+  if(summaryEl){
+    summaryEl.innerHTML='';
+  }
+  if(contentEl){
+    contentEl.innerHTML='<div class="shipment-report-loading">Memuat histori pengiriman...</div>';
+  }
+  if(overlay){
+    overlay.style.display='flex';
+  }
+
+  fetch(API_URL+'?action=get_shipment_report'
+    +'&project='+encodeURIComponent(project)
+    +'&_='+Date.now(),{
+      method:'GET',
+      cache:'no-store',
+      redirect:'follow'
+    })
+    .then(function(response){
+      if(!response.ok) throw new Error('HTTP '+response.status);
+      return response.json();
+    })
+    .then(function(result){
+      if(!result || result.success!==true){
+        throw new Error(result && result.message ? result.message : 'Report pengiriman gagal dimuat.');
+      }
+      renderReportPengiriman_(project,result);
+    })
+    .catch(function(error){
+      console.error('REPORT PENGIRIMAN ERROR:',error);
+      if(contentEl){
+        contentEl.innerHTML=
+          '<div class="shipment-report-empty">'+
+          'Histori pengiriman belum dapat dimuat.<br>'+
+          '<span style="font-size:11px;">'+escapeHtmlSafe_(error.message || error)+'</span>'+
+          '</div>'+
+          '<div class="shipment-report-note">'+
+          '<b>Catatan:</b> histori permanen menggunakan snapshot server. '+
+          'Jika menu ini baru dipasang, endpoint snapshot/report pada FILE 2 harus sudah aktif.'+
+          '</div>';
+      }
+      if(projectEl){
+        projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
+          '<br><b>Status:</b> Report belum tersedia dari server.';
+      }
+    });
+}
+
+function renderReportPengiriman_(project,result){
+  const projectEl=document.getElementById('shipmentReportProject');
+  const summaryEl=document.getElementById('shipmentReportSummary');
+  const contentEl=document.getElementById('shipmentReportContent');
+
+  const rows=Array.isArray(result.rows) ? result.rows : [];
+  const summary=result.summary || {};
+
+  if(projectEl){
+    projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
+      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali';
+  }
+
+  if(summaryEl){
+    summaryEl.innerHTML=
+      '<div class="shipment-report-kpi">'+
+        '<div class="shipment-report-kpi-label">TOTAL ITEM</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalItem)||0,0)+' jenis</div>'+
+      '</div>'+
+      '<div class="shipment-report-kpi">'+
+        '<div class="shipment-report-kpi-label">TOTAL TERKIRIM</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalTerkirim)||0,0)+' unit</div>'+
+      '</div>'+
+      '<div class="shipment-report-kpi">'+
+        '<div class="shipment-report-kpi-label">TOTAL SISA</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalSisa)||0,0)+' unit</div>'+
+      '</div>'+
+      '<div class="shipment-report-kpi">'+
+        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali</div>'+
+      '</div>';
+  }
+
+  if(!contentEl) return;
+
+  if(rows.length===0){
+    contentEl.innerHTML=
+      '<div class="shipment-report-empty">Belum ada histori pengiriman untuk proyek ini.</div>'+
+      '<div class="shipment-report-note">'+
+      '<b>Logika:</b> histori dibuat otomatis ketika volume/sisa material terdeteksi berkurang dari snapshot sebelumnya.'+
+      '</div>';
+    return;
+  }
+
+  let html=
+    '<div class="shipment-report-table-wrap">'+
+      '<table class="shipment-report-table">'+
+        '<thead><tr>'+
+          '<th style="width:55px">RIWAYAT</th>'+
+          '<th style="width:230px">MATERIAL</th>'+
+          '<th style="width:95px">QTY SEBELUM</th>'+
+          '<th style="width:95px">QTY SESUDAH</th>'+
+          '<th style="width:90px">QTY KIRIM</th>'+
+          '<th style="width:135px">RENCANA KIRIM</th>'+
+          '<th style="width:135px">RESCHEDULE</th>'+
+          '<th style="width:135px">TANGGAL DIKIRIM</th>'+
+          '<th style="width:120px">WAKTU DETEKSI</th>'+
+        '</tr></thead><tbody>';
+
+  rows.forEach(function(item,index){
+    html+='<tr>'+
+      '<td><b>KE-'+formatNumber(index+1,0)+'</b></td>'+
+      '<td class="material">'+escapeHtmlSafe_(item.material || '-')+
+        '<br><span style="font-size:10px;font-weight:500;color:#718096;">'+
+        escapeHtmlSafe_((item.unit || '')+' '+(item.category ? '• '+item.category : ''))+
+        '</span></td>'+
+      '<td>'+formatNumber(Number(item.qtySebelum)||0,0)+'</td>'+
+      '<td>'+formatNumber(Number(item.qtySesudah)||0,0)+'</td>'+
+      '<td><b>'+formatNumber(Number(item.qtyKirim)||0,0)+'</b></td>'+
+      '<td>'+escapeHtmlSafe_(item.tanggalRencana || '-')+'</td>'+
+      '<td>'+escapeHtmlSafe_(item.tanggalReschedule || '-')+'</td>'+
+      '<td>'+escapeHtmlSafe_(item.tanggalDikirim || '-')+'</td>'+
+      '<td>'+escapeHtmlSafe_(item.timestampDeteksi || '-')+'</td>'+
+    '</tr>';
+  });
+
+  html+='</tbody></table></div>'+
+    '<div class="shipment-report-note">'+
+    '<b>Catatan:</b> TANGGAL DIKIRIM berasal dari tanggal saat sistem mendeteksi pengurangan material. '+
+    'RESCHEDULE hanya perubahan jadwal dan tidak dianggap sebagai pengiriman.'+
+    '</div>';
+
+  contentEl.innerHTML=html;
+}
+
+function tutupReportPengiriman(event){
+  if(event && event.target && event.target.id!=='shipmentReportOverlay'){
+    return;
+  }
+  const overlay=document.getElementById('shipmentReportOverlay');
+  if(overlay){
+    overlay.style.display='none';
+  }
 }
 
 function bukaDetailReschedule(){
@@ -2273,6 +2722,21 @@ function tampilkanData(data){
   if(btnInputTanggal){
     btnInputTanggal.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
   }
+
+  const btnReportPengiriman=document.getElementById('btnReportPengiriman');
+  if(btnReportPengiriman){
+    btnReportPengiriman.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
+  }
+
+  // ==========================================================
+  // SNAPSHOT PENGIRIMAN
+  // Server akan membandingkan snapshot sebelumnya dengan data
+  // material terbaru. Jika volume berkurang, server membuat
+  // histori pengiriman permanen. Index tidak menyimpan histori
+  // pengiriman sebagai localStorage agar tidak bergantung pada
+  // browser/perangkat pengguna.
+  // ==========================================================
+  sinkronSnapshotPengiriman_(proyekAktif, materialData);
 
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
   // Jadi KPI tidak bisa berbeda dengan tabel akibat summary/cache lama.
@@ -3593,6 +4057,10 @@ function resetTampilan(){
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
   }
+  const btnReportPengiriman=document.getElementById('btnReportPengiriman');
+  if(btnReportPengiriman){
+    btnReportPengiriman.disabled=true;
+  }
 
   materialDataTerakhir=[];
   window.__DATA_TERAKHIR__=null;
@@ -4081,6 +4549,8 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     tutupNestingInternal();
     tutupMaterialArmada();
+    tutupReportPengiriman();
+    tutupDetailReschedule();
   }
 });
 
