@@ -909,7 +909,14 @@
       }
       #tanggalOverlay .tanggal-input{
         height:36px;
-        font-size:13px;
+        font-size:16px; /* iOS: cegah auto-zoom saat input disentuh */
+      }
+
+      /* PASSWORD INPUT: iPhone/iPad akan auto-zoom jika font input < 16px.
+         Tetap 16px agar setelah password benar popup tidak terbuka dalam posisi zoom. */
+      #passwordInputTanggalOverlay .tanggal-input{
+        font-size:16px !important;
+        -webkit-text-size-adjust:100%;
       }
       #tanggalOverlay .tanggal-modal-actions{
         gap:7px;
