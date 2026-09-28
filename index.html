@@ -1745,15 +1745,17 @@ function renderReportPengiriman_(project,result){
     },0))
   ) || 0;
 
-  // Total sisa mengikuti volume material yang sedang tampil di aplikasi.
-  // Ini tidak mengubah logika snapshot/histori.
-  let totalSisa = Number(summary.totalSisa);
-  if (!isFinite(totalSisa)) totalSisa = 0;
-  if (summary.totalSisa == null && Array.isArray(materialDataTerakhir)) {
-    totalSisa = materialDataTerakhir.reduce(function(sum,item){
+  // TOTAL SISA = TOTAL VOLUME AKTUAL - TOTAL TERKIRIM.
+  // Hanya memperbaiki KPI REPORT; snapshot dan histori tidak diubah.
+  let totalVolumeAktual = 0;
+  if (Array.isArray(materialDataTerakhir)) {
+    totalVolumeAktual = materialDataTerakhir.reduce(function(sum,item){
       return sum + (Number(item && item.volume) || 0);
     },0);
+  } else if (summary.totalVolume != null) {
+    totalVolumeAktual = Number(summary.totalVolume) || 0;
   }
+  let totalSisa = Math.max(0, totalVolumeAktual - totalTerkirim);
 
   const totalItem = Number(summary.totalItem) || 0;
 
