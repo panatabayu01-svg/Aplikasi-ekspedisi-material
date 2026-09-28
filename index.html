@@ -462,6 +462,10 @@
         padding:0 9px;
         font-size:13px;
       }
+      /* HP/iPhone: password minimal 16px agar Safari tidak auto-zoom saat input fokus. */
+      #passwordInputTanggal{
+        font-size:16px !important;
+      }
       .tanggal-modal-actions{
         margin-top:12px;
         gap:7px;
@@ -783,7 +787,7 @@
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        grid-template-columns:75px minmax(0,1fr) 110px;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) 110px;
         grid-template-rows:38px 50px 38px;
         gap:7px;
         align-items:center;
@@ -801,12 +805,15 @@
         white-space:nowrap;
       }
 
+      /* HP: dropdown PROYEK diperpanjang ke kiri, mendekati label PROYEK,
+         tanpa mengubah posisi/tampilan tombol REPORT, INPUT TGL KIRIM, REFRESH. */
       .project-select{
-        grid-column:2 / 4;
+        grid-column:1 / 4;
         grid-row:1;
-        width:100%;
+        width:calc(100% - 58px);
         min-width:0;
         height:38px;
+        margin-left:58px;
       }
 
       .mode-btn,
@@ -2030,9 +2037,16 @@ function verifikasiPasswordInputTanggal(){
   }
 
   if(error) error.style.display='none';
+  // Lepaskan fokus password terlebih dahulu agar Safari/iPhone mengembalikan zoom normal.
+  if(input){ input.blur(); }
+  if(document.activeElement && typeof document.activeElement.blur === 'function'){
+    document.activeElement.blur();
+  }
   tutupPasswordInputTanggal();
   // Password benar → langsung buka popup INPUT TGL KIRIM.
-  setTimeout(function(){ bukaInputTanggalRencanaKirim(); }, 50);
+  setTimeout(function(){
+    bukaInputTanggalRencanaKirim();
+  }, 120);
 }
 
 function bukaInputTanggalRencanaKirim(){
