@@ -462,6 +462,10 @@
         padding:0 9px;
         font-size:13px;
       }
+      /* HP/iPhone: password minimal 16px agar Safari tidak auto-zoom saat input fokus. */
+      #passwordInputTanggal{
+        font-size:16px !important;
+      }
       .tanggal-modal-actions{
         margin-top:12px;
         gap:7px;
@@ -2030,9 +2034,16 @@ function verifikasiPasswordInputTanggal(){
   }
 
   if(error) error.style.display='none';
+  // Lepaskan fokus password terlebih dahulu agar Safari/iPhone mengembalikan zoom normal.
+  if(input){ input.blur(); }
+  if(document.activeElement && typeof document.activeElement.blur === 'function'){
+    document.activeElement.blur();
+  }
   tutupPasswordInputTanggal();
   // Password benar → langsung buka popup INPUT TGL KIRIM.
-  setTimeout(function(){ bukaInputTanggalRencanaKirim(); }, 50);
+  setTimeout(function(){
+    bukaInputTanggalRencanaKirim();
+  }, 120);
 }
 
 function bukaInputTanggalRencanaKirim(){
