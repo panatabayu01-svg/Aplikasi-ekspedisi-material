@@ -768,55 +768,6 @@
     .spinner{width:35px;height:35px;border:4px solid #dce7f2;border-top-color:#0d447f;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* PC RESPONSIVE 02: saat jendela PC diperkecil, RENCANA KIRIM dan INPUT TGL KIRIM ikut menyusut tanpa terpotong. */
-    @media(max-width:1400px) and (min-width:601px){
-      .control-bar{
-        gap:6px;
-      }
-      .project-select{
-        flex:1 1 300px;
-        min-width:210px;
-      }
-      .mode-btn{
-        min-width:145px;
-        flex:1 1 145px;
-        padding-left:10px;
-        padding-right:10px;
-      }
-      .btn-refresh{
-        flex:0 1 100px;
-        min-width:90px;
-      }
-      .delivery-date{
-        flex:1 1 180px;
-        min-width:120px;
-        max-width:none;
-        padding-left:7px;
-        padding-right:7px;
-        gap:5px;
-      }
-      .delivery-date-label{
-        font-size:12px;
-      }
-      .delivery-date-value{
-        min-width:0;
-        overflow:hidden;
-        text-overflow:ellipsis;
-      }
-      .btn-report{
-        flex:0 1 100px;
-        min-width:90px;
-        padding-left:8px;
-        padding-right:8px;
-      }
-      .btn-input-tanggal{
-        flex:0 1 135px;
-        min-width:110px;
-        padding-left:8px;
-        padding-right:8px;
-      }
-    }
-
     @media(max-width:1100px){
       .armada-layout{grid-template-columns:1.3fr 1fr 1.15fr 1fr}
       .kpi-card{padding:12px 16px}
@@ -854,12 +805,15 @@
         white-space:nowrap;
       }
 
+      /* HP: dropdown PROYEK diperpanjang ke kiri, mendekati label PROYEK,
+         tanpa mengubah posisi/tampilan tombol REPORT, INPUT TGL KIRIM, REFRESH. */
       .project-select{
-        grid-column:2 / 4;
+        grid-column:1 / 4;
         grid-row:1;
-        width:100%;
+        width:calc(100% - 58px);
         min-width:0;
         height:38px;
+        margin-left:58px;
       }
 
       .mode-btn,
