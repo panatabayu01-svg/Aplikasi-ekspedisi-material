@@ -1588,24 +1588,24 @@ function buatPayloadSnapshotPengiriman_(project, rows){
   });
 }
 
-function sinkronSnapshotPengiriman_(project, rows){
+function sinkronSnapshotPengiriman_(project, rows, immediate){
   const projectName=String(project || '').trim();
   if(modeAplikasi!=='AUTO' || !projectName || !Array.isArray(rows)){
-    return;
+    return Promise.resolve(null);
   }
 
   const payloadRows=buatPayloadSnapshotPengiriman_(projectName, rows);
   if(payloadRows.length===0){
-    return;
+    return Promise.resolve(null);
   }
 
   clearTimeout(shipmentSnapshotTimer_);
   const serial=++shipmentSnapshotSerial_;
 
-  shipmentSnapshotTimer_=setTimeout(function(){
-    if(serial!==shipmentSnapshotSerial_) return;
+  const kirim=function(){
+    if(serial!==shipmentSnapshotSerial_) return Promise.resolve(null);
 
-    fetch(API_URL+'?action=sync_shipment_snapshot'
+    return fetch(API_URL+'?action=sync_shipment_snapshot'
       +'&project='+encodeURIComponent(projectName)
       +'&payload='+encodeURIComponent(JSON.stringify({rows:payloadRows}))
       +'&_='+Date.now(),{
@@ -1621,15 +1621,28 @@ function sinkronSnapshotPengiriman_(project, rows){
         if(!result || result.success!==true){
           throw new Error(result && result.message ? result.message : 'Snapshot pengiriman gagal disimpan.');
         }
-        if(result.created>0){
-          console.info('SHIPMENT SNAPSHOT:',result.created,'histori pengiriman baru.');
+        if(result.shipmentCount>0){
+          console.info('SHIPMENT SNAPSHOT:',result.shipmentCount,'histori pengiriman baru.');
         }
-      })
-      .catch(function(error){
-        /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
-        console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+        return result;
       });
+  };
+
+  if(immediate){
+    return kirim().catch(function(error){
+      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+      return null;
+    });
+  }
+
+  shipmentSnapshotTimer_=setTimeout(function(){
+    kirim().catch(function(error){
+      /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
+      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+    });
   },700);
+
+  return Promise.resolve(null);
 }
 
 function bukaReportPengiriman(){
@@ -1671,9 +1684,9 @@ function bukaReportPengiriman(){
   // Pastikan setiap kali REPORT dibuka, kondisi material terbaru
   // dikirim ke server terlebih dahulu. Ini membuat snapshot awal
   // terbentuk walaupun Refresh sebelumnya selesai sebelum timer snapshot.
-  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || []);
-
-  fetch(API_URL+'?action=get_shipment_report'
+  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || [], true)
+    .then(function(){
+      return fetch(API_URL+'?action=get_shipment_report'
     +'&project='+encodeURIComponent(project)
     +'&_='+Date.now(),{
       method:'GET',
@@ -1708,8 +1721,8 @@ function bukaReportPengiriman(){
           '<br><b>Status:</b> Report belum tersedia dari server.';
       }
     });
+    });
 }
-
 function renderReportPengiriman_(project,result){
   const projectEl=document.getElementById('shipmentReportProject');
   const summaryEl=document.getElementById('shipmentReportSummary');
