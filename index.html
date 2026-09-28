@@ -419,19 +419,14 @@
       line-height:1.45;
     }
     @media(max-width:600px){
-      /* HP: REPORT tepat di sebelah kiri REFRESH.
-         Kolom 1 tetap kosong agar posisi kontrol lain tidak berubah. */
       .btn-report{
-        grid-column:2;
+        grid-column:1;
         grid-row:3;
-        justify-self:stretch;
         width:100%;
         min-width:0;
-        max-width:none;
         height:38px;
-        font-size:11px;
-        padding:0 8px;
-        box-sizing:border-box;
+        font-size:10px;
+        padding:0 5px;
       }
       .shipment-report-overlay{padding:10px;}
       .shipment-report-modal{max-height:92vh;}
@@ -734,7 +729,7 @@
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        grid-template-columns:52px minmax(0,1fr) 110px;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) 110px;
         grid-template-rows:38px 50px 38px;
         gap:7px;
         align-items:center;
@@ -761,9 +756,39 @@
       }
 
       .mode-btn,
-      .manual-actions,
-      .btn-input-tanggal{
+      .manual-actions{
         display:none !important;
+      }
+
+      /* HP: urutan tombol baris 3 = REPORT | INPUT TGL KIRIM | REFRESH. */
+      .btn-report{
+        display:flex !important;
+        grid-column:1;
+        grid-row:3;
+        justify-self:stretch;
+        width:100%;
+        min-width:0;
+        height:38px;
+        margin:0;
+        padding:0 6px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .btn-input-tanggal{
+        display:flex !important;
+        grid-column:2;
+        grid-row:3;
+        justify-self:stretch;
+        width:100%;
+        min-width:0;
+        height:38px;
+        margin:0;
+        padding:0 6px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
       }
 
       /* HP: RENCANA KIRIM dibuat satu baris penuh pada baris 2
@@ -810,7 +835,7 @@
         gap:4px;
       }
 
-      /* HP: Refresh pindah ke baris 3 dan tetap di sebelah kanan. */
+      /* HP: Refresh tetap di kanan, setelah REPORT dan INPUT TGL KIRIM. */
       .btn-refresh{
         grid-column:3;
         grid-row:3;
@@ -818,6 +843,7 @@
         width:110px;
         min-width:110px;
         height:38px;
+        margin:0;
       }
 
       .btn-reschedule-legacy{
@@ -1574,15 +1600,12 @@ function buatPayloadSnapshotPengiriman_(project, rows){
     const category=String(item && item.category || '').trim();
 
     return {
-      /* Composite key menjaga item yang namanya sama tetapi unit/kategori berbeda. */
-      materialKey:[material,unit,category].join(' | '),
+      /* Payload dibuat ringkas agar request GET tetap aman untuk proyek besar.
+         Backend menghitung key dari material + unit + category. */
       material:material,
       unit:unit,
       category:category,
       volume:Number(item && item.volume)||0,
-      totalCbm:Number(item && item.totalCbm)||0,
-      totalWeightKg:Number(item && item.totalWeightKg)||0,
-      totalTon:Number(item && item.totalTon)||0,
       tanggalRencana:String(
         item && (
           item.tanggalKirimInput ||
@@ -1592,34 +1615,30 @@ function buatPayloadSnapshotPengiriman_(project, rows){
       ).trim()
     };
   }).filter(function(item){
-    return item.materialKey;
+    return item.material;
   });
 }
 
-function sinkronSnapshotPengiriman_(project, rows){
+function sinkronSnapshotPengiriman_(project, rows, immediate){
   const projectName=String(project || '').trim();
   if(modeAplikasi!=='AUTO' || !projectName || !Array.isArray(rows)){
-    return;
+    return Promise.resolve(null);
   }
 
   const payloadRows=buatPayloadSnapshotPengiriman_(projectName, rows);
   if(payloadRows.length===0){
-    return;
+    return Promise.resolve(null);
   }
 
   clearTimeout(shipmentSnapshotTimer_);
   const serial=++shipmentSnapshotSerial_;
 
-  shipmentSnapshotTimer_=setTimeout(function(){
-    if(serial!==shipmentSnapshotSerial_) return;
+  const kirim=function(){
+    if(serial!==shipmentSnapshotSerial_) return Promise.resolve(null);
 
-    fetch(API_URL+'?action=sync_shipment_snapshot'
+    return fetch(API_URL+'?action=sync_shipment_snapshot'
       +'&project='+encodeURIComponent(projectName)
-      +'&payload='+encodeURIComponent(JSON.stringify({
-        project:projectName,
-        detectedAt:new Date().toISOString(),
-        rows:payloadRows
-      }))
+      +'&payload='+encodeURIComponent(JSON.stringify({rows:payloadRows}))
       +'&_='+Date.now(),{
         method:'GET',
         cache:'no-store',
@@ -1633,15 +1652,28 @@ function sinkronSnapshotPengiriman_(project, rows){
         if(!result || result.success!==true){
           throw new Error(result && result.message ? result.message : 'Snapshot pengiriman gagal disimpan.');
         }
-        if(result.created>0){
-          console.info('SHIPMENT SNAPSHOT:',result.created,'histori pengiriman baru.');
+        if(result.shipmentCount>0){
+          console.info('SHIPMENT SNAPSHOT:',result.shipmentCount,'histori pengiriman baru.');
         }
-      })
-      .catch(function(error){
-        /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
-        console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+        return result;
       });
+  };
+
+  if(immediate){
+    return kirim().catch(function(error){
+      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+      return null;
+    });
+  }
+
+  shipmentSnapshotTimer_=setTimeout(function(){
+    kirim().catch(function(error){
+      /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
+      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
+    });
   },700);
+
+  return Promise.resolve(null);
 }
 
 function bukaReportPengiriman(){
@@ -1680,7 +1712,12 @@ function bukaReportPengiriman(){
     overlay.style.display='flex';
   }
 
-  fetch(API_URL+'?action=get_shipment_report'
+  // Pastikan setiap kali REPORT dibuka, kondisi material terbaru
+  // dikirim ke server terlebih dahulu. Ini membuat snapshot awal
+  // terbentuk walaupun Refresh sebelumnya selesai sebelum timer snapshot.
+  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || [], true)
+    .then(function(){
+      return fetch(API_URL+'?action=get_shipment_report'
     +'&project='+encodeURIComponent(project)
     +'&_='+Date.now(),{
       method:'GET',
@@ -1715,8 +1752,8 @@ function bukaReportPengiriman(){
           '<br><b>Status:</b> Report belum tersedia dari server.';
       }
     });
+    });
 }
-
 function renderReportPengiriman_(project,result){
   const projectEl=document.getElementById('shipmentReportProject');
   const summaryEl=document.getElementById('shipmentReportSummary');
@@ -1725,28 +1762,56 @@ function renderReportPengiriman_(project,result){
   const rows=Array.isArray(result.rows) ? result.rows : [];
   const summary=result.summary || {};
 
+  // Backend REPORT memakai nama summary: totalShipment / totalQty / totalItem.
+  // Frontend lama memakai nama berbeda sehingga KPI terbaca 0 walaupun tabel berisi histori.
+  const totalShipment = Number(
+    summary.totalPengiriman != null ? summary.totalPengiriman :
+    (summary.totalShipment != null ? summary.totalShipment : rows.length)
+  ) || rows.length;
+
+  const totalTerkirim = Number(
+    summary.totalTerkirim != null ? summary.totalTerkirim :
+    (summary.totalQty != null ? summary.totalQty : rows.reduce(function(sum,row){
+      return sum + (Number(row.qtyKirim) || 0);
+    },0))
+  ) || 0;
+
+  // TOTAL SISA = TOTAL VOLUME AKTUAL - TOTAL TERKIRIM.
+  // Hanya memperbaiki KPI REPORT; snapshot dan histori tidak diubah.
+  let totalVolumeAktual = 0;
+  if (Array.isArray(materialDataTerakhir)) {
+    totalVolumeAktual = materialDataTerakhir.reduce(function(sum,item){
+      return sum + (Number(item && item.volume) || 0);
+    },0);
+  } else if (summary.totalVolume != null) {
+    totalVolumeAktual = Number(summary.totalVolume) || 0;
+  }
+  let totalSisa = Math.max(0, totalVolumeAktual - totalTerkirim);
+
+  const totalItem = Number(summary.totalItem) || 0;
+
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali';
+      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(totalShipment,0)+' kali';
   }
 
   if(summaryEl){
     summaryEl.innerHTML=
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL ITEM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalItem)||0,0)+' jenis</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalItem,0)+' jenis</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL TERKIRIM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalTerkirim)||0,0)+' unit</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalTerkirim,0)+' unit</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
         '<div class="shipment-report-kpi-label">TOTAL SISA</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalSisa)||0,0)+' unit</div>'+
-      '</div>'+
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalSisa,0)+' unit</div>'+ 
+      '</div>'+ 
       '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(Number(summary.totalPengiriman)||0,0)+' kali</div>'+
+        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+ 
+        '<div class="shipment-report-kpi-value">'+formatNumber(totalShipment,0)+' kali</div>'+ 
       '</div>';
   }
 
