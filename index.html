@@ -1668,6 +1668,11 @@ function bukaReportPengiriman(){
     overlay.style.display='flex';
   }
 
+  // Pastikan setiap kali REPORT dibuka, kondisi material terbaru
+  // dikirim ke server terlebih dahulu. Ini membuat snapshot awal
+  // terbentuk walaupun Refresh sebelumnya selesai sebelum timer snapshot.
+  sinkronSnapshotPengiriman_(project, materialDataTerakhir || materialData || []);
+
   fetch(API_URL+'?action=get_shipment_report'
     +'&project='+encodeURIComponent(project)
     +'&_='+Date.now(),{
