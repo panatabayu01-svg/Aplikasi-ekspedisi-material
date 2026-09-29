@@ -1221,7 +1221,7 @@
       </div>
 
       <div id="nextShipmentStatus" class="shipment-status-card status-next">
-        <div class="shipment-status-title">STATUS PENGIRIMAN BERIKUTNYA</div>
+        <div class="shipment-status-title">STATUS PENGIRIMAN</div>
         <div id="nextShipmentStatusValue" class="shipment-status-value">🔵 PENGIRIMAN BERIKUTNYA</div>
         <div id="nextShipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
@@ -2247,11 +2247,17 @@ function bukaDetailReschedule(){
   if(statusValue) statusValue.textContent=status.value;
   if(statusNote) statusNote.textContent=status.note;
 
-  // Cek apakah pada tanggal RESCHEDULE tersebut sudah ada material
-  // yang berkurang. Jika ya, jadwal reschedule dinyatakan CLOSED.
+  // CLOSED hanya jika tanggal RESCHEDULE adalah tanggal hari ini
+  // dan pada tanggal tersebut sudah ada pengiriman/material berkurang.
   if(status.tanggalReschedule){
-    cekRescheduleClosed_(project,status.tanggalReschedule).then(function(isClosed){
-      if(!isClosed) return;
+    const todayKey=(function(){
+      const now=new Date();
+      return String(now.getFullYear())+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    })();
+    const rescheduleKey=tanggalKeyPengiriman_(status.tanggalReschedule);
+    if(rescheduleKey===todayKey){
+      cekRescheduleClosed_(project,status.tanggalReschedule).then(function(isClosed){
+        if(!isClosed) return;
       const currentData=window.__DATA_TERAKHIR__ || {};
       const currentHistory=Array.isArray(currentData.rescheduleHistory) ? currentData.rescheduleHistory : [];
       let currentTanggal='';
@@ -2262,8 +2268,9 @@ function bukaDetailReschedule(){
       // Jangan menempelkan CLOSED jika popup sudah berpindah proyek/
       // reschedule lain saat request report selesai.
       if(currentTanggal!==status.tanggalReschedule) return;
-      if(statusValue) statusValue.textContent='🟠 JADWAL PENGIRIMAN RESCHEDULE (CLOSED)';
-    });
+        if(statusValue) statusValue.textContent='🟠 JADWAL PENGIRIMAN RESCHEDULE (CLOSED)';
+      });
+    }
   }
 
   // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
