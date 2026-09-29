@@ -2199,6 +2199,32 @@ function tutupReportPengiriman(event){
   }
 }
 
+function formatTanggalKirimLengkap_(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw || raw==='-') return raw || '-';
+  if(raw.toUpperCase()==='BELUM ADA SCHEDULE') return 'BELUM ADA SCHEDULE';
+
+  let y=0,m=0,d=0;
+  let match=raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/);
+  if(match){
+    y=Number(match[1]); m=Number(match[2]); d=Number(match[3]);
+  }else{
+    match=raw.match(/^(\d{2})[\/](\d{2})[\/](\d{4})$/);
+    if(match){
+      d=Number(match[1]); m=Number(match[2]); y=Number(match[3]);
+    }
+  }
+
+  if(!(y && m>=1 && m<=12 && d>=1 && d<=31)) return raw;
+
+  const dt=new Date(Date.UTC(y,m-1,d));
+  if(dt.getUTCFullYear()!==y || dt.getUTCMonth()!==m-1 || dt.getUTCDate()!==d) return raw;
+
+  const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return hari[dt.getUTCDay()]+', '+d+' '+bulan[m-1]+' '+y;
+}
+
 function bukaDetailReschedule(){
   const data=window.__DATA_TERAKHIR__ || {};
   const project=String(data.project || proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
