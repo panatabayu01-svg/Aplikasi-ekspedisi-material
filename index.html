@@ -1,4 +1,3 @@
-<!-- INDEX GITHUB.4 - status realisasi + tanggal pengiriman -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -273,11 +272,6 @@
       border-color:#f0d29a;
       border-left-color:#e58a00;
     }
-    .shipment-status-card.status-waiting{
-      background:#fff1f1;
-      border-color:#f3b7b7;
-      border-left-color:#d93025;
-    }
     .shipment-status-title{
       font-size:12px;
       font-weight:800;
@@ -292,7 +286,6 @@
     }
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
-    .shipment-status-card.status-waiting .shipment-status-value{color:#d93025;}
     .shipment-status-note{
       margin-top:4px;
       font-size:11px;
@@ -1182,9 +1175,9 @@
       <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
     </div>
     <div class="reschedule-history-body">
-      <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
+      <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
         <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">MEMUAT STATUS...</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
@@ -1729,58 +1722,12 @@ function renderStatusReschedule_(history){
   if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
 }
 
-function formatTanggalStatus_(value){
-  const text=String(value==null?'':value).trim();
-  if(!text) return '';
-
-  const hari=[
-    'Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'
-  ];
-  const bulan=[
-    'Januari','Februari','Maret','April','Mei','Juni',
-    'Juli','Agustus','September','Oktober','November','Desember'
-  ];
-
-  let m=text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if(m){
-    const y=Number(m[1]), mo=Number(m[2])-1, d=Number(m[3]);
-    const dt=new Date(y,mo,d);
-    return hari[dt.getDay()]+', '+d+' '+bulan[mo]+' '+y;
-  }
-
-  const dt=new Date(text);
-  if(!isNaN(dt.getTime())){
-    return hari[dt.getDay()]+', '+dt.getDate()+' '+
-      bulan[dt.getMonth()]+' '+dt.getFullYear();
-  }
-
-  const md=text.match(/(?:^|\s)(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:\s|$)/);
-  if(md){
-    const d=Number(md[1]), mo=Number(md[2])-1, y=Number(md[3]);
-    const x=new Date(y,mo,d);
-    if(!isNaN(x.getTime())){
-      return hari[x.getDay()]+', '+d+' '+bulan[mo]+' '+y;
-    }
-  }
-
-  return text;
-}
-
 function getStatusRealisasi_(data){
   data=data||{};
   const material=Array.isArray(data.material) ? data.material : [];
-  const shipmentRows=Array.isArray(data.shipmentRows) ? data.shipmentRows : [];
-  const status= data.shipmentStatus || {};
 
-  const shipmentCount=Math.max(
-    0,
-    Number(
-      status.shipmentCount != null
-        ? status.shipmentCount
-        : (data.shipmentCount != null ? data.shipmentCount : shipmentRows.length)
-    ) || 0
-  );
-
+  // Material yang masih memiliki volume/CBM/tonase berarti masih ada
+  // item yang belum kosong/terkirim. Tidak menambah kolom apa pun.
   const masihAdaMaterial=material.some(function(item){
     return (Number(item.volume)||0)>0.000001 ||
            (Number(item.totalCbm)||0)>0.000001 ||
@@ -1788,73 +1735,24 @@ function getStatusRealisasi_(data){
            (Number(item.totalTon)||0)>0.000001;
   });
 
-  const tanggalRencana=String(
-    status.nextPlanDate ||
+  const tanggal=String(
     data.tanggalKirim ||
     (material[0] && material[0].tanggalKirim) ||
     ''
   ).trim();
 
-  const tanggalPengirimanPertama=formatTanggalStatus_(
-    status.firstShipmentDate ||
-    (
-      shipmentRows.length
-        ? shipmentRows.map(function(row){
-            return String(row && row.tanggalDikirim || '').trim();
-          }).filter(Boolean).sort()[0]
-        : ''
-    )
-  );
-
-  const tanggalPengirimanTerakhir=formatTanggalStatus_(
-    status.lastShipmentDate ||
-    (
-      shipmentRows.length
-        ? shipmentRows.map(function(row){
-            return String(row && row.tanggalDikirim || '').trim();
-          }).filter(Boolean).sort().slice(-1)[0]
-        : ''
-    )
-  );
-
-  if(masihAdaMaterial && shipmentCount>0){
-    let note='';
-
-    if(tanggalPengirimanPertama){
-      note='<b>PENGIRIMAN PERTAMA:</b> '+tanggalPengirimanPertama;
-    }
-
-    // Jika Rencana Kirim sudah berubah dari tanggal pengiriman terakhir,
-    // tanggal tersebut dianggap rencana pengiriman berikutnya.
-    if(tanggalRencana && tanggalRencana!==tanggalPengirimanTerakhir){
-      note+=(note ? '<br>' : '')+
-        '<b>PENGIRIMAN BERIKUTNYA:</b> '+tanggalRencana;
-    }else{
-      note+=(note ? '<br>' : '')+
-        '<b>PENGIRIMAN BERIKUTNYA: BELUM ADA SCHEDULE</b>';
-    }
-
-    return {
-      cls:'status-partial',
-      value:'🟠 MATERIAL DIKIRIM',
-      note:note
-    };
-  }
-
   if(masihAdaMaterial){
     return {
-      cls:'status-waiting',
-      value:'🔴 MENUNGGU PENGIRIMAN',
-      note:'<b>RENCANA KIRIM:</b> '+(tanggalRencana || '-')
+      cls:'status-partial',
+      value:'🟠 MENUNGGU PENGIRIMAN',
+      note:'RENCANA KIRIM: '+(tanggal || '-')
     };
   }
 
   return {
     cls:'status-ok',
     value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note: tanggalPengirimanTerakhir
-      ? '<b>PENGIRIMAN TERAKHIR:</b> '+tanggalPengirimanTerakhir
-      : '<b>RENCANA KIRIM:</b> '+(tanggalRencana || '-')
+    note:'RENCANA KIRIM: '+(tanggal || '-')
   };
 }
 
@@ -1885,7 +1783,6 @@ function escapeHtmlSafe_(value){
 
 let shipmentSnapshotTimer_=null;
 let shipmentSnapshotSerial_=0;
-const shipmentStatusMemoryCache_={};
 
 function buatPayloadSnapshotPengiriman_(project, rows){
   return (Array.isArray(rows) ? rows : []).map(function(item){
@@ -2176,76 +2073,16 @@ function bukaDetailReschedule(){
   const projectEl=document.getElementById('rescheduleHistoryProject');
   const listEl=document.getElementById('rescheduleHistoryList');
 
+  const status=getStatusRealisasi_(data);
   const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
-
-  function tampilkanStatusRealisasi_(status){
-    if(statusBox){
-      statusBox.classList.remove('status-ok','status-partial','status-waiting');
-      statusBox.classList.add(status.cls);
-    }
-    if(statusValue) statusValue.textContent=status.value;
-    if(statusNote) statusNote.innerHTML=status.note;
+  if(statusBox){
+    statusBox.classList.remove('status-ok','status-partial');
+    statusBox.classList.add(status.cls);
   }
-
-  // Status popup memakai endpoint RINGKAS, bukan REPORT lengkap.
-  // REPORT lengkap tetap dipakai oleh tombol REPORT.
-  if(statusValue) statusValue.textContent='MEMUAT STATUS...';
-  if(statusNote) statusNote.textContent='Memeriksa histori pengiriman...';
-
-  if(project){
-    const tanggalRencanaStatus=String(
-      data.tanggalKirim ||
-      (data.material && data.material[0] && data.material[0].tanggalKirim) ||
-      ''
-    ).trim();
-
-    // Jika status proyek sudah pernah berhasil dibaca dalam sesi ini,
-    // tampilkan langsung; API tetap diperbarui di background.
-    const memoryKey=String(project).trim().toUpperCase();
-    const cachedStatus=shipmentStatusMemoryCache_[memoryKey];
-    if(cachedStatus){
-      const cachedData=Object.assign({},data,{
-        shipmentStatus:cachedStatus,
-        shipmentCount:Number(cachedStatus.shipmentCount)||0
-      });
-      tampilkanStatusRealisasi_(getStatusRealisasi_(cachedData));
-    }
-
-    fetch(API_URL+'?action=get_shipment_status'
-      +'&project='+encodeURIComponent(project)
-      +'&schedule='+encodeURIComponent(tanggalRencanaStatus)
-      +'&_='+Date.now(),{
-        method:'GET',
-        cache:'no-store',
-        redirect:'follow'
-      })
-      .then(function(response){
-        if(!response.ok) throw new Error('HTTP '+response.status);
-        return response.json();
-      })
-      .then(function(result){
-        if(!result || result.success!==true){
-          throw new Error(result && result.message ? result.message : 'Status pengiriman gagal dimuat.');
-        }
-
-        shipmentStatusMemoryCache_[memoryKey]=result;
-        const statusData=Object.assign({},data,{
-          shipmentStatus:result,
-          shipmentCount:Number(result.shipmentCount)||0
-        });
-        tampilkanStatusRealisasi_(getStatusRealisasi_(statusData));
-      })
-      .catch(function(error){
-        console.warn('STATUS REALISASI API:',error.message || error);
-        if(!shipmentStatusMemoryCache_[memoryKey]){
-          tampilkanStatusRealisasi_(getStatusRealisasi_(data));
-        }
-      });
-  }else{
-    tampilkanStatusRealisasi_(getStatusRealisasi_(data));
-  }
+  if(statusValue) statusValue.textContent=status.value;
+  if(statusNote) statusNote.textContent=status.note;
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
