@@ -1756,16 +1756,26 @@ document.addEventListener('DOMContentLoaded',function(){
   loadDaftarProyek(false,true);
 });
 
-function renderStatusReschedule_(history){
+function renderStatusReschedule_(history,isBelumAdaSchedule){
   const wrap=document.getElementById('deliveryDateRescheduled');
+  const valueEl=document.getElementById('deliveryDateValue');
   if(!wrap) return;
 
-  // BAGIAN RESCHEDULE TIDAK BOLEH DISEMBUNYIKAN.
-  // Yang berubah hanya badge/detail berdasarkan riwayat reschedule.
+  // RESCHEDULE tetap tersedia. Hanya badge/tombol ORANGE yang disembunyikan
+  // ketika Status Schedule = BELUM ADA SCHEDULE.
   wrap.style.display='inline-flex';
   const badge=wrap.querySelector('.delivery-date-rescheduled-badge');
   const hasHistory=Array.isArray(history) && history.length>0;
-  if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
+  const noSchedule=!!isBelumAdaSchedule;
+
+  if(badge) badge.style.display=(hasHistory && !noSchedule) ? 'inline-flex' : 'none';
+
+  // BELUM ADA SCHEDULE harus terlihat tegas dengan warna merah.
+  // Saat kembali ke tanggal normal, warna kembali ke putih seperti semula.
+  if(valueEl){
+    valueEl.style.color=noSchedule ? '#ff2b2b' : '#fff';
+    valueEl.style.fontWeight=noSchedule ? '900' : '700';
+  }
 }
 
 function getScheduleStatusOverride_(project){
@@ -2459,7 +2469,7 @@ function simpanTanggalRencanaKirim(){
 
     const tanggalKirimEl=document.getElementById('deliveryDateValue');
     if(tanggalKirimEl) tanggalKirimEl.textContent='BELUM ADA SCHEDULE';
-    renderStatusReschedule_(Array.isArray(window.__DATA_TERAKHIR__.rescheduleHistory) ? window.__DATA_TERAKHIR__.rescheduleHistory : []);
+    renderStatusReschedule_(Array.isArray(window.__DATA_TERAKHIR__.rescheduleHistory) ? window.__DATA_TERAKHIR__.rescheduleHistory : [], true);
 
     tutupInputTanggalRencanaKirim();
     setStatus('Status Schedule: Belum Ada Schedule.');
@@ -3208,7 +3218,7 @@ function tampilkanData(data){
 
   // Jika proyek pernah di-reschedule, tampilkan badge + tombol DETAIL
   // di samping RENCANA KIRIM. Riwayat berasal dari HISTORI_RESCHEDULE FILE 2.
-  renderStatusReschedule_(rescheduleHistory);
+  renderStatusReschedule_(rescheduleHistory, scheduleStatusOverride==='BELUM_ADA');
   materialDataTerakhir=materialData.slice();
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
@@ -4545,7 +4555,7 @@ function resetTampilan(){
   if(tanggalKirimEl){
     tanggalKirimEl.textContent='-';
   }
-  renderStatusReschedule_([]);
+  renderStatusReschedule_([], false);
   const btnInputTanggal=document.getElementById('btnInputTanggal');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
