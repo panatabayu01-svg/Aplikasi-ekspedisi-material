@@ -674,22 +674,11 @@
       outline:none;
     }
     .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
-    .schedule-status-input{
-      margin-bottom:12px;
-      font-weight:700;
-      color:#17324d;
-      background:#fff;
-      cursor:pointer;
-    }
-    .schedule-status-input:disabled{
+    .tanggal-input:disabled{
       background:#eef3f7;
-      color:#7b8794;
+      color:#718096;
       cursor:not-allowed;
-    }
-    #tanggalRencanaInput:disabled{
-      background:#eef3f7;
-      color:#7b8794;
-      cursor:not-allowed;
+      opacity:.85;
     }
     .tanggal-modal-actions{
       display:flex;
@@ -1144,10 +1133,11 @@
       <div class="tanggal-section tanggal-section-input">
         <div class="tanggal-section-title">📅 INPUT RENCANA KIRIM</div>
         <label class="tanggal-label" for="statusScheduleInput">Status Schedule</label>
-        <select id="statusScheduleInput" class="tanggal-input schedule-status-input" aria-label="Status Schedule" onchange="ubahStatusScheduleInput_()">
-          <option value="BELUM">Belum Ada Schedule</option>
-          <option value="SUDAH">Sudah Ada Schedule</option>
+        <select id="statusScheduleInput" class="tanggal-input" aria-label="Status Schedule" onchange="ubahStatusScheduleInput_()">
+          <option value="BELUM_ADA">Belum Ada Schedule</option>
+          <option value="SUDAH_ADA">Sudah Ada Schedule</option>
         </select>
+
         <label class="tanggal-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
         <input id="tanggalRencanaInput" class="tanggal-input" type="date">
         <div class="tanggal-modal-actions">
@@ -2159,6 +2149,9 @@ function bukaPasswordInputTanggal(){
   if(error) error.style.display='none';
   if(overlay){
     overlay.style.display='flex';
+    setTimeout(function(){
+      if(statusSchedule) statusSchedule.focus();
+    },50);
   }
 }
 
@@ -2192,28 +2185,23 @@ function verifikasiPasswordInputTanggal(){
   }, 120);
 }
 
-function setScheduleInputMode_(forceBelum){
+function ubahStatusScheduleInput_(){
   const status=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
   const save=document.getElementById('tanggalBtnSimpan');
-  if(!status || !input) return;
 
-  if(forceBelum){
-    status.value='BELUM';
+  const sudahAda=status && status.value==='SUDAH_ADA';
+
+  if(input){
+    input.disabled=!sudahAda;
+  }
+  if(save){
+    save.disabled=!sudahAda;
   }
 
-  const sudah=String(status.value || '')==='SUDAH';
-  input.disabled=!sudah;
-  if(save) save.disabled=!sudah;
-
-  // Saat belum ada schedule, tanggal tetap tampil tetapi tidak bisa diubah/disimpan.
-  if(!sudah && document.activeElement===input){
-    input.blur();
+  if(sudahAda && input){
+    setTimeout(function(){ input.focus(); },50);
   }
-}
-
-function ubahStatusScheduleInput_(){
-  setScheduleInputMode_(false);
 }
 
 function bukaInputTanggalRencanaKirim(){
@@ -2229,6 +2217,7 @@ function bukaInputTanggalRencanaKirim(){
   }
 
   const overlay=document.getElementById('tanggalOverlay');
+  const statusSchedule=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
   const rescheduleInput=document.getElementById('tanggalRescheduleInput');
   const alasanInput=document.getElementById('alasanRescheduleInput');
@@ -2243,12 +2232,19 @@ function bukaInputTanggalRencanaKirim(){
     info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Rencana Kirim Saat Ini:</b> '+escapeHtml(currentText || '-');
   }
 
-  // Bagian INPUT RENCANA KIRIM: selalu mulai dari "Belum Ada Schedule".
-  // User wajib memilih "Sudah Ada Schedule" terlebih dahulu agar tanggal terbuka.
+  // Saat popup pertama dibuka, user wajib memilih Status Schedule terlebih dahulu.
+  // Default sengaja "Belum Ada Schedule" sehingga tanggal terkunci.
+  if(statusSchedule){
+    statusSchedule.value='BELUM_ADA';
+  }
   if(input){
     input.value=currentInput || today;
+    input.disabled=true;
   }
-  setScheduleInputMode_(true);
+  const saveTanggal=document.getElementById('tanggalBtnSimpan');
+  if(saveTanggal){
+    saveTanggal.disabled=true;
+  }
 
   // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
   if(oldEl){
@@ -2266,6 +2262,7 @@ function bukaInputTanggalRencanaKirim(){
 
   if(overlay){
     overlay.style.display='flex';
+    setTimeout(function(){ if(input) input.focus(); },50);
   }
 }
 
@@ -2279,27 +2276,31 @@ function setTanggalInputLoading_(loading){
   const save=document.getElementById('tanggalBtnSimpan');
   const cancel=document.getElementById('tanggalBtnBatal');
   const input=document.getElementById('tanggalRencanaInput');
-  if(save){ save.disabled=loading; save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN'; }
-  if(cancel) cancel.disabled=loading;
-  if(input){
-    input.disabled=loading || String(document.getElementById('statusScheduleInput')?.value || '')!=='SUDAH';
+  const statusSchedule=document.getElementById('statusScheduleInput');
+  const sudahAda=statusSchedule && statusSchedule.value==='SUDAH_ADA';
+
+  if(save){
+    save.disabled=loading || !sudahAda;
+    save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN';
   }
-  const status=document.getElementById('statusScheduleInput');
-  if(status) status.disabled=loading;
+  if(cancel) cancel.disabled=loading;
+  if(input) input.disabled=loading || !sudahAda;
+  if(statusSchedule) statusSchedule.disabled=loading;
 }
 
 function simpanTanggalRencanaKirim(){
   const project=String(proyekAktif || document.getElementById('projectSelect').value || '').trim();
+  const statusSchedule=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
   const dateValue=String(input && input.value || '').trim();
 
-  if(!project){
-    alert('Proyek belum dipilih.');
+  if(!statusSchedule || statusSchedule.value!=='SUDAH_ADA'){
+    alert('Pilih "Sudah Ada Schedule" terlebih dahulu sebelum mengisi Tanggal Rencana Kirim.');
     return;
   }
-  const statusSchedule=String(document.getElementById('statusScheduleInput')?.value || 'BELUM');
-  if(statusSchedule!=='SUDAH'){
-    alert('Pilih "Sudah Ada Schedule" terlebih dahulu agar Tanggal Rencana Kirim dapat diubah dan disimpan.');
+
+  if(!project){
+    alert('Proyek belum dipilih.');
     return;
   }
   if(!dateValue){
