@@ -278,6 +278,12 @@
       border-color:#f3b7b7;
       border-left-color:#d93025;
     }
+    /* Loading bukan status pengiriman, jadi jangan tampil merah. */
+    .shipment-status-card.status-loading{
+      background:#fff8e8;
+      border-color:#f0d29a;
+      border-left-color:#e58a00;
+    }
     .shipment-status-title{
       font-size:12px;
       font-weight:800;
@@ -293,6 +299,7 @@
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
     .shipment-status-card.status-waiting .shipment-status-value{color:#d93025;}
+    .shipment-status-card.status-loading .shipment-status-value{color:#c87500;}
     .shipment-status-note{
       margin-top:4px;
       font-size:11px;
@@ -1188,7 +1195,7 @@
       <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
     </div>
     <div class="reschedule-history-body">
-      <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
+      <div id="rescheduleHistoryStatus" class="shipment-status-card status-loading">
         <div class="shipment-status-title">STATUS REALISASI</div>
         <div id="shipmentStatusValue" class="shipment-status-value">MEMUAT STATUS...</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
@@ -1778,13 +1785,14 @@ function getStatusRealisasi_(data){
   const shipmentRows=Array.isArray(data.shipmentRows) ? data.shipmentRows : [];
   const status= data.shipmentStatus || {};
 
+  // Gunakan histori pengiriman yang sudah dimuat di data popup sebagai sumber utama.
+  // Endpoint ringkas boleh menambahkan hitungan/tanggal, tetapi tidak boleh
+  // mengubah status menjadi MENUNGGU jika shipmentRows sudah berisi pengiriman.
   const shipmentCount=Math.max(
     0,
-    Number(
-      status.shipmentCount != null
-        ? status.shipmentCount
-        : (data.shipmentCount != null ? data.shipmentCount : shipmentRows.length)
-    ) || 0
+    Number(data.shipmentCount) || 0,
+    shipmentRows.length,
+    Number(status.shipmentCount) || 0
   );
 
   const masihAdaMaterial=material.some(function(item){
@@ -2188,7 +2196,7 @@ function bukaDetailReschedule(){
 
   function tampilkanStatusRealisasi_(status){
     if(statusBox){
-      statusBox.classList.remove('status-ok','status-partial','status-waiting');
+      statusBox.classList.remove('status-ok','status-partial','status-waiting','status-loading');
       statusBox.classList.add(status.cls);
     }
     if(statusValue) statusValue.textContent=status.value;
