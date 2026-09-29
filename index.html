@@ -1424,6 +1424,9 @@ window.CACHE_DATA_PREFIX = 'ekspedisi_project_data_v12_';
 
 let daftarProyek = [];
 let proyekAktif = '';
+// Override tampilan lokal untuk Status Schedule pada proyek aktif.
+// BELUM_ADA hanya mengubah label RENCANA KIRIM; data tanggal di server tidak dihapus.
+let scheduleStatusOverride_ = '';
 let modeAplikasi = 'AUTO';
 let requestSerial = 0;
 const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
@@ -2305,14 +2308,13 @@ function ubahStatusScheduleInput_(){
   const status=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
 
-  const sudahAda=status && status.value==='SUDAH_ADA';
+  // Status Schedule tidak lagi mengunci tanggal.
+  // Tanggal tetap bisa diisi kapan pun; Status hanya menentukan
+  // apakah tombol SIMPAN menyimpan tanggal atau menampilkan
+  // label BELUM ADA SCHEDULE pada RENCANA KIRIM.
+  if(input) input.disabled=false;
 
-  // Tanggal tetap mengikuti Status Schedule:
-  // BELUM ADA = terkunci, SUDAH ADA = terbuka.
-  if(input) input.disabled=!sudahAda;
-
-  // Tombol SIMPAN selalu aktif. Validasi dilakukan saat tombol ditekan.
-  if(sudahAda && input){
+  if(input){
     setTimeout(function(){ input.focus(); },50);
   }
 }
@@ -2345,15 +2347,15 @@ function bukaInputTanggalRencanaKirim(){
     info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Rencana Kirim Saat Ini:</b> '+escapeHtml(currentText || '-');
   }
 
-  // Saat popup dibuka, user wajib menentukan Status Schedule terlebih dahulu.
-  // Default: Belum Ada Schedule -> tanggal dan SIMPAN terkunci.
+  // Saat popup dibuka, default Status Schedule tetap Belum Ada Schedule.
+  // Namun tanggal TIDAK dikunci: fungsi tanggal tetap bisa digunakan.
   if(statusSchedule) statusSchedule.value='BELUM_ADA';
   if(input){
     input.value=currentInput || today;
-    input.disabled=true;
+    input.disabled=false;
   }
-  // Tombol SIMPAN tetap aktif walaupun tanggal masih terkunci.
-  // Jika diklik saat "Belum Ada Schedule", fungsi simpan akan memberi pesan validasi.
+  // Tombol SIMPAN selalu aktif. Jika status BELUM_ADA, SIMPAN
+  // akan menampilkan BELUM ADA SCHEDULE pada RENCANA KIRIM.
 
   // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
   if(oldEl){
@@ -2386,7 +2388,6 @@ function setTanggalInputLoading_(loading){
   const cancel=document.getElementById('tanggalBtnBatal');
   const input=document.getElementById('tanggalRencanaInput');
   const statusSchedule=document.getElementById('statusScheduleInput');
-  const sudahAda=statusSchedule && statusSchedule.value==='SUDAH_ADA';
 
   // SIMPAN sengaja tidak pernah di-disable.
   if(save){
@@ -2394,7 +2395,8 @@ function setTanggalInputLoading_(loading){
     save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN';
   }
   if(cancel) cancel.disabled=loading;
-  if(input) input.disabled=loading || !sudahAda;
+  // Tanggal tetap bisa diisi; hanya dikunci sementara saat proses simpan.
+  if(input) input.disabled=loading;
   if(statusSchedule) statusSchedule.disabled=loading;
 }
 
@@ -2403,16 +2405,45 @@ function simpanTanggalRencanaKirim(){
   const statusSchedule=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
   const dateValue=String(input && input.value || '').trim();
-
-  if(!statusSchedule || statusSchedule.value!=='SUDAH_ADA'){
-    alert('Pilih "Sudah Ada Schedule" terlebih dahulu sebelum mengisi Tanggal Rencana Kirim.');
-    return;
-  }
+  const statusValue=String(statusSchedule && statusSchedule.value || 'BELUM_ADA').trim();
 
   if(!project){
     alert('Proyek belum dipilih.');
     return;
   }
+
+  // ==========================================================
+  // BELUM ADA SCHEDULE
+  // ----------------------------------------------------------
+  // Status ini hanya mengatur tampilan RENCANA KIRIM.
+  // Tanggal tidak dihapus dari server dan fungsi tanggal tetap
+  // bisa digunakan kapan saja.
+  // ==========================================================
+  if(statusValue==='BELUM_ADA'){
+    scheduleStatusOverride_='BELUM_ADA';
+
+    const data=window.__DATA_TERAKHIR__ || {};
+    data.tanggalKirimDisplayOverride='BELUM ADA SCHEDULE';
+    window.__DATA_TERAKHIR__=data;
+
+    const tanggalKirimEl=document.getElementById('deliveryDateValue');
+    if(tanggalKirimEl) tanggalKirimEl.textContent='BELUM ADA SCHEDULE';
+
+    tutupInputTanggalRencanaKirim();
+    setStatus('Status Schedule disimpan: BELUM ADA SCHEDULE.');
+    return;
+  }
+
+  // ==========================================================
+  // SUDAH ADA SCHEDULE
+  // ----------------------------------------------------------
+  // Tanggal tetap disimpan melalui API seperti fungsi sebelumnya.
+  // ==========================================================
+  if(statusValue!=='SUDAH_ADA'){
+    alert('Status Schedule belum dipilih.');
+    return;
+  }
+
   if(!dateValue){
     alert('Pilih tanggal Rencana Kirim terlebih dahulu.');
     return;
@@ -2435,10 +2466,11 @@ function simpanTanggalRencanaKirim(){
       throw new Error(result && result.message ? result.message : 'Tanggal gagal disimpan.');
     }
 
+    scheduleStatusOverride_='';
     tutupInputTanggalRencanaKirim();
     setStatus('Tanggal Rencana Kirim berhasil disimpan. Memuat data terbaru...');
 
-    // Ambil ulang dari server agar sumber tampilan benar-benar RAKAP_PM_PO_SJ.
+    // Ambil ulang dari server agar sumber tampilan tetap RAKAP_PM_PO_SJ.
     loadDataProyek(project,true);
     alert('Tanggal Rencana Kirim berhasil disimpan.\n\n'+result.tanggalKirim+'\n'+result.updatedRows+' baris diperbarui.');
   })
@@ -2669,6 +2701,9 @@ function isiDropdownProyek(autoSelect){
 function pilihProyek(){
 
   const p=document.getElementById('projectSelect').value;
+
+  // Setiap pindah proyek, status schedule lokal kembali mengikuti data proyek.
+  scheduleStatusOverride_='';
 
   // HP: MANUAL EKSPEDISI dipilih langsung dari dropdown.
   // Tidak perlu tombol INPUT MANUAL / INPUT DATA di HP.
@@ -3139,9 +3174,12 @@ function tampilkanData(data){
   if(tanggalKirimEl){
     const isMobileTanggal=window.matchMedia &&
                           window.matchMedia('(max-width: 600px)').matches;
-    tanggalKirimEl.textContent=isMobileTanggal
+    const displayOverride=(scheduleStatusOverride_==='BELUM_ADA')
+      ? 'BELUM ADA SCHEDULE'
+      : '';
+    tanggalKirimEl.textContent=displayOverride || (isMobileTanggal
       ? formatTanggalKirimHP_(tanggalKirim)
-      : (tanggalKirim || '-');
+      : (tanggalKirim || '-'));
   }
 
   // Jika proyek pernah di-reschedule, tampilkan badge + tombol DETAIL
@@ -4479,6 +4517,7 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
+  scheduleStatusOverride_='';
   const tanggalKirimEl=document.getElementById('deliveryDateValue');
   if(tanggalKirimEl){
     tanggalKirimEl.textContent='-';
