@@ -2229,9 +2229,23 @@ function bukaDetailReschedule(){
   }
 
   // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
-  // Untuk tahap ini RENCANA KIRIM masih sengaja kosong.
+  // Jika Status Schedule = BELUM ADA, tampilkan status tersebut
+  // sebagai RENCANA KIRIM pada kartu PENGIRIMAN BERIKUTNYA.
+  // Jika sudah ada schedule, kartu tetap mengikuti tanggal rencana aktif.
+  const scheduleStatus=getScheduleStatusOverride_(project);
+  let nextScheduleText='-';
+  if(scheduleStatus==='BELUM_ADA'){
+    nextScheduleText='BELUM ADA SCHEDULE';
+  }else{
+    const activeDate=String(
+      data.tanggalKirimInput ||
+      data.tanggalKirim ||
+      ''
+    ).trim();
+    if(activeDate) nextScheduleText=activeDate;
+  }
   if(nextStatusValue) nextStatusValue.textContent='🔵 PENGIRIMAN BERIKUTNYA';
-  if(nextStatusNote) nextStatusNote.textContent='RENCANA KIRIM: -';
+  if(nextStatusNote) nextStatusNote.textContent='RENCANA KIRIM: '+nextScheduleText;
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
