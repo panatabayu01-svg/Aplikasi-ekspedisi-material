@@ -1,6 +1,6 @@
-// INDEX GITHUB.5
-// BASE: INDEX GITHUB.4
-// PERBAIKAN: STATUS REALISASI MEMAKAI ENDPOINT STATUS RINGKAS
+// INDEX GITHUB.8
+// BASE: INDEX GITHUB.7
+// PERBAIKAN: FORMAT TANGGAL LENGKAP + STATUS MEMORY/PERSISTEN
 
 <!-- INDEX GITHUB.4 - status realisasi + tanggal pengiriman -->
 <!DOCTYPE html>
@@ -1734,16 +1734,39 @@ function renderStatusReschedule_(history){
 }
 
 function formatTanggalStatus_(value){
-  const text=String(value||'').trim();
+  const text=String(value==null?'':value).trim();
   if(!text) return '';
-  const m=text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  const hari=[
+    'Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'
+  ];
+  const bulan=[
+    'Januari','Februari','Maret','April','Mei','Juni',
+    'Juli','Agustus','September','Oktober','November','Desember'
+  ];
+
+  let m=text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(m){
-    const bulan=[
-      'Januari','Februari','Maret','April','Mei','Juni',
-      'Juli','Agustus','September','Oktober','November','Desember'
-    ];
-    return Number(m[3])+' '+bulan[Number(m[2])-1]+' '+m[1];
+    const y=Number(m[1]), mo=Number(m[2])-1, d=Number(m[3]);
+    const dt=new Date(y,mo,d);
+    return hari[dt.getDay()]+', '+d+' '+bulan[mo]+' '+y;
   }
+
+  const dt=new Date(text);
+  if(!isNaN(dt.getTime())){
+    return hari[dt.getDay()]+', '+dt.getDate()+' '+
+      bulan[dt.getMonth()]+' '+dt.getFullYear();
+  }
+
+  const md=text.match(/(?:^|\s)(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:\s|$)/);
+  if(md){
+    const d=Number(md[1]), mo=Number(md[2])-1, y=Number(md[3]);
+    const x=new Date(y,mo,d);
+    if(!isNaN(x.getTime())){
+      return hari[x.getDay()]+', '+d+' '+bulan[mo]+' '+y;
+    }
+  }
+
   return text;
 }
 
@@ -1812,7 +1835,7 @@ function getStatusRealisasi_(data){
         '<b>PENGIRIMAN BERIKUTNYA:</b> '+tanggalRencana;
     }else{
       note+=(note ? '<br>' : '')+
-        'Masih ada sisa material — pengiriman berikutnya';
+        '<b>BELUM ADA SCHEDULE</b>';
     }
 
     return {
@@ -1866,6 +1889,7 @@ function escapeHtmlSafe_(value){
 
 let shipmentSnapshotTimer_=null;
 let shipmentSnapshotSerial_=0;
+const shipmentStatusMemoryCache_={};
 
 function buatPayloadSnapshotPengiriman_(project, rows){
   return (Array.isArray(rows) ? rows : []).map(function(item){
@@ -2181,6 +2205,18 @@ function bukaDetailReschedule(){
       ''
     ).trim();
 
+    // Jika status proyek sudah pernah berhasil dibaca dalam sesi ini,
+    // tampilkan langsung; API tetap diperbarui di background.
+    const memoryKey=String(project).trim().toUpperCase();
+    const cachedStatus=shipmentStatusMemoryCache_[memoryKey];
+    if(cachedStatus){
+      const cachedData=Object.assign({},data,{
+        shipmentStatus:cachedStatus,
+        shipmentCount:Number(cachedStatus.shipmentCount)||0
+      });
+      tampilkanStatusRealisasi_(getStatusRealisasi_(cachedData));
+    }
+
     fetch(API_URL+'?action=get_shipment_status'
       +'&project='+encodeURIComponent(project)
       +'&schedule='+encodeURIComponent(tanggalRencanaStatus)
@@ -2198,6 +2234,7 @@ function bukaDetailReschedule(){
           throw new Error(result && result.message ? result.message : 'Status pengiriman gagal dimuat.');
         }
 
+        shipmentStatusMemoryCache_[memoryKey]=result;
         const statusData=Object.assign({},data,{
           shipmentStatus:result,
           shipmentCount:Number(result.shipmentCount)||0
@@ -2206,7 +2243,9 @@ function bukaDetailReschedule(){
       })
       .catch(function(error){
         console.warn('STATUS REALISASI API:',error.message || error);
-        tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+        if(!shipmentStatusMemoryCache_[memoryKey]){
+          tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+        }
       });
   }else{
     tampilkanStatusRealisasi_(getStatusRealisasi_(data));
