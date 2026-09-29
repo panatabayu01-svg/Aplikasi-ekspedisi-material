@@ -1896,6 +1896,37 @@ let shipmentSnapshotTimer_=null;
 let shipmentSnapshotSerial_=0;
 const shipmentStatusMemoryCache_={};
 
+// V12: cache status popup lintas reload agar popup tidak kembali lama ke
+// "MEMUAT STATUS..." setiap kali dibuka. Server tetap diperiksa di background.
+const SHIPMENT_STATUS_LOCAL_CACHE_PREFIX_='EXP_SHIPMENT_STATUS_LOCAL_V1_';
+const SHIPMENT_STATUS_LOCAL_CACHE_TTL_=6*60*60*1000;
+
+function shipmentStatusLocalKey_(project){
+  return SHIPMENT_STATUS_LOCAL_CACHE_PREFIX_ + String(project||'').trim().toUpperCase();
+}
+
+function bacaShipmentStatusLocal_(project){
+  try{
+    const raw=localStorage.getItem(shipmentStatusLocalKey_(project));
+    if(!raw) return null;
+    const obj=JSON.parse(raw);
+    if(!obj || !obj.data || !obj.savedAt) return null;
+    if(Date.now()-Number(obj.savedAt)>SHIPMENT_STATUS_LOCAL_CACHE_TTL_){
+      localStorage.removeItem(shipmentStatusLocalKey_(project));
+      return null;
+    }
+    return obj.data;
+  }catch(err){
+    return null;
+  }
+}
+
+function simpanShipmentStatusLocal_(project,data){
+  try{
+    localStorage.setItem(shipmentStatusLocalKey_(project),JSON.stringify({savedAt:Date.now(),data:data}));
+  }catch(err){}
+}
+
 function buatPayloadSnapshotPengiriman_(project, rows){
   return (Array.isArray(rows) ? rows : []).map(function(item){
     const material=String(item && item.material || '').trim();
@@ -2213,8 +2244,12 @@ function bukaDetailReschedule(){
     // Jika status proyek sudah pernah berhasil dibaca dalam sesi ini,
     // tampilkan langsung; API tetap diperbarui di background.
     const memoryKey=String(project).trim().toUpperCase();
-    const cachedStatus=shipmentStatusMemoryCache_[memoryKey];
+    const cachedStatus=shipmentStatusMemoryCache_[memoryKey] || bacaShipmentStatusLocal_(project);
+
+    // Tampilkan status terakhir SEGERA jika pernah tersedia.
+    // Server tetap dicek di background untuk memastikan status terbaru.
     if(cachedStatus){
+      shipmentStatusMemoryCache_[memoryKey]=cachedStatus;
       const cachedData=Object.assign({},data,{
         shipmentStatus:cachedStatus,
         shipmentCount:Number(cachedStatus.shipmentCount)||0
@@ -2222,13 +2257,31 @@ function bukaDetailReschedule(){
       tampilkanStatusRealisasi_(getStatusRealisasi_(cachedData));
     }
 
+    let statusRequestDone=false;
+    let statusTimeout=null;
+    let controller=null;
+
+    try{
+      controller=new AbortController();
+      statusTimeout=setTimeout(function(){
+        if(statusRequestDone) return;
+        statusRequestDone=true;
+        try{controller.abort();}catch(err){}
+        // Jangan menahan popup hanya karena endpoint status lambat.
+        if(!cachedStatus){
+          tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+        }
+      },3000);
+    }catch(err){}
+
     fetch(API_URL+'?action=get_shipment_status'
       +'&project='+encodeURIComponent(project)
       +'&schedule='+encodeURIComponent(tanggalRencanaStatus)
       +'&_='+Date.now(),{
         method:'GET',
         cache:'no-store',
-        redirect:'follow'
+        redirect:'follow',
+        signal:controller ? controller.signal : undefined
       })
       .then(function(response){
         if(!response.ok) throw new Error('HTTP '+response.status);
@@ -2239,7 +2292,11 @@ function bukaDetailReschedule(){
           throw new Error(result && result.message ? result.message : 'Status pengiriman gagal dimuat.');
         }
 
+        statusRequestDone=true;
+        if(statusTimeout) clearTimeout(statusTimeout);
         shipmentStatusMemoryCache_[memoryKey]=result;
+        simpanShipmentStatusLocal_(project,result);
+
         const statusData=Object.assign({},data,{
           shipmentStatus:result,
           shipmentCount:Number(result.shipmentCount)||0
@@ -2247,6 +2304,8 @@ function bukaDetailReschedule(){
         tampilkanStatusRealisasi_(getStatusRealisasi_(statusData));
       })
       .catch(function(error){
+        if(statusTimeout) clearTimeout(statusTimeout);
+        if(error && error.name==='AbortError') return;
         console.warn('STATUS REALISASI API:',error.message || error);
         if(!shipmentStatusMemoryCache_[memoryKey]){
           tampilkanStatusRealisasi_(getStatusRealisasi_(data));
