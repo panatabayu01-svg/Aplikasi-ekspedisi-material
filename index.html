@@ -1726,8 +1726,13 @@ function getStatusRealisasi_(data){
   data=data||{};
   const material=Array.isArray(data.material) ? data.material : [];
 
-  // Material yang masih memiliki volume/CBM/tonase berarti masih ada
-  // item yang belum kosong/terkirim. Tidak menambah kolom apa pun.
+  // STATUS REALISASI:
+  // 1. Belum ada histori pengiriman + masih ada material -> MENUNGGU PENGIRIMAN
+  // 2. Sudah ada histori pengiriman + masih ada material -> MATERIAL BELUM SEMUA TERKIRIM
+  // 3. Sudah ada histori pengiriman + material sudah habis -> MATERIAL SUDAH TERKIRIM
+  // shipmentCount berasal dari REPORT HISTORI PENGIRIMAN yang tersimpan di server.
+  const shipmentCount=Math.max(0,Number(data.shipmentCount)||0);
+
   const masihAdaMaterial=material.some(function(item){
     return (Number(item.volume)||0)>0.000001 ||
            (Number(item.totalCbm)||0)>0.000001 ||
@@ -1740,6 +1745,14 @@ function getStatusRealisasi_(data){
     (material[0] && material[0].tanggalKirim) ||
     ''
   ).trim();
+
+  if(masihAdaMaterial && shipmentCount>0){
+    return {
+      cls:'status-partial',
+      value:'🟠 MATERIAL BELUM SEMUA TERKIRIM',
+      note:'RENCANA KIRIM: '+(tanggal || '-')
+    };
+  }
 
   if(masihAdaMaterial){
     return {
@@ -2077,12 +2090,45 @@ function bukaDetailReschedule(){
   const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
-  if(statusBox){
-    statusBox.classList.remove('status-ok','status-partial');
-    statusBox.classList.add(status.cls);
+
+  function tampilkanStatusRealisasi_(status){
+    if(statusBox){
+      statusBox.classList.remove('status-ok','status-partial');
+      statusBox.classList.add(status.cls);
+    }
+    if(statusValue) statusValue.textContent=status.value;
+    if(statusNote) statusNote.textContent=status.note;
   }
-  if(statusValue) statusValue.textContent=status.value;
-  if(statusNote) statusNote.textContent=status.note;
+
+  // Tampilkan status awal secepat mungkin dari data yang sudah ada.
+  tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+
+  // Cek histori pengiriman permanen di server. Jika sudah ada pengiriman
+  // dan material saat ini masih tersisa, tampilkan status partial.
+  if(project){
+    fetch(API_URL+'?action=get_shipment_report'
+      +'&project='+encodeURIComponent(project)
+      +'&_='+Date.now(),{
+        method:'GET',
+        cache:'no-store',
+        redirect:'follow'
+      })
+      .then(function(response){
+        if(!response.ok) throw new Error('HTTP '+response.status);
+        return response.json();
+      })
+      .then(function(result){
+        if(!result || result.success!==true) return;
+
+        const rows=Array.isArray(result.rows) ? result.rows : [];
+        const statusData=Object.assign({},data,{shipmentCount:rows.length});
+        tampilkanStatusRealisasi_(getStatusRealisasi_(statusData));
+      })
+      .catch(function(error){
+        // Jika endpoint report belum tersedia, pertahankan status awal.
+        console.warn('STATUS REALISASI REPORT:',error.message || error);
+      });
+  }
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
