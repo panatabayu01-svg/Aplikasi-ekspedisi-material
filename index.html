@@ -2325,17 +2325,19 @@ function verifikasiPasswordInputTanggal(){
 function ubahStatusScheduleInput_(){
   const status=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
+  const statusValue=String(status && status.value || 'BELUM_ADA').trim();
 
-  // Status Schedule dan Tanggal Rencana Kirim berdiri sendiri.
-  // Belum Ada Schedule TIDAK mengunci tanggal.
-  if(input) input.disabled=false;
+  // BELUM ADA SCHEDULE = tanggal terkunci.
+  // SUDAH ADA SCHEDULE = tanggal terbuka dan bisa diisi.
+  if(input){
+    input.disabled=(statusValue!=='SUDAH_ADA');
+  }
 
-  // BAGIAN RESCHEDULE SELALU TAMPIL. Jangan disembunyikan saat
-  // user memilih Belum Ada Schedule maupun Sudah Ada Schedule.
+  // BAGIAN RESCHEDULE SELALU TAMPIL. Jangan disembunyikan.
   const rescheduleSection=document.querySelector('.tanggal-section-reschedule');
   if(rescheduleSection) rescheduleSection.style.display='block';
 
-  if(input){
+  if(statusValue==='SUDAH_ADA' && input){
     setTimeout(function(){ input.focus(); },50);
   }
 }
@@ -2368,12 +2370,14 @@ function bukaInputTanggalRencanaKirim(){
     info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Rencana Kirim Saat Ini:</b> '+escapeHtml(currentText || '-');
   }
 
-  // Saat popup dibuka, default Status Schedule tetap BELUM ADA.
-  // Tanggal Rencana Kirim tetap BISA diisi, apa pun status schedule-nya.
-  if(statusSchedule) statusSchedule.value='BELUM_ADA';
+  // Saat popup dibuka, ikuti status schedule yang terakhir tersimpan.
+  // Jika belum pernah tersimpan, default = BELUM ADA SCHEDULE.
+  const savedScheduleStatus=getScheduleStatusOverride_(project);
+  const initialScheduleStatus=savedScheduleStatus==='SUDAH_ADA' ? 'SUDAH_ADA' : 'BELUM_ADA';
+  if(statusSchedule) statusSchedule.value=initialScheduleStatus;
   if(input){
     input.value=currentInput || today;
-    input.disabled=false;
+    input.disabled=(initialScheduleStatus!=='SUDAH_ADA');
   }
 
   // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
@@ -2413,8 +2417,10 @@ function setTanggalInputLoading_(loading){
     save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN';
   }
   if(cancel) cancel.disabled=loading;
-  // Tanggal tetap dapat diisi. Hanya proses simpan yang mengunci sementara.
-  if(input) input.disabled=loading;
+  // Saat loading, tanggal dikunci sementara. Setelah selesai,
+  // status dropdown kembali menentukan apakah tanggal terkunci/terbuka.
+  const sudahAda=statusSchedule && statusSchedule.value==='SUDAH_ADA';
+  if(input) input.disabled=loading || !sudahAda;
   if(statusSchedule) statusSchedule.disabled=loading;
 }
 
@@ -2431,11 +2437,10 @@ function simpanTanggalRencanaKirim(){
   }
 
   // BELUM ADA SCHEDULE adalah pilihan yang sah.
-  // Tidak perlu tanggal untuk menyimpan status ini.
+  // Yang disimpan adalah STATUS, bukan tanggal yang ada di input.
   if(statusValue==='BELUM_ADA'){
     setScheduleStatusOverride_(project,'BELUM_ADA');
     window.__DATA_TERAKHIR__=window.__DATA_TERAKHIR__ || {};
-    window.__DATA_TERAKHIR__.tanggalKirimInput=dateValue;
     window.__DATA_TERAKHIR__.tanggalKirim='BELUM ADA SCHEDULE';
 
     const tanggalKirimEl=document.getElementById('deliveryDateValue');
