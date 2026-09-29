@@ -512,8 +512,13 @@
         margin-bottom:9px;
       }
       .tanggal-label{
+        margin-top:8px;
         margin-bottom:5px;
         font-size:12px;
+      }
+      .tanggal-label + .tanggal-input{
+        margin-top:4px;
+        margin-bottom:12px;
       }
       .tanggal-input{
         height:36px;
@@ -664,10 +669,19 @@
     }
     .tanggal-label{
       display:block;
+      margin-top:10px;
       margin-bottom:6px;
       color:#17324d;
       font-size:13px;
       font-weight:700;
+    }
+    .tanggal-section-title + .tanggal-label{
+      margin-top:8px;
+    }
+    .tanggal-label + .tanggal-input{
+      display:block;
+      margin-top:4px;
+      margin-bottom:14px;
     }
     .tanggal-input{
       width:100%;
@@ -678,6 +692,13 @@
       padding:0 10px;
       font-size:14px;
       outline:none;
+    }
+    .tanggal-section select.tanggal-input{
+      cursor:pointer;
+      background-color:#fff;
+    }
+    .tanggal-section select.tanggal-input:disabled{
+      cursor:not-allowed;
     }
     .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
     .tanggal-input:disabled{
@@ -2283,13 +2304,14 @@ function verifikasiPasswordInputTanggal(){
 function ubahStatusScheduleInput_(){
   const status=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
-  const save=document.getElementById('tanggalBtnSimpan');
 
   const sudahAda=status && status.value==='SUDAH_ADA';
 
+  // Tanggal tetap mengikuti Status Schedule:
+  // BELUM ADA = terkunci, SUDAH ADA = terbuka.
   if(input) input.disabled=!sudahAda;
-  if(save) save.disabled=!sudahAda;
 
+  // Tombol SIMPAN selalu aktif. Validasi dilakukan saat tombol ditekan.
   if(sudahAda && input){
     setTimeout(function(){ input.focus(); },50);
   }
@@ -2330,8 +2352,8 @@ function bukaInputTanggalRencanaKirim(){
     input.value=currentInput || today;
     input.disabled=true;
   }
-  const saveTanggal=document.getElementById('tanggalBtnSimpan');
-  if(saveTanggal) saveTanggal.disabled=true;
+  // Tombol SIMPAN tetap aktif walaupun tanggal masih terkunci.
+  // Jika diklik saat "Belum Ada Schedule", fungsi simpan akan memberi pesan validasi.
 
   // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
   if(oldEl){
@@ -2366,8 +2388,9 @@ function setTanggalInputLoading_(loading){
   const statusSchedule=document.getElementById('statusScheduleInput');
   const sudahAda=statusSchedule && statusSchedule.value==='SUDAH_ADA';
 
+  // SIMPAN sengaja tidak pernah di-disable.
   if(save){
-    save.disabled=loading || !sudahAda;
+    save.disabled=false;
     save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN';
   }
   if(cancel) cancel.disabled=loading;
