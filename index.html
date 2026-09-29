@@ -1768,9 +1768,12 @@ function renderStatusReschedule_(history,isBelumAdaSchedule){
   const hasHistory=Array.isArray(history) && history.length>0;
   const noSchedule=!!isBelumAdaSchedule;
 
-  // Tombol RESCHEDULE hanya tampil jika memang ada histori RESCHEDULE.
-  // Status BELUM ADA SCHEDULE tidak menghapus histori yang sudah ada.
-  if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
+  // Tombol/kotak ORANGE RESCHEDULE hanya tampil jika:
+  // 1) memang ada histori RESCHEDULE, DAN
+  // 2) Status Schedule bukan BELUM ADA SCHEDULE.
+  // Jika BELUM ADA SCHEDULE, kotak ORANGE wajib disembunyikan
+  // walaupun histori RESCHEDULE lama masih tersimpan.
+  if(badge) badge.style.display=(hasHistory && !noSchedule) ? 'inline-flex' : 'none';
 
   // BELUM ADA SCHEDULE harus terlihat tegas dengan warna merah.
   // Saat kembali ke tanggal normal, warna kembali ke putih seperti semula.
