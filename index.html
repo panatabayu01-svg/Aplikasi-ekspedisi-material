@@ -1,3 +1,4 @@
+<!-- INDEX GITHUB.4 - status realisasi + tanggal pengiriman -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -1183,7 +1184,7 @@
     <div class="reschedule-history-body">
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
         <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">🔴 MENUNGGU PENGIRIMAN</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">MEMUAT STATUS...</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
@@ -1731,13 +1732,13 @@ function renderStatusReschedule_(history){
 function getStatusRealisasi_(data){
   data=data||{};
   const material=Array.isArray(data.material) ? data.material : [];
+  const shipmentRows=Array.isArray(data.shipmentRows) ? data.shipmentRows : [];
 
   // STATUS REALISASI:
   // 1. Belum ada histori pengiriman + masih ada material -> MENUNGGU PENGIRIMAN
-  // 2. Sudah ada histori pengiriman + masih ada material -> MATERIAL DIKIRIM
-  // 3. Sudah ada histori pengiriman + material sudah habis -> MATERIAL SUDAH TERKIRIM
-  // shipmentCount berasal dari REPORT HISTORI PENGIRIMAN yang tersimpan di server.
-  const shipmentCount=Math.max(0,Number(data.shipmentCount)||0);
+  // 2. Sudah ada pengiriman + masih ada material -> MATERIAL DIKIRIM
+  // 3. Material sudah habis -> MATERIAL SUDAH TERKIRIM
+  const shipmentCount=Math.max(0,Number(data.shipmentCount)||shipmentRows.length||0);
 
   const masihAdaMaterial=material.some(function(item){
     return (Number(item.volume)||0)>0.000001 ||
@@ -1746,17 +1747,49 @@ function getStatusRealisasi_(data){
            (Number(item.totalTon)||0)>0.000001;
   });
 
-  const tanggal=String(
+  const tanggalRencana=String(
     data.tanggalKirim ||
     (material[0] && material[0].tanggalKirim) ||
     ''
   ).trim();
 
+  // Ambil tanggal pengiriman pertama dan terakhir dari histori permanen.
+  const tanggalKirimList=shipmentRows.map(function(row){
+    return String(row && row.tanggalDikirim || '').trim();
+  }).filter(function(value){ return value; });
+
+  const tanggalPengirimanPertama=tanggalKirimList.length
+    ? tanggalKirimList.slice().sort()[0]
+    : '';
+
+  const tanggalPengirimanTerakhir=tanggalKirimList.length
+    ? tanggalKirimList.slice().sort().slice(-1)[0]
+    : '';
+
+  // Rencana Kirim berikutnya hanya ditampilkan jika tanggal rencana
+  // sudah berubah dari tanggal pengiriman terakhir. Dengan begitu
+  // tanggal 29/09 yang sudah benar-benar dikirim tidak ditampilkan
+  // lagi sebagai "pengiriman berikutnya".
+  const adaRencanaBerikutnya=!!tanggalRencana &&
+    tanggalRencana!==tanggalPengirimanTerakhir;
+
   if(masihAdaMaterial && shipmentCount>0){
+    let note='';
+    if(tanggalPengirimanPertama){
+      note='<b>PENGIRIMAN PERTAMA:</b> '+tanggalPengirimanPertama;
+    }
+    if(adaRencanaBerikutnya){
+      note+=(note ? '<br>' : '')+
+        '<b>PENGIRIMAN BERIKUTNYA:</b> '+tanggalRencana;
+    }else{
+      note+=(note ? '<br>' : '')+
+        'Masih ada sisa material — pengiriman berikutnya';
+    }
+
     return {
       cls:'status-partial',
       value:'🟠 MATERIAL DIKIRIM',
-      note:'Masih ada sisa material — pengiriman berikutnya'
+      note:note
     };
   }
 
@@ -1764,14 +1797,16 @@ function getStatusRealisasi_(data){
     return {
       cls:'status-waiting',
       value:'🔴 MENUNGGU PENGIRIMAN',
-      note:'RENCANA KIRIM: '+(tanggal || '-')
+      note:'<b>RENCANA KIRIM:</b> '+(tanggalRencana || '-')
     };
   }
 
   return {
     cls:'status-ok',
     value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note:'RENCANA KIRIM: '+(tanggal || '-')
+    note: tanggalPengirimanTerakhir
+      ? '<b>PENGIRIMAN TERAKHIR:</b> '+tanggalPengirimanTerakhir
+      : '<b>RENCANA KIRIM:</b> '+(tanggalRencana || '-')
   };
 }
 
@@ -2092,7 +2127,6 @@ function bukaDetailReschedule(){
   const projectEl=document.getElementById('rescheduleHistoryProject');
   const listEl=document.getElementById('rescheduleHistoryList');
 
-  const status=getStatusRealisasi_(data);
   const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
@@ -2103,14 +2137,15 @@ function bukaDetailReschedule(){
       statusBox.classList.add(status.cls);
     }
     if(statusValue) statusValue.textContent=status.value;
-    if(statusNote) statusNote.textContent=status.note;
+    if(statusNote) statusNote.innerHTML=status.note;
   }
 
-  // Tampilkan status awal secepat mungkin dari data yang sudah ada.
-  tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+  // Jangan tampilkan status awal berdasarkan data cache karena histori
+  // pengiriman server bisa belum terbaca. Tampilkan status final setelah
+  // REPORT server selesai dicek, sehingga tidak ada efek merah lalu orange.
+  if(statusValue) statusValue.textContent='MEMUAT STATUS...';
+  if(statusNote) statusNote.textContent='Memeriksa histori pengiriman...';
 
-  // Cek histori pengiriman permanen di server. Jika sudah ada pengiriman
-  // dan material saat ini masih tersisa, tampilkan status partial.
   if(project){
     fetch(API_URL+'?action=get_shipment_report'
       +'&project='+encodeURIComponent(project)
@@ -2124,16 +2159,25 @@ function bukaDetailReschedule(){
         return response.json();
       })
       .then(function(result){
-        if(!result || result.success!==true) return;
+        if(!result || result.success!==true){
+          tampilkanStatusRealisasi_(getStatusRealisasi_(data));
+          return;
+        }
 
         const rows=Array.isArray(result.rows) ? result.rows : [];
-        const statusData=Object.assign({},data,{shipmentCount:rows.length});
+        const statusData=Object.assign({},data,{
+          shipmentCount:rows.length,
+          shipmentRows:rows
+        });
         tampilkanStatusRealisasi_(getStatusRealisasi_(statusData));
       })
       .catch(function(error){
-        // Jika endpoint report belum tersedia, pertahankan status awal.
+        // Jika endpoint report gagal, gunakan data yang sudah tersedia.
         console.warn('STATUS REALISASI REPORT:',error.message || error);
+        tampilkanStatusRealisasi_(getStatusRealisasi_(data));
       });
+  }else{
+    tampilkanStatusRealisasi_(getStatusRealisasi_(data));
   }
 
   if(projectEl){
