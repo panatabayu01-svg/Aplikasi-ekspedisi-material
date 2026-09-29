@@ -286,12 +286,6 @@
     }
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
-    .shipment-status-card.status-next{
-      background:#eef5fb;
-      border-color:#c5d8e8;
-      border-left-color:#0d6efd;
-    }
-    .shipment-status-card.status-next .shipment-status-value{color:#0d6efd;}
     .shipment-status-note{
       margin-top:4px;
       font-size:11px;
@@ -680,6 +674,23 @@
       outline:none;
     }
     .tanggal-input:focus{border-color:#0d6efd;box-shadow:0 0 0 2px rgba(13,110,253,.12);}
+    .schedule-status-input{
+      margin-bottom:12px;
+      font-weight:700;
+      color:#17324d;
+      background:#fff;
+      cursor:pointer;
+    }
+    .schedule-status-input:disabled{
+      background:#eef3f7;
+      color:#7b8794;
+      cursor:not-allowed;
+    }
+    #tanggalRencanaInput:disabled{
+      background:#eef3f7;
+      color:#7b8794;
+      cursor:not-allowed;
+    }
     .tanggal-modal-actions{
       display:flex;
       justify-content:flex-end;
@@ -1132,6 +1143,11 @@
 
       <div class="tanggal-section tanggal-section-input">
         <div class="tanggal-section-title">📅 INPUT RENCANA KIRIM</div>
+        <label class="tanggal-label" for="statusScheduleInput">Status Schedule</label>
+        <select id="statusScheduleInput" class="tanggal-input schedule-status-input" aria-label="Status Schedule" onchange="ubahStatusScheduleInput_()">
+          <option value="BELUM">Belum Ada Schedule</option>
+          <option value="SUDAH">Sudah Ada Schedule</option>
+        </select>
         <label class="tanggal-label" for="tanggalRencanaInput">Tanggal Rencana Kirim</label>
         <input id="tanggalRencanaInput" class="tanggal-input" type="date">
         <div class="tanggal-modal-actions">
@@ -1182,15 +1198,9 @@
     </div>
     <div class="reschedule-history-body">
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
-        <div class="shipment-status-title">STATUS PENGIRIMAN</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">🟠 JADWAL PENGIRIMAN RESCHEDULE</div>
+        <div class="shipment-status-title">STATUS REALISASI</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
-      </div>
-
-      <div id="nextShipmentStatus" class="shipment-status-card status-next">
-        <div class="shipment-status-title">STATUS PENGIRIMAN BERIKUTNYA</div>
-        <div id="nextShipmentStatusValue" class="shipment-status-value">🔵 PENGIRIMAN BERIKUTNYA</div>
-        <div id="nextShipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -1736,92 +1746,36 @@ function renderStatusReschedule_(history){
 
 function getStatusRealisasi_(data){
   data=data||{};
-  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  const material=Array.isArray(data.material) ? data.material : [];
 
-  // ==========================================================
-  // TOPUP RIWAYAT - JADWAL PENGIRIMAN RESCHEDULE
-  // ----------------------------------------------------------
-  // Jika ada reschedule, gunakan tanggal BARU dari reschedule
-  // terakhir sebagai RENCANA KIRIM pada status pertama.
-  // CLOSED ditentukan terpisah setelah REPORT PENGIRIMAN dicek:
-  // jika pada tanggal reschedule tersebut ada material berkurang,
-  // status berubah menjadi JADWAL PENGIRIMAN RESCHEDULE (CLOSED).
-  // ==========================================================
-  let tanggalReschedule='';
-  if(history.length){
-    for(let i=history.length-1;i>=0;i--){
-      const tanggalBaru=String(history[i] && history[i].tanggalBaru || '').trim();
-      if(tanggalBaru){
-        tanggalReschedule=tanggalBaru;
-        break;
-      }
-    }
+  // Material yang masih memiliki volume/CBM/tonase berarti masih ada
+  // item yang belum kosong/terkirim. Tidak menambah kolom apa pun.
+  const masihAdaMaterial=material.some(function(item){
+    return (Number(item.volume)||0)>0.000001 ||
+           (Number(item.totalCbm)||0)>0.000001 ||
+           (Number(item.totalWeightKg)||0)>0.000001 ||
+           (Number(item.totalTon)||0)>0.000001;
+  });
+
+  const tanggal=String(
+    data.tanggalKirim ||
+    (material[0] && material[0].tanggalKirim) ||
+    ''
+  ).trim();
+
+  if(masihAdaMaterial){
+    return {
+      cls:'status-partial',
+      value:'🟠 MENUNGGU PENGIRIMAN',
+      note:'RENCANA KIRIM: '+(tanggal || '-')
+    };
   }
 
   return {
-    cls:'status-partial',
-    value:'🟠 JADWAL PENGIRIMAN RESCHEDULE',
-    note:'RENCANA KIRIM: '+(tanggalReschedule || '-'),
-    tanggalReschedule:tanggalReschedule,
-    closed:false
+    cls:'status-ok',
+    value:'🟢 MATERIAL SUDAH TERKIRIM',
+    note:'RENCANA KIRIM: '+(tanggal || '-')
   };
-}
-
-function tanggalKeyPengiriman_(value){
-  const text=String(value==null?'':value).trim();
-  if(!text) return '';
-
-  // dd/mm/yyyy atau dd-mm-yyyy
-  let m=text.match(/(?:^|\D)(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\D|$)/);
-  if(m){
-    return String(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
-  }
-
-  // Format Indonesia, contoh: Selasa, 29 September 2026
-  const bulan={
-    januari:1,februari:2,maret:3,april:4,mei:5,juni:6,juli:7,
-    agustus:8,september:9,oktober:10,november:11,desember:12
-  };
-  const n=text.toLowerCase().match(/(?:^|\D)(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+(\d{4})(?:\D|$)/i);
-  if(n){
-    return String(n[3])+'-'+String(bulan[n[2].toLowerCase()]).padStart(2,'0')+'-'+String(n[1]).padStart(2,'0');
-  }
-
-  return '';
-}
-
-function cekRescheduleClosed_(project, tanggalReschedule){
-  const projectName=String(project||'').trim();
-  const targetKey=tanggalKeyPengiriman_(tanggalReschedule);
-  if(!projectName || !targetKey) return Promise.resolve(false);
-
-  return fetch(API_URL+'?action=get_shipment_report'
-    +'&project='+encodeURIComponent(projectName)
-    +'&_='+Date.now(),{
-      method:'GET',
-      cache:'no-store',
-      redirect:'follow'
-    })
-    .then(function(response){
-      if(!response.ok) throw new Error('HTTP '+response.status);
-      return response.json();
-    })
-    .then(function(result){
-      if(!result || result.success!==true) return false;
-      const rows=Array.isArray(result.rows) ? result.rows : [];
-
-      // CLOSED hanya jika benar-benar ada pengurangan material
-      // pada tanggal RENCANA KIRIM RESCHEDULE tersebut.
-      return rows.some(function(row){
-        const qtyKirim=Number(row && row.qtyKirim)||0;
-        const tanggalDikirimKey=tanggalKeyPengiriman_(row && row.tanggalDikirim);
-        return qtyKirim>0 && tanggalDikirimKey===targetKey;
-      });
-    })
-    .catch(function(error){
-      console.warn('CEK RESCHEDULE CLOSED:',error.message || error);
-      return false;
-    });
 }
 
 function escapeHtmlSafe_(value){
@@ -2145,39 +2099,12 @@ function bukaDetailReschedule(){
   const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
-  const nextStatusValue=document.getElementById('nextShipmentStatusValue');
-  const nextStatusNote=document.getElementById('nextShipmentStatusNote');
-
   if(statusBox){
     statusBox.classList.remove('status-ok','status-partial');
     statusBox.classList.add(status.cls);
   }
   if(statusValue) statusValue.textContent=status.value;
   if(statusNote) statusNote.textContent=status.note;
-
-  // Cek apakah pada tanggal RESCHEDULE tersebut sudah ada material
-  // yang berkurang. Jika ya, jadwal reschedule dinyatakan CLOSED.
-  if(status.tanggalReschedule){
-    cekRescheduleClosed_(project,status.tanggalReschedule).then(function(isClosed){
-      if(!isClosed) return;
-      const currentData=window.__DATA_TERAKHIR__ || {};
-      const currentHistory=Array.isArray(currentData.rescheduleHistory) ? currentData.rescheduleHistory : [];
-      let currentTanggal='';
-      for(let i=currentHistory.length-1;i>=0;i--){
-        const tanggalBaru=String(currentHistory[i] && currentHistory[i].tanggalBaru || '').trim();
-        if(tanggalBaru){ currentTanggal=tanggalBaru; break; }
-      }
-      // Jangan menempelkan CLOSED jika popup sudah berpindah proyek/
-      // reschedule lain saat request report selesai.
-      if(currentTanggal!==status.tanggalReschedule) return;
-      if(statusValue) statusValue.textContent='🟠 JADWAL PENGIRIMAN RESCHEDULE (CLOSED)';
-    });
-  }
-
-  // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
-  // Untuk tahap ini RENCANA KIRIM masih sengaja kosong.
-  if(nextStatusValue) nextStatusValue.textContent='🔵 PENGIRIMAN BERIKUTNYA';
-  if(nextStatusNote) nextStatusNote.textContent='RENCANA KIRIM: -';
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
@@ -2232,7 +2159,6 @@ function bukaPasswordInputTanggal(){
   if(error) error.style.display='none';
   if(overlay){
     overlay.style.display='flex';
-    setTimeout(function(){ if(input) input.focus(); },50);
   }
 }
 
@@ -2266,6 +2192,30 @@ function verifikasiPasswordInputTanggal(){
   }, 120);
 }
 
+function setScheduleInputMode_(forceBelum){
+  const status=document.getElementById('statusScheduleInput');
+  const input=document.getElementById('tanggalRencanaInput');
+  const save=document.getElementById('tanggalBtnSimpan');
+  if(!status || !input) return;
+
+  if(forceBelum){
+    status.value='BELUM';
+  }
+
+  const sudah=String(status.value || '')==='SUDAH';
+  input.disabled=!sudah;
+  if(save) save.disabled=!sudah;
+
+  // Saat belum ada schedule, tanggal tetap tampil tetapi tidak bisa diubah/disimpan.
+  if(!sudah && document.activeElement===input){
+    input.blur();
+  }
+}
+
+function ubahStatusScheduleInput_(){
+  setScheduleInputMode_(false);
+}
+
 function bukaInputTanggalRencanaKirim(){
   if(modeAplikasi!=='AUTO'){
     alert('Input Tgl Kirim hanya tersedia untuk DATA OTOMATIS.');
@@ -2293,10 +2243,12 @@ function bukaInputTanggalRencanaKirim(){
     info.innerHTML='<b>Proyek:</b> '+escapeHtml(project)+'<br><b>Rencana Kirim Saat Ini:</b> '+escapeHtml(currentText || '-');
   }
 
-  // Bagian INPUT RENCANA KIRIM: bila sudah ada tanggal, tampilkan tanggal aktif.
+  // Bagian INPUT RENCANA KIRIM: selalu mulai dari "Belum Ada Schedule".
+  // User wajib memilih "Sudah Ada Schedule" terlebih dahulu agar tanggal terbuka.
   if(input){
     input.value=currentInput || today;
   }
+  setScheduleInputMode_(true);
 
   // Bagian RESCHEDULE: tanggal lama = tanggal aktif, tanggal baru default ke tanggal aktif.
   if(oldEl){
@@ -2314,7 +2266,6 @@ function bukaInputTanggalRencanaKirim(){
 
   if(overlay){
     overlay.style.display='flex';
-    setTimeout(function(){ if(input) input.focus(); },50);
   }
 }
 
@@ -2330,7 +2281,11 @@ function setTanggalInputLoading_(loading){
   const input=document.getElementById('tanggalRencanaInput');
   if(save){ save.disabled=loading; save.textContent=loading ? 'MENYIMPAN...' : 'SIMPAN'; }
   if(cancel) cancel.disabled=loading;
-  if(input) input.disabled=loading;
+  if(input){
+    input.disabled=loading || String(document.getElementById('statusScheduleInput')?.value || '')!=='SUDAH';
+  }
+  const status=document.getElementById('statusScheduleInput');
+  if(status) status.disabled=loading;
 }
 
 function simpanTanggalRencanaKirim(){
@@ -2340,6 +2295,11 @@ function simpanTanggalRencanaKirim(){
 
   if(!project){
     alert('Proyek belum dipilih.');
+    return;
+  }
+  const statusSchedule=String(document.getElementById('statusScheduleInput')?.value || 'BELUM');
+  if(statusSchedule!=='SUDAH'){
+    alert('Pilih "Sudah Ada Schedule" terlebih dahulu agar Tanggal Rencana Kirim dapat diubah dan disimpan.');
     return;
   }
   if(!dateValue){
