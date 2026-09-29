@@ -286,6 +286,12 @@
     }
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
+    .shipment-status-card.status-next{
+      background:#eef5fb;
+      border-color:#c5d8e8;
+      border-left-color:#0d6efd;
+    }
+    .shipment-status-card.status-next .shipment-status-value{color:#0d6efd;}
     .shipment-status-note{
       margin-top:4px;
       font-size:11px;
@@ -1176,9 +1182,15 @@
     </div>
     <div class="reschedule-history-body">
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
-        <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
+        <div class="shipment-status-title">STATUS PENGIRIMAN</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🟠 JADWAL PENGIRIMAN RESCHEDULE</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
+      </div>
+
+      <div id="nextShipmentStatus" class="shipment-status-card status-next">
+        <div class="shipment-status-title">STATUS PENGIRIMAN BERIKUTNYA</div>
+        <div id="nextShipmentStatusValue" class="shipment-status-value">🔵 PENGIRIMAN BERIKUTNYA</div>
+        <div id="nextShipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -1724,35 +1736,31 @@ function renderStatusReschedule_(history){
 
 function getStatusRealisasi_(data){
   data=data||{};
-  const material=Array.isArray(data.material) ? data.material : [];
+  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
 
-  // Material yang masih memiliki volume/CBM/tonase berarti masih ada
-  // item yang belum kosong/terkirim. Tidak menambah kolom apa pun.
-  const masihAdaMaterial=material.some(function(item){
-    return (Number(item.volume)||0)>0.000001 ||
-           (Number(item.totalCbm)||0)>0.000001 ||
-           (Number(item.totalWeightKg)||0)>0.000001 ||
-           (Number(item.totalTon)||0)>0.000001;
-  });
-
-  const tanggal=String(
-    data.tanggalKirim ||
-    (material[0] && material[0].tanggalKirim) ||
-    ''
-  ).trim();
-
-  if(masihAdaMaterial){
-    return {
-      cls:'status-partial',
-      value:'🟠 MENUNGGU PENGIRIMAN',
-      note:'RENCANA KIRIM: '+(tanggal || '-')
-    };
+  // ==========================================================
+  // TOPUP RIWAYAT - JADWAL PENGIRIMAN RESCHEDULE
+  // ----------------------------------------------------------
+  // Jika ada reschedule, gunakan tanggal BARU dari reschedule
+  // terakhir sebagai RENCANA KIRIM pada status pertama.
+  // Status kedua disiapkan untuk PENGIRIMAN BERIKUTNYA dan
+  // sementara RENCANA KIRIM sengaja dikosongkan menjadi '-'.
+  // ==========================================================
+  let tanggalReschedule='';
+  if(history.length){
+    for(let i=history.length-1;i>=0;i--){
+      const tanggalBaru=String(history[i] && history[i].tanggalBaru || '').trim();
+      if(tanggalBaru){
+        tanggalReschedule=tanggalBaru;
+        break;
+      }
+    }
   }
 
   return {
-    cls:'status-ok',
-    value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note:'RENCANA KIRIM: '+(tanggal || '-')
+    cls:'status-partial',
+    value:'🟠 JADWAL PENGIRIMAN RESCHEDULE',
+    note:'RENCANA KIRIM: '+(tanggalReschedule || '-')
   };
 }
 
@@ -2077,12 +2085,20 @@ function bukaDetailReschedule(){
   const statusBox=document.getElementById('rescheduleHistoryStatus');
   const statusValue=document.getElementById('shipmentStatusValue');
   const statusNote=document.getElementById('shipmentStatusNote');
+  const nextStatusValue=document.getElementById('nextShipmentStatusValue');
+  const nextStatusNote=document.getElementById('nextShipmentStatusNote');
+
   if(statusBox){
     statusBox.classList.remove('status-ok','status-partial');
     statusBox.classList.add(status.cls);
   }
   if(statusValue) statusValue.textContent=status.value;
   if(statusNote) statusNote.textContent=status.note;
+
+  // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
+  // Untuk tahap ini RENCANA KIRIM masih sengaja kosong.
+  if(nextStatusValue) nextStatusValue.textContent='🔵 PENGIRIMAN BERIKUTNYA';
+  if(nextStatusNote) nextStatusNote.textContent='RENCANA KIRIM: -';
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
