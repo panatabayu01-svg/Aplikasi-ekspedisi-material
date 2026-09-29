@@ -643,6 +643,7 @@
     .tanggal-section-input{
       border-left:4px solid #0d6efd;
     }
+    .tanggal-section-reschedule.schedule-hidden{display:none !important;}
     .tanggal-section-reschedule{
       border-left:4px solid #e08a00;
       background:#fffdf8;
@@ -1756,15 +1757,45 @@ document.addEventListener('DOMContentLoaded',function(){
   loadDaftarProyek(false,true);
 });
 
-function renderStatusReschedule_(history){
+function renderStatusReschedule_(history,hasSchedule){
   const wrap=document.getElementById('deliveryDateRescheduled');
   if(!wrap) return;
 
-  // DETAIL selalu tampil. Badge orange hanya jika memang ada reschedule.
-  wrap.style.display='inline-flex';
   const badge=wrap.querySelector('.delivery-date-rescheduled-badge');
   const hasHistory=Array.isArray(history) && history.length>0;
-  if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
+  const active=hasSchedule!==false;
+
+  wrap.style.display=(active && hasHistory) ? 'inline-flex' : 'none';
+  if(badge) badge.style.display=(active && hasHistory) ? 'inline-flex' : 'none';
+}
+
+function formatTanggalInputSchedule_(value){
+  const s=String(value||'').trim();
+  if(!s) return '';
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m) return s;
+  const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return String(Number(m[3]))+' '+(bulan[Number(m[2])-1]||m[2])+' '+m[1];
+}
+
+function sinkronTampilanSchedule_(statusValue,dateValue){
+  const status=String(statusValue||'BELUM_ADA').toUpperCase();
+  const hasSchedule=status==='SUDAH_ADA';
+  const tanggal=String(dateValue||'').trim();
+  const tanggalTampil=hasSchedule ? (formatTanggalInputSchedule_(tanggal)||tanggal) : '';
+
+  const main=document.getElementById('deliveryDateValue');
+  if(main) main.textContent=hasSchedule ? (tanggalTampil||'-') : 'BELUM ADA SCHEDULE';
+
+  const data=window.__DATA_TERAKHIR__ || {};
+  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  renderStatusReschedule_(history,hasSchedule);
+
+  const section=document.querySelector('.tanggal-section-reschedule');
+  if(section) section.classList.toggle('schedule-hidden',!hasSchedule);
+
+  const nextNote=document.getElementById('nextShipmentStatusNote');
+  if(nextNote) nextNote.textContent='RENCANA KIRIM: '+(hasSchedule ? (tanggalTampil||'-') : '-');
 }
 
 function getStatusRealisasi_(data){
@@ -1791,10 +1822,21 @@ function getStatusRealisasi_(data){
     }
   }
 
+  if(!tanggalReschedule){
+    const tanggalSchedule=String(data.tanggalKirim || data.tanggalKirimInput || '').trim();
+    return {
+      cls:'status-next',
+      value:'🔵 PENGIRIMAN BERIKUTNYA',
+      note:'RENCANA KIRIM: '+(tanggalSchedule || '-'),
+      tanggalReschedule:'',
+      closed:false
+    };
+  }
+
   return {
     cls:'status-partial',
     value:'🟠 JADWAL PENGIRIMAN RESCHEDULE',
-    note:'RENCANA KIRIM: '+(tanggalReschedule || '-'),
+    note:'RENCANA KIRIM: '+tanggalReschedule,
     tanggalReschedule:tanggalReschedule,
     closed:false
   };
@@ -1884,6 +1926,9 @@ function escapeHtmlSafe_(value){
 
 let shipmentSnapshotTimer_=null;
 let shipmentSnapshotSerial_=0;
+
+// Status Schedule yang sedang dipilih pada popup INPUT TGL KIRIM.
+let scheduleStatusOverride_=null;
 
 function buatPayloadSnapshotPengiriman_(project, rows){
   return (Array.isArray(rows) ? rows : []).map(function(item){
@@ -2208,9 +2253,12 @@ function bukaDetailReschedule(){
   }
 
   // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
-  // Untuk tahap ini RENCANA KIRIM masih sengaja kosong.
+  const tanggalScheduleAktif=String(data.tanggalKirim || data.tanggalKirimInput || '').trim();
   if(nextStatusValue) nextStatusValue.textContent='🔵 PENGIRIMAN BERIKUTNYA';
-  if(nextStatusNote) nextStatusNote.textContent='RENCANA KIRIM: -';
+  if(nextStatusNote){
+    nextStatusNote.textContent='RENCANA KIRIM: '+
+      (!history.length && tanggalScheduleAktif ? tanggalScheduleAktif : '-');
+  }
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
@@ -2304,14 +2352,13 @@ function verifikasiPasswordInputTanggal(){
 function ubahStatusScheduleInput_(){
   const status=document.getElementById('statusScheduleInput');
   const input=document.getElementById('tanggalRencanaInput');
-
   const sudahAda=status && status.value==='SUDAH_ADA';
 
-  // Tanggal tetap mengikuti Status Schedule:
-  // BELUM ADA = terkunci, SUDAH ADA = terbuka.
   if(input) input.disabled=!sudahAda;
 
-  // Tombol SIMPAN selalu aktif. Validasi dilakukan saat tombol ditekan.
+  const section=document.querySelector('.tanggal-section-reschedule');
+  if(section) section.classList.toggle('schedule-hidden',!sudahAda);
+
   if(sudahAda && input){
     setTimeout(function(){ input.focus(); },50);
   }
@@ -2352,6 +2399,10 @@ function bukaInputTanggalRencanaKirim(){
     input.value=currentInput || today;
     input.disabled=true;
   }
+
+  const rescheduleSection=document.querySelector('.tanggal-section-reschedule');
+  if(rescheduleSection) rescheduleSection.classList.add('schedule-hidden');
+
   // Tombol SIMPAN tetap aktif walaupun tanggal masih terkunci.
   // Jika diklik saat "Belum Ada Schedule", fungsi simpan akan memberi pesan validasi.
 
@@ -2404,19 +2455,32 @@ function simpanTanggalRencanaKirim(){
   const input=document.getElementById('tanggalRencanaInput');
   const dateValue=String(input && input.value || '').trim();
 
-  if(!statusSchedule || statusSchedule.value!=='SUDAH_ADA'){
-    alert('Pilih "Sudah Ada Schedule" terlebih dahulu sebelum mengisi Tanggal Rencana Kirim.');
-    return;
-  }
-
   if(!project){
     alert('Proyek belum dipilih.');
     return;
   }
+
+  if(statusSchedule && statusSchedule.value==='BELUM_ADA'){
+    scheduleStatusOverride_={project:project,status:'BELUM_ADA',date:''};
+
+    const data=window.__DATA_TERAKHIR__ || {};
+    data.tanggalKirim='';
+    data.tanggalKirimInput='';
+    window.__DATA_TERAKHIR__=data;
+
+    sinkronTampilanSchedule_('BELUM_ADA','');
+    setStatus('Status Schedule: Belum Ada Schedule.');
+    tutupInputTanggalRencanaKirim();
+    return;
+  }
+
   if(!dateValue){
     alert('Pilih tanggal Rencana Kirim terlebih dahulu.');
     return;
   }
+
+  scheduleStatusOverride_={project:project,status:'SUDAH_ADA',date:dateValue};
+  sinkronTampilanSchedule_('SUDAH_ADA',dateValue);
 
   setTanggalInputLoading_(true);
   setStatus('Menyimpan Tanggal Rencana Kirim...');
@@ -2434,6 +2498,9 @@ function simpanTanggalRencanaKirim(){
     if(!result || result.success!==true){
       throw new Error(result && result.message ? result.message : 'Tanggal gagal disimpan.');
     }
+
+    scheduleStatusOverride_=null;
+    sinkronTampilanSchedule_('SUDAH_ADA',result.tanggalKirim || dateValue);
 
     tutupInputTanggalRencanaKirim();
     setStatus('Tanggal Rencana Kirim berhasil disimpan. Memuat data terbaru...');
@@ -3111,7 +3178,18 @@ function tampilkanData(data){
 
   const rescheduleHistory=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
   let tanggalKirim=tanggalKirimAktif;
-  if(rescheduleHistory.length){
+
+  const override=scheduleStatusOverride_;
+  const overrideUntukProject=override &&
+    String(override.project||'').trim()===String(proyekAktif||'').trim();
+
+  if(overrideUntukProject && override.status==='BELUM_ADA'){
+    tanggalKirim='';
+  }else if(overrideUntukProject && override.status==='SUDAH_ADA' && override.date){
+    tanggalKirim=override.date;
+  }
+
+  if(rescheduleHistory.length && !(overrideUntukProject && override.status==='BELUM_ADA')){
     // Ambil tanggal lama paling awal sebagai tanggal RENCANA KIRIM awal.
     const riwayatAwal=rescheduleHistory.find(function(item){
       return item && String(item.tanggalLama || '').trim();
@@ -3146,7 +3224,7 @@ function tampilkanData(data){
 
   // Jika proyek pernah di-reschedule, tampilkan badge + tombol DETAIL
   // di samping RENCANA KIRIM. Riwayat berasal dari HISTORI_RESCHEDULE FILE 2.
-  renderStatusReschedule_(rescheduleHistory);
+  renderStatusReschedule_(rescheduleHistory,!!tanggalKirim);
   materialDataTerakhir=materialData.slice();
 
   const btnInputTanggal=document.getElementById('btnInputTanggal');
@@ -4483,7 +4561,9 @@ function resetTampilan(){
   if(tanggalKirimEl){
     tanggalKirimEl.textContent='-';
   }
-  renderStatusReschedule_([]);
+  renderStatusReschedule_([],false);
+  const rescheduleSection=document.querySelector('.tanggal-section-reschedule');
+  if(rescheduleSection) rescheduleSection.classList.add('schedule-hidden');
   const btnInputTanggal=document.getElementById('btnInputTanggal');
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
