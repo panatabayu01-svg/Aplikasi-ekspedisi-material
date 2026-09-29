@@ -1743,8 +1743,9 @@ function getStatusRealisasi_(data){
   // ----------------------------------------------------------
   // Jika ada reschedule, gunakan tanggal BARU dari reschedule
   // terakhir sebagai RENCANA KIRIM pada status pertama.
-  // Status kedua disiapkan untuk PENGIRIMAN BERIKUTNYA dan
-  // sementara RENCANA KIRIM sengaja dikosongkan menjadi '-'.
+  // CLOSED ditentukan terpisah setelah REPORT PENGIRIMAN dicek:
+  // jika pada tanggal reschedule tersebut ada material berkurang,
+  // status berubah menjadi JADWAL PENGIRIMAN RESCHEDULE (CLOSED).
   // ==========================================================
   let tanggalReschedule='';
   if(history.length){
@@ -1760,8 +1761,67 @@ function getStatusRealisasi_(data){
   return {
     cls:'status-partial',
     value:'🟠 JADWAL PENGIRIMAN RESCHEDULE',
-    note:'RENCANA KIRIM: '+(tanggalReschedule || '-')
+    note:'RENCANA KIRIM: '+(tanggalReschedule || '-'),
+    tanggalReschedule:tanggalReschedule,
+    closed:false
   };
+}
+
+function tanggalKeyPengiriman_(value){
+  const text=String(value==null?'':value).trim();
+  if(!text) return '';
+
+  // dd/mm/yyyy atau dd-mm-yyyy
+  let m=text.match(/(?:^|\D)(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\D|$)/);
+  if(m){
+    return String(m[3])+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+  }
+
+  // Format Indonesia, contoh: Selasa, 29 September 2026
+  const bulan={
+    januari:1,februari:2,maret:3,april:4,mei:5,juni:6,juli:7,
+    agustus:8,september:9,oktober:10,november:11,desember:12
+  };
+  const n=text.toLowerCase().match(/(?:^|\D)(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+(\d{4})(?:\D|$)/i);
+  if(n){
+    return String(n[3])+'-'+String(bulan[n[2].toLowerCase()]).padStart(2,'0')+'-'+String(n[1]).padStart(2,'0');
+  }
+
+  return '';
+}
+
+function cekRescheduleClosed_(project, tanggalReschedule){
+  const projectName=String(project||'').trim();
+  const targetKey=tanggalKeyPengiriman_(tanggalReschedule);
+  if(!projectName || !targetKey) return Promise.resolve(false);
+
+  return fetch(API_URL+'?action=get_shipment_report'
+    +'&project='+encodeURIComponent(projectName)
+    +'&_='+Date.now(),{
+      method:'GET',
+      cache:'no-store',
+      redirect:'follow'
+    })
+    .then(function(response){
+      if(!response.ok) throw new Error('HTTP '+response.status);
+      return response.json();
+    })
+    .then(function(result){
+      if(!result || result.success!==true) return false;
+      const rows=Array.isArray(result.rows) ? result.rows : [];
+
+      // CLOSED hanya jika benar-benar ada pengurangan material
+      // pada tanggal RENCANA KIRIM RESCHEDULE tersebut.
+      return rows.some(function(row){
+        const qtyKirim=Number(row && row.qtyKirim)||0;
+        const tanggalDikirimKey=tanggalKeyPengiriman_(row && row.tanggalDikirim);
+        return qtyKirim>0 && tanggalDikirimKey===targetKey;
+      });
+    })
+    .catch(function(error){
+      console.warn('CEK RESCHEDULE CLOSED:',error.message || error);
+      return false;
+    });
 }
 
 function escapeHtmlSafe_(value){
@@ -2094,6 +2154,25 @@ function bukaDetailReschedule(){
   }
   if(statusValue) statusValue.textContent=status.value;
   if(statusNote) statusNote.textContent=status.note;
+
+  // Cek apakah pada tanggal RESCHEDULE tersebut sudah ada material
+  // yang berkurang. Jika ya, jadwal reschedule dinyatakan CLOSED.
+  if(status.tanggalReschedule){
+    cekRescheduleClosed_(project,status.tanggalReschedule).then(function(isClosed){
+      if(!isClosed) return;
+      const currentData=window.__DATA_TERAKHIR__ || {};
+      const currentHistory=Array.isArray(currentData.rescheduleHistory) ? currentData.rescheduleHistory : [];
+      let currentTanggal='';
+      for(let i=currentHistory.length-1;i>=0;i--){
+        const tanggalBaru=String(currentHistory[i] && currentHistory[i].tanggalBaru || '').trim();
+        if(tanggalBaru){ currentTanggal=tanggalBaru; break; }
+      }
+      // Jangan menempelkan CLOSED jika popup sudah berpindah proyek/
+      // reschedule lain saat request report selesai.
+      if(currentTanggal!==status.tanggalReschedule) return;
+      if(statusValue) statusValue.textContent='🟠 JADWAL PENGIRIMAN RESCHEDULE (CLOSED)';
+    });
+  }
 
   // STATUS KEDUA: PENGIRIMAN BERIKUTNYA.
   // Untuk tahap ini RENCANA KIRIM masih sengaja kosong.
