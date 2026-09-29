@@ -272,6 +272,11 @@
       border-color:#f0d29a;
       border-left-color:#e58a00;
     }
+    .shipment-status-card.status-waiting{
+      background:#fff1f1;
+      border-color:#f3b7b7;
+      border-left-color:#d93025;
+    }
     .shipment-status-title{
       font-size:12px;
       font-weight:800;
@@ -286,6 +291,7 @@
     }
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
+    .shipment-status-card.status-waiting .shipment-status-value{color:#d93025;}
     .shipment-status-note{
       margin-top:4px;
       font-size:11px;
@@ -1175,9 +1181,9 @@
       <button type="button" class="reschedule-history-close" onclick="tutupDetailReschedule()">×</button>
     </div>
     <div class="reschedule-history-body">
-      <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
+      <div id="rescheduleHistoryStatus" class="shipment-status-card status-waiting">
         <div class="shipment-status-title">STATUS REALISASI</div>
-        <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
+        <div id="shipmentStatusValue" class="shipment-status-value">🔴 MENUNGGU PENGIRIMAN</div>
         <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
@@ -1728,7 +1734,7 @@ function getStatusRealisasi_(data){
 
   // STATUS REALISASI:
   // 1. Belum ada histori pengiriman + masih ada material -> MENUNGGU PENGIRIMAN
-  // 2. Sudah ada histori pengiriman + masih ada material -> MATERIAL BELUM SEMUA TERKIRIM
+  // 2. Sudah ada histori pengiriman + masih ada material -> MATERIAL DIKIRIM
   // 3. Sudah ada histori pengiriman + material sudah habis -> MATERIAL SUDAH TERKIRIM
   // shipmentCount berasal dari REPORT HISTORI PENGIRIMAN yang tersimpan di server.
   const shipmentCount=Math.max(0,Number(data.shipmentCount)||0);
@@ -1749,15 +1755,15 @@ function getStatusRealisasi_(data){
   if(masihAdaMaterial && shipmentCount>0){
     return {
       cls:'status-partial',
-      value:'🟠 MATERIAL BELUM SEMUA TERKIRIM',
-      note:'RENCANA KIRIM: '+(tanggal || '-')
+      value:'🟠 MATERIAL DIKIRIM',
+      note:'Masih ada sisa material — pengiriman berikutnya'
     };
   }
 
   if(masihAdaMaterial){
     return {
-      cls:'status-partial',
-      value:'🟠 MENUNGGU PENGIRIMAN',
+      cls:'status-waiting',
+      value:'🔴 MENUNGGU PENGIRIMAN',
       note:'RENCANA KIRIM: '+(tanggal || '-')
     };
   }
@@ -2093,7 +2099,7 @@ function bukaDetailReschedule(){
 
   function tampilkanStatusRealisasi_(status){
     if(statusBox){
-      statusBox.classList.remove('status-ok','status-partial');
+      statusBox.classList.remove('status-ok','status-partial','status-waiting');
       statusBox.classList.add(status.cls);
     }
     if(statusValue) statusValue.textContent=status.value;
