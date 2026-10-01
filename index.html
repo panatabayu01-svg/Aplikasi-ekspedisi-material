@@ -909,13 +909,25 @@
       top:0 !important;
       z-index:20 !important;
     }
+    /* PERBAIKAN #15 — GRADIENT HEADER HARUS 1 BIDANG PENUH, BUKAN TERULANG DI SETIAP KOLOM */
+    .table-wrapper > table > thead{
+      position:sticky !important;
+      top:0 !important;
+      z-index:20 !important;
+      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
+      background-image:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
+    }
+    .table-wrapper > table > thead > tr{
+      background:transparent !important;
+    }
     .table-wrapper > table > thead > tr > th{
       position:sticky !important;
       top:0 !important;
       z-index:21 !important;
-      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
-      background-image:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
-      background-clip:padding-box !important;
+      background:transparent !important;
+      background-image:none !important;
+      background-color:transparent !important;
+      background-clip:border-box !important;
     }
   </style>
 
