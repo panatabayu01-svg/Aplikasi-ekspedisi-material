@@ -889,6 +889,9 @@
     }
 
 
+    /* PERBAIKAN #14 — KEMBALIKAN GRADASI HEADER DATA MATERIAL SESUAI TAMPILAN #2
+       Gradient header Data Material dibuat kembali seperti tampilan referensi #2.
+       Berlaku PC, Android, dan iPhone; tidak mengubah logic/data tabel. */
     /* PERBAIKAN #13 — HEADER DATA MATERIAL STICKY
        Header tabel tetap diam saat isi tabel discroll vertikal.
        Berlaku PC, Android, dan iPhone. Tidak mengubah struktur/logic tabel. */
@@ -910,8 +913,8 @@
       position:sticky !important;
       top:0 !important;
       z-index:21 !important;
-      background:#0d447f !important;
-      background-image:var(--primary-blue-gradient) !important;
+      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
+      background-image:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
       background-clip:padding-box !important;
     }
   </style>
