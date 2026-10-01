@@ -1135,6 +1135,92 @@
 </style>
 
 <!-- ============================================================
+     PERBAIKAN #11 - HP iPHONE/iOS: RAPATKAN NATIVE DATE INPUT
+     Android tetap mengikuti #10. PC TIDAK DIUBAH.
+     ============================================================ -->
+<script>
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if(isIOS){
+    document.documentElement.classList.add('ios-device');
+  }
+})();
+</script>
+<style id="fix-hp-date-ios-11">
+@media (max-width:600px){
+  /* iPhone/iPad Safari dan Chrome iOS: native date control jangan menentukan
+     ukuran internal yang membuat field tampak bergeser/keluar dari container. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    inline-size:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    flex:0 0 100% !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    -webkit-appearance:none !important;
+    appearance:none !important;
+    height:42px !important;
+    padding:0 12px !important;
+    margin:0 !important;
+    text-align:center !important;
+    text-indent:0 !important;
+    overflow:hidden !important;
+    border-radius:3px !important;
+  }
+
+  /* Nilai tanggal iOS dipaksa berada tepat di tengah area input. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-date-and-time-value,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-date-and-time-value{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    margin:0 auto !important;
+    padding:0 !important;
+    text-align:center !important;
+    overflow:hidden !important;
+    box-sizing:border-box !important;
+  }
+
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-datetime-edit,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-datetime-edit{
+    display:inline-block !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+  }
+
+  /* Safari iOS tidak diberi ruang tambahan untuk indicator native.
+     Input tetap bisa diketuk untuk membuka date picker. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-calendar-picker-indicator,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-calendar-picker-indicator{
+    display:none !important;
+  }
+
+  /* Jangan biarkan parent flex/grid membuat field lebih lebar dari kotaknya. */
+  html.ios-device #tanggalOverlay .tanggal-section-input,
+  html.ios-device #tanggalOverlay .tanggal-section-reschedule,
+  html.ios-device #tanggalOverlay .tanggal-section{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+}
+</style>
+
+<!-- ============================================================
      PERBAIKAN #10 - HP: KUNCI LEBAR 2 FIELD TANGGAL
      Tanggal Rencana Kirim + Tanggal Rencana Kirim Baru.
      Mencegah native date control melebar/bergeser ke kiri.
