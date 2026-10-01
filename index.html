@@ -887,6 +887,33 @@
       color:#ffffff !important;
       font-weight:800 !important;
     }
+
+
+    /* PERBAIKAN #13 — HEADER DATA MATERIAL STICKY
+       Header tabel tetap diam saat isi tabel discroll vertikal.
+       Berlaku PC, Android, dan iPhone. Tidak mengubah struktur/logic tabel. */
+    .table-wrapper{
+      position:relative !important;
+      overflow:auto !important;
+      -webkit-overflow-scrolling:touch;
+    }
+    .table-wrapper > table{
+      border-collapse:separate !important;
+      border-spacing:0 !important;
+    }
+    .table-wrapper > table > thead{
+      position:sticky !important;
+      top:0 !important;
+      z-index:20 !important;
+    }
+    .table-wrapper > table > thead > tr > th{
+      position:sticky !important;
+      top:0 !important;
+      z-index:21 !important;
+      background:#0d447f !important;
+      background-image:var(--primary-blue-gradient) !important;
+      background-clip:padding-box !important;
+    }
   </style>
 
   <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
