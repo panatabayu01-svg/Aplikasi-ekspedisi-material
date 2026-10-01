@@ -1034,6 +1034,105 @@
     }
 </style>
 
+
+
+<!-- ============================================================
+     PERBAIKAN #9 - HP: RAPATKAN FIELD TANGGAL + DROPDOWN ALASAN
+     Hanya mobile <=600px. PC TIDAK DIUBAH.
+     ============================================================ -->
+<style id="fix-hp-tanggal-dropdown-9">
+@media (max-width:600px){
+  /* Pastikan semua field di dalam section memakai lebar border-box yang sama. */
+  #tanggalOverlay .tanggal-modal-body,
+  #tanggalOverlay .tanggal-section,
+  #tanggalOverlay .tanggal-section-reschedule,
+  #tanggalOverlay .tanggal-input,
+  #tanggalOverlay select.tanggal-input,
+  #tanggalOverlay input.tanggal-input{
+    box-sizing:border-box !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  #tanggalOverlay .tanggal-section{
+    width:100% !important;
+    overflow:hidden !important;
+  }
+
+  /* Field tanggal: isi + icon kalender tetap berada di dalam kotak. */
+  #tanggalOverlay input.tanggal-input[type="date"]{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:42px !important;
+    margin:0 !important;
+    padding:0 10px !important;
+    border:1px solid #aeb8c2 !important;
+    border-radius:3px !important;
+    font-size:14px !important;
+    line-height:42px !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:nowrap !important;
+    -webkit-box-sizing:border-box !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Safari/iPhone: nilai tanggal native diberi ruang penuh dan tidak terdorong keluar. */
+  #tanggalOverlay input.tanggal-input[type="date"]::-webkit-date-and-time-value{
+    width:100% !important;
+    min-width:0 !important;
+    text-align:center !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+  #tanggalOverlay input.tanggal-input[type="date"]::-webkit-calendar-picker-indicator{
+    margin:0 0 0 6px !important;
+    padding:0 !important;
+    flex:0 0 auto !important;
+  }
+
+  /* Dropdown ALASAN RESCHEDULE: satu kotak penuh, teks tidak keluar. */
+  #tanggalOverlay select#alasanRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:42px !important;
+    margin:0 !important;
+    padding:0 34px 0 10px !important;
+    border:1px solid #aeb8c2 !important;
+    border-radius:3px !important;
+    background-color:#fff !important;
+    color:#172b3d !important;
+    font-size:14px !important;
+    line-height:42px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    -webkit-appearance:auto !important;
+    appearance:auto !important;
+    -webkit-box-sizing:border-box !important;
+    box-sizing:border-box !important;
+  }
+
+  #tanggalOverlay .tanggal-label{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Jarak label → field dibuat konsisten supaya rapi di layar HP. */
+  #tanggalOverlay .tanggal-label + .tanggal-input{
+    margin-top:0 !important;
+  }
+}
+</style>
 </head>
 
 <body style="background:#eef3f7 !important;">
