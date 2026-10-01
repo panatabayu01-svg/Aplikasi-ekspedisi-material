@@ -1133,6 +1133,96 @@
   }
 }
 </style>
+
+<!-- ============================================================
+     PERBAIKAN #10 - HP: KUNCI LEBAR 2 FIELD TANGGAL
+     Tanggal Rencana Kirim + Tanggal Rencana Kirim Baru.
+     Mencegah native date control melebar/bergeser ke kiri.
+     PC TIDAK DIUBAH.
+     ============================================================ -->
+<style id="fix-hp-date-width-10">
+@media (max-width:600px){
+  #tanggalOverlay .tanggal-section-input,
+  #tanggalOverlay .tanggal-section-reschedule{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  /* Dua field DATE harus mengambil tepat lebar container, bukan lebar native control. */
+  #tanggalOverlay #tanggalRencanaInput,
+  #tanggalOverlay #tanggalRescheduleInput{
+    display:block !important;
+    position:relative !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    flex:none !important;
+    align-self:stretch !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    overflow:hidden !important;
+    border-radius:3px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    text-align:center !important;
+    direction:ltr !important;
+  }
+
+  /* iPhone/Safari: jangan biarkan bagian internal native date menentukan lebar field. */
+  #tanggalOverlay #tanggalRencanaInput::-webkit-datetime-edit,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-datetime-edit{
+    display:block !important;
+    width:auto !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+  }
+
+  #tanggalOverlay #tanggalRencanaInput::-webkit-date-and-time-value,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-date-and-time-value{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align:center !important;
+    overflow:hidden !important;
+  }
+
+  #tanggalOverlay #tanggalRencanaInput::-webkit-calendar-picker-indicator,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-calendar-picker-indicator{
+    flex:0 0 auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    max-width:18px !important;
+  }
+
+  /* Dropdown alasan tetap mengikuti lebar yang sama dengan kedua field tanggal. */
+  #tanggalOverlay #alasanRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    flex:none !important;
+    align-self:stretch !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+  }
+}
+</style>
+
 </head>
 
 <body style="background:#eef3f7 !important;">
