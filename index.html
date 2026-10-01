@@ -336,6 +336,24 @@
       opacity:.55;
       cursor:not-allowed;
     }
+    /* PERBAIKAN #12 - ANDROID: tombol INPUT TGL KIRIM harus menampilkan teks penuh.
+       iPhone/iOS dan PC tidak disentuh. */
+    @media(max-width:600px){
+      html.android-device .btn-input-tanggal{
+        min-width:0 !important;
+        width:100% !important;
+        max-width:100% !important;
+        padding:0 3px !important;
+        font-size:12px !important;
+        line-height:1 !important;
+        letter-spacing:-0.15px;
+        white-space:nowrap !important;
+        overflow:visible !important;
+        text-overflow:clip !important;
+        box-sizing:border-box !important;
+      }
+    }
+
     @media(max-width:600px){
       /* HP: popup INPUT TGL KIRIM dibuat sedikit lebih kompak tanpa mengubah desktop. */
       .tanggal-overlay{
@@ -1145,6 +1163,10 @@
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if(isIOS){
     document.documentElement.classList.add('ios-device');
+  }
+  var isAndroid = /Android/i.test(ua);
+  if(isAndroid){
+    document.documentElement.classList.add('android-device');
   }
 })();
 </script>
