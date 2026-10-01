@@ -580,6 +580,22 @@
     .tanggal-btn-save{border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;}
     .tanggal-btn:disabled{opacity:.55;cursor:not-allowed;}
 
+    /* PERBAIKAN #16 — TOMBOL MATERIAL DI KPI TOTAL ITEM KHUSUS HP */
+    .btn-kpi-material{display:none;position:absolute;right:8px;bottom:8px;height:32px;min-width:105px;padding:0 12px;border:1px solid #0d447f;border-radius:4px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;z-index:3;}
+    .btn-kpi-material:active{transform:translateY(1px);}
+    #kpiMaterialOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,35,55,.55);z-index:10050;padding:14px;box-sizing:border-box;}
+    #kpiMaterialOverlay .kpi-material-modal{width:min(560px,100%);max-height:82vh;background:#fff;border:1px solid #0d447f;border-radius:4px;box-shadow:0 12px 35px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column;}
+    .kpi-material-modal-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:700;}
+    .kpi-material-close{width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
+    .kpi-material-summary{padding:9px 12px;background:#eef5fa;border-bottom:1px solid #d6e1e9;color:#17324d;font-size:12px;font-weight:700;}
+    .kpi-material-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 12px;}
+    .kpi-material-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;}
+    .kpi-material-table th{position:static !important;background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;color:#fff;border:1px solid #17324d;height:36px;padding:6px;font-size:12px;font-weight:700;text-align:center;}
+    .kpi-material-table td{border:1px solid #cbd4de;padding:8px 7px;color:#17324d;background:#fff;font-size:12px;font-weight:500;vertical-align:middle;}
+    .kpi-material-table td:first-child{width:65%;text-align:left;}
+    .kpi-material-table td:last-child{width:35%;text-align:right;white-space:nowrap;}
+    .kpi-material-empty{padding:25px 12px;text-align:center;color:#718096;font-size:13px;}
+
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
     .kpi-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:9px}
@@ -868,6 +884,7 @@
       .header-title{font-size:18px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
+      .btn-kpi-material{display:block;}
       .kpi-icon{font-size:40px;width:60px}
       .kpi-title{font-size:14px}
       .kpi-value{font-size:24px}
@@ -1507,6 +1524,7 @@
         </svg>
       </div>
       <div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div>
+      <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 MATERIAL</button>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon" aria-hidden="true">
@@ -1616,6 +1634,18 @@
     </div>
     <div class="nesting-summary" id="armadaMaterialSummary"></div>
     <div class="nesting-modal-body" id="armadaMaterialModalBody"></div>
+  </div>
+</div>
+
+<!-- PERBAIKAN #16 — POPUP MATERIAL DARI KPI TOTAL ITEM (KHUSUS HP) -->
+<div id="kpiMaterialOverlay" onclick="tutupKpiMaterial(event)">
+  <div class="kpi-material-modal" role="dialog" aria-modal="true" aria-labelledby="kpiMaterialModalTitle" onclick="event.stopPropagation()">
+    <div class="kpi-material-modal-header">
+      <div id="kpiMaterialModalTitle">📦 MATERIAL</div>
+      <button type="button" class="kpi-material-close" onclick="tutupKpiMaterial()">✕</button>
+    </div>
+    <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
+    <div id="kpiMaterialBody" class="kpi-material-body"></div>
   </div>
 </div>
 
@@ -5124,8 +5154,42 @@ document.addEventListener('keydown',function(e){
     tutupNestingInternal();
     tutupMaterialArmada();
     tutupDetailReschedule();
+    tutupKpiMaterial();
   }
 });
+
+function bukaKpiMaterial(){
+  if(window.matchMedia && !window.matchMedia('(max-width:600px)').matches) return;
+
+  const overlay=document.getElementById('kpiMaterialOverlay');
+  const body=document.getElementById('kpiMaterialBody');
+  const summary=document.getElementById('kpiMaterialSummary');
+  const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
+  if(!overlay || !body) return;
+
+  if(summary) summary.textContent='TOTAL ITEM: '+formatNumber(rows.length,0)+' jenis';
+
+  if(!rows.length){
+    body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
+  }else{
+    let html='<table class="kpi-material-table"><thead><tr><th>MATERIAL</th><th>VOLUME</th></tr></thead><tbody>';
+    rows.forEach(function(item){
+      html+='<tr><td>'+escapeHtml(item && item.material ? item.material : '-')+'</td><td>'+formatTableNumber(item && item.volume != null ? item.volume : 0)+' '+escapeHtml(item && item.unit ? item.unit : '')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+    body.innerHTML=html;
+  }
+
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function tutupKpiMaterial(event){
+  if(event && event.target && event.target.id!=='kpiMaterialOverlay') return;
+  const overlay=document.getElementById('kpiMaterialOverlay');
+  if(overlay) overlay.style.display='none';
+  document.body.style.overflow='';
+}
 
 function exportExcel(){
   const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
