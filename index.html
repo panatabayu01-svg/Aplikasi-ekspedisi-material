@@ -580,9 +580,6 @@
     .tanggal-btn-save{border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;}
     .tanggal-btn:disabled{opacity:.55;cursor:not-allowed;}
 
-    /* PERBAIKAN #18 — TOMBOL MATERIAL DIPINDAH KE BARIS KONTROL HP
-       Posisi: kiri INPUT TGL KIRIM, tetap rata kanan bersama REFRESH.
-       KPI TOTAL ITEM tidak lagi memuat tombol MATERIAL. */
     /* PERBAIKAN #16 — TOMBOL MATERIAL DI KPI TOTAL ITEM KHUSUS HP */
     .btn-kpi-material{display:none;position:absolute;right:8px;bottom:8px;height:32px;min-width:105px;padding:0 12px;border:1px solid #0d447f;border-radius:4px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;z-index:3;}
     .btn-kpi-material:active{transform:translateY(1px);}
@@ -591,27 +588,162 @@
     .kpi-material-modal-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:700;}
     .kpi-material-close{width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
     .kpi-material-summary{padding:9px 12px;background:#eef5fa;border-bottom:1px solid #d6e1e9;color:#17324d;font-size:12px;font-weight:700;}
-    /* PERBAIKAN #17 — POPUP MATERIAL HP: VOLUME DAN SATUAN DIPISAH.
-       Kolom dibuat proporsional agar material tetap leluasa, volume tidak bercampur
-       dengan satuan, dan header tetap terlihat saat isi tabel di-scroll. */
-    .kpi-material-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 12px;}
-    .kpi-material-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;}
-    .kpi-material-table th{position:sticky !important;top:0;z-index:5;background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;color:#fff;border:1px solid #17324d;height:34px;padding:5px 6px;font-size:11px;font-weight:700;text-align:center;}
-    .kpi-material-table td{border:1px solid #cbd4de;padding:7px 6px;color:#17324d;background:#fff;font-size:11px;font-weight:500;vertical-align:middle;line-height:1.25;overflow-wrap:anywhere;}
-    .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;text-align:center;}
-    .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:60%;text-align:left;}
-    .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:18%;text-align:right;white-space:nowrap;}
-    .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;text-align:center;white-space:nowrap;}
+    /* PERBAIKAN #21 — TOMBOL MATERIAL PINDAH KE SAMPING INPUT TGL KIRIM (HP SAJA)
+       Android + iPhone: MATERIAL | INPUT TGL KIRIM | REFRESH.
+       PC tidak berubah. */
+    @media(max-width:600px){
+      .btn-kpi-material{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        position:static !important;
+        grid-column:1 !important;
+        grid-row:3 !important;
+        justify-self:stretch !important;
+        width:100% !important;
+        min-width:0 !important;
+        max-width:none !important;
+        height:38px !important;
+        margin:0 !important;
+        padding:0 6px !important;
+        box-sizing:border-box !important;
+        font-size:13px !important;
+        line-height:1 !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+      }
+
+      .btn-input-tanggal{
+        grid-column:2 !important;
+        grid-row:3 !important;
+        justify-self:stretch !important;
+        width:100% !important;
+        min-width:0 !important;
+        max-width:none !important;
+        margin:0 !important;
+      }
+
+      .btn-refresh{
+        grid-column:3 !important;
+        grid-row:3 !important;
+        justify-self:stretch !important;
+        width:110px !important;
+        min-width:110px !important;
+        margin:0 !important;
+      }
+    }
+
+    /* PERBAIKAN #18 — POPUP MATERIAL HP: KOLOM 4 BUAH SELALU TERLIHAT.
+       Mapping mengikuti JPG terbaru: NO | MATERIAL | VOLUME | SATUAN.
+       Semua teks diseragamkan ukurannya, material membungkus otomatis,
+       tidak boleh muncul scroll horizontal, dan header tetap sticky saat scroll vertikal. */
+    .kpi-material-body{
+      overflow-y:auto;
+      overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      padding:6px 7px 10px;
+      min-width:0;
+    }
+    /* PERBAIKAN #20 — PENYEMPURNAAN POPUP MATERIAL HP
+       Header MATERIAL di tengah, VOLUME header+isi di tengah, dan tidak ada
+       baris data yang boleh muncul di atas header saat scroll. */
+    /* PERBAIKAN #19 — POPUP MATERIAL HP FINAL
+       4 kolom WAJIB terlihat sekaligus: NO | MATERIAL | VOLUME | SATUAN.
+       Tidak boleh ada scroll horizontal. Ukuran teks seragam.
+       Header tabel tetap menempel saat isi di-scroll vertikal. */
+    .kpi-material-body{
+      position:relative;
+      overflow:hidden !important;
+      padding:0 7px 10px;
+      min-width:0;
+      min-height:0;
+      width:100%;
+      box-sizing:border-box;
+      isolation:isolate;
+      display:flex;
+      flex-direction:column;
+    }
+    .kpi-material-sticky-head{
+      flex:0 0 auto;
+      width:100%;
+      overflow:hidden;
+      background:#fff;
+      position:relative;
+      z-index:50;
+    }
+    .kpi-material-scroll{
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto !important;
+      overflow-x:hidden !important;
+      -webkit-overflow-scrolling:touch;
+      width:100%;
+      box-sizing:border-box;
+      overscroll-behavior:contain;
+    }
+    .kpi-material-table{
+      width:100% !important;
+      max-width:100% !important;
+      min-width:0 !important;
+      border-collapse:collapse;
+      border-spacing:0;
+      table-layout:fixed !important;
+      background:#fff;
+      margin:0;
+      box-sizing:border-box;
+    }
+    .kpi-material-table col.col-no{width:10% !important;}
+    .kpi-material-table col.col-material{width:50% !important;}
+    .kpi-material-table col.col-volume{width:22% !important;}
+    .kpi-material-table col.col-unit{width:18% !important;}
+    .kpi-material-sticky-head .kpi-material-table th{
+      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;
+      color:#fff !important;
+      border:1px solid #17324d !important;
+      height:32px;
+      padding:5px 3px;
+      font-family:Arial,sans-serif !important;
+      font-size:10px !important;
+      font-weight:700 !important;
+      line-height:1.1 !important;
+      text-align:center !important;
+      white-space:nowrap !important;
+      box-sizing:border-box !important;
+      overflow:hidden;
+    }
+    .kpi-material-scroll .kpi-material-table td{
+      border:1px solid #cbd4de !important;
+      padding:6px 5px;
+      color:#17324d !important;
+      background:#fff !important;
+      font-family:Arial,sans-serif !important;
+      font-size:10px !important;
+      font-weight:400 !important;
+      vertical-align:middle;
+      line-height:1.2 !important;
+      box-sizing:border-box !important;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    .kpi-material-sticky-head th:nth-child(1),.kpi-material-scroll td:nth-child(1){width:10% !important;text-align:center !important;white-space:nowrap;}
+    .kpi-material-sticky-head th:nth-child(2){width:50% !important;text-align:center !important;white-space:nowrap;}
+    .kpi-material-scroll td:nth-child(2){width:50% !important;text-align:left !important;white-space:normal;}
+    .kpi-material-sticky-head th:nth-child(3),.kpi-material-scroll td:nth-child(3){width:22% !important;text-align:center !important;white-space:nowrap;}
+    .kpi-material-sticky-head th:nth-child(4),.kpi-material-scroll td:nth-child(4){width:18% !important;text-align:center !important;white-space:nowrap;}
     .kpi-material-empty{padding:25px 12px;text-align:center;color:#718096;font-size:13px;}
 
     @media(max-width:600px){
-      .kpi-material-body{padding:6px 7px 10px;}
-      .kpi-material-table th{font-size:10px;padding:5px 4px;height:32px;}
-      .kpi-material-table td{font-size:10.5px;padding:6px 5px;line-height:1.22;}
-      .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;}
-      .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:59%;}
-      .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:19%;}
-      .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;}
+      #kpiMaterialOverlay .kpi-material-modal{width:100%;max-width:560px;}
+      .kpi-material-body{padding:0 7px 10px !important;overflow:hidden !important;}
+      .kpi-material-table{width:100% !important;max-width:100% !important;table-layout:fixed !important;}
+      .kpi-material-sticky-head .kpi-material-table th{font-size:10px !important;padding:5px 3px !important;height:32px;}
+      .kpi-material-scroll .kpi-material-table td{font-size:10px !important;padding:6px 4px !important;line-height:1.2 !important;}
+      .kpi-material-sticky-head th:nth-child(1),.kpi-material-scroll td:nth-child(1){width:10% !important;}
+      .kpi-material-sticky-head th:nth-child(2){width:50% !important;text-align:center !important;}
+      .kpi-material-scroll td:nth-child(2){width:50% !important;text-align:left !important;}
+      .kpi-material-sticky-head th:nth-child(3),.kpi-material-scroll td:nth-child(3){width:22% !important;text-align:center !important;}
+      .kpi-material-sticky-head th:nth-child(4),.kpi-material-scroll td:nth-child(4){width:18% !important;}
     }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
@@ -761,10 +893,7 @@
     @media(max-width:600px){
       .control-bar{
         display:grid;
-        /* HP: tombol MATERIAL + INPUT TGL KIRIM + REFRESH rata kanan.
-           Kolom pertama dibiarkan fleksibel agar tiga tombol tetap sejajar
-           dan menyesuaikan lebar layar. */
-        grid-template-columns:minmax(0,1fr) 90px 125px 105px;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) 110px;
         grid-template-rows:38px 50px 38px;
         gap:7px;
         align-items:center;
@@ -798,54 +927,23 @@
         display:none !important;
       }
 
-      .btn-kpi-material{
-        display:flex !important;
-        position:static;
-        grid-column:2;
-        grid-row:3;
-        align-items:center;
-        justify-content:center;
-        justify-self:stretch;
-        width:100%;
-        min-width:0;
-        height:38px;
-        margin:0;
-        padding:0 4px;
-        font-size:10px;
-        line-height:1;
-        overflow:hidden;
-        text-overflow:ellipsis;
-      }
-
       .btn-input-tanggal{
         display:flex !important;
         align-items:center;
         justify-content:center;
-        grid-column:3;
+        grid-column:2;
         grid-row:3;
         justify-self:stretch;
         width:100%;
         min-width:0;
         height:38px;
         margin:0;
-        padding:0 4px;
+        padding:0 6px;
         white-space:nowrap;
         overflow:hidden;
         text-overflow:ellipsis;
-        font-size:11px;
+        font-size:13px;
         line-height:1;
-      }
-
-      .btn-refresh{
-        grid-column:4 !important;
-        grid-row:3 !important;
-        justify-self:stretch;
-        width:100% !important;
-        min-width:0 !important;
-        height:38px;
-        margin:0;
-        padding:0 4px;
-        font-size:12px;
       }
 
       /* HP: RENCANA KIRIM dibuat satu baris penuh pada baris 2
@@ -1555,6 +1653,9 @@
         <button id="deliveryDateDetailBtn" type="button" class="delivery-date-detail-btn" onclick="bukaDetailReschedule()">ⓘ DETAIL</button>
       </span>
     </div>
+    <!-- PERBAIKAN #21 — MATERIAL DIPINDAHKAN KE BARIS TOMBOL HP
+         Tombol tetap memakai fungsi bukaKpiMaterial(), hanya posisi visual yang dipindahkan.
+         Desktop/PC tetap tersembunyi; HP Android dan iPhone menampilkan di kiri INPUT TGL KIRIM. -->
     <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 MATERIAL</button>
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
@@ -5224,11 +5325,11 @@ function bukaKpiMaterial(){
   if(!rows.length){
     body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
   }else{
-    let html='<table class="kpi-material-table"><thead><tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr></thead><tbody>';
+    let html='<div class="kpi-material-sticky-head"><table class="kpi-material-table"><colgroup><col class="col-no"><col class="col-material"><col class="col-volume"><col class="col-unit"></colgroup><thead><tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr></thead></table></div><div class="kpi-material-scroll"><table class="kpi-material-table"><colgroup><col class="col-no"><col class="col-material"><col class="col-volume"><col class="col-unit"></colgroup><tbody>';
     rows.forEach(function(item,index){
       html+='<tr><td>'+formatTableNumber(index+1)+'</td><td>'+escapeHtml(item && item.material ? item.material : '-')+'</td><td>'+formatTableNumber(item && item.volume != null ? item.volume : 0)+'</td><td>'+escapeHtml(item && item.unit ? item.unit : '-')+'</td></tr>';
     });
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
     body.innerHTML=html;
   }
 
