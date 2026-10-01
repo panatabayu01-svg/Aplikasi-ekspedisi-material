@@ -81,277 +81,6 @@
         font-size:12px;
       }
     }
-
-
-    /* ============================================================
-       PERBAIKAN #7 - MATERIAL POPUP KHUSUS HP
-       Android + iPhone. PC TIDAK DIUBAH.
-       - Tombol MATERIAL hanya muncul di kartu TOTAL ITEM.
-       - Popup mengikuti lebar layar.
-       - Kolom otomatis menyesuaikan isi.
-       - Header tabel sticky saat isi di-scroll.
-       ============================================================ */
-    .btn-material-mobile{
-      display:none;
-    }
-
-    .mobile-material-overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      z-index:12000;
-      background:rgba(23,50,77,.55);
-      align-items:center;
-      justify-content:center;
-      padding:12px;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-modal{
-      width:min(560px, calc(100vw - 24px));
-      max-width:calc(100vw - 24px);
-      max-height:calc(100vh - 24px);
-      background:#fff;
-      border:1px solid #0d447f;
-      border-radius:3px;
-      box-shadow:0 12px 35px rgba(0,0,0,.28);
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-modal-header{
-      flex:0 0 52px;
-      min-height:52px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:0 14px;
-      background:linear-gradient(135deg,#0b477d 0%,#176ea8 100%);
-      color:#fff;
-      font-size:18px;
-      font-weight:800;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-close{
-      flex:0 0 auto;
-      border:0;
-      background:transparent;
-      color:#fff;
-      font-size:25px;
-      line-height:1;
-      font-weight:400;
-      cursor:pointer;
-      padding:2px 4px;
-    }
-
-    .mobile-material-summary{
-      flex:0 0 auto;
-      padding:10px 14px;
-      background:#eef5fb;
-      border-bottom:1px solid #d2dce6;
-      color:#17324d;
-      font-size:14px;
-      font-weight:800;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-table-wrap{
-      flex:1 1 auto;
-      min-height:0;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      overscroll-behavior:contain;
-      background:#fff;
-    }
-
-    .mobile-material-table{
-      width:100%;
-      min-width:0 !important;
-      table-layout:auto !important;
-      border-collapse:collapse;
-      background:#fff;
-    }
-
-    .mobile-material-table th{
-      position:sticky !important;
-      top:0 !important;
-      z-index:5 !important;
-      height:42px;
-      padding:8px 7px;
-      background:linear-gradient(135deg,#0d447f 0%,#176ea8 100%) !important;
-      color:#fff !important;
-      border:1px solid #17324d;
-      font-size:14px;
-      font-weight:800;
-      text-align:center;
-      white-space:nowrap;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-table td{
-      border:1px solid #cbd4de;
-      padding:9px 8px;
-      background:#fff;
-      color:#17324d;
-      font-size:15px;
-      font-weight:500;
-      line-height:1.25;
-      vertical-align:middle;
-      box-sizing:border-box;
-    }
-
-    .mobile-material-table .mobile-material-no{
-      width:42px;
-      min-width:42px;
-      max-width:42px;
-      text-align:center;
-    }
-
-    .mobile-material-table .mobile-material-name{
-      width:auto;
-      text-align:left;
-    }
-
-    .mobile-material-table .mobile-material-volume{
-      width:1%;
-      min-width:92px;
-      white-space:nowrap;
-      text-align:right;
-    }
-
-    .mobile-material-table td:nth-child(1){
-      width:42px;
-      text-align:center;
-      white-space:nowrap;
-    }
-
-    .mobile-material-table td:nth-child(2){
-      width:auto;
-      text-align:left;
-      white-space:normal;
-      overflow-wrap:anywhere;
-      word-break:normal;
-    }
-
-    .mobile-material-table td:nth-child(3){
-      width:1%;
-      min-width:92px;
-      text-align:right;
-      white-space:nowrap;
-    }
-
-    .mobile-material-empty{
-      text-align:center !important;
-      padding:28px 12px !important;
-      color:#718096 !important;
-    }
-
-    @media(max-width:600px){
-      .btn-material-mobile{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        position:absolute;
-        right:12px;
-        bottom:10px;
-        min-width:110px;
-        height:34px;
-        padding:0 10px;
-        border:1px solid #0f4f7d;
-        border-radius:3px;
-        background:linear-gradient(135deg,#0f4f7d 0%,#145a8d 55%,#2b78a8 100%);
-        color:#fff;
-        font-size:11px;
-        font-weight:800;
-        line-height:1;
-        white-space:nowrap;
-        cursor:pointer;
-        z-index:2;
-        box-sizing:border-box;
-      }
-
-      .kpi-card:first-child{
-        padding-right:135px !important;
-      }
-
-      .mobile-material-overlay{
-        padding:8px;
-      }
-
-      .mobile-material-modal{
-        width:calc(100vw - 16px);
-        max-width:calc(100vw - 16px);
-        max-height:calc(100vh - 16px);
-      }
-
-      .mobile-material-modal-header{
-        flex-basis:48px;
-        min-height:48px;
-        padding:0 12px;
-        font-size:17px;
-      }
-
-      .mobile-material-summary{
-        padding:9px 12px;
-        font-size:13px;
-      }
-
-      .mobile-material-table th{
-        height:40px;
-        padding:7px 5px;
-        font-size:13px;
-      }
-
-      .mobile-material-table td{
-        padding:8px 7px;
-        font-size:14px;
-      }
-
-      .mobile-material-table .mobile-material-volume,
-      .mobile-material-table td:nth-child(3){
-        min-width:82px;
-      }
-
-      .mobile-material-table .mobile-material-no,
-      .mobile-material-table td:nth-child(1){
-        width:38px;
-        min-width:38px;
-        max-width:38px;
-      }
-    }
-
-    @media(max-width:380px){
-      .btn-material-mobile{
-        right:9px;
-        bottom:9px;
-        min-width:96px;
-        height:32px;
-        padding:0 7px;
-        font-size:10px;
-      }
-
-      .kpi-card:first-child{
-        padding-right:116px !important;
-      }
-
-      .mobile-material-modal{
-        width:calc(100vw - 12px);
-        max-width:calc(100vw - 12px);
-      }
-
-      .mobile-material-table th{
-        font-size:12px;
-      }
-
-      .mobile-material-table td{
-        font-size:13px;
-        padding:8px 6px;
-      }
-    }
 </style>
 
   <style>
@@ -607,6 +336,24 @@
       opacity:.55;
       cursor:not-allowed;
     }
+    /* PERBAIKAN #12 - ANDROID: tombol INPUT TGL KIRIM harus menampilkan teks penuh.
+       iPhone/iOS dan PC tidak disentuh. */
+    @media(max-width:600px){
+      html.android-device .btn-input-tanggal{
+        min-width:0 !important;
+        width:100% !important;
+        max-width:100% !important;
+        padding:0 3px !important;
+        font-size:12px !important;
+        line-height:1 !important;
+        letter-spacing:-0.15px;
+        white-space:nowrap !important;
+        overflow:visible !important;
+        text-overflow:clip !important;
+        box-sizing:border-box !important;
+      }
+    }
+
     @media(max-width:600px){
       /* HP: popup INPUT TGL KIRIM dibuat sedikit lebih kompak tanpa mengubah desktop. */
       .tanggal-overlay{
@@ -650,6 +397,26 @@
         height:36px;
         padding:0 9px;
         font-size:13px;
+        width:100% !important;
+        max-width:100% !important;
+        min-width:0 !important;
+        box-sizing:border-box !important;
+        display:block;
+      }
+      /* HP: dropdown ALASAN RESCHEDULE harus selalu pas di dalam kotak. */
+      #alasanRescheduleInput{
+        width:100% !important;
+        max-width:100% !important;
+        min-width:0 !important;
+        box-sizing:border-box !important;
+        display:block;
+      }
+      #tanggalOverlay .tanggal-section{
+        width:100%;
+        max-width:100%;
+        min-width:0;
+        box-sizing:border-box;
+        overflow:hidden;
       }
       /* HP/iPhone: password minimal 16px agar Safari tidak auto-zoom saat input fokus. */
       #passwordInputTanggal{
@@ -812,6 +579,37 @@
     .tanggal-btn-cancel{border:1px solid #b5c1cc;background:#fff;color:#164a7d;}
     .tanggal-btn-save{border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;}
     .tanggal-btn:disabled{opacity:.55;cursor:not-allowed;}
+
+    /* PERBAIKAN #16 — TOMBOL MATERIAL DI KPI TOTAL ITEM KHUSUS HP */
+    .btn-kpi-material{display:none;position:absolute;right:8px;bottom:8px;height:32px;min-width:105px;padding:0 12px;border:1px solid #0d447f;border-radius:4px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;z-index:3;}
+    .btn-kpi-material:active{transform:translateY(1px);}
+    #kpiMaterialOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,35,55,.55);z-index:10050;padding:14px;box-sizing:border-box;}
+    #kpiMaterialOverlay .kpi-material-modal{width:min(560px,100%);max-height:82vh;background:#fff;border:1px solid #0d447f;border-radius:4px;box-shadow:0 12px 35px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column;}
+    .kpi-material-modal-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:700;}
+    .kpi-material-close{width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
+    .kpi-material-summary{padding:9px 12px;background:#eef5fa;border-bottom:1px solid #d6e1e9;color:#17324d;font-size:12px;font-weight:700;}
+    /* PERBAIKAN #17 — POPUP MATERIAL HP: VOLUME DAN SATUAN DIPISAH.
+       Kolom dibuat proporsional agar material tetap leluasa, volume tidak bercampur
+       dengan satuan, dan header tetap terlihat saat isi tabel di-scroll. */
+    .kpi-material-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 12px;}
+    .kpi-material-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;}
+    .kpi-material-table th{position:sticky !important;top:0;z-index:5;background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;color:#fff;border:1px solid #17324d;height:34px;padding:5px 6px;font-size:11px;font-weight:700;text-align:center;}
+    .kpi-material-table td{border:1px solid #cbd4de;padding:7px 6px;color:#17324d;background:#fff;font-size:11px;font-weight:500;vertical-align:middle;line-height:1.25;overflow-wrap:anywhere;}
+    .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;text-align:center;}
+    .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:60%;text-align:left;}
+    .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:18%;text-align:right;white-space:nowrap;}
+    .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;text-align:center;white-space:nowrap;}
+    .kpi-material-empty{padding:25px 12px;text-align:center;color:#718096;font-size:13px;}
+
+    @media(max-width:600px){
+      .kpi-material-body{padding:6px 7px 10px;}
+      .kpi-material-table th{font-size:10px;padding:5px 4px;height:32px;}
+      .kpi-material-table td{font-size:10.5px;padding:6px 5px;line-height:1.22;}
+      .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;}
+      .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:59%;}
+      .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:19%;}
+      .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;}
+    }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
 
@@ -977,6 +775,9 @@
         font-weight:700;
         white-space:nowrap;
       }
+
+      /* HP: dropdown PROYEK diperpanjang ke kiri, mendekati label PROYEK,
+         tanpa mengubah posisi/tampilan tombol REPORT, INPUT TGL KIRIM, REFRESH. */
       .project-select{
         grid-column:1 / 4;
         grid-row:1;
@@ -1098,6 +899,7 @@
       .header-title{font-size:18px}
       .kpi-grid{grid-template-columns:1fr}
       .kpi-card{height:92px}
+      .btn-kpi-material{display:block;}
       .kpi-icon{font-size:40px;width:60px}
       .kpi-title{font-size:14px}
       .kpi-value{font-size:24px}
@@ -1116,6 +918,48 @@
     .delivery-date-value.status-no-schedule{
       color:#ffffff !important;
       font-weight:800 !important;
+    }
+
+
+    /* PERBAIKAN #14 — KEMBALIKAN GRADASI HEADER DATA MATERIAL SESUAI TAMPILAN #2
+       Gradient header Data Material dibuat kembali seperti tampilan referensi #2.
+       Berlaku PC, Android, dan iPhone; tidak mengubah logic/data tabel. */
+    /* PERBAIKAN #13 — HEADER DATA MATERIAL STICKY
+       Header tabel tetap diam saat isi tabel discroll vertikal.
+       Berlaku PC, Android, dan iPhone. Tidak mengubah struktur/logic tabel. */
+    .table-wrapper{
+      position:relative !important;
+      overflow:auto !important;
+      -webkit-overflow-scrolling:touch;
+    }
+    .table-wrapper > table{
+      border-collapse:separate !important;
+      border-spacing:0 !important;
+    }
+    .table-wrapper > table > thead{
+      position:sticky !important;
+      top:0 !important;
+      z-index:20 !important;
+    }
+    /* PERBAIKAN #15 — GRADIENT HEADER HARUS 1 BIDANG PENUH, BUKAN TERULANG DI SETIAP KOLOM */
+    .table-wrapper > table > thead{
+      position:sticky !important;
+      top:0 !important;
+      z-index:20 !important;
+      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
+      background-image:linear-gradient(90deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%) !important;
+    }
+    .table-wrapper > table > thead > tr{
+      background:transparent !important;
+    }
+    .table-wrapper > table > thead > tr > th{
+      position:sticky !important;
+      top:0 !important;
+      z-index:21 !important;
+      background:transparent !important;
+      background-image:none !important;
+      background-color:transparent !important;
+      background-clip:border-box !important;
     }
   </style>
 
@@ -1282,6 +1126,285 @@
     }
 </style>
 
+
+
+<!-- ============================================================
+     PERBAIKAN #9 - HP: RAPATKAN FIELD TANGGAL + DROPDOWN ALASAN
+     Hanya mobile <=600px. PC TIDAK DIUBAH.
+     ============================================================ -->
+<style id="fix-hp-tanggal-dropdown-9">
+@media (max-width:600px){
+  /* Pastikan semua field di dalam section memakai lebar border-box yang sama. */
+  #tanggalOverlay .tanggal-modal-body,
+  #tanggalOverlay .tanggal-section,
+  #tanggalOverlay .tanggal-section-reschedule,
+  #tanggalOverlay .tanggal-input,
+  #tanggalOverlay select.tanggal-input,
+  #tanggalOverlay input.tanggal-input{
+    box-sizing:border-box !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  #tanggalOverlay .tanggal-section{
+    width:100% !important;
+    overflow:hidden !important;
+  }
+
+  /* Field tanggal: isi + icon kalender tetap berada di dalam kotak. */
+  #tanggalOverlay input.tanggal-input[type="date"]{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:42px !important;
+    margin:0 !important;
+    padding:0 10px !important;
+    border:1px solid #aeb8c2 !important;
+    border-radius:3px !important;
+    font-size:14px !important;
+    line-height:42px !important;
+    overflow:hidden !important;
+    text-overflow:clip !important;
+    white-space:nowrap !important;
+    -webkit-box-sizing:border-box !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Safari/iPhone: nilai tanggal native diberi ruang penuh dan tidak terdorong keluar. */
+  #tanggalOverlay input.tanggal-input[type="date"]::-webkit-date-and-time-value{
+    width:100% !important;
+    min-width:0 !important;
+    text-align:center !important;
+    padding:0 !important;
+    margin:0 !important;
+  }
+  #tanggalOverlay input.tanggal-input[type="date"]::-webkit-calendar-picker-indicator{
+    margin:0 0 0 6px !important;
+    padding:0 !important;
+    flex:0 0 auto !important;
+  }
+
+  /* Dropdown ALASAN RESCHEDULE: satu kotak penuh, teks tidak keluar. */
+  #tanggalOverlay select#alasanRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:42px !important;
+    margin:0 !important;
+    padding:0 34px 0 10px !important;
+    border:1px solid #aeb8c2 !important;
+    border-radius:3px !important;
+    background-color:#fff !important;
+    color:#172b3d !important;
+    font-size:14px !important;
+    line-height:42px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    -webkit-appearance:auto !important;
+    appearance:auto !important;
+    -webkit-box-sizing:border-box !important;
+    box-sizing:border-box !important;
+  }
+
+  #tanggalOverlay .tanggal-label{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow:ellipsis !important;
+  }
+
+  /* Jarak label → field dibuat konsisten supaya rapi di layar HP. */
+  #tanggalOverlay .tanggal-label + .tanggal-input{
+    margin-top:0 !important;
+  }
+}
+</style>
+
+<!-- ============================================================
+     PERBAIKAN #11 - HP iPHONE/iOS: RAPATKAN NATIVE DATE INPUT
+     Android tetap mengikuti #10. PC TIDAK DIUBAH.
+     ============================================================ -->
+<script>
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if(isIOS){
+    document.documentElement.classList.add('ios-device');
+  }
+  var isAndroid = /Android/i.test(ua);
+  if(isAndroid){
+    document.documentElement.classList.add('android-device');
+  }
+})();
+</script>
+<style id="fix-hp-date-ios-11">
+@media (max-width:600px){
+  /* iPhone/iPad Safari dan Chrome iOS: native date control jangan menentukan
+     ukuran internal yang membuat field tampak bergeser/keluar dari container. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    inline-size:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    flex:0 0 100% !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    -webkit-appearance:none !important;
+    appearance:none !important;
+    height:42px !important;
+    padding:0 12px !important;
+    margin:0 !important;
+    text-align:center !important;
+    text-indent:0 !important;
+    overflow:hidden !important;
+    border-radius:3px !important;
+  }
+
+  /* Nilai tanggal iOS dipaksa berada tepat di tengah area input. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-date-and-time-value,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-date-and-time-value{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    margin:0 auto !important;
+    padding:0 !important;
+    text-align:center !important;
+    overflow:hidden !important;
+    box-sizing:border-box !important;
+  }
+
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-datetime-edit,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-datetime-edit{
+    display:inline-block !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align:center !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+  }
+
+  /* Safari iOS tidak diberi ruang tambahan untuk indicator native.
+     Input tetap bisa diketuk untuk membuka date picker. */
+  html.ios-device #tanggalOverlay #tanggalRencanaInput::-webkit-calendar-picker-indicator,
+  html.ios-device #tanggalOverlay #tanggalRescheduleInput::-webkit-calendar-picker-indicator{
+    display:none !important;
+  }
+
+  /* Jangan biarkan parent flex/grid membuat field lebih lebar dari kotaknya. */
+  html.ios-device #tanggalOverlay .tanggal-section-input,
+  html.ios-device #tanggalOverlay .tanggal-section-reschedule,
+  html.ios-device #tanggalOverlay .tanggal-section{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+}
+</style>
+
+<!-- ============================================================
+     PERBAIKAN #10 - HP: KUNCI LEBAR 2 FIELD TANGGAL
+     Tanggal Rencana Kirim + Tanggal Rencana Kirim Baru.
+     Mencegah native date control melebar/bergeser ke kiri.
+     PC TIDAK DIUBAH.
+     ============================================================ -->
+<style id="fix-hp-date-width-10">
+@media (max-width:600px){
+  #tanggalOverlay .tanggal-section-input,
+  #tanggalOverlay .tanggal-section-reschedule{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  /* Dua field DATE harus mengambil tepat lebar container, bukan lebar native control. */
+  #tanggalOverlay #tanggalRencanaInput,
+  #tanggalOverlay #tanggalRescheduleInput{
+    display:block !important;
+    position:relative !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    flex:none !important;
+    align-self:stretch !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+    overflow:hidden !important;
+    border-radius:3px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    text-align:center !important;
+    direction:ltr !important;
+  }
+
+  /* iPhone/Safari: jangan biarkan bagian internal native date menentukan lebar field. */
+  #tanggalOverlay #tanggalRencanaInput::-webkit-datetime-edit,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-datetime-edit{
+    display:block !important;
+    width:auto !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+  }
+
+  #tanggalOverlay #tanggalRencanaInput::-webkit-date-and-time-value,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-date-and-time-value{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    text-align:center !important;
+    overflow:hidden !important;
+  }
+
+  #tanggalOverlay #tanggalRencanaInput::-webkit-calendar-picker-indicator,
+  #tanggalOverlay #tanggalRescheduleInput::-webkit-calendar-picker-indicator{
+    flex:0 0 auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    max-width:18px !important;
+  }
+
+  /* Dropdown alasan tetap mengikuti lebar yang sama dengan kedua field tanggal. */
+  #tanggalOverlay #alasanRescheduleInput{
+    display:block !important;
+    width:100% !important;
+    inline-size:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    flex:none !important;
+    align-self:stretch !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    box-sizing:border-box !important;
+    -webkit-box-sizing:border-box !important;
+  }
+}
+</style>
+
 </head>
 
 <body style="background:#eef3f7 !important;">
@@ -1416,7 +1539,7 @@
         </svg>
       </div>
       <div class="kpi-content"><div class="kpi-title">TOTAL ITEM</div><div id="totalItem" class="kpi-value">0 jenis</div></div>
-      <button id="btnMaterialMobile" class="btn-material-mobile" type="button" onclick="bukaMaterialMobile()" aria-label="Lihat material">📦 MATERIAL</button>
+      <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 MATERIAL</button>
     </div>
     <div class="kpi-card">
       <div class="kpi-icon" aria-hidden="true">
@@ -1529,28 +1652,15 @@
   </div>
 </div>
 
-<!-- PERBAIKAN #7: POPUP MATERIAL KHUSUS HP (ANDROID + IPHONE) -->
-<div id="mobileMaterialOverlay" class="mobile-material-overlay" style="display:none" onclick="tutupMaterialMobile(event)">
-  <div class="mobile-material-modal" role="dialog" aria-modal="true" aria-labelledby="mobileMaterialModalTitle" onclick="event.stopPropagation()">
-    <div class="mobile-material-modal-header">
-      <div id="mobileMaterialModalTitle">📦 MATERIAL</div>
-      <button type="button" class="mobile-material-close" onclick="tutupMaterialMobile()">✕</button>
+<!-- PERBAIKAN #16 — POPUP MATERIAL DARI KPI TOTAL ITEM (KHUSUS HP) -->
+<div id="kpiMaterialOverlay" onclick="tutupKpiMaterial(event)">
+  <div class="kpi-material-modal" role="dialog" aria-modal="true" aria-labelledby="kpiMaterialModalTitle" onclick="event.stopPropagation()">
+    <div class="kpi-material-modal-header">
+      <div id="kpiMaterialModalTitle">📦 MATERIAL</div>
+      <button type="button" class="kpi-material-close" onclick="tutupKpiMaterial()">✕</button>
     </div>
-    <div class="mobile-material-summary" id="mobileMaterialSummary">TOTAL ITEM: 0 jenis</div>
-    <div class="mobile-material-table-wrap" id="mobileMaterialTableWrap">
-      <table class="mobile-material-table">
-        <thead>
-          <tr>
-            <th class="mobile-material-no">NO</th>
-            <th class="mobile-material-name">MATERIAL</th>
-            <th class="mobile-material-volume">VOLUME</th>
-          </tr>
-        </thead>
-        <tbody id="mobileMaterialBody">
-          <tr><td colspan="3" class="mobile-material-empty">Tidak ada data material.</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
+    <div id="kpiMaterialBody" class="kpi-material-body"></div>
   </div>
 </div>
 
@@ -4541,47 +4651,6 @@ function tentukanStatusMaterial(item, semuaData){
   return review ? {label:'REVIEW', cls:'review'} : {label:'ESTIMASI', cls:'estimasi'};
 }
 
-/* ============================================================
-   PERBAIKAN #7 - POPUP MATERIAL KHUSUS HP
-   Sumber data: materialDataTerakhir yang sama dengan DATA MATERIAL utama.
-   ============================================================ */
-function bukaMaterialMobile(){
-  const overlay=document.getElementById('mobileMaterialOverlay');
-  const body=document.getElementById('mobileMaterialBody');
-  const summary=document.getElementById('mobileMaterialSummary');
-  if(!overlay || !body || !summary) return;
-
-  const data=Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
-  summary.textContent='TOTAL ITEM: '+formatTableNumber(data.length)+' jenis';
-  body.innerHTML='';
-
-  if(!data.length){
-    body.innerHTML='<tr><td colspan="3" class="mobile-material-empty">Tidak ada data material.</td></tr>';
-  }else{
-    data.forEach(function(item,i){
-      const tr=document.createElement('tr');
-      const material=escapeHtml(item && item.material != null ? item.material : '-');
-      const volume=formatTableNumber(item && item.volume != null ? item.volume : 0);
-      const unit=escapeHtml(item && item.unit != null ? item.unit : '');
-      tr.innerHTML=
-        '<td>'+formatTableNumber(i+1)+'</td>'+
-        '<td>'+material+'</td>'+
-        '<td>'+volume+(unit ? ' '+unit : '')+'</td>';
-      body.appendChild(tr);
-    });
-  }
-
-  overlay.style.display='flex';
-  document.body.style.overflow='hidden';
-}
-
-function tutupMaterialMobile(event){
-  if(event && event.target && event.target.id!=='mobileMaterialOverlay') return;
-  const overlay=document.getElementById('mobileMaterialOverlay');
-  if(overlay) overlay.style.display='none';
-  document.body.style.overflow='';
-}
-
 function tampilkanMaterial(data){
   const body=document.getElementById('materialBody');body.innerHTML='';
   if(!data.length){body.innerHTML='<tr><td colspan="9" class="no-data">Tidak ada data material.</td></tr>';return}
@@ -4602,7 +4671,6 @@ function tampilkanMaterial(data){
 }
 
 function resetTampilan(){
-  tutupMaterialMobile();
   const tanggalKirimEl=document.getElementById('deliveryDateValue');
   if(tanggalKirimEl){
     tanggalKirimEl.classList.remove('status-no-schedule');
@@ -5101,8 +5169,42 @@ document.addEventListener('keydown',function(e){
     tutupNestingInternal();
     tutupMaterialArmada();
     tutupDetailReschedule();
+    tutupKpiMaterial();
   }
 });
+
+function bukaKpiMaterial(){
+  if(window.matchMedia && !window.matchMedia('(max-width:600px)').matches) return;
+
+  const overlay=document.getElementById('kpiMaterialOverlay');
+  const body=document.getElementById('kpiMaterialBody');
+  const summary=document.getElementById('kpiMaterialSummary');
+  const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
+  if(!overlay || !body) return;
+
+  if(summary) summary.textContent='TOTAL ITEM: '+formatNumber(rows.length,0)+' jenis';
+
+  if(!rows.length){
+    body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
+  }else{
+    let html='<table class="kpi-material-table"><thead><tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr></thead><tbody>';
+    rows.forEach(function(item,index){
+      html+='<tr><td>'+formatTableNumber(index+1)+'</td><td>'+escapeHtml(item && item.material ? item.material : '-')+'</td><td>'+formatTableNumber(item && item.volume != null ? item.volume : 0)+'</td><td>'+escapeHtml(item && item.unit ? item.unit : '-')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+    body.innerHTML=html;
+  }
+
+  overlay.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function tutupKpiMaterial(event){
+  if(event && event.target && event.target.id!=='kpiMaterialOverlay') return;
+  const overlay=document.getElementById('kpiMaterialOverlay');
+  if(overlay) overlay.style.display='none';
+  document.body.style.overflow='';
+}
 
 function exportExcel(){
   const rows = Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [];
