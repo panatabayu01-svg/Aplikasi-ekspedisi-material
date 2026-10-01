@@ -588,27 +588,69 @@
     .kpi-material-modal-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:700;}
     .kpi-material-close{width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
     .kpi-material-summary{padding:9px 12px;background:#eef5fa;border-bottom:1px solid #d6e1e9;color:#17324d;font-size:12px;font-weight:700;}
-    /* PERBAIKAN #17 — POPUP MATERIAL HP: VOLUME DAN SATUAN DIPISAH.
-       Kolom dibuat proporsional agar material tetap leluasa, volume tidak bercampur
-       dengan satuan, dan header tetap terlihat saat isi tabel di-scroll. */
-    .kpi-material-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 12px;}
-    .kpi-material-table{width:100%;border-collapse:collapse;table-layout:fixed;background:#fff;}
-    .kpi-material-table th{position:sticky !important;top:0;z-index:5;background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;color:#fff;border:1px solid #17324d;height:34px;padding:5px 6px;font-size:11px;font-weight:700;text-align:center;}
-    .kpi-material-table td{border:1px solid #cbd4de;padding:7px 6px;color:#17324d;background:#fff;font-size:11px;font-weight:500;vertical-align:middle;line-height:1.25;overflow-wrap:anywhere;}
+    /* PERBAIKAN #18 — POPUP MATERIAL HP: KOLOM 4 BUAH SELALU TERLIHAT.
+       Mapping mengikuti JPG terbaru: NO | MATERIAL | VOLUME | SATUAN.
+       Semua teks diseragamkan ukurannya, material membungkus otomatis,
+       tidak boleh muncul scroll horizontal, dan header tetap sticky saat scroll vertikal. */
+    .kpi-material-body{
+      overflow-y:auto;
+      overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      padding:6px 7px 10px;
+      min-width:0;
+    }
+    .kpi-material-table{
+      width:100%;
+      max-width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      background:#fff;
+      margin:0;
+    }
+    .kpi-material-table th{
+      position:sticky !important;
+      top:0;
+      z-index:5;
+      background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;
+      color:#fff;
+      border:1px solid #17324d;
+      height:32px;
+      padding:5px 4px;
+      font-size:10px;
+      font-weight:700;
+      line-height:1.1;
+      text-align:center;
+      white-space:nowrap;
+      box-sizing:border-box;
+    }
+    .kpi-material-table td{
+      border:1px solid #cbd4de;
+      padding:6px 5px;
+      color:#17324d;
+      background:#fff;
+      font-size:10px;
+      font-weight:500;
+      vertical-align:middle;
+      line-height:1.2;
+      box-sizing:border-box;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
     .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;text-align:center;}
-    .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:60%;text-align:left;}
-    .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:18%;text-align:right;white-space:nowrap;}
-    .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;text-align:center;white-space:nowrap;}
+    .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:52%;text-align:left;}
+    .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:22%;text-align:right;white-space:nowrap;}
+    .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:18%;text-align:center;white-space:nowrap;}
     .kpi-material-empty{padding:25px 12px;text-align:center;color:#718096;font-size:13px;}
 
     @media(max-width:600px){
-      .kpi-material-body{padding:6px 7px 10px;}
-      .kpi-material-table th{font-size:10px;padding:5px 4px;height:32px;}
-      .kpi-material-table td{font-size:10.5px;padding:6px 5px;line-height:1.22;}
+      .kpi-material-body{padding:6px 7px 10px;overflow-x:hidden;}
+      .kpi-material-table{width:100%;max-width:100%;table-layout:fixed;}
+      .kpi-material-table th{font-size:10px;padding:5px 3px;height:32px;}
+      .kpi-material-table td{font-size:10px;padding:6px 4px;line-height:1.2;}
       .kpi-material-table th:nth-child(1),.kpi-material-table td:nth-child(1){width:8%;}
-      .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:59%;}
-      .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:19%;}
-      .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:14%;}
+      .kpi-material-table th:nth-child(2),.kpi-material-table td:nth-child(2){width:52%;}
+      .kpi-material-table th:nth-child(3),.kpi-material-table td:nth-child(3){width:22%;}
+      .kpi-material-table th:nth-child(4),.kpi-material-table td:nth-child(4){width:18%;}
     }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
