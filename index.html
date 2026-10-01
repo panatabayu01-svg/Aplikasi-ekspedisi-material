@@ -239,11 +239,17 @@
     .reschedule-history-grid{
       display:grid;
       grid-template-columns:150px 1fr;
-      gap:5px 10px;
-      font-size:12px;
+      gap:6px 10px;
+      font-size:13px;
+    }
+    .reschedule-history-grid > div:not(.reschedule-history-label){
+      font-size:13px;
+      font-weight:600;
+      color:#18344d;
     }
     .reschedule-history-label{
-      font-weight:700;
+      font-size:13px;
+      font-weight:800;
       color:#526779;
     }
     .reschedule-history-reason{
@@ -253,7 +259,7 @@
       border:1px solid #f0d29a;
       color:#6d4b12;
       font-weight:700;
-      font-size:12px;
+      font-size:13px;
     }
     .shipment-status-card{
       padding:12px 14px;
@@ -287,10 +293,21 @@
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
     .shipment-status-note{
-      margin-top:4px;
-      font-size:11px;
+      margin-top:5px;
+      font-size:13px;
       line-height:1.4;
-      color:#657786;
+      color:#526779;
+      font-weight:700;
+    }
+    .shipment-status-note-label{
+      font-size:13px;
+      font-weight:800;
+      color:#526779;
+    }
+    .shipment-status-note-date{
+      font-size:13px;
+      font-weight:700;
+      color:#18344d;
     }
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
@@ -318,157 +335,6 @@
     .btn-input-tanggal:disabled{
       opacity:.55;
       cursor:not-allowed;
-    }
-
-    /* REPORT HISTORI PENGIRIMAN */
-    .btn-report{
-      height:38px;
-      min-width:105px;
-      flex:0 0 105px;
-      border:1px solid #0d447f;
-      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);
-      color:#fff;
-      font-weight:700;
-      font-size:13px;
-      cursor:pointer;
-      border-radius:2px;
-      white-space:nowrap;
-    }
-    .btn-report:hover{
-      background:linear-gradient(135deg,#08365f 0%,#1d5f91 55%,#286f9f 100%);
-    }
-    .btn-report:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .shipment-report-overlay{
-      position:fixed;
-      inset:0;
-      z-index:10001;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(18,38,58,.48);
-      padding:20px;
-    }
-    .shipment-report-modal{
-      width:min(1100px,100%);
-      max-height:min(88vh,780px);
-      background:#fff;
-      border-radius:4px;
-      box-shadow:0 12px 35px rgba(0,0,0,.25);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
-    .shipment-report-header{
-      min-height:50px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 15px;
-      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
-      color:#fff;
-      font-weight:800;
-      font-size:16px;
-    }
-    .shipment-report-close{
-      border:0;
-      background:transparent;
-      color:#fff;
-      font-size:25px;
-      line-height:1;
-      cursor:pointer;
-    }
-    .shipment-report-body{
-      padding:14px;
-      overflow:auto;
-    }
-    .shipment-report-project{
-      padding:10px 12px;
-      margin-bottom:12px;
-      background:#eef3f7;
-      border:1px solid #d5e0e8;
-      color:#18344d;
-      font-size:13px;
-      line-height:1.5;
-    }
-    .shipment-report-summary{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:8px;
-      margin-bottom:12px;
-    }
-    .shipment-report-kpi{
-      border:1px solid #d7e0e8;
-      background:#f8fbfd;
-      padding:10px 12px;
-    }
-    .shipment-report-kpi-label{
-      font-size:10px;
-      font-weight:800;
-      color:#657786;
-      margin-bottom:4px;
-    }
-    .shipment-report-kpi-value{
-      font-size:18px;
-      font-weight:900;
-      color:#0d447f;
-    }
-    .shipment-report-table-wrap{
-      width:100%;
-      overflow:auto;
-      border:1px solid #17324d;
-    }
-    .shipment-report-table{
-      width:100%;
-      min-width:920px;
-      border-collapse:collapse;
-      table-layout:fixed;
-    }
-    .shipment-report-table th{
-      position:static;
-      background:#0d447f !important;
-      color:#fff;
-      border:1px solid #17324d;
-      height:36px;
-      padding:6px;
-      font-size:11px;
-    }
-    .shipment-report-table td{
-      border:1px solid #cbd4de;
-      padding:7px 6px;
-      font-size:12px;
-      color:#17324d;
-      text-align:center;
-      background:#fff;
-      vertical-align:middle;
-    }
-    .shipment-report-table td.material{
-      text-align:left;
-      font-weight:700;
-    }
-    .shipment-report-empty{
-      padding:28px 15px;
-      text-align:center;
-      color:#657786;
-      font-size:13px;
-    }
-    .shipment-report-loading{
-      padding:28px 15px;
-      text-align:center;
-      color:#0d447f;
-      font-weight:700;
-    }
-    .shipment-report-note{
-      margin-top:10px;
-      padding:9px 10px;
-      background:#fff7e6;
-      border:1px solid #f0d29a;
-      color:#6d4b12;
-      font-size:11px;
-      line-height:1.45;
     }
     @media(max-width:600px){
       /* HP: popup INPUT TGL KIRIM dibuat sedikit lebih kompak tanpa mengubah desktop. */
@@ -528,22 +394,6 @@
         padding:0 12px;
         font-size:12px;
       }
-
-      .btn-report{
-        grid-column:1;
-        grid-row:3;
-        width:100%;
-        min-width:0;
-        height:38px;
-        font-size:10px;
-        padding:0 5px;
-      }
-      .shipment-report-overlay{padding:10px;}
-      .shipment-report-modal{max-height:92vh;}
-      .shipment-report-header{font-size:13px;min-height:46px;}
-      .shipment-report-summary{grid-template-columns:repeat(2,1fr);}
-      .shipment-report-kpi-value{font-size:15px;}
-      .shipment-report-body{padding:10px;}
     }
 
     .btn-reschedule-legacy{
@@ -873,26 +723,6 @@
         display:none !important;
       }
 
-      /* HP: urutan tombol baris 3 = REPORT | INPUT TGL KIRIM | REFRESH. */
-      .btn-report{
-        display:flex !important;
-        align-items:center;
-        justify-content:center;
-        grid-column:1;
-        grid-row:3;
-        justify-self:stretch;
-        width:100%;
-        min-width:0;
-        height:38px;
-        margin:0;
-        padding:0 6px;
-        white-space:nowrap;
-        overflow:hidden;
-        text-overflow:ellipsis;
-        font-size:13px;
-        line-height:1;
-      }
-
       .btn-input-tanggal{
         display:flex !important;
         align-items:center;
@@ -1015,6 +845,10 @@
       table{min-width:950px}
       .footer{font-size:10px;padding:0 8px}
     }
+    .delivery-date-value.status-no-schedule{
+      color:#ffffff !important;
+      font-weight:800 !important;
+    }
   </style>
 
   <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
@@ -1066,15 +900,6 @@
         overflow:hidden !important;
         text-overflow:ellipsis !important;
       }
-
-      .btn-report{
-        min-width:0 !important;
-        flex:0 1 105px !important;
-        width:auto !important;
-        padding-left:6px !important;
-        padding-right:6px !important;
-        font-size:12px !important;
-      }
     }
 
     @media (min-width:601px) and (max-width:1150px){
@@ -1084,9 +909,110 @@
       .delivery-date-label{font-size:11px !important;}
       .delivery-date-value{font-size:12px !important;}
       .btn-input-tanggal{flex-basis:115px !important; font-size:11px !important;}
-      .btn-report{flex-basis:90px !important; font-size:11px !important;}
     }
-  </style>
+  
+    /* ============================================================
+       PERBAIKAN #6 - PERBESAR MODAL INPUT TGL KIRIM DI PC SAJA
+       HP/RESPONSIVE MOBILE TIDAK DISENTUH.
+       ============================================================ */
+    @media (min-width:601px){
+      /* POPUP PASSWORD AKSES INPUT TGL KIRIM */
+      #passwordInputTanggalOverlay .tanggal-modal{
+        width:500px !important;
+        max-width:500px !important;
+      }
+      #passwordInputTanggalOverlay .tanggal-modal-header{
+        height:52px;
+        padding:0 18px;
+        font-size:16px;
+      }
+      #passwordInputTanggalOverlay .tanggal-modal-body{
+        padding:20px;
+      }
+      #passwordInputTanggalOverlay .tanggal-project-info{
+        padding:11px 13px;
+        margin-bottom:15px;
+        font-size:14px;
+        line-height:1.55;
+      }
+      #passwordInputTanggalOverlay .tanggal-label{
+        margin-bottom:7px;
+        font-size:14px;
+        font-weight:800;
+      }
+      #passwordInputTanggalOverlay .tanggal-input{
+        height:44px;
+        padding:0 12px;
+        font-size:15px;
+      }
+      #passwordInputTanggalOverlay .tanggal-modal-actions{
+        margin-top:18px;
+        gap:9px;
+      }
+      #passwordInputTanggalOverlay .tanggal-btn{
+        height:40px;
+        min-width:88px;
+        padding:0 16px;
+        font-size:13px;
+      }
+
+      /* POPUP INPUT RENCANA KIRIM + RESCHEDULE */
+      #tanggalOverlay .tanggal-modal-combined{
+        width:650px !important;
+        max-width:650px !important;
+      }
+      #tanggalOverlay .tanggal-modal-combined .tanggal-modal-body{
+        padding:20px;
+      }
+      #tanggalOverlay .tanggal-modal-header{
+        height:52px;
+        padding:0 18px;
+        font-size:16px;
+      }
+      #tanggalOverlay .tanggal-section{
+        padding:16px;
+        margin-top:14px;
+      }
+      #tanggalOverlay .tanggal-section-title{
+        font-size:15px;
+        padding-bottom:9px;
+        margin-bottom:14px;
+      }
+      #tanggalOverlay .tanggal-project-info{
+        padding:11px 13px;
+        margin-bottom:14px;
+        font-size:14px;
+        line-height:1.55;
+      }
+      #tanggalOverlay .tanggal-label{
+        margin-bottom:7px;
+        font-size:14px;
+        font-weight:800;
+      }
+      #tanggalOverlay .tanggal-input{
+        height:44px;
+        padding:0 12px;
+        font-size:15px;
+      }
+      #tanggalOverlay .tanggal-modal-actions{
+        margin-top:18px;
+        gap:9px;
+      }
+      #tanggalOverlay .tanggal-btn{
+        height:40px;
+        min-width:88px;
+        padding:0 16px;
+        font-size:13px;
+      }
+      #tanggalOverlay .tanggal-section-reschedule .tanggal-label{
+        font-weight:800;
+      }
+      #tanggalOverlay .tanggal-section-reschedule .tanggal-project-info,
+      #tanggalOverlay .tanggal-section-reschedule .reschedule-old-date{
+        font-size:14px;
+      }
+    }
+</style>
 
 </head>
 
@@ -1152,22 +1078,6 @@
   </div>
 </div>
 
-<div id="shipmentReportOverlay" class="shipment-report-overlay" onclick="tutupReportPengiriman(event)">
-  <div class="shipment-report-modal" role="dialog" aria-modal="true" aria-labelledby="shipmentReportTitle" onclick="event.stopPropagation()">
-    <div class="shipment-report-header">
-      <span id="shipmentReportTitle">📋 REPORT HISTORI PENGIRIMAN</span>
-      <button type="button" class="shipment-report-close" onclick="tutupReportPengiriman()">×</button>
-    </div>
-    <div class="shipment-report-body">
-      <div id="shipmentReportProject" class="shipment-report-project">-</div>
-      <div id="shipmentReportSummary" class="shipment-report-summary"></div>
-      <div id="shipmentReportContent">
-        <div class="shipment-report-loading">Memuat histori pengiriman...</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="rescheduleHistoryOverlay" class="reschedule-history-overlay" onclick="tutupDetailReschedule(event)">
   <div class="reschedule-history-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleHistoryTitle" onclick="event.stopPropagation()">
     <div class="reschedule-history-header">
@@ -1217,8 +1127,6 @@
         <button id="deliveryDateDetailBtn" type="button" class="delivery-date-detail-btn" onclick="bukaDetailReschedule()">ⓘ DETAIL</button>
       </span>
     </div>
-
-    <button id="btnReportPengiriman" class="btn-report" type="button" onclick="bukaReportPengiriman()" disabled>📋 REPORT</button>
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
 
@@ -1393,6 +1301,8 @@ const NAMA_PROYEK_MANUAL = 'MANUAL EKSPEDISI';
  * alasan, cukup ubah sheet master di Spreadsheet FILE 2.
  * ==========================================================
  */
+let masterAlasanRescheduleCache_ = null;
+
 function setPlaceholderAlasanReschedule_(){
   const select = document.getElementById('alasanRescheduleInput');
   if(!select) return;
@@ -1405,7 +1315,25 @@ function setPlaceholderAlasanReschedule_(){
 
 function muatAlasanReschedule_(){
   const select = document.getElementById('alasanRescheduleInput');
-  if(!select) return Promise.resolve();
+  if(!select) return Promise.resolve([]);
+
+  /*
+   * MASTER ALASAN RESCHEDULE:
+   * Simpan di memory setelah pertama kali berhasil dimuat.
+   * Jadi setiap membuka popup Reschedule tidak perlu request
+   * ulang ke server dan dropdown tetap aktif.
+   */
+  if(Array.isArray(masterAlasanRescheduleCache_)){
+    setPlaceholderAlasanReschedule_();
+    masterAlasanRescheduleCache_.forEach(function(item,index){
+      const option=document.createElement('option');
+      option.value=String(item.kode || item.alasan || '').trim();
+      option.textContent=(index+1)+'. '+String(item.alasan || item.kode || '').trim();
+      select.appendChild(option);
+    });
+    select.disabled=false;
+    return Promise.resolve(masterAlasanRescheduleCache_);
+  }
 
   setPlaceholderAlasanReschedule_();
   const loadingOption = document.createElement('option');
@@ -1429,8 +1357,10 @@ function muatAlasanReschedule_(){
       throw new Error(result && result.message ? result.message : 'Master Alasan Reschedule gagal dimuat.');
     }
 
-    setPlaceholderAlasanReschedule_();
     const data=Array.isArray(result.data) ? result.data : [];
+    masterAlasanRescheduleCache_=data.slice();
+
+    setPlaceholderAlasanReschedule_();
     data.forEach(function(item,index){
       const option=document.createElement('option');
       option.value=String(item.kode || item.alasan || '').trim();
@@ -1454,6 +1384,7 @@ function muatAlasanReschedule_(){
     select.disabled = false;
   });
 }
+
 let materialDataTerakhir = [];
 let nestingInternalTerakhir = [];
 
@@ -1582,9 +1513,9 @@ function pilihMode(mode){
       loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }else{
       resetTampilan();
-      showLoading(true);
+      showLoading(false);
       setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }
     return;
   }
@@ -1689,9 +1620,9 @@ document.addEventListener('DOMContentLoaded',function(){
       loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }else{
       resetTampilan();
-      showLoading(true);
+      showLoading(false);
       setStatus('Memuat hasil INPUT MANUAL EKSPEDISI...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }
 
     return;
@@ -1722,6 +1653,245 @@ function renderStatusReschedule_(history){
   if(badge) badge.style.display=hasHistory ? 'inline-flex' : 'none';
 }
 
+
+function parseTanggalRencanaKirim_(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw) return null;
+
+  // ISO: yyyy-mm-dd
+  let m=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m){
+    const y=Number(m[1]), mo=Number(m[2]), d=Number(m[3]);
+    const dt=new Date(y,mo-1,d);
+    if(dt.getFullYear()===y && dt.getMonth()===mo-1 && dt.getDate()===d) return dt;
+  }
+
+  // Indonesia: dd/mm/yyyy atau dd-mm-yyyy
+  m=raw.match(/(?:^|[^\d])(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:$|[^\d])/);
+  if(m){
+    const d=Number(m[1]), mo=Number(m[2]), y=Number(m[3]);
+    const dt=new Date(y,mo-1,d);
+    if(dt.getFullYear()===y && dt.getMonth()===mo-1 && dt.getDate()===d) return dt;
+  }
+
+  // Format tampilan: Rabu, 30 September 2026
+  const bulan={
+    januari:0, februari:1, maret:2, april:3, mei:4, juni:5,
+    juli:6, agustus:7, september:8, oktober:9, november:10, desember:11
+  };
+  m=raw.toLowerCase().match(/(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+(\d{4})/);
+  if(m){
+    const d=Number(m[1]), mo=bulan[m[2]], y=Number(m[3]);
+    const dt=new Date(y,mo,d);
+    if(dt.getFullYear()===y && dt.getMonth()===mo && dt.getDate()===d) return dt;
+  }
+
+  return null;
+}
+
+function formatTanggalLengkapIndonesia_(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw) return '-';
+
+  const parsed=parseTanggalRencanaKirim_(raw);
+  if(!parsed) return raw;
+
+  const hari=[
+    'Minggu','Senin','Selasa','Rabu',
+    'Kamis','Jumat','Sabtu'
+  ];
+  const bulan=[
+    'Januari','Februari','Maret','April','Mei','Juni',
+    'Juli','Agustus','September','Oktober','November','Desember'
+  ];
+
+  return hari[parsed.getDay()]+', '+
+    String(parsed.getDate()).padStart(2,'0')+' '+
+    bulan[parsed.getMonth()]+' '+
+    parsed.getFullYear();
+}
+
+function formatWaktuRiwayatLengkapIndonesia_(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw) return '-';
+
+  const timestamp=parseWaktuRiwayatReschedule_(raw);
+  if(!timestamp) return raw;
+
+  const d=new Date(timestamp);
+  const hari=[
+    'Minggu','Senin','Selasa','Rabu',
+    'Kamis','Jumat','Sabtu'
+  ];
+  const bulan=[
+    'Januari','Februari','Maret','April','Mei','Juni',
+    'Juli','Agustus','September','Oktober','November','Desember'
+  ];
+
+  return hari[d.getDay()]+', '+
+    String(d.getDate()).padStart(2,'0')+' '+
+    bulan[d.getMonth()]+' '+
+    d.getFullYear()+', '+
+    String(d.getHours()).padStart(2,'0')+':'+
+    String(d.getMinutes()).padStart(2,'0')+':'+
+    String(d.getSeconds()).padStart(2,'0');
+}
+
+function tanggalHariIniRencanaKirim_(){
+  const now=new Date();
+  return new Date(now.getFullYear(),now.getMonth(),now.getDate());
+}
+
+function parseWaktuRiwayatReschedule_(value){
+  const raw=String(value==null?'':value).trim();
+  if(!raw) return 0;
+
+  // Format yang biasa disimpan aplikasi: dd/mm/yyyy, HH:mm:ss
+  let m=raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})[\, ]+([0-2]?\d):([0-5]?\d)(?::([0-5]?\d))?/);
+  if(m){
+    const d=Number(m[1]), mo=Number(m[2]), y=Number(m[3]);
+    const hh=Number(m[4]||0), mm=Number(m[5]||0), ss=Number(m[6]||0);
+    const dt=new Date(y,mo-1,d,hh,mm,ss);
+    if(!Number.isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  const parsed=new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+}
+
+function urutkanRiwayatReschedule_(history){
+  if(!Array.isArray(history)) return [];
+
+  // Backend/versi lama bisa mengembalikan histori terbaru lebih dulu.
+  // UI selalu membutuhkan urutan kronologis: KE-1 -> KE-2 -> KE-3.
+  return history.map(function(item,index){
+    return {item:item || {}, index:index};
+  }).sort(function(a,b){
+    const ta=parseWaktuRiwayatReschedule_(a.item.timestamp);
+    const tb=parseWaktuRiwayatReschedule_(b.item.timestamp);
+    if(ta && tb && ta!==tb) return ta-tb;
+    if(ta && !tb) return -1;
+    if(!ta && tb) return 1;
+    return a.index-b.index;
+  }).map(function(entry){
+    return entry.item;
+  });
+}
+
+function ambilTanggalRescheduleTerakhir_(history){
+  const ordered=urutkanRiwayatReschedule_(history);
+  if(ordered.length===0) return '';
+  for(let i=ordered.length-1;i>=0;i--){
+    const value=String(ordered[i] && ordered[i].tanggalBaru || '').trim();
+    if(value) return value;
+  }
+  return '';
+}
+
+/*
+ * STATUS RENCANA KIRIM OTOMATIS
+ * 1. Tabel material kosong -> BELUM ADA MATERIAL
+ * 2. Material ada tetapi belum ada schedule -> BELUM ADA SCHEDULE
+ * 3. Schedule masih berlaku -> tampilkan tanggal
+ * 4. Schedule sudah lewat dan tidak ada reschedule -> BELUM ADA SCHEDULE
+ * 5. Ada reschedule -> gunakan tanggal reschedule terakhir.
+ *
+ * Sumber tanggal tetap data.tanggalKirim (MESIN_HITUNG kolom L /
+ * hasil sinkron dari RAKAP_PM_PO_SJ) dan histori reschedule.
+ */
+function hitungStatusRencanaKirim_(data,materialData,rescheduleHistory){
+  const rows=Array.isArray(materialData) ? materialData : [];
+  const history=Array.isArray(rescheduleHistory) ? rescheduleHistory : [];
+
+  if(rows.length===0){
+    return {
+      text:'BELUM ADA MATERIAL',
+      tanggalInput:'',
+      hasReschedule:false,
+      expired:false,
+      reason:'NO_MATERIAL'
+    };
+  }
+
+  const tanggalReschedule=ambilTanggalRescheduleTerakhir_(history);
+  const hasReschedule=!!tanggalReschedule;
+
+  const tanggalAwal=String(
+    data && (
+      data.tanggalKirim ||
+      (rows[0] && rows[0].tanggalKirim)
+    ) || ''
+  ).trim();
+
+  const tanggalAktif=hasReschedule ? tanggalReschedule : tanggalAwal;
+
+  if(!tanggalAktif){
+    return {
+      text:'BELUM ADA SCHEDULE',
+      tanggalInput:'',
+      hasReschedule:false,
+      expired:false,
+      reason:'NO_SCHEDULE'
+    };
+  }
+
+  const parsed=parseTanggalRencanaKirim_(tanggalAktif);
+
+  // Jika format tanggal tidak dikenali, jangan merusak tampilan tanggal
+  // yang sudah berasal dari server.
+  if(!parsed){
+    return {
+      text:tanggalAktif,
+      tanggalInput:String(
+        data && data.tanggalKirimInput ||
+        tanggalAktif
+      ).trim(),
+      hasReschedule:hasReschedule,
+      expired:false,
+      reason:'VALID_DATE_FORMAT_UNKNOWN'
+    };
+  }
+
+  const today=tanggalHariIniRencanaKirim_();
+  const expired=parsed.getTime()<today.getTime();
+
+  // Jika tanggal SCHEDULE sudah lewat dan tidak ada RESCHEDULE,
+  // otomatis menjadi BELUM ADA SCHEDULE.
+  if(expired && !hasReschedule){
+    return {
+      text:'BELUM ADA SCHEDULE',
+      tanggalInput:'',
+      hasReschedule:false,
+      expired:true,
+      reason:'EXPIRED_NO_RESCHEDULE'
+    };
+  }
+
+  // Jika tanggal RESCHEDULE sudah lewat, RESCHEDULE dianggap
+  // sudah terlaksana dan otomatis hilang dari status aktif.
+  if(expired && hasReschedule){
+    return {
+      text:'BELUM ADA SCHEDULE',
+      tanggalInput:'',
+      hasReschedule:false,
+      expired:true,
+      reason:'EXPIRED_RESCHEDULE'
+    };
+  }
+
+  return {
+    text:tanggalAktif,
+    tanggalInput:String(
+      hasReschedule
+        ? tanggalReschedule
+        : (data && data.tanggalKirimInput || tanggalAktif)
+    ).trim(),
+    hasReschedule:hasReschedule,
+    expired:expired,
+    reason:hasReschedule ? 'RESCHEDULE_ACTIVE' : 'SCHEDULE_ACTIVE'
+  };
+}
+
 function getStatusRealisasi_(data){
   data=data||{};
   const material=Array.isArray(data.material) ? data.material : [];
@@ -1735,24 +1905,22 @@ function getStatusRealisasi_(data){
            (Number(item.totalTon)||0)>0.000001;
   });
 
-  const tanggal=String(
-    data.tanggalKirim ||
-    (material[0] && material[0].tanggalKirim) ||
-    ''
-  ).trim();
+  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  const rencana=hitungStatusRencanaKirim_(data,material,history);
+  const tanggal=rencana.text || '-';
 
   if(masihAdaMaterial){
     return {
       cls:'status-partial',
       value:'🟠 MENUNGGU PENGIRIMAN',
-      note:'RENCANA KIRIM: '+(tanggal || '-')
+      note:'RENCANA KIRIM: '+tanggal
     };
   }
 
   return {
     cls:'status-ok',
     value:'🟢 MATERIAL SUDAH TERKIRIM',
-    note:'RENCANA KIRIM: '+(tanggal || '-')
+    note:'RENCANA KIRIM: '+tanggal
   };
 }
 
@@ -1766,309 +1934,12 @@ function escapeHtmlSafe_(value){
 }
 
 
-/* ==========================================================
- * REPORT HISTORI PENGIRIMAN + SNAPSHOT
- * ----------------------------------------------------------
- * Kontrak API FILE 2 yang dipakai Index:
- *   action=sync_shipment_snapshot
- *   action=get_shipment_report
- *
- * Snapshot disimpan di server, bukan localStorage.
- * Server bertanggung jawab:
- *   1. membandingkan qty/sisa sebelumnya vs terbaru;
- *   2. jika terbaru < sebelumnya, membuat histori baru;
- *   3. jika terbaru > sebelumnya, tidak dianggap pengiriman;
- *   4. menjaga histori lama agar tidak tertimpa.
- * ========================================================== */
-
-let shipmentSnapshotTimer_=null;
-let shipmentSnapshotSerial_=0;
-
-function buatPayloadSnapshotPengiriman_(project, rows){
-  return (Array.isArray(rows) ? rows : []).map(function(item){
-    const material=String(item && item.material || '').trim();
-    const unit=String(item && item.unit || '').trim();
-    const category=String(item && item.category || '').trim();
-
-    return {
-      /* Payload dibuat ringkas agar request GET tetap aman untuk proyek besar.
-         Backend menghitung key dari material + unit + category. */
-      material:material,
-      unit:unit,
-      category:category,
-      volume:Number(item && item.volume)||0,
-      tanggalRencana:String(
-        item && (
-          item.tanggalKirimInput ||
-          item.tanggalKirim ||
-          ''
-        ) || ''
-      ).trim()
-    };
-  }).filter(function(item){
-    return item.material;
-  });
-}
-
-function sinkronSnapshotPengiriman_(project, rows, immediate){
-  const projectName=String(project || '').trim();
-  if(modeAplikasi!=='AUTO' || !projectName || !Array.isArray(rows)){
-    return Promise.resolve(null);
-  }
-
-  const payloadRows=buatPayloadSnapshotPengiriman_(projectName, rows);
-  if(payloadRows.length===0){
-    return Promise.resolve(null);
-  }
-
-  clearTimeout(shipmentSnapshotTimer_);
-  const serial=++shipmentSnapshotSerial_;
-
-  const kirim=function(){
-    if(serial!==shipmentSnapshotSerial_) return Promise.resolve(null);
-
-    return fetch(API_URL+'?action=sync_shipment_snapshot'
-      +'&project='+encodeURIComponent(projectName)
-      +'&payload='+encodeURIComponent(JSON.stringify({rows:payloadRows}))
-      +'&_='+Date.now(),{
-        method:'GET',
-        cache:'no-store',
-        redirect:'follow'
-      })
-      .then(function(response){
-        if(!response.ok) throw new Error('HTTP '+response.status);
-        return response.json();
-      })
-      .then(function(result){
-        if(!result || result.success!==true){
-          throw new Error(result && result.message ? result.message : 'Snapshot pengiriman gagal disimpan.');
-        }
-        if(result.shipmentCount>0){
-          console.info('SHIPMENT SNAPSHOT:',result.shipmentCount,'histori pengiriman baru.');
-        }
-        return result;
-      });
-  };
-
-  if(immediate){
-    return kirim().catch(function(error){
-      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
-      return null;
-    });
-  }
-
-  shipmentSnapshotTimer_=setTimeout(function(){
-    kirim().catch(function(error){
-      /* Jangan mengganggu tampilan utama bila endpoint histori belum aktif. */
-      console.warn('SHIPMENT SNAPSHOT API:',error.message || error);
-    });
-  },700);
-
-  return Promise.resolve(null);
-}
-
-function bukaReportPengiriman(){
-  if(modeAplikasi!=='AUTO'){
-    alert('REPORT Pengiriman hanya tersedia untuk DATA OTOMATIS.');
-    return;
-  }
-
-  const project=String(
-    proyekAktif ||
-    document.getElementById('projectSelect')?.value ||
-    ''
-  ).trim();
-
-  if(!project){
-    alert('Pilih proyek terlebih dahulu.');
-    return;
-  }
-
-  const overlay=document.getElementById('shipmentReportOverlay');
-  const projectEl=document.getElementById('shipmentReportProject');
-  const summaryEl=document.getElementById('shipmentReportSummary');
-  const contentEl=document.getElementById('shipmentReportContent');
-
-  if(projectEl){
-    projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-      '<br><b>Status:</b> Memuat histori pengiriman...';
-  }
-  if(summaryEl){
-    summaryEl.innerHTML='';
-  }
-  if(contentEl){
-    contentEl.innerHTML='<div class="shipment-report-loading">Memuat histori pengiriman...</div>';
-  }
-  if(overlay){
-    overlay.style.display='flex';
-  }
-
-  // REPORT hanya membaca histori yang sudah tersimpan di server.
-  // Sinkronisasi SNAPSHOT tetap berjalan otomatis dari proses pemuatan
-  // data material, sehingga klik REPORT tidak perlu menunggu proses snapshot.
-  fetch(API_URL+'?action=get_shipment_report'
-    +'&project='+encodeURIComponent(project)
-    +'&_='+Date.now(),{
-      method:'GET',
-      cache:'no-store',
-      redirect:'follow'
-    })
-    .then(function(response){
-      if(!response.ok) throw new Error('HTTP '+response.status);
-      return response.json();
-    })
-    .then(function(result){
-      if(!result || result.success!==true){
-        throw new Error(result && result.message ? result.message : 'Report pengiriman gagal dimuat.');
-      }
-      renderReportPengiriman_(project,result);
-    })
-    .catch(function(error){
-      console.error('REPORT PENGIRIMAN ERROR:',error);
-      if(contentEl){
-        contentEl.innerHTML=
-          '<div class="shipment-report-empty">'+
-          'Histori pengiriman belum dapat dimuat.<br>'+
-          '<span style="font-size:11px;">'+escapeHtmlSafe_(error.message || error)+'</span>'+
-          '</div>'+
-          '<div class="shipment-report-note">'+
-          '<b>Catatan:</b> histori permanen menggunakan snapshot server. '+
-          'Jika menu ini baru dipasang, endpoint snapshot/report pada FILE 2 harus sudah aktif.'+
-          '</div>';
-      }
-      if(projectEl){
-        projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-          '<br><b>Status:</b> Report belum tersedia dari server.';
-      }
-    });
-}
-function renderReportPengiriman_(project,result){
-  const projectEl=document.getElementById('shipmentReportProject');
-  const summaryEl=document.getElementById('shipmentReportSummary');
-  const contentEl=document.getElementById('shipmentReportContent');
-
-  const rows=Array.isArray(result.rows) ? result.rows : [];
-  const summary=result.summary || {};
-
-  // Backend REPORT memakai nama summary: totalShipment / totalQty / totalItem.
-  // Frontend lama memakai nama berbeda sehingga KPI terbaca 0 walaupun tabel berisi histori.
-  const totalShipment = Number(
-    summary.totalPengiriman != null ? summary.totalPengiriman :
-    (summary.totalShipment != null ? summary.totalShipment : rows.length)
-  ) || rows.length;
-
-  const totalTerkirim = Number(
-    summary.totalTerkirim != null ? summary.totalTerkirim :
-    (summary.totalQty != null ? summary.totalQty : rows.reduce(function(sum,row){
-      return sum + (Number(row.qtyKirim) || 0);
-    },0))
-  ) || 0;
-
-  // TOTAL SISA = TOTAL VOLUME AKTUAL - TOTAL TERKIRIM.
-  // Hanya memperbaiki KPI REPORT; snapshot dan histori tidak diubah.
-  let totalVolumeAktual = 0;
-  if (Array.isArray(materialDataTerakhir)) {
-    totalVolumeAktual = materialDataTerakhir.reduce(function(sum,item){
-      return sum + (Number(item && item.volume) || 0);
-    },0);
-  } else if (summary.totalVolume != null) {
-    totalVolumeAktual = Number(summary.totalVolume) || 0;
-  }
-  let totalSisa = Math.max(0, totalVolumeAktual - totalTerkirim);
-
-  const totalItem = Number(summary.totalItem) || 0;
-
-  if(projectEl){
-    projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+
-      '<br><b>Total Riwayat Pengiriman:</b> '+formatNumber(totalShipment,0)+' kali';
-  }
-
-  if(summaryEl){
-    summaryEl.innerHTML=
-      '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">TOTAL ITEM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalItem,0)+' jenis</div>'+ 
-      '</div>'+ 
-      '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">TOTAL TERKIRIM</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalTerkirim,0)+' unit</div>'+ 
-      '</div>'+ 
-      '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">TOTAL SISA</div>'+
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalSisa,0)+' unit</div>'+ 
-      '</div>'+ 
-      '<div class="shipment-report-kpi">'+
-        '<div class="shipment-report-kpi-label">PENGIRIMAN</div>'+ 
-        '<div class="shipment-report-kpi-value">'+formatNumber(totalShipment,0)+' kali</div>'+ 
-      '</div>';
-  }
-
-  if(!contentEl) return;
-
-  if(rows.length===0){
-    contentEl.innerHTML=
-      '<div class="shipment-report-empty">Belum ada histori pengiriman untuk proyek ini.</div>'+
-      '<div class="shipment-report-note">'+
-      '<b>Logika:</b> histori dibuat otomatis ketika volume/sisa material terdeteksi berkurang dari snapshot sebelumnya.'+
-      '</div>';
-    return;
-  }
-
-  let html=
-    '<div class="shipment-report-table-wrap">'+
-      '<table class="shipment-report-table">'+
-        '<thead><tr>'+
-          '<th style="width:55px">RIWAYAT</th>'+
-          '<th style="width:230px">MATERIAL</th>'+
-          '<th style="width:95px">QTY SEBELUM</th>'+
-          '<th style="width:95px">QTY SESUDAH</th>'+
-          '<th style="width:90px">QTY KIRIM</th>'+
-          '<th style="width:135px">RENCANA KIRIM</th>'+
-          '<th style="width:135px">RESCHEDULE</th>'+
-          '<th style="width:135px">TANGGAL DIKIRIM</th>'+
-          '<th style="width:120px">WAKTU DETEKSI</th>'+
-        '</tr></thead><tbody>';
-
-  rows.forEach(function(item,index){
-    html+='<tr>'+
-      '<td><b>KE-'+formatNumber(index+1,0)+'</b></td>'+
-      '<td class="material">'+escapeHtmlSafe_(item.material || '-')+
-        '<br><span style="font-size:10px;font-weight:500;color:#718096;">'+
-        escapeHtmlSafe_((item.unit || '')+' '+(item.category ? '• '+item.category : ''))+
-        '</span></td>'+
-      '<td>'+formatNumber(Number(item.qtySebelum)||0,0)+'</td>'+
-      '<td>'+formatNumber(Number(item.qtySesudah)||0,0)+'</td>'+
-      '<td><b>'+formatNumber(Number(item.qtyKirim)||0,0)+'</b></td>'+
-      '<td>'+escapeHtmlSafe_(item.tanggalRencana || '-')+'</td>'+
-      '<td>'+escapeHtmlSafe_(item.tanggalReschedule || '-')+'</td>'+
-      '<td>'+escapeHtmlSafe_(item.tanggalDikirim || '-')+'</td>'+
-      '<td>'+escapeHtmlSafe_(item.timestampDeteksi || '-')+'</td>'+
-    '</tr>';
-  });
-
-  html+='</tbody></table></div>'+
-    '<div class="shipment-report-note">'+
-    '<b>Catatan:</b> TANGGAL DIKIRIM berasal dari tanggal saat sistem mendeteksi pengurangan material. '+
-    'RESCHEDULE hanya perubahan jadwal dan tidak dianggap sebagai pengiriman.'+
-    '</div>';
-
-  contentEl.innerHTML=html;
-}
-
-function tutupReportPengiriman(event){
-  if(event && event.target && event.target.id!=='shipmentReportOverlay'){
-    return;
-  }
-  const overlay=document.getElementById('shipmentReportOverlay');
-  if(overlay){
-    overlay.style.display='none';
-  }
-}
-
 function bukaDetailReschedule(){
   const data=window.__DATA_TERAKHIR__ || {};
   const project=String(data.project || proyekAktif || document.getElementById('projectSelect')?.value || '').trim();
-  const history=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
+  const history=urutkanRiwayatReschedule_(
+    Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : []
+  );
   const overlay=document.getElementById('rescheduleHistoryOverlay');
   const projectEl=document.getElementById('rescheduleHistoryProject');
   const listEl=document.getElementById('rescheduleHistoryList');
@@ -2082,7 +1953,15 @@ function bukaDetailReschedule(){
     statusBox.classList.add(status.cls);
   }
   if(statusValue) statusValue.textContent=status.value;
-  if(statusNote) statusNote.textContent=status.note;
+  if(statusNote){
+    const statusNoteRaw=String(status.note || '');
+    const statusNoteDate=statusNoteRaw.replace(/^RENCANA KIRIM:\s*/i,'').trim();
+    statusNote.innerHTML=
+      '<span class="shipment-status-note-label">RENCANA KIRIM:</span> '+
+      '<span class="shipment-status-note-date">'+
+      escapeHtmlSafe_(formatTanggalLengkapIndonesia_(statusNoteDate))+
+      '</span>';
+  }
 
   if(projectEl){
     projectEl.innerHTML='<b>Proyek:</b> '+escapeHtmlSafe_(project)+'<br><b>Total Reschedule:</b> '+history.length+' kali';
@@ -2096,9 +1975,9 @@ function bukaDetailReschedule(){
         return '<div class="reschedule-history-item">'+
           '<div class="reschedule-history-item-title">RESCHEDULE RIWAYAT KE-'+(index+1)+'</div>'+
           '<div class="reschedule-history-grid">'+
-            '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(item.timestamp || '-')+'</div>'+
-            '<div class="reschedule-history-label">RENCANA KIRIM</div><div>'+escapeHtmlSafe_(item.tanggalLama || '-')+'</div>'+
-            '<div class="reschedule-history-label">RESCHEDULE</div><div>'+escapeHtmlSafe_(item.tanggalBaru || '-')+'</div>'+
+            '<div class="reschedule-history-label">Waktu</div><div>'+escapeHtmlSafe_(formatWaktuRiwayatLengkapIndonesia_(item.timestamp || '-'))+'</div>'+
+            '<div class="reschedule-history-label">RENCANA KIRIM</div><div>'+escapeHtmlSafe_(formatTanggalLengkapIndonesia_(item.tanggalLama || '-'))+'</div>'+
+            '<div class="reschedule-history-label">RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalLengkapIndonesia_(item.tanggalBaru || '-'))+'</div>'+
             '<div class="reschedule-history-label">User</div><div>'+escapeHtmlSafe_(item.user || '-')+'</div>'+
           '</div>'+
           '<div class="reschedule-history-reason">Alasan Reschedule: '+escapeHtmlSafe_(item.alasan || '-')+'</div>'+
@@ -2252,6 +2131,10 @@ function simpanTanggalRencanaKirim(){
     return;
   }
 
+  // Batalkan pengaruh request data proyek yang mungkin masih berjalan.
+  // Response lama tidak boleh menimpa tanggal yang baru saja disimpan.
+  requestSerial++;
+
   setTanggalInputLoading_(true);
   setStatus('Menyimpan Tanggal Rencana Kirim...');
 
@@ -2270,11 +2153,47 @@ function simpanTanggalRencanaKirim(){
     }
 
     tutupInputTanggalRencanaKirim();
-    setStatus('Tanggal Rencana Kirim berhasil disimpan. Memuat data terbaru...');
 
-    // Ambil ulang dari server agar sumber tampilan benar-benar RAKAP_PM_PO_SJ.
-    loadDataProyek(project,true);
-    alert('Tanggal Rencana Kirim berhasil disimpan.\n\n'+result.tanggalKirim+'\n'+result.updatedRows+' baris diperbarui.');
+    // ============================================================
+    // UPDATE UI LANGSUNG SETELAH SERVER BERHASIL.
+    // Jangan reload seluruh DATA PROYEK karena material, KPI,
+    // armada, dan tabel tidak berubah saat tanggal disimpan.
+    // ============================================================
+    const latestData=window.__DATA_TERAKHIR__ || {};
+    const latestHistory=Array.isArray(latestData.rescheduleHistory)
+      ? latestData.rescheduleHistory
+      : [];
+
+    latestData.tanggalKirimInput=result.tanggalKirimInput || dateValue;
+    latestData.tanggalKirim=result.tanggalKirim || dateValue;
+    window.__DATA_TERAKHIR__=latestData;
+    setCache_(getProjectCacheKey_(project), latestData);
+
+    const statusRencana=hitungStatusRencanaKirim_(
+      latestData,
+      Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [],
+      latestHistory
+    );
+    const tanggalEl=document.getElementById('deliveryDateValue');
+    if(tanggalEl){
+      tanggalEl.classList.toggle(
+        'status-no-schedule',
+        statusRencana.reason==='NO_SCHEDULE' ||
+        statusRencana.reason==='EXPIRED_NO_RESCHEDULE'
+      );
+      const mobile=window.matchMedia &&
+                   window.matchMedia('(max-width: 600px)').matches;
+      let displayTanggal=statusRencana.text || '-';
+      if(mobile && typeof formatTanggalKirimHP_==='function'){
+        displayTanggal=formatTanggalKirimHP_(displayTanggal);
+      }
+      tanggalEl.textContent=displayTanggal;
+    }
+    renderStatusReschedule_(latestHistory);
+    showLoading(false);
+    setStatus('Tanggal Rencana Kirim berhasil disimpan.');
+
+    alert('Tanggal Rencana Kirim berhasil disimpan.\n\n'+(result.tanggalKirim || dateValue)+'\n'+result.updatedRows+' baris diperbarui.');
   })
   .catch(function(error){
     console.error('SAVE DELIVERY DATE ERROR:',error);
@@ -2353,6 +2272,10 @@ function simpanRescheduleRencanaKirim(){
   if(newDate===oldDate){ alert('Tanggal baru sama dengan tanggal saat ini. Silakan pilih tanggal yang berbeda.'); return; }
   if(!alasan){ alert('Pilih alasan Reschedule terlebih dahulu.'); return; }
 
+  // Batalkan pengaruh request data proyek lama agar tanggal baru
+  // tidak kembali ke nilai sebelum reschedule.
+  requestSerial++;
+
   setRescheduleLoading_(true);
   setStatus('Menyimpan Reschedule Rencana Kirim...');
 
@@ -2368,9 +2291,61 @@ function simpanRescheduleRencanaKirim(){
       throw new Error(result && result.message ? result.message : 'Reschedule gagal disimpan.');
     }
     tutupRescheduleRencanaKirim();
-    setStatus('Reschedule berhasil disimpan. Memuat data terbaru...');
-    loadDataProyek(project,true);
-    alert('Rencana Kirim berhasil di-reschedule.\n\nTanggal lama : '+(result.tanggalLama || oldDate)+'\nTanggal baru : '+(result.tanggalBaru || newDate)+'\nAlasan : '+(result.alasan || alasan)+'\n'+result.updatedRows+' baris diperbarui.');
+
+    // ============================================================
+    // UPDATE UI LANGSUNG SETELAH SERVER BERHASIL.
+    // Jangan reload seluruh DATA PROYEK karena material, KPI,
+    // armada, dan tabel tidak berubah saat reschedule.
+    // ============================================================
+    const latestData=window.__DATA_TERAKHIR__ || {};
+    const latestHistory=urutkanRiwayatReschedule_(
+      Array.isArray(latestData.rescheduleHistory)
+        ? latestData.rescheduleHistory.slice()
+        : []
+    );
+
+    latestHistory.push({
+      timestamp:new Date().toLocaleString('id-ID'),
+      project:project,
+      tanggalLama:oldDate,
+      tanggalBaru:result.tanggalBaru || newDate,
+      user:'',
+      aksi:'RESCHEDULE',
+      alasan:result.alasan || alasan,
+      barisRakap:Number(result.updatedRow)||0
+    });
+
+    latestData.tanggalKirimInput=result.tanggalBaruInput || newDate;
+    latestData.tanggalKirim=result.tanggalBaru || newDate;
+    latestData.rescheduleHistory=latestHistory;
+    window.__DATA_TERAKHIR__=latestData;
+    setCache_(getProjectCacheKey_(project), latestData);
+
+    const statusRencana=hitungStatusRencanaKirim_(
+      latestData,
+      Array.isArray(materialDataTerakhir) ? materialDataTerakhir : [],
+      latestHistory
+    );
+    const tanggalEl=document.getElementById('deliveryDateValue');
+    if(tanggalEl){
+      tanggalEl.classList.toggle(
+        'status-no-schedule',
+        statusRencana.reason==='NO_SCHEDULE' ||
+        statusRencana.reason==='EXPIRED_NO_RESCHEDULE'
+      );
+      const mobile=window.matchMedia &&
+                   window.matchMedia('(max-width: 600px)').matches;
+      let displayTanggal=statusRencana.text || '-';
+      if(mobile && typeof formatTanggalKirimHP_==='function'){
+        displayTanggal=formatTanggalKirimHP_(displayTanggal);
+      }
+      tanggalEl.textContent=displayTanggal;
+    }
+    renderStatusReschedule_(latestHistory);
+    // Pastikan overlay loading lama tidak tertinggal setelah reschedule.
+    showLoading(false);
+    setStatus('Reschedule berhasil disimpan.');
+    alert('Rencana Kirim berhasil di-reschedule.\n\nTanggal lama : '+oldDate+'\nTanggal baru : '+(result.tanggalBaru || newDate)+'\nAlasan : '+(result.alasan || alasan)+'\n'+result.updatedRows+' baris diperbarui.');
   })
   .catch(function(error){
     console.error('RESCHEDULE DELIVERY DATE ERROR:',error);
@@ -2529,9 +2504,9 @@ function pilihProyek(){
       loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }else{
       resetTampilan();
-      showLoading(true);
+      showLoading(false);
       setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,true);
+      loadDataProyek(NAMA_PROYEK_MANUAL,false);
     }
     return;
   }
@@ -2933,27 +2908,17 @@ function tampilkanData(data){
       });
   }
 
-  // Tanggal rencana pengiriman berasal dari MESIN_HITUNG kolom L.
-  // Jika proyek sudah pernah RESCHEDULE, tampilan utama tetap memakai
-  // tanggal awal sebelum RESCHEDULE. Jika belum pernah RESCHEDULE,
-  // gunakan tanggal rencana kirim aktif seperti sebelumnya.
-  const tanggalKirimAktif=String(
-    data.tanggalKirim ||
-    (materialData[0] && materialData[0].tanggalKirim) ||
-    ''
-  ).trim();
-
+  // RENCANA KIRIM otomatis:
+  // sumber tanggal tetap MESIN_HITUNG kolom L (hasil sinkron dari
+  // RAKAP_PM_PO_SJ), sedangkan bila ada RESCHEDULE digunakan tanggal
+  // RESCHEDULE terakhir.
   const rescheduleHistory=Array.isArray(data.rescheduleHistory) ? data.rescheduleHistory : [];
-  let tanggalKirim=tanggalKirimAktif;
-  if(rescheduleHistory.length){
-    // Ambil tanggal lama paling awal sebagai tanggal RENCANA KIRIM awal.
-    const riwayatAwal=rescheduleHistory.find(function(item){
-      return item && String(item.tanggalLama || '').trim();
-    });
-    if(riwayatAwal && String(riwayatAwal.tanggalLama || '').trim()){
-      tanggalKirim=String(riwayatAwal.tanggalLama).trim();
-    }
-  }
+  const statusRencanaKirim=hitungStatusRencanaKirim_(
+    data,
+    materialData,
+    rescheduleHistory
+  );
+  const tanggalKirim=statusRencanaKirim.text;
 
   // HP: singkatkan nama bulan agar tanggal tidak terpotong.
   // Desktop tetap menggunakan format tanggal dari API.
@@ -2973,6 +2938,11 @@ function tampilkanData(data){
   if(tanggalKirimEl){
     const isMobileTanggal=window.matchMedia &&
                           window.matchMedia('(max-width: 600px)').matches;
+    tanggalKirimEl.classList.toggle(
+      'status-no-schedule',
+      statusRencanaKirim.reason==='NO_SCHEDULE' ||
+      statusRencanaKirim.reason==='EXPIRED_NO_RESCHEDULE'
+    );
     tanggalKirimEl.textContent=isMobileTanggal
       ? formatTanggalKirimHP_(tanggalKirim)
       : (tanggalKirim || '-');
@@ -2987,22 +2957,6 @@ function tampilkanData(data){
   if(btnInputTanggal){
     btnInputTanggal.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
   }
-
-  const btnReportPengiriman=document.getElementById('btnReportPengiriman');
-  if(btnReportPengiriman){
-    btnReportPengiriman.disabled = !(modeAplikasi==='AUTO' && String(proyekAktif||'').trim());
-  }
-
-  // ==========================================================
-  // SNAPSHOT PENGIRIMAN
-  // Server akan membandingkan snapshot sebelumnya dengan data
-  // material terbaru. Jika volume berkurang, server membuat
-  // histori pengiriman permanen. Index tidak menyimpan histori
-  // pengiriman sebagai localStorage agar tidak bergantung pada
-  // browser/perangkat pengguna.
-  // ==========================================================
-  sinkronSnapshotPengiriman_(proyekAktif, materialData);
-
   // KPI dihitung dari DATA MATERIAL yang sedang ditampilkan.
   // Jadi KPI tidak bisa berbeda dengan tabel akibat summary/cache lama.
   let kpiItem=materialData.length;
@@ -4315,6 +4269,7 @@ function tampilkanMaterial(data){
 function resetTampilan(){
   const tanggalKirimEl=document.getElementById('deliveryDateValue');
   if(tanggalKirimEl){
+    tanggalKirimEl.classList.remove('status-no-schedule');
     tanggalKirimEl.textContent='-';
   }
   renderStatusReschedule_([]);
@@ -4322,12 +4277,7 @@ function resetTampilan(){
   if(btnInputTanggal){
     btnInputTanggal.disabled=true;
   }
-  const btnReportPengiriman=document.getElementById('btnReportPengiriman');
-  if(btnReportPengiriman){
-    btnReportPengiriman.disabled=true;
-  }
-
-  materialDataTerakhir=[];
+materialDataTerakhir=[];
   window.__DATA_TERAKHIR__=null;
   nestingInternalTerakhir=[];
   updateNestingInternalButton_();
@@ -4814,7 +4764,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     tutupNestingInternal();
     tutupMaterialArmada();
-    tutupReportPengiriman();
     tutupDetailReschedule();
   }
 });
