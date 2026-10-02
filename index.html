@@ -92,7 +92,7 @@
     .header{height:58px;background:#eef3f7;color:#17324d;display:flex;align-items:center;padding:0 28px;box-shadow:0 1px 4px rgba(23,50,77,.16);border-bottom:1px solid #d1dce7}
 
     .user-online-indicator{margin-left:auto;flex:0 0 auto;padding:6px 10px;border:1px solid #b7c7d6;border-radius:14px;background:#fff;color:#17324d;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 3px rgba(23,50,77,.10)}
-    .user-access-overlay{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.35);backdrop-filter:blur(3px)}
+    .user-access-overlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.35);backdrop-filter:blur(3px)}
     .user-access-modal{width:min(430px,100%);background:#fff;border:2px solid #0d447f;border-radius:12px;padding:26px 24px 24px;box-shadow:0 14px 45px rgba(0,0,0,.25);text-align:center}
     .user-access-icon{font-size:42px;line-height:1;margin-bottom:8px}.user-access-title{color:#0d447f;font-size:23px;font-weight:800;margin-bottom:10px}
     .user-access-message{color:#526579;font-size:14px;line-height:1.5;margin-bottom:18px}.user-access-label{display:block;text-align:left;color:#17324d;font-size:12px;font-weight:800;margin:0 0 6px}
@@ -1946,14 +1946,42 @@ function daftarUserBaru_(){
   .finally(()=>{if(btn){btn.disabled=false;btn.textContent='KIRIM PENDAFTARAN'}});
 }
 function mulaiSistemUser_(){
-  userDeviceId_=getUserDeviceId_();showUserAccessOverlay_();setUserAccessMode_('LOADING');
+  userDeviceId_=getUserDeviceId_();
+  // Jangan tampilkan popup saat startup. Popup hanya ditampilkan
+  // setelah server memastikan perangkat memang belum APPROVED.
+  hideUserAccessOverlay_();
   return checkUserStatus_().then(x=>{
     const s=String(x.status||'').toUpperCase();
-    if(s==='APPROVED'){userApproved_=true;setUserAccessMode_('APPROVED',x.name||'');setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300);return true}
-    if(s==='PENDING'){setUserAccessMode_('PENDING',x.name||'');mulaiPollingApprovalUser_();return false}
-    if(s==='REJECTED'){setUserAccessMode_('REJECTED',x.name||'');return false}
-    setUserAccessMode_('FORM');return false;
-  }).catch(e=>{console.error('USER ACCESS ERROR:',e);setUserAccessMode_('FORM');setUserAccessMessage_('Belum dapat terhubung ke server. Silakan coba lagi.');return false});
+    if(s==='APPROVED'){
+      // Perangkat sudah terdaftar dan disetujui: langsung buka aplikasi.
+      userApproved_=true;
+      hideUserAccessOverlay_();
+      mulaiHeartbeatUser_();
+      return true;
+    }
+
+    // Untuk PENDING / REJECTED / perangkat baru, baru tampilkan popup.
+    showUserAccessOverlay_();
+    if(s==='PENDING'){
+      setUserAccessMode_('PENDING',x.name||'');
+      mulaiPollingApprovalUser_();
+      return false;
+    }
+    if(s==='REJECTED'){
+      setUserAccessMode_('REJECTED',x.name||'');
+      return false;
+    }
+    setUserAccessMode_('FORM');
+    return false;
+  }).catch(e=>{
+    console.error('USER ACCESS ERROR:',e);
+    // Jika server belum dapat dihubungi, tampilkan popup agar user
+    // tetap mendapat informasi dan bisa mencoba pendaftaran kembali.
+    showUserAccessOverlay_();
+    setUserAccessMode_('FORM');
+    setUserAccessMessage_('Belum dapat terhubung ke server. Silakan coba lagi.');
+    return false;
+  });
 }
 window.CACHE_VERSION = 'v12';
 window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v12';
