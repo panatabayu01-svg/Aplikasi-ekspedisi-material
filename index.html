@@ -103,8 +103,8 @@
     .user-online-empty{padding:20px 8px;text-align:center;color:#738397;font-size:13px}
 
     .user-access-overlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.35);backdrop-filter:blur(3px)}
-    .user-access-modal{width:min(430px,100%);background:#fff;border:2px solid #0d447f;border-radius:12px;padding:26px 24px 24px;box-shadow:0 14px 45px rgba(0,0,0,.25);text-align:center}
-    .user-access-icon{font-size:42px;line-height:1;margin-bottom:8px}.user-access-title{color:#0d447f;font-size:23px;font-weight:800;margin-bottom:10px}
+    .user-access-modal{width:min(430px,100%);background:#fff;border:2px solid #0d447f;border-radius:12px;padding:26px 24px 24px;box-shadow:0 14px 45px rgba(0,0,0,.25);text-align:center;position:relative}
+    .user-access-close{position:absolute;top:8px;right:12px;width:32px;height:32px;border:0;background:transparent;color:#0d447f;font-size:28px;font-weight:800;line-height:30px;cursor:pointer;border-radius:50%}.user-access-close:hover{background:#eef3f7}.user-access-icon{font-size:42px;line-height:1;margin-bottom:8px}.user-access-title{color:#0d447f;font-size:23px;font-weight:800;margin-bottom:10px}
     .user-access-message{color:#526579;font-size:14px;line-height:1.5;margin-bottom:18px}.user-access-label{display:block;text-align:left;color:#17324d;font-size:12px;font-weight:800;margin:0 0 6px}
     .user-access-input{width:100%;height:44px;padding:0 12px;border:1px solid #aebdcc;border-radius:5px;outline:none;font-size:16px;color:#17324d;background:#fff}
     .user-access-btn{width:100%;min-height:44px;margin-top:12px;border:1px solid #0d447f;border-radius:5px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;font-size:14px;font-weight:800;cursor:pointer}
@@ -1727,14 +1727,15 @@
 
 <!-- USER ACCESS / REGISTRATION -->
 <div id="userAccessOverlay" class="user-access-overlay">
-  <div class="user-access-modal" role="dialog" aria-modal="true">
+  <div class="user-access-modal" role="dialog" aria-modal="true" aria-labelledby="userAccessTitle">
+    <button type="button" class="user-access-close" aria-label="Close registration" onclick="batalRegistrasiUser_()">×</button>
     <div class="user-access-icon">👤</div>
-    <div class="user-access-title">PENDAFTARAN USER</div>
+    <div id="userAccessTitle" class="user-access-title">SUBMIT REGISTRATION</div>
     <div id="userAccessMessage" class="user-access-message">Silakan masukkan nama Anda untuk mendaftar.</div>
     <div id="userAccessForm">
       <label class="user-access-label" for="userNameInput">NAMA</label>
       <input id="userNameInput" class="user-access-input" type="text" autocomplete="name" maxlength="80" placeholder="Masukkan nama Anda">
-      <button id="userRegisterBtn" type="button" class="user-access-btn" onclick="daftarUserBaru_()">KIRIM PENDAFTARAN</button>
+      <button id="userRegisterBtn" type="button" class="user-access-btn" onclick="daftarUserBaru_()">SEND REGISTRATION</button>
     </div>
     <div id="userPendingBox" class="user-pending-box" style="display:none">🟠 MENUNGGU KONFIRMASI OWNER</div>
     <div id="userRejectedBox" class="user-rejected-box" style="display:none">🔴 PENDAFTARAN DITOLAK</div>
@@ -2062,6 +2063,14 @@ function mulaiPollingApprovalUser_(){
   }).catch(()=>setUserAccessMessage_('Koneksi ke server belum tersedia. Sistem akan mencoba kembali.'));
   cek();userApprovalPollTimer_=setInterval(cek,USER_STATUS_POLL_MS);
 }
+function batalRegistrasiUser_(){
+  hentikanPollingApprovalUser_();
+  hentikanHeartbeatUser_();
+  try{ window.close(); }catch(e){}
+  setTimeout(function(){
+    try{ window.location.replace('about:blank'); }catch(e){ hideUserAccessOverlay_(); }
+  },120);
+}
 function daftarUserBaru_(){
   const input=document.getElementById('userNameInput'),btn=document.getElementById('userRegisterBtn'),nama=String(input&&input.value||'').trim();
   if(!nama){alert('Nama wajib diisi.');if(input)input.focus();return}
@@ -2075,7 +2084,7 @@ function daftarUserBaru_(){
     if(userStatus_==='APPROVED'){userApproved_=true;setUserAccessMode_('APPROVED',x.name||nama);setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300)}
     else{setUserAccessMode_('PENDING',x.name||nama);mulaiPollingApprovalUser_()}
   }).catch(e=>{alert(e.message||'Pendaftaran gagal.');setUserAccessMode_('FORM')})
-  .finally(()=>{if(btn){btn.disabled=false;btn.textContent='KIRIM PENDAFTARAN'}});
+  .finally(()=>{if(btn){btn.disabled=false;btn.textContent='SEND REGISTRATION'}});
 }
 function mulaiSistemUser_(){
   userDeviceId_=getUserDeviceId_();
