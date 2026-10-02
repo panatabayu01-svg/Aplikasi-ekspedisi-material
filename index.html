@@ -53,7 +53,11 @@
         font-size:13px;
       }
 
-      .btn-input-tanggal{
+      .btn-history-pengiriman{height:38px;min-width:105px;flex:0 0 105px;border:1px solid #0d447f;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-weight:700;font-size:12px;cursor:pointer;border-radius:2px;white-space:nowrap;}
+    .btn-history-pengiriman:hover{background:linear-gradient(135deg,#08345c 0%,#1c5d8f 100%);}
+    @media(max-width:600px){.btn-history-pengiriman{display:none !important;}}
+
+    .btn-input-tanggal{
         min-width:110px;
         flex:0 1 125px;
         padding-left:6px;
@@ -329,6 +333,32 @@
       font-weight:700;
       color:#18344d;
     }
+    .shipment-history-overlay{position:fixed;inset:0;z-index:10020;display:none;align-items:center;justify-content:center;background:rgba(18,38,58,.52);padding:18px;box-sizing:border-box;}
+    .shipment-history-modal{width:min(700px,100%);max-height:min(86vh,760px);background:#fff;border-radius:8px;box-shadow:0 14px 40px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column;border:1px solid #d3dfeb;}
+    .shipment-history-header{min-height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;font-size:17px;font-weight:800;letter-spacing:.2px;}
+    .shipment-history-close{width:36px;height:36px;border:0;background:transparent;color:#fff;font-size:27px;line-height:1;cursor:pointer;}
+    .shipment-history-body{padding:12px 14px 16px;overflow:auto;background:#fff;}
+    .shipment-history-project{padding:11px 14px;margin-bottom:12px;background:#eaf3fb;border:1px solid #d3e2ef;border-radius:5px;color:#0d447f;}
+    .shipment-history-project-label{display:block;font-size:10px;font-weight:800;letter-spacing:.4px;margin-bottom:3px;}
+    .shipment-history-project-name{display:block;font-size:19px;font-weight:800;line-height:1.2;}
+    .shipment-history-empty{padding:28px 14px;text-align:center;color:#657786;font-size:13px;}
+    .shipment-history-timeline{position:relative;padding:2px 4px 4px 46px;}
+    .shipment-history-timeline:before{content:"";position:absolute;left:20px;top:14px;bottom:18px;width:2px;background:#bfd0de;}
+    .shipment-history-event{position:relative;padding:0 0 14px;margin:0 0 8px;border-bottom:1px solid #dce5ec;}
+    .shipment-history-event:last-child{border-bottom:0;margin-bottom:0;}
+    .shipment-history-dot{position:absolute;left:-40px;top:0;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;z-index:2;box-shadow:0 0 0 3px #fff;}
+    .shipment-history-event.delivery .shipment-history-dot{background:#20a464;}
+    .shipment-history-event.reschedule .shipment-history-dot{background:#e88a00;}
+    .shipment-history-title{font-size:15px;font-weight:900;color:#0d447f;margin-bottom:7px;text-transform:uppercase;}
+    .shipment-history-grid{display:grid;grid-template-columns:128px 1fr;gap:5px 9px;font-size:12px;line-height:1.35;}
+    .shipment-history-label{color:#526779;font-weight:800;}
+    .shipment-history-value{color:#18344d;font-weight:700;}
+    .shipment-history-status{display:inline-flex;align-items:center;min-height:21px;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#c8f5dc;color:#168a49;border:1px solid #86d7aa;}
+    .shipment-history-status.processing{background:#ffe6ae;color:#a76500;border-color:#efc56c;}
+    .shipment-history-footer{padding:10px 14px;background:#eef5fa;border-top:1px solid #d6e2eb;display:flex;justify-content:flex-end;}
+    .shipment-history-close-btn{height:36px;min-width:82px;border:1px solid #0d447f;border-radius:4px;background:#0d4d83;color:#fff;font-weight:800;cursor:pointer;}
+    @media(max-width:600px){.shipment-history-overlay{padding:8px;}.shipment-history-modal{width:100%;max-height:90vh;border-radius:7px;}.shipment-history-header{min-height:50px;font-size:15px;padding:0 12px;}.shipment-history-body{padding:9px 9px 12px;}.shipment-history-project-name{font-size:17px;}.shipment-history-timeline{padding-left:39px;}.shipment-history-timeline:before{left:16px;}.shipment-history-dot{left:-31px;width:27px;height:27px;font-size:12px;}.shipment-history-grid{grid-template-columns:105px 1fr;font-size:11px;}.shipment-history-title{font-size:14px;}}
+
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
       .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
@@ -1624,6 +1654,18 @@
   </div>
 </div>
 
+<!-- HISTORY PENGIRIMAN -->
+<div id="shipmentHistoryOverlay" class="shipment-history-overlay" onclick="tutupHistoryPengiriman_(event)">
+  <div class="shipment-history-modal" role="dialog" aria-modal="true" aria-labelledby="shipmentHistoryTitle" onclick="event.stopPropagation()">
+    <div class="shipment-history-header"><span id="shipmentHistoryTitle">📋 HISTORY PENGIRIMAN</span><button type="button" class="shipment-history-close" onclick="tutupHistoryPengiriman_()">×</button></div>
+    <div class="shipment-history-body">
+      <div id="shipmentHistoryProject" class="shipment-history-project"><span class="shipment-history-project-label">PROYEK</span><span class="shipment-history-project-name">-</span></div>
+      <div id="shipmentHistoryBody"></div>
+    </div>
+    <div class="shipment-history-footer"><button type="button" class="shipment-history-close-btn" onclick="tutupHistoryPengiriman_()">TUTUP</button></div>
+  </div>
+</div>
+
 <div id="rescheduleHistoryOverlay" class="reschedule-history-overlay" onclick="tutupDetailReschedule(event)">
   <div class="reschedule-history-modal" role="dialog" aria-modal="true" aria-labelledby="rescheduleHistoryTitle" onclick="event.stopPropagation()">
     <div class="reschedule-history-header">
@@ -1706,6 +1748,7 @@
          Tombol tetap memakai fungsi bukaKpiMaterial(), hanya posisi visual yang dipindahkan.
          Desktop/PC tetap tersembunyi; HP Android dan iPhone menampilkan di kiri INPUT TGL KIRIM. -->
     <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 MATERIAL</button>
+    <button id="btnHistoryPengiriman" class="btn-history-pengiriman" type="button" onclick="bukaHistoryPengiriman_()">📋 HISTORY</button>
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
 
@@ -2753,6 +2796,22 @@ function tutupDetailReschedule(event){
   if(overlay) overlay.style.display='none';
 }
 
+function formatAngkaHistory_(value,decimals){const n=Number(value)||0;return n.toLocaleString('id-ID',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0});}
+function formatTanggalHistory_(value){const raw=String(value||'').trim();if(!raw)return '-';const m=raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return m?String(m[1]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+'/'+m[3]:raw;}
+function keOrdinalHistory_(n){const m={1:'PERTAMA',2:'KEDUA',3:'KETIGA',4:'KEEMPAT',5:'KELIMA',6:'KEENAM',7:'KETUJUH',8:'KEDELAPAN',9:'KESEMBILAN',10:'KESEPULUH'};return m[n]||('KE-'+n);}
+function renderHistoryPengiriman_(project,history){
+  const pe=document.querySelector('#shipmentHistoryProject .shipment-history-project-name'),body=document.getElementById('shipmentHistoryBody');if(pe)pe.textContent=project||'-';if(!body)return;
+  const rows=Array.isArray(history)?history:[];if(!rows.length){body.innerHTML='<div class="shipment-history-empty">Belum ada histori pengiriman untuk proyek ini.</div>';return;}
+  let seq=0;body.innerHTML='<div class="shipment-history-timeline">'+rows.map(function(x){const res=String(x.jenis||'').toUpperCase()==='RESCHEDULE';const no=Number(x.pengirimanKe)||(!res?++seq:seq+1);if(res)return '<div class="shipment-history-event reschedule"><div class="shipment-history-dot">↻</div><div class="shipment-history-title">RESCHEDULE PENGIRIMAN '+keOrdinalHistory_(no)+'</div><div class="shipment-history-grid"><div class="shipment-history-label">Rencana Awal</div><div class="shipment-history-value">'+escapeHtmlSafe_(formatTanggalHistory_(x.rencanaAwal||'-'))+'</div><div class="shipment-history-label">Reschedule</div><div class="shipment-history-value">'+escapeHtmlSafe_(formatTanggalHistory_(x.reschedule||x.tanggal||'-'))+'</div>'+(x.alasan?'<div class="shipment-history-label">Alasan</div><div class="shipment-history-value">'+escapeHtmlSafe_(x.alasan)+'</div>':'')+'</div></div>';
+    const st=String(x.status||'TERKIRIM').toUpperCase(),processing=st!=='TERKIRIM'&&st!=='SELESAI';return '<div class="shipment-history-event delivery"><div class="shipment-history-dot">'+no+'</div><div class="shipment-history-title">PENGIRIMAN '+keOrdinalHistory_(no)+'</div><div class="shipment-history-grid"><div class="shipment-history-label">Tanggal Pengiriman</div><div class="shipment-history-value">'+escapeHtmlSafe_(formatTanggalHistory_(x.tanggal||'-'))+'</div><div class="shipment-history-label">Status</div><div><span class="shipment-history-status '+(processing?'processing':'')+'">'+escapeHtmlSafe_(st)+'</span></div><div class="shipment-history-label">Total Item</div><div class="shipment-history-value">'+formatAngkaHistory_(x.totalItem,0)+' jenis'+(Number(x.totalVolume)>0?' ('+formatAngkaHistory_(x.totalVolume,0)+' unit)':'')+'</div><div class="shipment-history-label">Total Tonase</div><div class="shipment-history-value">'+formatAngkaHistory_(x.totalTon,3)+' Ton &nbsp; | &nbsp; Total Kubikasi : '+formatAngkaHistory_(x.totalCbm,2)+' m³</div></div></div>';
+  }).join('')+'</div>';
+}
+function bukaHistoryPengiriman_(){
+  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim(),overlay=document.getElementById('shipmentHistoryOverlay'),body=document.getElementById('shipmentHistoryBody');if(!overlay||!body)return;if(!project){alert('Pilih proyek terlebih dahulu.');return;}overlay.style.display='flex';body.innerHTML='<div class="shipment-history-empty">Memuat histori pengiriman...</div>';
+  fetch(userApiUrl_('shipment_history',{project:project}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(function(x){if(!x||x.success!==true)throw Error(x&&x.message?x.message:'Gagal memuat histori pengiriman.');renderHistoryPengiriman_(project,x.history||[]);}).catch(function(e){console.error('HISTORY PENGIRIMAN ERROR:',e);body.innerHTML='<div class="shipment-history-empty">Gagal memuat histori pengiriman.</div>';});
+}
+function tutupHistoryPengiriman_(event){if(event&&event.target&&event.target.id!=='shipmentHistoryOverlay')return;const o=document.getElementById('shipmentHistoryOverlay');if(o)o.style.display='none';}
+
 const PASSWORD_INPUT_TGL_KIRIM = '2026';
 
 function bukaPasswordInputTanggal(){
@@ -3119,6 +3178,8 @@ document.addEventListener('keydown',function(e){
     if(overlay && overlay.style.display==='flex') tutupInputTanggalRencanaKirim();
     const historyOverlay=document.getElementById('rescheduleHistoryOverlay');
     if(historyOverlay && historyOverlay.style.display==='flex') tutupDetailReschedule();
+    const shipmentHistoryOverlay=document.getElementById('shipmentHistoryOverlay');
+    if(shipmentHistoryOverlay && shipmentHistoryOverlay.style.display==='flex') tutupHistoryPengiriman_();
   }
 });
 
