@@ -90,6 +90,17 @@
     body{overflow-x:hidden}
 
     .header{height:58px;background:#eef3f7;color:#17324d;display:flex;align-items:center;padding:0 28px;box-shadow:0 1px 4px rgba(23,50,77,.16);border-bottom:1px solid #d1dce7}
+
+    .user-online-indicator{margin-left:auto;flex:0 0 auto;padding:6px 10px;border:1px solid #b7c7d6;border-radius:14px;background:#fff;color:#17324d;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 3px rgba(23,50,77,.10)}
+    .user-access-overlay{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.35);backdrop-filter:blur(3px)}
+    .user-access-modal{width:min(430px,100%);background:#fff;border:2px solid #0d447f;border-radius:12px;padding:26px 24px 24px;box-shadow:0 14px 45px rgba(0,0,0,.25);text-align:center}
+    .user-access-icon{font-size:42px;line-height:1;margin-bottom:8px}.user-access-title{color:#0d447f;font-size:23px;font-weight:800;margin-bottom:10px}
+    .user-access-message{color:#526579;font-size:14px;line-height:1.5;margin-bottom:18px}.user-access-label{display:block;text-align:left;color:#17324d;font-size:12px;font-weight:800;margin:0 0 6px}
+    .user-access-input{width:100%;height:44px;padding:0 12px;border:1px solid #aebdcc;border-radius:5px;outline:none;font-size:16px;color:#17324d;background:#fff}
+    .user-access-btn{width:100%;min-height:44px;margin-top:12px;border:1px solid #0d447f;border-radius:5px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 55%,#2f82bb 100%);color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+    .user-access-btn:disabled{opacity:.65;cursor:not-allowed}.user-pending-box,.user-rejected-box{padding:12px;border-radius:6px;font-size:14px;font-weight:800;line-height:1.45}
+    .user-pending-box{background:#fff4dd;border:1px solid #e6a72c;color:#9a6500}.user-rejected-box{background:#fdeaea;border:1px solid #d9534f;color:#a52320}
+    @media(max-width:600px){.user-online-indicator{padding:5px 8px;font-size:10px;border-radius:12px}.user-access-modal{padding:22px 18px 20px}.user-access-title{font-size:20px}}
     .header-icon{font-size:32px;margin-right:10px}
     .header-title{font-size:27px;font-weight:700;letter-spacing:.2px}
     .header-title span{color:#ffb000}
@@ -1622,9 +1633,27 @@
   </div>
 </div>
 
+<!-- USER ACCESS / REGISTRATION -->
+<div id="userAccessOverlay" class="user-access-overlay">
+  <div class="user-access-modal" role="dialog" aria-modal="true">
+    <div class="user-access-icon">👤</div>
+    <div class="user-access-title">PENDAFTARAN USER</div>
+    <div id="userAccessMessage" class="user-access-message">Silakan masukkan nama Anda untuk mendaftar.</div>
+    <div id="userAccessForm">
+      <label class="user-access-label" for="userNameInput">NAMA</label>
+      <input id="userNameInput" class="user-access-input" type="text" autocomplete="name" maxlength="80" placeholder="Masukkan nama Anda">
+      <button id="userRegisterBtn" type="button" class="user-access-btn" onclick="daftarUserBaru_()">KIRIM PENDAFTARAN</button>
+    </div>
+    <div id="userPendingBox" class="user-pending-box" style="display:none">🟠 MENUNGGU KONFIRMASI OWNER</div>
+    <div id="userRejectedBox" class="user-rejected-box" style="display:none">🔴 PENDAFTARAN DITOLAK</div>
+    <div id="userAccessLoading" style="display:none">Memeriksa status pendaftaran...</div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">🏠</div>
   <div class="header-title">APLIKASI <span>EKSPEDISI MATERIAL</span></div>
+  <div id="userOnlineIndicator" class="user-online-indicator">🟢 0 USER ONLINE</div>
 </header>
 
 <main class="main">
@@ -1822,6 +1851,110 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxzhzRsmiBPDVu6piZlx2bQChSPgD8xlv7eTg5SmlBOST1r5Ktz4ajo6w-1GhQOI_rz/exec';
 
+
+// ============================================================
+// USER REGISTRATION + APPROVAL + ONLINE
+// ============================================================
+const USER_DEVICE_KEY='ekspedisi_user_device_id_v1';
+const USER_HEARTBEAT_MS=30000;
+const USER_STATUS_POLL_MS=15000;
+let userDeviceId_='',userStatus_='NOT_FOUND',userHeartbeatTimer_=null,userApprovalPollTimer_=null,userApproved_=false;
+
+function getUserDeviceId_(){
+  try{
+    let id=localStorage.getItem(USER_DEVICE_KEY);
+    if(id&&String(id).trim())return String(id).trim();
+    id=window.crypto&&typeof window.crypto.randomUUID==='function'
+      ?window.crypto.randomUUID()
+      :'DEV-'+Date.now()+'-'+Math.random().toString(36).slice(2)+'-'+Math.random().toString(36).slice(2);
+    localStorage.setItem(USER_DEVICE_KEY,id); return id;
+  }catch(e){
+    if(!window.__EXPEDISI_TEMP_DEVICE_ID__)window.__EXPEDISI_TEMP_DEVICE_ID__='TEMP-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+    return window.__EXPEDISI_TEMP_DEVICE_ID__;
+  }
+}
+function userApiUrl_(action,params){
+  const q=['action='+encodeURIComponent(action),'deviceId='+encodeURIComponent(userDeviceId_)];
+  if(params)Object.keys(params).forEach(k=>q.push(encodeURIComponent(k)+'='+encodeURIComponent(String(params[k]==null?'':params[k]))));
+  q.push('_='+Date.now()); return API_URL+'?'+q.join('&');
+}
+function setUserOnlineIndicator_(count){
+  const el=document.getElementById('userOnlineIndicator'); if(!el)return;
+  el.textContent='🟢 '+Math.max(0,Number(count)||0)+' USER ONLINE';
+}
+function showUserAccessOverlay_(){const e=document.getElementById('userAccessOverlay');if(e)e.style.display='flex'}
+function hideUserAccessOverlay_(){const e=document.getElementById('userAccessOverlay');if(e)e.style.display='none'}
+function setUserAccessMessage_(t){const e=document.getElementById('userAccessMessage');if(e)e.textContent=t||''}
+function setUserAccessMode_(mode,name){
+  const f=document.getElementById('userAccessForm'),p=document.getElementById('userPendingBox'),r=document.getElementById('userRejectedBox'),l=document.getElementById('userAccessLoading');
+  if(f)f.style.display=(mode==='FORM'||mode==='REJECTED')?'block':'none';
+  if(p)p.style.display=mode==='PENDING'?'block':'none';
+  if(r)r.style.display=mode==='REJECTED'?'block':'none';
+  if(l)l.style.display=mode==='LOADING'?'block':'none';
+  if(mode==='FORM')setUserAccessMessage_('Silakan masukkan nama Anda untuk mendaftar.');
+  if(mode==='PENDING')setUserAccessMessage_('Pendaftaran '+(name?name+' ':'')+'sudah dikirim. Aplikasi akan terbuka setelah Owner menyetujui.');
+  if(mode==='REJECTED')setUserAccessMessage_('Pendaftaran sebelumnya ditolak. Silakan periksa nama Anda lalu kirim kembali.');
+  if(mode==='LOADING')setUserAccessMessage_('Memeriksa status pendaftaran perangkat...');
+  if(mode==='APPROVED')setUserAccessMessage_('Akses disetujui. Membuka aplikasi...');
+}
+function checkUserStatus_(){
+  return fetch(userApiUrl_('check_user'),{method:'GET',cache:'no-store',redirect:'follow'})
+  .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()})
+  .then(x=>{if(!x||x.success!==true)throw Error(x&&x.message?x.message:'Gagal memeriksa user.');userStatus_=String(x.status||'NOT_FOUND').toUpperCase();setUserOnlineIndicator_(x.onlineCount);return x});
+}
+function mulaiHeartbeatUser_(){
+  if(userHeartbeatTimer_)return;
+  const beat=()=>{
+    if(!userApproved_)return;
+    fetch(userApiUrl_('heartbeat_user'),{method:'GET',cache:'no-store',redirect:'follow',keepalive:true})
+    .then(r=>r.json()).then(x=>{
+      if(!x)return;setUserOnlineIndicator_(x.onlineCount);
+      const s=String(x.status||'').toUpperCase();
+      if(s&&s!=='APPROVED'){userApproved_=false;hentikanHeartbeatUser_();mulaiPollingApprovalUser_();}
+    }).catch(()=>{});
+  };
+  beat();userHeartbeatTimer_=setInterval(beat,USER_HEARTBEAT_MS);
+}
+function hentikanHeartbeatUser_(){if(userHeartbeatTimer_){clearInterval(userHeartbeatTimer_);userHeartbeatTimer_=null}}
+function hentikanPollingApprovalUser_(){if(userApprovalPollTimer_){clearInterval(userApprovalPollTimer_);userApprovalPollTimer_=null}}
+function mulaiPollingApprovalUser_(){
+  if(userApprovalPollTimer_)return;
+  const cek=()=>checkUserStatus_().then(x=>{
+    const s=String(x.status||'').toUpperCase();
+    if(s==='APPROVED'){
+      hentikanPollingApprovalUser_();userApproved_=true;setUserAccessMode_('APPROVED',x.name||'');
+      setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300);
+    }else if(s==='PENDING')setUserAccessMode_('PENDING',x.name||'');
+    else if(s==='REJECTED'){hentikanPollingApprovalUser_();setUserAccessMode_('REJECTED',x.name||'')}
+    else if(s==='NOT_FOUND'){hentikanPollingApprovalUser_();setUserAccessMode_('FORM')}
+  }).catch(()=>setUserAccessMessage_('Koneksi ke server belum tersedia. Sistem akan mencoba kembali.'));
+  cek();userApprovalPollTimer_=setInterval(cek,USER_STATUS_POLL_MS);
+}
+function daftarUserBaru_(){
+  const input=document.getElementById('userNameInput'),btn=document.getElementById('userRegisterBtn'),nama=String(input&&input.value||'').trim();
+  if(!nama){alert('Nama wajib diisi.');if(input)input.focus();return}
+  if(nama.length<2){alert('Nama minimal 2 karakter.');if(input)input.focus();return}
+  if(btn){btn.disabled=true;btn.textContent='MENGIRIM...'}
+  fetch(userApiUrl_('register_user',{name:nama}),{method:'GET',cache:'no-store',redirect:'follow'})
+  .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()})
+  .then(x=>{
+    if(!x||x.success!==true)throw Error(x&&x.message?x.message:'Pendaftaran gagal.');
+    userStatus_=String(x.status||'').toUpperCase();
+    if(userStatus_==='APPROVED'){userApproved_=true;setUserAccessMode_('APPROVED',x.name||nama);setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300)}
+    else{setUserAccessMode_('PENDING',x.name||nama);mulaiPollingApprovalUser_()}
+  }).catch(e=>{alert(e.message||'Pendaftaran gagal.');setUserAccessMode_('FORM')})
+  .finally(()=>{if(btn){btn.disabled=false;btn.textContent='KIRIM PENDAFTARAN'}});
+}
+function mulaiSistemUser_(){
+  userDeviceId_=getUserDeviceId_();showUserAccessOverlay_();setUserAccessMode_('LOADING');
+  return checkUserStatus_().then(x=>{
+    const s=String(x.status||'').toUpperCase();
+    if(s==='APPROVED'){userApproved_=true;setUserAccessMode_('APPROVED',x.name||'');setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300);return true}
+    if(s==='PENDING'){setUserAccessMode_('PENDING',x.name||'');mulaiPollingApprovalUser_();return false}
+    if(s==='REJECTED'){setUserAccessMode_('REJECTED',x.name||'');return false}
+    setUserAccessMode_('FORM');return false;
+  }).catch(e=>{console.error('USER ACCESS ERROR:',e);setUserAccessMode_('FORM');setUserAccessMessage_('Belum dapat terhubung ke server. Silakan coba lagi.');return false});
+}
 window.CACHE_VERSION = 'v12';
 window.CACHE_PROJECTS_KEY = 'ekspedisi_projects_v12';
 window.CACHE_LAST_PROJECT_KEY = 'ekspedisi_last_project_v12';
@@ -1885,7 +2018,7 @@ function muatAlasanReschedule_(){
   select.appendChild(loadingOption);
   select.disabled = true;
 
-  return fetch(API_URL+'?action=get_master_alasan_reschedule&_='+Date.now(),{
+  return fetch(userApiUrl_('get_master_alasan_reschedule'),{
     method:'GET',
     cache:'no-store',
     redirect:'follow'
@@ -2115,7 +2248,8 @@ function bukaInputManual(){
   if(btn) btn.disabled=false;
 }
 
-document.addEventListener('DOMContentLoaded',function(){
+function initExistingApp_(){
+
   // Jangan memuat master alasan saat startup.
   // Master alasan sudah dimuat saat popup Reschedule dibuka.
   // Pemanggilan fungsi lama di sini tidak ada definisinya dan
@@ -2182,6 +2316,14 @@ document.addEventListener('DOMContentLoaded',function(){
   // Sinkronisasi server berjalan setelah tampilan siap.
   // Startup AUTO langsung memuat proyek pertama.
   loadDaftarProyek(false,true);
+});
+
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  mulaiSistemUser_().then(function(){
+    initExistingApp_();
+  });
 });
 
 function renderStatusReschedule_(history){
@@ -2680,7 +2822,7 @@ function simpanTanggalRencanaKirim(){
   setTanggalInputLoading_(true);
   setStatus('Menyimpan Tanggal Rencana Kirim...');
 
-  fetch(API_URL+'?action=save_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(dateValue)+'&_='+Date.now(),{
+  fetch(userApiUrl_('save_delivery_date',{project:project,date:dateValue}),{
     method:'GET',
     cache:'no-store',
     redirect:'follow'
@@ -2821,7 +2963,7 @@ function simpanRescheduleRencanaKirim(){
   setRescheduleLoading_(true);
   setStatus('Menyimpan Reschedule Rencana Kirim...');
 
-  fetch(API_URL+'?action=reschedule_delivery_date&project='+encodeURIComponent(project)+'&date='+encodeURIComponent(newDate)+'&reason='+encodeURIComponent(alasan)+'&_='+Date.now(),{
+  fetch(userApiUrl_('reschedule_delivery_date',{project:project,date:newDate,reason:alasan}),{
     method:'GET', cache:'no-store', redirect:'follow'
   })
   .then(function(response){
@@ -3137,10 +3279,7 @@ function loadDataProyek(p,showOverlay){
   }
 
   fetch(
-    API_URL +
-    '?action=project&project=' +
-    encodeURIComponent(p) +
-    '&_=' + Date.now(),
+    userApiUrl_('project',{project:p}),
     {
       method:'GET',
       cache:'no-store',
@@ -3281,7 +3420,7 @@ function loadDaftarProyek(showOverlay,loadSelected){
     setStatus('Memuat daftar proyek...');
   }
 
-  fetch(API_URL + '?action=projects&_=' + Date.now(), {
+  fetch(userApiUrl_('projects'), {
     method: 'GET',
     cache: 'no-store',
     redirect: 'follow'
