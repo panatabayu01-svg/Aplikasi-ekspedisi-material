@@ -353,11 +353,29 @@
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
     .history-pengiriman-status.proses{background:#fff0cf;color:#a56600;border-color:#edc66c}
     .history-pengiriman-reschedule{margin-top:9px;padding:8px 10px;background:#fff5e5;border:1px solid #edc67b;border-left:4px solid #e58a00;border-radius:4px}
+    .history-material-btn{height:28px;min-width:112px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-size:10px;font-weight:900;cursor:pointer;padding:0 10px;margin-left:8px;vertical-align:middle}
+    .history-material-btn:hover{background:#236fa7}
+    .history-material-list-overlay{position:fixed;inset:0;z-index:10003;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58)}
+    .history-material-list-modal{width:min(620px,100%);max-height:min(78vh,680px);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30);display:flex;flex-direction:column}
+    .history-material-list-header{min-height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:900}
+    .history-material-list-close{border:0;background:transparent;color:#fff;font-size:27px;line-height:1;cursor:pointer;padding:0 3px}
+    .history-material-list-body{padding:12px 14px 16px;overflow:auto;background:#fff}
+    .history-material-list-project{padding:9px 12px;margin-bottom:10px;background:#eaf3fb;border:1px solid #d2e1ef;border-radius:5px;color:#0b477d;font-size:14px;font-weight:900}
+    .history-material-list-summary{padding:8px 10px;margin-bottom:10px;background:#eef3f7;border:1px solid #d7e1ea;border-radius:5px;color:#17324d;font-size:11px;font-weight:800}
+    .history-material-row{display:grid;grid-template-columns:38px 1fr 95px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #e1e8ee;font-size:12px}
+    .history-material-row:last-child{border-bottom:0}
+    .history-material-no{font-weight:900;color:#0d5b91;text-align:center}
+    .history-material-name{font-weight:800;color:#17324d;word-break:break-word}
+    .history-material-volume{text-align:right;font-weight:900;color:#168a49;white-space:nowrap}
+    .history-material-list-empty{padding:25px 10px;text-align:center;color:#657786;font-size:12px}
+    .history-material-list-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;text-align:right}
+    .history-material-list-close-btn{height:35px;min-width:90px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-weight:800;cursor:pointer}
+
     .history-pengiriman-reschedule-title{font-size:11px;font-weight:900;color:#a56600;margin-bottom:5px}
     .history-pengiriman-reschedule-row{display:grid;grid-template-columns:125px 1fr;gap:4px 7px;font-size:11px;color:#5b4a2d}
     .history-pengiriman-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;text-align:right}
     .history-pengiriman-close-btn{height:36px;min-width:90px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-weight:800;cursor:pointer}
-    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px}}
+    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
       .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
@@ -1669,7 +1687,6 @@
       <div id="rescheduleHistoryList"></div>
     </div>
   </div>
-</div>
 <div id="historyPengirimanOverlay" class="history-pengiriman-overlay" onclick="tutupHistoryPengiriman_(event)">
   <div class="history-pengiriman-modal" role="dialog" aria-modal="true" aria-labelledby="historyPengirimanTitle" onclick="event.stopPropagation()">
     <div class="history-pengiriman-header">
@@ -1685,6 +1702,23 @@
     </div>
     <div class="history-pengiriman-footer">
       <button type="button" class="history-pengiriman-close-btn" onclick="tutupHistoryPengiriman_()">TUTUP</button>
+    </div>
+  </div>
+</div>
+
+<div id="historyMaterialListOverlay" class="history-material-list-overlay" onclick="tutupListMaterialHistory_(event)">
+  <div class="history-material-list-modal" role="dialog" aria-modal="true" aria-labelledby="historyMaterialListTitle" onclick="event.stopPropagation()">
+    <div class="history-material-list-header">
+      <span id="historyMaterialListTitle">📦 LIST MATERIAL DI KIRIM</span>
+      <button type="button" class="history-material-list-close" onclick="tutupListMaterialHistory_()">×</button>
+    </div>
+    <div class="history-material-list-body">
+      <div id="historyMaterialListProject" class="history-material-list-project">-</div>
+      <div id="historyMaterialListSummary" class="history-material-list-summary">-</div>
+      <div id="historyMaterialListContent"></div>
+    </div>
+    <div class="history-material-list-footer">
+      <button type="button" class="history-material-list-close-btn" onclick="tutupListMaterialHistory_()">TUTUP</button>
     </div>
   </div>
 </div>
@@ -2745,6 +2779,38 @@ function formatAngkaHistory_(value, decimals){
   return n.toLocaleString('id-ID',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0});
 }
 function formatTanggalHistoryPengiriman_(value){return formatTanggalLengkapIndonesia_(value);}
+function parseMaterialHistoryList_(materialText){
+  const text=String(materialText||'').trim();
+  if(!text)return [];
+  return text.split(/\s*\|\s*/).map(function(part){
+    const raw=String(part||'').trim();
+    if(!raw)return null;
+    const m=raw.match(/^(.*?)\s*↓\s*(-?[\d.,]+)\s*$/);
+    if(m)return {material:m[1].trim(),volume:m[2].trim()};
+    return {material:raw,volume:''};
+  }).filter(Boolean);
+}
+function bukaListMaterialHistory_(index){
+  const events=Array.isArray(window.__HISTORY_PENGIRIMAN_EVENTS__)?window.__HISTORY_PENGIRIMAN_EVENTS__:[];
+  const item=events[index];
+  if(!item)return;
+  const project=String(window.__HISTORY_PENGIRIMAN_PROJECT__||item.project||'-');
+  const list=parseMaterialHistoryList_(item.materialTurun);
+  const overlay=document.getElementById('historyMaterialListOverlay');
+  const projectEl=document.getElementById('historyMaterialListProject');
+  const summaryEl=document.getElementById('historyMaterialListSummary');
+  const contentEl=document.getElementById('historyMaterialListContent');
+  if(!overlay||!contentEl)return;
+  if(projectEl)projectEl.textContent=project;
+  if(summaryEl)summaryEl.textContent='PENGIRIMAN '+(Number(item.pengirimanKe)||index+1)+'  •  '+formatAngkaHistory_(item.totalItem,0)+' jenis  •  '+formatAngkaHistory_(item.totalVolume,0)+' unit  •  '+formatAngkaHistory_(item.totalTon,3)+' Ton  •  '+formatAngkaHistory_(item.totalCbm,2)+' m³';
+  contentEl.innerHTML=list.length?list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+' unit':'-')+'</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div>';
+  overlay.style.display='flex';
+}
+function tutupListMaterialHistory_(event){
+  if(event&&event.target&&event.target.id!=='historyMaterialListOverlay')return;
+  const overlay=document.getElementById('historyMaterialListOverlay');
+  if(overlay)overlay.style.display='none';
+}
 function renderHistoryPengiriman_(project,history){
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
@@ -2754,6 +2820,8 @@ function renderHistoryPengiriman_(project,history){
   events.sort(function(a,b){return parseWaktuRiwayatReschedule_(a.timestamp||'')-parseWaktuRiwayatReschedule_(b.timestamp||'');});
   const shipments=events.filter(function(e){return String(e.eventType||e.jenisEvent||'').toUpperCase()==='PENGIRIMAN';});
   const reschedules=events.filter(function(e){return String(e.eventType||e.jenisEvent||'').toUpperCase()==='RESCHEDULE';});
+  window.__HISTORY_PENGIRIMAN_EVENTS__=shipments;
+  window.__HISTORY_PENGIRIMAN_PROJECT__=project||'';
   if(!shipments.length){
     listEl.innerHTML='<div class="history-pengiriman-empty">Belum ada histori pengiriman untuk proyek ini.</div>';
     if(reschedules.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RIWAYAT RESCHEDULE</div>'+reschedules.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
@@ -2767,12 +2835,13 @@ function renderHistoryPengiriman_(project,history){
     const prevTime=index>0?(parseWaktuRiwayatReschedule_(shipments[index-1].timestamp||'')||0):0;
     const related=reschedules.filter(function(r){const rt=parseWaktuRiwayatReschedule_(r.timestamp||'')||0;const no=Number(r.pengirimanKe)||0;return no===shipmentNo||(rt>prevTime&&rt<=shipmentTime);});
     return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title">PENGIRIMAN '+(shipmentNo===1?'PERTAMA':shipmentNo===2?'KEDUA':shipmentNo===3?'KETIGA':'KE-'+shipmentNo)+'</div><div class="history-pengiriman-grid">'+
-      '<div class="history-pengiriman-label">📅 Tanggal Pengiriman</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+ 
-      '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+ 
-      '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+ 
-      '<div class="history-pengiriman-label">⚖ Total Tonase</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalTon,3)+' Ton &nbsp; | &nbsp; Total Kubikasi: '+formatAngkaHistory_(item.totalCbm,2)+' m³</div>'+ (item.materialTurun ? '<div class="history-pengiriman-label">📦 Material Turun</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(item.materialTurun)+'</div>' : '') +'</div>'+ 
-      (related.length?'<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE</div>'+related.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>':'')+
-      '</div>';
+      '<div class="history-pengiriman-label">📅 Tanggal Pengiriman</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
+      '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
+      '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+
+      '<div class="history-pengiriman-label">⚖ Total Tonase</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalTon,3)+' Ton &nbsp; | &nbsp; Total Kubikasi: '+formatAngkaHistory_(item.totalCbm,2)+' m³</div>'+
+      '<div class="history-pengiriman-label">📦 Material Di Kirim</div><div class="history-pengiriman-value"><button type="button" class="history-material-btn" onclick="bukaListMaterialHistory_('+index+')">📋 LIST MATERIAL</button></div>'+
+      '</div>'+
+      (related.length?'<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE</div>'+related.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>':'')+'</div>';
   }).join('');
   const unassigned=reschedules.filter(function(r){const no=Number(r.pengirimanKe)||0;return !shipments.some(function(x){return (Number(x.pengirimanKe)||0)===no;});});
   if(unassigned.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE PENGIRIMAN BERIKUTNYA</div>'+unassigned.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
