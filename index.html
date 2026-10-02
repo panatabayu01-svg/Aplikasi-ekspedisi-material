@@ -665,7 +665,7 @@
         justify-content:center !important;
         position:static !important;
         grid-column:1 !important;
-        grid-row:3 !important;
+        grid-row:4 !important;
         justify-self:stretch !important;
         width:100% !important;
         min-width:0 !important;
@@ -961,7 +961,7 @@
       .control-bar{
         display:grid;
         grid-template-columns:minmax(0,1fr) minmax(0,1fr) 110px;
-        grid-template-rows:38px 50px 38px;
+        grid-template-rows:38px 50px 38px 38px;
         gap:7px;
         align-items:center;
       }
@@ -1607,6 +1607,60 @@
 }
 </style>
 
+<style id="mobile-hp-material-history-final">
+@media (max-width:600px){
+  .control-bar{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 110px !important;
+    grid-template-rows:38px 50px 38px 38px !important;
+  }
+  #btnHistoryPengiriman{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    grid-column:1 !important;
+    grid-row:3 !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:38px !important;
+    margin:0 !important;
+    padding:0 4px !important;
+    font-size:11px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    box-sizing:border-box !important;
+  }
+  #btnInputTanggal{
+    grid-column:2 !important;
+    grid-row:3 !important;
+  }
+  .btn-refresh{
+    grid-column:3 !important;
+    grid-row:3 !important;
+  }
+  #btnKpiMaterial{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    position:static !important;
+    grid-column:1 / 4 !important;
+    grid-row:4 !important;
+    justify-self:stretch !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:38px !important;
+    margin:0 !important;
+    padding:0 6px !important;
+    box-sizing:border-box !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+}
+</style>
 </head>
 
 <body style="background:#eef3f7 !important;">
@@ -1789,7 +1843,7 @@
     <!-- PERBAIKAN #21 — MATERIAL DIPINDAHKAN KE BARIS TOMBOL HP
          Tombol tetap memakai fungsi bukaKpiMaterial(), hanya posisi visual yang dipindahkan.
          Desktop/PC tetap tersembunyi; HP Android dan iPhone menampilkan di kiri INPUT TGL KIRIM. -->
-    <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 MATERIAL</button>
+    <button id="btnKpiMaterial" class="btn-kpi-material" type="button" onclick="bukaKpiMaterial()">📦 LIST MATERIAL DI WORKSHOP SAAT INI</button>
     <button id="btnHistoryPengiriman" class="btn-history-pengiriman" type="button" onclick="bukaHistoryPengiriman_()">📋 HISTORY</button>
     <button id="btnInputTanggal" class="btn-input-tanggal" type="button" onclick="bukaPasswordInputTanggal()" disabled>📅 INPUT TGL KIRIM</button>
   </div>
