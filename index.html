@@ -92,6 +92,15 @@
     .header{height:58px;background:#eef3f7;color:#17324d;display:flex;align-items:center;padding:0 28px;box-shadow:0 1px 4px rgba(23,50,77,.16);border-bottom:1px solid #d1dce7}
 
     .user-online-indicator{margin-left:auto;flex:0 0 auto;padding:6px 10px;border:1px solid #b7c7d6;border-radius:14px;background:#fff;color:#17324d;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 1px 3px rgba(23,50,77,.10)}
+    .user-online-list-overlay{position:fixed;inset:0;z-index:999998;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.28);backdrop-filter:blur(2px)}
+    .user-online-list-modal{width:min(390px,100%);max-height:min(70vh,520px);overflow:hidden;background:#fff;border:2px solid #0d447f;border-radius:10px;box-shadow:0 14px 45px rgba(0,0,0,.25)}
+    .user-online-list-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#eef3f7;color:#0d447f;font-weight:800;font-size:15px;border-bottom:1px solid #d1dce7}
+    .user-online-list-close{border:0;background:transparent;color:#17324d;font-size:26px;line-height:1;cursor:pointer;padding:0 4px}
+    .user-online-list-body{padding:12px 14px;max-height:calc(min(70vh,520px) - 52px);overflow:auto}
+    .user-online-list-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 8px;border-bottom:1px solid #e6edf3;color:#17324d;font-size:14px;font-weight:700}
+    .user-online-list-item:last-child{border-bottom:0}.user-online-list-time{font-size:11px;font-weight:400;color:#738397;white-space:nowrap}
+    .user-online-empty{padding:20px 8px;text-align:center;color:#738397;font-size:13px}
+
     .user-access-overlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(13,68,127,.35);backdrop-filter:blur(3px)}
     .user-access-modal{width:min(430px,100%);background:#fff;border:2px solid #0d447f;border-radius:12px;padding:26px 24px 24px;box-shadow:0 14px 45px rgba(0,0,0,.25);text-align:center}
     .user-access-icon{font-size:42px;line-height:1;margin-bottom:8px}.user-access-title{color:#0d447f;font-size:23px;font-weight:800;margin-bottom:10px}
@@ -1650,10 +1659,21 @@
   </div>
 </div>
 
+<!-- USER ONLINE LIST -->
+<div id="userOnlineListOverlay" class="user-online-list-overlay" onclick="tutupUserOnlineList_(event)">
+  <div class="user-online-list-modal" role="dialog" aria-modal="true" aria-labelledby="userOnlineListTitle" onclick="event.stopPropagation()">
+    <div class="user-online-list-header">
+      <span id="userOnlineListTitle">👥 USER ONLINE</span>
+      <button type="button" class="user-online-list-close" onclick="tutupUserOnlineList_()">×</button>
+    </div>
+    <div id="userOnlineListBody" class="user-online-list-body">Memuat...</div>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">🏠</div>
   <div class="header-title">APLIKASI <span>EKSPEDISI MATERIAL</span></div>
-  <div id="userOnlineIndicator" class="user-online-indicator">🟢 0 USER ONLINE</div>
+  <button id="userOnlineIndicator" class="user-online-indicator" type="button" onclick="bukaUserOnlineList_()">🟢 0 USER ONLINE</button>
 </header>
 
 <main class="main">
@@ -1882,6 +1902,34 @@ function setUserOnlineIndicator_(count){
   const el=document.getElementById('userOnlineIndicator'); if(!el)return;
   el.textContent='🟢 '+Math.max(0,Number(count)||0)+' USER ONLINE';
 }
+function bukaUserOnlineList_(){
+  const overlay=document.getElementById('userOnlineListOverlay');
+  const body=document.getElementById('userOnlineListBody');
+  if(!overlay||!body)return;
+  overlay.style.display='flex';
+  body.innerHTML='<div class="user-online-empty">Memuat daftar user online...</div>';
+  fetch(userApiUrl_('online_users'),{method:'GET',cache:'no-store',redirect:'follow'})
+    .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()})
+    .then(x=>{
+      if(!x||x.success!==true)throw Error(x&&x.message?x.message:'Gagal memuat user online.');
+      setUserOnlineIndicator_(x.onlineCount);
+      const users=Array.isArray(x.users)?x.users:[];
+      if(!users.length){body.innerHTML='<div class="user-online-empty">Tidak ada user yang sedang online.</div>';return;}
+      body.innerHTML=users.map(function(u){
+        const t=u.lastOnline?new Date(Number(u.lastOnline)).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'-';
+        return '<div class="user-online-list-item"><span>🟢 '+escapeHtmlUserOnline_(u.name)+'</span><span class="user-online-list-time">'+t+'</span></div>';
+      }).join('');
+    })
+    .catch(e=>{body.innerHTML='<div class="user-online-empty">Gagal memuat daftar user online.</div>';console.error('USER ONLINE LIST ERROR:',e);});
+}
+function tutupUserOnlineList_(event){
+  if(event&&event.target!==event.currentTarget)return;
+  const overlay=document.getElementById('userOnlineListOverlay');if(overlay)overlay.style.display='none';
+}
+function escapeHtmlUserOnline_(value){
+  return String(value==null?'':value).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});
+}
+
 function showUserAccessOverlay_(){const e=document.getElementById('userAccessOverlay');if(e)e.style.display='flex'}
 function hideUserAccessOverlay_(){const e=document.getElementById('userAccessOverlay');if(e)e.style.display='none'}
 function setUserAccessMessage_(t){const e=document.getElementById('userAccessMessage');if(e)e.textContent=t||''}
