@@ -2019,6 +2019,23 @@ const USER_HEARTBEAT_MS=30000;
 const USER_STATUS_POLL_MS=15000;
 let userDeviceId_='',userStatus_='NOT_FOUND',userHeartbeatTimer_=null,userApprovalPollTimer_=null,userApproved_=false;
 
+function getUserDeviceType_(){
+  try{
+    const ua=String(navigator.userAgent||'').toLowerCase();
+
+    // Android, iPhone, iPad, iPod dan perangkat mobile/tablet dianggap HP.
+    const isMobileUA=/android|iphone|ipad|ipod|windows phone|mobile|tablet/i.test(ua);
+
+    // iPadOS versi baru dapat menyamar sebagai Mac.
+    const isIPadOS=(navigator.platform==='MacIntel' && Number(navigator.maxTouchPoints||0)>1);
+
+    if(isMobileUA || isIPadOS) return 'HP';
+    return 'PC';
+  }catch(e){
+    return 'PC';
+  }
+}
+
 function getUserDeviceId_(){
   try{
     let id=localStorage.getItem(USER_DEVICE_KEY);
@@ -2033,7 +2050,11 @@ function getUserDeviceId_(){
   }
 }
 function userApiUrl_(action,params){
-  const q=['action='+encodeURIComponent(action),'deviceId='+encodeURIComponent(userDeviceId_)];
+  const q=[
+    'action='+encodeURIComponent(action),
+    'deviceId='+encodeURIComponent(userDeviceId_),
+    'deviceType='+encodeURIComponent(getUserDeviceType_())
+  ];
   if(params)Object.keys(params).forEach(k=>q.push(encodeURIComponent(k)+'='+encodeURIComponent(String(params[k]==null?'':params[k]))));
   q.push('_='+Date.now()); return API_URL+'?'+q.join('&');
 }
