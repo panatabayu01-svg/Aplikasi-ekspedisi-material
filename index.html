@@ -3245,6 +3245,67 @@ function copyTextHistoryMaterial_(text){
     }
   });
 }
+function showShortShareLinkPopup_(url,title){
+  try{
+    const old=document.getElementById('shortShareLinkPopupOverlay');
+    if(old)old.remove();
+    const overlay=document.createElement('div');
+    overlay.id='shortShareLinkPopupOverlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+    const box=document.createElement('div');
+    box.style.cssText='width:min(560px,100%);background:#fff;border-radius:16px;padding:20px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.25);font-family:Arial,sans-serif;';
+    const h=document.createElement('div');
+    h.textContent=title||'LINK BERHASIL DIBUAT';
+    h.style.cssText='font-size:20px;font-weight:800;color:#12395b;margin-bottom:8px;';
+    const sub=document.createElement('div');
+    sub.textContent='Link pendek siap dibagikan:';
+    sub.style.cssText='font-size:14px;color:#555;margin-bottom:10px;';
+    const input=document.createElement('input');
+    input.type='text'; input.value=String(url||''); input.readOnly=true;
+    input.style.cssText='width:100%;height:46px;padding:10px 12px;border:1px solid #ccd5df;border-radius:10px;box-sizing:border-box;font-size:14px;color:#17324d;background:#f8fafc;';
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;';
+    const makeBtn=function(text,bg){
+      const b=document.createElement('button'); b.type='button'; b.textContent=text;
+      b.style.cssText='border:0;border-radius:10px;padding:11px 16px;font-weight:800;font-size:14px;color:#fff;background:'+bg+';cursor:pointer;';
+      return b;
+    };
+    const copyBtn=makeBtn('📋 SALIN LINK','#16834a');
+    const shareBtn=makeBtn('📤 BAGIKAN','#1261a0');
+    const closeBtn=makeBtn('TUTUP','#4b6175');
+    row.append(copyBtn,shareBtn,closeBtn);
+    box.append(h,sub,input,row); overlay.appendChild(box); document.body.appendChild(overlay);
+    const close=function(){overlay.remove();};
+    closeBtn.onclick=close;
+    overlay.onclick=function(e){if(e.target===overlay)close();};
+    input.onclick=function(){input.select();};
+    copyBtn.onclick=function(){
+      copyTextHistoryMaterial_(String(url||'')).then(function(){
+        copyBtn.textContent='✓ LINK TERSALIN';
+        setTimeout(function(){copyBtn.textContent='📋 SALIN LINK';},1800);
+      }).catch(function(){
+        input.focus(); input.select();
+        copyBtn.textContent='PILIH LINK LALU SALIN';
+        setTimeout(function(){copyBtn.textContent='📋 SALIN LINK';},2200);
+      });
+    };
+    shareBtn.onclick=function(){
+      if(navigator.share){
+        navigator.share({title:title||'APLIKASI EKSPEDISI MATERIAL',url:String(url||'')}).catch(function(err){
+          if(err&&err.name==='AbortError')return;
+          input.focus(); input.select();
+        });
+      }else{
+        input.focus(); input.select();
+      }
+    };
+    setTimeout(function(){input.focus();input.select();},50);
+  }catch(e){
+    console.error('SHORT SHARE POPUP ERROR:',e);
+    alert('Link berhasil dibuat. Silakan salin link dari alamat browser.');
+  }
+}
+
 function encodeShortShareProjectHistory_(project){
   try{
     return btoa(unescape(encodeURIComponent(String(project||''))))
@@ -3301,7 +3362,7 @@ async function bagikanListMaterialHistory_(){
       if(err&&err.name==='AbortError')return;
       copyTextHistoryMaterial_(url).then(function(){
         alert('Link berhasil disalin. Silakan kirim link tersebut.');
-      }).catch(function(){prompt('Salin link berikut:',url);});
+      }).catch(function(){showShortShareLinkPopup_(url,title);});
     });
     return;
   }
@@ -3309,7 +3370,7 @@ async function bagikanListMaterialHistory_(){
   copyTextHistoryMaterial_(url).then(function(){
     alert('Link berhasil disalin. Silakan kirim link tersebut.');
   }).catch(function(){
-    prompt('Salin link berikut:',url);
+    showShortShareLinkPopup_(url,title);
   });
 }
 function terbilangPengirimanHistory_(n){
@@ -6546,12 +6607,12 @@ async function bagikanKpiMaterial_(){
     // beberapa GET kecil. URL hasil share tetap hanya token pendek.
     // ============================================================
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
-    const CHUNK_SIZE=700;
+    const CHUNK_SIZE=900;
     const chunks=[];
     for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE){
       chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
     }
-    if(!chunks.length || chunks.length>50){
+    if(!chunks.length || chunks.length>30){
       throw new Error('Data material terlalu besar untuk dibuatkan link.');
     }
 
@@ -6618,7 +6679,7 @@ async function bagikanKpiMaterial_(){
         copyTextHistoryMaterial_(url).then(function(){
           alert('Link berhasil disalin. Silakan kirim link tersebut.');
         }).catch(function(){
-          prompt('Salin link berikut:',url);
+          showShortShareLinkPopup_(url,title);
         });
       });
       return;
