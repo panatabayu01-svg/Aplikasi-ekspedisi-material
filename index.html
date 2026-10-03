@@ -1969,8 +1969,7 @@
     <div class="nesting-modal-header">
       <div id="armadaMaterialModalTitle">📦 MATERIAL DALAM ARMADA</div>
       <div class="armada-material-header-actions">
-        <button id="btnExportArmadaMaterial" type="button" class="btn-export-armada-material" onclick="exportMaterialArmadaExcel()">📥 EXPORT EXCEL</button>
-        <button type="button" class="nesting-close armadaMaterialModalClose" onclick="tutupMaterialArmada()">✕</button>
+<button type="button" class="nesting-close armadaMaterialModalClose" onclick="tutupMaterialArmada()">✕</button>
       </div>
     </div>
     <div class="nesting-summary" id="armadaMaterialSummary"></div>
@@ -5549,8 +5548,6 @@ function bukaMaterialArmada(index){
   if(!overlay || !summary || !body) return;
   const target=cards[index],rows=materialRowsUntukArmada_(cards,materialDataTerakhir,index);
   armadaMaterialIndexTerakhir=index;
-  const exportBtn=document.getElementById('btnExportArmadaMaterial');
-  if(exportBtn) exportBtn.disabled=rows.length===0;
   const totalCbm=rows.reduce(function(a,r){return a+(Number(r.cbm)||0);},0),totalTon=rows.reduce(function(a,r){return a+(Number(r.ton)||0);},0);
   summary.innerHTML='ARMADA : <strong>'+escapeHtml(String(target.armada||'-'))+'</strong> &nbsp; | &nbsp; UNIT : '+formatTableNumber(target.kebutuhanUnit||1)+' &nbsp; | &nbsp; MATERIAL : '+formatTableNumber(rows.length)+' jenis &nbsp; | &nbsp; CBM : '+formatNumber(totalCbm,2)+' m³ &nbsp; | &nbsp; TON : '+formatNumber(totalTon,3)+' Ton';
   let html='<div class="nesting-project-note">Proyek : <strong>'+escapeHtml(proyekAktif || document.getElementById('projectSelect').value || '-')+'</strong></div>';
