@@ -1675,8 +1675,8 @@
 .history-material-list-footer{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-end;
+  gap:7px;
   padding:10px 14px;
   background:#eef3f7;
   border-top:1px solid #d7e1ea;
@@ -3088,20 +3088,65 @@ function getHistoryMaterialSharePayload_(){
     m:list.map(function(x){return [String(x.material||''),String(x.volume||'')];})
   };
 }
-function encodeHistoryMaterialShare_(payload){
+
+/*
+ * LINK BAGIKAN V2 — payload dikompres GZIP sebelum masuk URL.
+ * Sebelumnya seluruh daftar material di-encode langsung ke URL sehingga
+ * link bisa sangat panjang dan WhatsApp dapat menolak pesan.
+ * Sekarang URL hanya berisi payload terkompresi + base64url.
+ */
+function bytesToBase64UrlHistory_(bytes){
+  let binary='';
+  const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunk,bytes.length)));
+  }
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64UrlToBytesHistory_(value){
+  let b64=String(value||'').replace(/-/g,'+').replace(/_/g,'/');
+  while(b64.length%4)b64+='=';
+  const binary=atob(b64);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+async function encodeHistoryMaterialShare_(payload){
   const json=JSON.stringify(payload);
+  if(window.CompressionStream){
+    const source=new Blob([json],{type:'application/json'}).stream();
+    const compressedStream=source.pipeThrough(new CompressionStream('gzip'));
+    const buffer=await new Response(compressedStream).arrayBuffer();
+    return 'gz1.'+bytesToBase64UrlHistory_(new Uint8Array(buffer));
+  }
+
+  // Fallback untuk browser lama.
   try{
-    return btoa(unescape(encodeURIComponent(json)));
+    return 'raw1.'+btoa(unescape(encodeURIComponent(json)))
+      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }catch(e){
-    return btoa(json);
+    return 'raw1.'+btoa(json)
+      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }
 }
-function decodeHistoryMaterialShare_(encoded){
+function decodeHistoryMaterialShareLegacy_(encoded){
   try{
     const json=decodeURIComponent(escape(atob(encoded)));
     return JSON.parse(json);
   }catch(e){
     try{return JSON.parse(atob(encoded));}catch(e2){return null;}
+  }
+}
+async function decodeHistoryMaterialShareCompressed_(token){
+  try{
+    const bytes=base64UrlToBytesHistory_(String(token||'').slice(4));
+    if(!window.DecompressionStream)return null;
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const text=await new Response(stream).text();
+    return JSON.parse(text);
+  }catch(e){
+    console.error('DECODE SHARE LINK ERROR:',e);
+    return null;
   }
 }
 function copyTextHistoryMaterial_(text){
@@ -3126,16 +3171,26 @@ function copyTextHistoryMaterial_(text){
     }
   });
 }
-function bagikanListMaterialHistory_(){
+async function bagikanListMaterialHistory_(){
   const payload=getHistoryMaterialSharePayload_();
   if(!payload){
     alert('Data pengiriman tidak tersedia.');
     return;
   }
-  const encoded=encodeHistoryMaterialShare_(payload);
-  const url=window.location.origin+window.location.pathname+'#share-material='+encodeURIComponent(encoded);
+
+  let token='';
+  try{
+    token=await encodeHistoryMaterialShare_(payload);
+  }catch(err){
+    console.error('ENCODE SHARE LINK ERROR:',err);
+    alert('Gagal membuat link berbagi.');
+    return;
+  }
+
+  const url=window.location.origin+window.location.pathname+'#share-material='+token;
   const title='LIST MATERIAL DI KIRIM — '+payload.p;
   const text='Proyek : '+payload.p+' | Pengiriman '+payload.n+' | '+formatTanggalHistoryPengiriman_(payload.d);
+
   if(navigator.share){
     navigator.share({title:title,text:text,url:url}).catch(function(err){
       if(err&&err.name==='AbortError')return;
@@ -3145,6 +3200,7 @@ function bagikanListMaterialHistory_(){
     });
     return;
   }
+
   copyTextHistoryMaterial_(url).then(function(){
     alert('Link berhasil disalin. Silakan kirim link tersebut.');
   }).catch(function(){
@@ -3233,9 +3289,33 @@ function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
   const prefix='#share-material=';
   if(hash.indexOf(prefix)!==0)return false;
-  const payload=decodeHistoryMaterialShare_(decodeURIComponent(hash.slice(prefix.length)));
-  if(!payload)return false;
-  return renderSharedMaterialList_(payload);
+
+  const token=decodeURIComponent(hash.slice(prefix.length));
+  if(token.indexOf('gz1.')===0){
+    decodeHistoryMaterialShareCompressed_(token).then(function(payload){
+      if(!payload){
+        document.body.classList.add('shared-material-mode');
+        const root=document.getElementById('sharedMaterialView');
+        if(root){
+          root.style.display='flex';
+          root.innerHTML='<div class="shared-material-card"><div class="shared-material-header">📦 LIST MATERIAL DI KIRIM</div><div class="shared-material-body"><div class="history-material-list-empty">Link pengiriman tidak dapat dibaca. Silakan minta link baru.</div></div></div>';
+        }
+        return;
+      }
+      renderSharedMaterialList_(payload);
+    });
+    return true;
+  }
+
+  // Tetap mendukung link lama yang masih menggunakan base64 langsung.
+  let payload=null;
+  try{
+    payload=decodeHistoryMaterialShareLegacy_(token.replace(/^raw1\./,''));
+  }catch(e){
+    payload=null;
+  }
+  if(payload)renderSharedMaterialList_(payload);
+  return true;
 }
 function renderHistoryPengiriman_(project,history){
   const nameEl=document.getElementById('historyPengirimanProjectName');
