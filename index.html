@@ -814,17 +814,29 @@
     }
 
     /* WORKSHOP MATERIAL POPUP — KHUSUS HP ANDROID/iPHONE. PC TIDAK DIUBAH. */
-    .kpi-material-workshop-date{padding:8px 12px 7px;background:#fff;color:#0b477d;font-size:12px;font-weight:900;border-bottom:1px solid #d6e1e9;}
+    /* KHUSUS HP — SATU KOTAK INFO: JUDUL + TANGGAL + TOTAL ITEM */
+    .kpi-material-info-box{display:none;}
+    .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#fff;}
+    .kpi-material-workshop-date{padding:5px 0 0;background:transparent;color:#fff;font-size:12px;font-weight:900;border:0;}
+    .kpi-material-summary{padding:5px 0 0;background:transparent;border:0;color:#fff;font-size:12px;font-weight:900;}
     .kpi-material-mobile-footer{display:none;align-items:center;justify-content:space-between;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
-    .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;}
+    .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:auto;}
     .kpi-material-mobile-action,.kpi-material-mobile-close{height:34px;border-radius:4px;border:1px solid #0d447f;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap;padding:0 9px;}
     .kpi-material-mobile-share{background:#168a49;color:#fff;border-color:#168a49;}
     .kpi-material-mobile-export{background:#f39a00;color:#fff;border-color:#d98500;}
     .kpi-material-mobile-close{min-width:68px;background:#0d447f;color:#fff;}
     @media(max-width:600px){
+      #kpiMaterialOverlay .kpi-material-info-box{
+        display:block !important;
+        padding:8px 10px 9px;
+        background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
+        color:#fff;
+        border-bottom:1px solid #0d447f;
+        box-sizing:border-box;
+      }
       #kpiMaterialOverlay .kpi-material-workshop-date{display:block !important;}
+      #kpiMaterialOverlay .kpi-material-summary{display:block !important;margin:0;}
       #kpiMaterialOverlay .kpi-material-mobile-footer{display:flex !important;}
-      #kpiMaterialOverlay .kpi-material-summary{margin:0;}
       #kpiMaterialOverlay .kpi-material-modal{max-height:88vh;}
     }
 
@@ -2189,8 +2201,14 @@
       <div id="kpiMaterialModalTitle">📦 MATERIAL</div>
       <button type="button" class="kpi-material-close" onclick="tutupKpiMaterial()">✕</button>
     </div>
-    <div id="kpiMaterialWorkshopDate" class="kpi-material-workshop-date" style="display:none">📅 -</div>
-    <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
+
+    <!-- KHUSUS HP: SATU KOTAK INFO DI BAWAH HEADER -->
+    <div id="kpiMaterialInfoBox" class="kpi-material-info-box" style="display:none">
+      <div id="kpiMaterialWorkshopTitle" class="kpi-material-workshop-title">📦 LIST MATERIAL DI WORKSHOP SAAT INI</div>
+      <div id="kpiMaterialWorkshopDate" class="kpi-material-workshop-date">📅 -</div>
+      <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
+    </div>
+
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
     <div id="kpiMaterialMobileFooter" class="kpi-material-mobile-footer" style="display:none">
       <div class="kpi-material-mobile-footer-left">
@@ -6403,15 +6421,21 @@ function bukaKpiMaterial(){
 
   const overlay=document.getElementById('kpiMaterialOverlay');
   const body=document.getElementById('kpiMaterialBody');
-  const summary=document.getElementById('kpiMaterialSummary');
-  const title=document.getElementById('kpiMaterialModalTitle');
+  const infoBox=document.getElementById('kpiMaterialInfoBox');
+  const infoTitle=document.getElementById('kpiMaterialWorkshopTitle');
   const dateEl=document.getElementById('kpiMaterialWorkshopDate');
+  const summary=document.getElementById('kpiMaterialSummary');
+  const headerTitle=document.getElementById('kpiMaterialModalTitle');
   const footer=document.getElementById('kpiMaterialMobileFooter');
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
 
-  // KHUSUS HP: judul + tanggal perangkat saat popup dibuka.
-  if(title) title.textContent='📦 LIST MATERIAL DI WORKSHOP SAAT INI';
+  // KHUSUS HP: HEADER tetap "MATERIAL".
+  // Di bawah header dibuat SATU KOTAK BIRU berisi judul, tanggal perangkat, dan total item.
+  if(headerTitle) headerTitle.textContent='📦 MATERIAL';
+  if(infoBox) infoBox.style.display='block';
+  if(infoTitle) infoTitle.textContent='📦 LIST MATERIAL DI WORKSHOP SAAT INI';
+
   if(dateEl){
     const now=new Date();
     const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
@@ -6497,14 +6521,20 @@ function tutupKpiMaterial(event){
   if(event && event.target && event.target.id!=='kpiMaterialOverlay') return;
   const overlay=document.getElementById('kpiMaterialOverlay');
   const title=document.getElementById('kpiMaterialModalTitle');
+  const infoBox=document.getElementById('kpiMaterialInfoBox');
+  const infoTitle=document.getElementById('kpiMaterialWorkshopTitle');
   const dateEl=document.getElementById('kpiMaterialWorkshopDate');
+  const summary=document.getElementById('kpiMaterialSummary');
   const footer=document.getElementById('kpiMaterialMobileFooter');
   if(overlay) overlay.style.display='none';
   if(title) title.textContent='📦 MATERIAL';
+  if(infoBox) infoBox.style.display='none';
+  if(infoTitle) infoTitle.textContent='📦 LIST MATERIAL DI WORKSHOP SAAT INI';
   if(dateEl){
     dateEl.textContent='📅 -';
     dateEl.style.display='none';
   }
+  if(summary) summary.textContent='TOTAL ITEM: 0 jenis';
   if(footer) footer.style.display='none';
   document.body.style.overflow='';
 }
