@@ -814,13 +814,13 @@
     }
 
     /* WORKSHOP MATERIAL POPUP — KHUSUS HP ANDROID/iPHONE. PC TIDAK DIUBAH. */
-    /* KHUSUS HP — SATU KOTAK INFO: JUDUL + TANGGAL + TOTAL ITEM */
+    /* INFO DI BAWAH HEADER: TANPA BACKGROUND BIRU, TANPA ICON */
     .kpi-material-info-box{display:none;}
-    .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#fff;}
-    .kpi-material-workshop-date{padding:5px 0 0;background:transparent;color:#fff;font-size:12px;font-weight:900;border:0;}
-    .kpi-material-summary{padding:5px 0 0;background:transparent;border:0;color:#fff;font-size:12px;font-weight:900;}
-    .kpi-material-mobile-footer{display:none;align-items:center;justify-content:space-between;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
-    .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:auto;}
+    .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#17324d;}
+    .kpi-material-workshop-date{padding:5px 0 0;background:transparent;color:#17324d;font-size:12px;font-weight:900;border:0;}
+    .kpi-material-summary{padding:5px 0 0;background:transparent;border:0;color:#17324d;font-size:12px;font-weight:900;}
+    .kpi-material-mobile-footer{display:none;align-items:center;justify-content:flex-end;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
+    .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:0;}
     .kpi-material-mobile-action,.kpi-material-mobile-close{height:34px;border-radius:4px;border:1px solid #0d447f;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap;padding:0 9px;}
     .kpi-material-mobile-share{background:#168a49;color:#fff;border-color:#168a49;}
     .kpi-material-mobile-export{background:#f39a00;color:#fff;border-color:#d98500;}
@@ -828,11 +828,11 @@
     @media(max-width:600px){
       #kpiMaterialOverlay .kpi-material-info-box{
         display:block !important;
-        padding:10px 10px 9px;
-        background:#f4f8fb !important;
+        padding:8px 10px 9px;
+        background:#fff !important;
         color:#17324d !important;
-        border:1px solid #cbd9e5 !important;
-        border-radius:0 0 3px 3px;
+        border:0 !important;
+        border-radius:0 !important;
         box-sizing:border-box;
       }
       #kpiMaterialOverlay .kpi-material-workshop-title{
@@ -2216,8 +2216,8 @@
 
     <!-- KHUSUS HP: SATU KOTAK INFO DI BAWAH HEADER -->
     <div id="kpiMaterialInfoBox" class="kpi-material-info-box" style="display:none">
-      <div id="kpiMaterialWorkshopTitle" class="kpi-material-workshop-title">📦 LIST MATERIAL DI WORKSHOP SAAT INI</div>
-      <div id="kpiMaterialWorkshopDate" class="kpi-material-workshop-date">📅 -</div>
+      <div id="kpiMaterialWorkshopTitle" class="kpi-material-workshop-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>
+      <div id="kpiMaterialWorkshopDate" class="kpi-material-workshop-date">-</div>
       <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
     </div>
 
@@ -3437,8 +3437,8 @@ function renderSharedWorkshopMaterialList_(payload){
     '<div class="shared-material-card">'+
       '<div class="shared-material-header"><span>📦 LIST MATERIAL DI WORKSHOP SAAT INI</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
       '<div class="shared-material-body">'+
-        '<div class="shared-material-date">📅 '+escapeHtmlSafe_(payload.d||'-')+'</div>'+
-        '<div class="shared-material-summary">TOTAL ITEM: '+formatAngkaHistory_(payload.ti,0)+' jenis</div>'+
+        '<div class="shared-material-date">'+escapeHtmlSafe_(payload.d||'-')+'</div>'+
+        '<div class="shared-material-summary">TOTAL ITEM: '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis</div>'+
         '<div class="shared-material-list">'+
           (list.length?list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
         '</div>'+
@@ -3451,11 +3451,13 @@ function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
   const prefix='#share-material=';
   const workshopPrefix='#share-workshop=';
+  const workshopShortPrefix='#sw=';
 
-  if(hash.indexOf(workshopPrefix)===0){
-    const token=decodeURIComponent(hash.slice(workshopPrefix.length));
+  if(hash.indexOf(workshopShortPrefix)===0 || hash.indexOf(workshopPrefix)===0){
+    const prefixLen=hash.indexOf(workshopShortPrefix)===0 ? workshopShortPrefix.length : workshopPrefix.length;
+    const token=decodeURIComponent(hash.slice(prefixLen));
     decodeHistoryMaterialShareCompressed_(token).then(function(payload){
-      if(payload&&payload.w===1){
+      if(payload&&(payload.w===1||payload.w===2)){
         renderSharedWorkshopMaterialList_(payload);
       }else{
         renderSharedMaterialLinkError_('Link material workshop tidak valid atau sudah tidak dapat dibaca.');
@@ -6446,13 +6448,13 @@ function bukaKpiMaterial(){
   // Di bawah header dibuat SATU KOTAK BIRU berisi judul, tanggal perangkat, dan total item.
   if(headerTitle) headerTitle.textContent='📦 MATERIAL';
   if(infoBox) infoBox.style.display='block';
-  if(infoTitle) infoTitle.textContent='📦 LIST MATERIAL DI WORKSHOP SAAT INI';
+  if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
 
   if(dateEl){
     const now=new Date();
     const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
     const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    dateEl.textContent='📅 '+hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
+    dateEl.textContent=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
     dateEl.style.display='block';
   }
   if(footer) footer.style.display='flex';
@@ -6494,24 +6496,22 @@ async function bagikanKpiMaterial_(){
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const tanggal=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
 
+  /* LINK WORKSHOP DIPADATKAN: hanya tanggal + daftar material.
+     Nama proyek/total item tidak dimasukkan karena tidak dibutuhkan
+     untuk tampilan link publik. Data tetap dikompresi gzip. */
   const payload={
-    w:1,
-    p:proyek,
+    w:2,
     d:tanggal,
-    ti:rows.length,
-    tv:totalVolume,
-    tt:totalTon,
-    tc:totalCbm,
     m:rows.map(function(x){
-      return [String(x&&x.material||''),String(x&&x.volume!=null?x.volume:'')];
+      return [String(x&&x.material||''),Number(x&&x.volume!=null?x.volume:0)];
     })
   };
 
   try{
     const token=await encodeHistoryMaterialShare_(payload);
-    const url=window.location.origin+window.location.pathname+'#share-workshop='+token;
-    const title='LIST MATERIAL DI WORKSHOP SAAT INI — '+proyek;
-    const text='Proyek : '+proyek+' | '+tanggal+' | '+rows.length+' jenis';
+    const url=window.location.origin+window.location.pathname+'#sw='+token;
+    const title='LIST MATERIAL DI WORKSHOP SAAT INI';
+    const text=tanggal+' | '+rows.length+' jenis material';
 
     if(navigator.share){
       navigator.share({title:title,text:text,url:url}).catch(function(err){
@@ -6541,9 +6541,9 @@ function tutupKpiMaterial(event){
   if(overlay) overlay.style.display='none';
   if(title) title.textContent='📦 MATERIAL';
   if(infoBox) infoBox.style.display='none';
-  if(infoTitle) infoTitle.textContent='📦 LIST MATERIAL DI WORKSHOP SAAT INI';
+  if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
   if(dateEl){
-    dateEl.textContent='📅 -';
+    dateEl.textContent='-';
     dateEl.style.display='none';
   }
   if(summary) summary.textContent='TOTAL ITEM: 0 jenis';
