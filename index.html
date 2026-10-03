@@ -6540,8 +6540,11 @@ async function bagikanKpiMaterial_(){
   };
 
   try{
+    // Payload dikompres dulu. URL request ke Apps Script tetap pendek,
+    // sedangkan URL yang dibagikan hanya berisi token 10 karakter.
+    const compressedPayload=await encodeHistoryMaterialShare_(payload);
     const response=await fetch(userApiUrl_('share_workshop_create',{
-      payload:JSON.stringify(payload)
+      payload_gz:compressedPayload
     }),{
       method:'GET',
       cache:'no-store',
