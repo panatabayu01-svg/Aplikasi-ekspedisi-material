@@ -6546,12 +6546,12 @@ async function bagikanKpiMaterial_(){
     // beberapa GET kecil. URL hasil share tetap hanya token pendek.
     // ============================================================
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
-    const CHUNK_SIZE=900;
+    const CHUNK_SIZE=700;
     const chunks=[];
     for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE){
       chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
     }
-    if(!chunks.length || chunks.length>30){
+    if(!chunks.length || chunks.length>50){
       throw new Error('Data material terlalu besar untuk dibuatkan link.');
     }
 
