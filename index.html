@@ -6528,8 +6528,6 @@ async function bagikanKpiMaterial_(){
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const tanggal=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
 
-  // DATA MATERIAL TIDAK LAGI DIMASUKKAN KE URL.
-  // Server menyimpan payload dan URL hanya membawa token 10 karakter.
   const payload={
     w:2,
     d:tanggal,
@@ -6540,40 +6538,77 @@ async function bagikanKpiMaterial_(){
   };
 
   try{
-    // Payload dikompres dulu. URL request ke Apps Script tetap pendek,
-    // sedangkan URL yang dibagikan hanya berisi token 10 karakter.
+    // ============================================================
+    // SHARE WORKSHOP V5
+    // Tidak memakai POST payload besar.
+    // Apps Script Web App dapat me-redirect POST sehingga body bisa
+    // hilang. Karena itu payload terkompresi dikirim bertahap lewat
+    // beberapa GET kecil. URL hasil share tetap hanya token pendek.
+    // ============================================================
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
+    const CHUNK_SIZE=900;
+    const chunks=[];
+    for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE){
+      chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
+    }
+    if(!chunks.length || chunks.length>30){
+      throw new Error('Data material terlalu besar untuk dibuatkan link.');
+    }
 
-    // PENTING: payload material tidak dikirim lewat query-string GET.
-    // Untuk daftar material yang banyak, URL GET bisa ditolak browser/server.
-    // Sekarang data pembuatan kode dikirim lewat POST; URL yang dibagikan
-    // tetap hanya membawa token pendek.
-    const response=await fetch(API_URL,{
-      method:'POST',
-      cache:'no-store',
-      redirect:'follow',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        action:'share_workshop_create',
-        deviceId:userDeviceId_,
-        deviceType:getUserDeviceType_(),
-        payload_gz:compressedPayload
-      })
+    const startResult=await fetch(userApiUrl_('share_workshop_start'),{
+      method:'GET',cache:'no-store',redirect:'follow'
+    }).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
     });
 
-    if(!response.ok)throw new Error('HTTP '+response.status);
-
-    const result=await response.json();
-
-    if(!result||result.success!==true||!result.token){
-      if(result&&result.code==='USER_NOT_APPROVED'){
+    if(!startResult||startResult.success!==true||!startResult.upload_id){
+      if(startResult&&startResult.code==='USER_NOT_APPROVED'){
         alert('Perangkat belum disetujui Owner.');
         return;
       }
-      throw new Error(result&&result.message?result.message:'Kode share tidak dapat dibuat.');
+      throw new Error(startResult&&startResult.message?startResult.message:'Sesi share tidak dapat dibuat.');
     }
 
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(result.token);
+    const uploadId=String(startResult.upload_id);
+    for(let i=0;i<chunks.length;i++){
+      const result=await fetch(userApiUrl_('share_workshop_chunk',{
+        upload_id:uploadId,
+        chunk_index:i,
+        chunk_total:chunks.length,
+        chunk_data:chunks[i]
+      }),{
+        method:'GET',cache:'no-store',redirect:'follow'
+      }).then(function(r){
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return r.json();
+      });
+
+      if(!result||result.success!==true){
+        if(result&&result.code==='USER_NOT_APPROVED'){
+          alert('Perangkat belum disetujui Owner.');
+          return;
+        }
+        throw new Error(result&&result.message?result.message:'Bagian data share gagal dikirim.');
+      }
+    }
+
+    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{
+      method:'GET',cache:'no-store',redirect:'follow'
+    }).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    });
+
+    if(!finishResult||finishResult.success!==true||!finishResult.token){
+      if(finishResult&&finishResult.code==='USER_NOT_APPROVED'){
+        alert('Perangkat belum disetujui Owner.');
+        return;
+      }
+      throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
+    }
+
+    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
 
@@ -6596,6 +6631,7 @@ async function bagikanKpiMaterial_(){
     alert('Link tidak dapat dibuat. Silakan coba lagi.');
   }
 }
+
 function tutupKpiMaterial(event){
   if(event && event.target && event.target.id!=='kpiMaterialOverlay') return;
   const overlay=document.getElementById('kpiMaterialOverlay');
