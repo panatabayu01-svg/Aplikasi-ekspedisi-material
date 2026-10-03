@@ -1660,6 +1660,167 @@
     text-overflow:ellipsis !important;
   }
 }
+
+/* LIST MATERIAL DI KIRIM — export/share/date update */
+.history-material-list-date{
+  padding:7px 10px;
+  margin:-2px 0 10px;
+  background:#fff;
+  border:1px solid #d7e1ea;
+  border-radius:5px;
+  color:#0b477d;
+  font-size:12px;
+  font-weight:900;
+}
+.history-material-list-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 14px;
+  background:#eef3f7;
+  border-top:1px solid #d7e1ea;
+}
+.history-material-list-footer-left{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.history-material-list-action-btn,
+.history-material-list-close-btn{
+  height:35px;
+  min-width:100px;
+  border:1px solid #0d447f;
+  border-radius:4px;
+  padding:0 12px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.history-material-list-export-btn{
+  background:#f39a16;
+  border-color:#dc7f00;
+  color:#fff;
+}
+.history-material-list-share-btn{
+  background:#168a49;
+  border-color:#11723d;
+  color:#fff;
+}
+.history-material-list-close-btn{
+  min-width:90px;
+  background:#0d447f;
+  color:#fff;
+}
+.shared-material-view{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  background:#edf3f7;
+  overflow:auto;
+  padding:20px;
+  box-sizing:border-box;
+  align-items:center;
+  justify-content:center;
+}
+.shared-material-card{
+  width:min(900px,100%);
+  max-height:calc(100vh - 40px);
+  background:#fff;
+  border:1px solid #d1dce6;
+  border-radius:8px;
+  box-shadow:0 12px 35px rgba(0,0,0,.18);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.shared-material-header{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
+  color:#fff;
+  font-size:17px;
+  font-weight:900;
+}
+.shared-material-body{
+  padding:14px;
+  overflow:auto;
+}
+.shared-material-project{
+  padding:10px 12px;
+  margin-bottom:10px;
+  background:#eaf3fb;
+  border:1px solid #d2e1ef;
+  border-radius:5px;
+  color:#0b477d;
+  font-size:15px;
+  font-weight:900;
+}
+.shared-material-summary{
+  padding:9px 10px;
+  margin-bottom:7px;
+  background:#eef3f7;
+  border:1px solid #d7e1ea;
+  border-radius:5px;
+  color:#17324d;
+  font-size:12px;
+  font-weight:900;
+}
+.shared-material-date{
+  padding:8px 10px;
+  margin-bottom:10px;
+  color:#0b477d;
+  font-size:12px;
+  font-weight:900;
+}
+.shared-material-list{border-top:1px solid #dfe7ed}
+.shared-material-row{
+  display:grid;
+  grid-template-columns:40px 1fr 105px;
+  gap:8px;
+  align-items:center;
+  padding:9px 8px;
+  border-bottom:1px solid #e1e8ee;
+  font-size:12px;
+}
+.shared-material-no{font-weight:900;color:#0d5b91;text-align:center}
+.shared-material-name{font-weight:800;color:#17324d;word-break:break-word}
+.shared-material-volume{text-align:right;font-weight:900;color:#168a49;white-space:nowrap}
+.shared-material-footer{
+  padding:10px 14px;
+  background:#eef3f7;
+  border-top:1px solid #d7e1ea;
+  text-align:right;
+}
+@media(max-width:600px){
+  .history-material-list-footer{
+    gap:6px;
+    padding:9px 10px;
+  }
+  .history-material-list-footer-left{
+    gap:5px;
+  }
+  .history-material-list-action-btn,
+  .history-material-list-close-btn{
+    min-width:0;
+    height:34px;
+    padding:0 8px;
+    font-size:10px;
+  }
+  .history-material-list-close-btn{min-width:68px}
+  .history-material-list-date{font-size:11px}
+  .shared-material-view{padding:10px}
+  .shared-material-card{max-height:calc(100vh - 20px);border-radius:7px}
+  .shared-material-header{min-height:48px;padding:0 12px;font-size:14px}
+  .shared-material-body{padding:10px}
+  .shared-material-project{font-size:13px}
+  .shared-material-summary{font-size:10px;line-height:1.4}
+  .shared-material-row{grid-template-columns:32px 1fr 80px;font-size:11px;padding:8px 4px}
+  .shared-material-footer{padding:9px 10px}
+}
 </style>
 </head>
 
@@ -1771,13 +1932,21 @@
     <div class="history-material-list-body">
       <div id="historyMaterialListProject" class="history-material-list-project">-</div>
       <div id="historyMaterialListSummary" class="history-material-list-summary">-</div>
+      <div id="historyMaterialListDate" class="history-material-list-date">-</div>
       <div id="historyMaterialListContent"></div>
     </div>
     <div class="history-material-list-footer">
+      <div class="history-material-list-footer-left">
+        <button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportListMaterialHistory_()">📥 EXPORT EXCEL</button>
+        <button type="button" class="history-material-list-action-btn history-material-list-share-btn" onclick="bagikanListMaterialHistory_()">🔗 BAGIKAN LINK</button>
+      </div>
       <button type="button" class="history-material-list-close-btn" onclick="tutupListMaterialHistory_()">TUTUP</button>
     </div>
   </div>
 </div>
+
+<!-- SHARED READ-ONLY MATERIAL LIST -->
+<div id="sharedMaterialView" class="shared-material-view" style="display:none"></div>
 
 <!-- USER ACCESS / REGISTRATION -->
 <div id="userAccessOverlay" class="user-access-overlay">
@@ -2562,6 +2731,7 @@ function initExistingApp_(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+  if(initSharedMaterialView_()) return;
   mulaiSistemUser_().then(function(){
     initExistingApp_();
   });
@@ -2879,6 +3049,7 @@ function bukaListMaterialHistory_(index){
   const events=Array.isArray(window.__HISTORY_PENGIRIMAN_EVENTS__)?window.__HISTORY_PENGIRIMAN_EVENTS__:[];
   const item=events[index];
   if(!item)return;
+  window.__HISTORY_PENGIRAN_ACTIVE_INDEX__=index;
   const project=String(window.__HISTORY_PENGIRIMAN_PROJECT__||item.project||'-');
   const list=parseMaterialHistoryList_(item.materialTurun);
   const overlay=document.getElementById('historyMaterialListOverlay');
@@ -2886,8 +3057,10 @@ function bukaListMaterialHistory_(index){
   const summaryEl=document.getElementById('historyMaterialListSummary');
   const contentEl=document.getElementById('historyMaterialListContent');
   if(!overlay||!contentEl)return;
-  if(projectEl)projectEl.textContent=project;
+  if(projectEl)projectEl.textContent='Proyek : '+project;
   if(summaryEl)summaryEl.textContent='PENGIRIMAN '+(Number(item.pengirimanKe)||index+1)+'  •  '+formatAngkaHistory_(item.totalItem,0)+' jenis  •  '+formatAngkaHistory_(item.totalVolume,0)+' unit  •  '+formatAngkaHistory_(item.totalTon,3)+' Ton  •  '+formatAngkaHistory_(item.totalCbm,2)+' m³';
+  const dateEl=document.getElementById('historyMaterialListDate');
+  if(dateEl)dateEl.textContent='📅 '+formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-');
   contentEl.innerHTML=list.length?list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+' unit':'-')+'</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div>';
   overlay.style.display='flex';
 }
@@ -2895,6 +3068,174 @@ function tutupListMaterialHistory_(event){
   if(event&&event.target&&event.target.id!=='historyMaterialListOverlay')return;
   const overlay=document.getElementById('historyMaterialListOverlay');
   if(overlay)overlay.style.display='none';
+}
+
+function getHistoryMaterialSharePayload_(){
+  const events=Array.isArray(window.__HISTORY_PENGIRIMAN_EVENTS__)?window.__HISTORY_PENGIRIMAN_EVENTS__:[];
+  const index=Number(window.__HISTORY_PENGIRAN_ACTIVE_INDEX__);
+  const item=events[index];
+  if(!item)return null;
+  const project=String(window.__HISTORY_PENGIRIMAN_PROJECT__||item.project||'-');
+  const list=parseMaterialHistoryList_(item.materialTurun);
+  return {
+    p:project,
+    n:Number(item.pengirimanKe)||index+1,
+    d:String(item.tanggalPengiriman||item.tanggal||'-'),
+    ti:Number(item.totalItem)||list.length,
+    tv:Number(item.totalVolume)||0,
+    tt:Number(item.totalTon)||0,
+    tc:Number(item.totalCbm)||0,
+    m:list.map(function(x){return [String(x.material||''),String(x.volume||'')];})
+  };
+}
+function encodeHistoryMaterialShare_(payload){
+  const json=JSON.stringify(payload);
+  try{
+    return btoa(unescape(encodeURIComponent(json)));
+  }catch(e){
+    return btoa(json);
+  }
+}
+function decodeHistoryMaterialShare_(encoded){
+  try{
+    const json=decodeURIComponent(escape(atob(encoded)));
+    return JSON.parse(json);
+  }catch(e){
+    try{return JSON.parse(atob(encoded));}catch(e2){return null;}
+  }
+}
+function copyTextHistoryMaterial_(text){
+  if(navigator.clipboard&&window.isSecureContext){
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function(resolve,reject){
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.position='fixed';
+    ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{
+      document.execCommand('copy');
+      ta.remove();
+      resolve();
+    }catch(e){
+      ta.remove();
+      reject(e);
+    }
+  });
+}
+function bagikanListMaterialHistory_(){
+  const payload=getHistoryMaterialSharePayload_();
+  if(!payload){
+    alert('Data pengiriman tidak tersedia.');
+    return;
+  }
+  const encoded=encodeHistoryMaterialShare_(payload);
+  const url=window.location.origin+window.location.pathname+'#share-material='+encodeURIComponent(encoded);
+  const title='LIST MATERIAL DI KIRIM — '+payload.p;
+  const text='Proyek : '+payload.p+' | Pengiriman '+payload.n+' | '+formatTanggalHistoryPengiriman_(payload.d);
+  if(navigator.share){
+    navigator.share({title:title,text:text,url:url}).catch(function(err){
+      if(err&&err.name==='AbortError')return;
+      copyTextHistoryMaterial_(url).then(function(){
+        alert('Link berhasil disalin. Silakan kirim link tersebut.');
+      }).catch(function(){prompt('Salin link berikut:',url);});
+    });
+    return;
+  }
+  copyTextHistoryMaterial_(url).then(function(){
+    alert('Link berhasil disalin. Silakan kirim link tersebut.');
+  }).catch(function(){
+    prompt('Salin link berikut:',url);
+  });
+}
+function exportListMaterialHistory_(){
+  const payload=getHistoryMaterialSharePayload_();
+  if(!payload){
+    alert('Data pengiriman tidak tersedia.');
+    return;
+  }
+  const rows=payload.m||[];
+  const esc=function(v){
+    return String(v==null?'':v)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  };
+  const fmt=function(v,d){
+    const n=Number(v);
+    if(!isFinite(n))return '0';
+    return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+  };
+  const textCell=function(v){return '<td style="mso-number-format:\'@\';">'+esc(v)+'</td>';};
+  const exportedAt=new Date().toLocaleString('id-ID');
+  let html='<html><head><meta charset="UTF-8"></head><body>';
+  html+='<table border="1" cellspacing="0" cellpadding="5">';
+  html+='<tr><th colspan="4" style="font-size:16pt">LIST MATERIAL DI KIRIM</th></tr>';
+  html+='<tr><th colspan="4">PROYEK</th></tr>';
+  html+='<tr><td colspan="4">'+esc(payload.p)+'</td></tr>';
+  html+='<tr><th colspan="2">PENGIRIMAN</th><td colspan="2">'+textCell(fmt(payload.n,0))+'</td></tr>';
+  html+='<tr><th colspan="2">TANGGAL PENGIRIMAN</th><td colspan="2">'+esc(formatTanggalHistoryPengiriman_(payload.d))+'</td></tr>';
+  html+='<tr><th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL TONASE</th><th>TOTAL KUBIKASI</th></tr>';
+  html+='<tr>'+textCell(fmt(payload.ti,0)+' jenis')+textCell(fmt(payload.tv,0)+' unit')+textCell(fmt(payload.tt,3)+' Ton')+textCell(fmt(payload.tc,2)+' m³')+'</tr>';
+  html+='<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th></tr>';
+  rows.forEach(function(r,i){
+    html+='<tr>'+textCell(i+1)+'<td>'+esc(r[0])+'</td>'+textCell(r[1]||'0')+'<td>unit</td></tr>';
+  });
+  html+='<tr><td colspan="4">Dibuat: '+esc(exportedAt)+'</td></tr>';
+  html+='</table></body></html>';
+  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const nama=String(payload.p).replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]+/g,'_').replace(/^_+|_+$/g,'')||'PROYEK';
+  a.href=url;
+  a.download='LIST_MATERIAL_DI_KIRIM_PENGIRIMAN_'+payload.n+'_'+nama+'.xls';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+function renderSharedMaterialList_(payload){
+  if(!payload||!Array.isArray(payload.m))return false;
+  const list=payload.m.map(function(x){return {material:String(x[0]||''),volume:String(x[1]||'')};});
+  const root=document.getElementById('sharedMaterialView');
+  if(!root)return false;
+  document.body.classList.add('shared-material-mode');
+  root.style.display='flex';
+  root.innerHTML=
+    '<div class="shared-material-card">'+
+      '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span></div>'+
+      '<div class="shared-material-body">'+
+        '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
+        '<div class="shared-material-summary">PENGIRIMAN '+(Number(payload.n)||1)+' • '+formatAngkaHistory_(payload.ti,0)+' jenis • '+formatAngkaHistory_(payload.tv,0)+' unit • '+formatAngkaHistory_(payload.tt,3)+' Ton • '+formatAngkaHistory_(payload.tc,2)+' m³</div>'+
+        '<div class="shared-material-date">📅 '+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(payload.d||'-'))+'</div>'+
+        '<div class="shared-material-list">'+
+          (list.length?list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
+        '</div>'+
+      '</div>'+
+      '<div class="shared-material-footer"><button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportSharedMaterialList_()">📥 EXPORT EXCEL</button></div>'+
+    '</div>';
+  window.__SHARED_MATERIAL_PAYLOAD__=payload;
+  return true;
+}
+function exportSharedMaterialList_(){
+  const p=window.__SHARED_MATERIAL_PAYLOAD__;
+  if(!p)return;
+  const oldEvents=window.__HISTORY_PENGIRIMAN_EVENTS__, oldProject=window.__HISTORY_PENGIRIMAN_PROJECT__, oldIndex=window.__HISTORY_PENGIRAN_ACTIVE_INDEX__;
+  window.__HISTORY_PENGIRIMAN_EVENTS__=[{project:p.p,pengirimanKe:p.n,tanggalPengiriman:p.d,totalItem:p.ti,totalVolume:p.tv,totalTon:p.tt,totalCbm:p.tc,materialTurun:(p.m||[]).map(function(x){return x[0]+' ↓ '+x[1];}).join(' | ')}];
+  window.__HISTORY_PENGIRIMAN_PROJECT__=p.p;
+  window.__HISTORY_PENGIRAN_ACTIVE_INDEX__=0;
+  exportListMaterialHistory_();
+  window.__HISTORY_PENGIRIMAN_EVENTS__=oldEvents;
+  window.__HISTORY_PENGIRIMAN_PROJECT__=oldProject;
+  window.__HISTORY_PENGIRAN_ACTIVE_INDEX__=oldIndex;
+}
+function initSharedMaterialView_(){
+  const hash=String(window.location.hash||'');
+  const prefix='#share-material=';
+  if(hash.indexOf(prefix)!==0)return false;
+  const payload=decodeHistoryMaterialShare_(decodeURIComponent(hash.slice(prefix.length)));
+  if(!payload)return false;
+  return renderSharedMaterialList_(payload);
 }
 function renderHistoryPengiriman_(project,history){
   const nameEl=document.getElementById('historyPengirimanProjectName');
