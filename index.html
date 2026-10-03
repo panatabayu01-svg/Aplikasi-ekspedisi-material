@@ -6577,9 +6577,49 @@ function bukaKpiMaterial(){
   document.body.style.overflow='hidden';
 }
 
+function showShareLinkLoadingPopup_(){
+  try{
+    const old=document.getElementById('shortShareLinkLoadingOverlay');
+    if(old)old.remove();
+
+    const overlay=document.createElement('div');
+    overlay.id='shortShareLinkLoadingOverlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+
+    const box=document.createElement('div');
+    box.style.cssText='width:min(390px,100%);background:#fff;border-radius:16px;padding:24px 20px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.25);font-family:Arial,sans-serif;text-align:center;';
+
+    const spin=document.createElement('div');
+    spin.style.cssText='width:38px;height:38px;border:4px solid #d9e2ec;border-top-color:#1261a0;border-radius:50%;margin:0 auto 14px;animation:shareLinkSpin .8s linear infinite;';
+
+    const title=document.createElement('div');
+    title.textContent='🔗 MEMBUAT LINK...';
+    title.style.cssText='font-size:18px;font-weight:800;color:#12395b;margin-bottom:7px;';
+
+    const sub=document.createElement('div');
+    sub.textContent='Mohon tunggu sebentar';
+    sub.style.cssText='font-size:14px;color:#667085;';
+
+    box.append(spin,title,sub);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    if(!document.getElementById('shareLinkSpinStyle')){
+      const style=document.createElement('style');
+      style.id='shareLinkSpinStyle';
+      style.textContent='@keyframes shareLinkSpin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(style);
+    }
+  }catch(e){}
+}
+
 async function bagikanKpiMaterial_(){
+  showShareLinkLoadingPopup_();
+
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!rows.length){
+    const loading=document.getElementById('shortShareLinkLoadingOverlay');
+    if(loading)loading.remove();
     alert('Tidak ada data material untuk dibagikan.');
     return;
   }
@@ -6669,6 +6709,9 @@ async function bagikanKpiMaterial_(){
       throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
     }
 
+    const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
+    if(loadingDone)loadingDone.remove();
+
     const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
@@ -6688,6 +6731,8 @@ async function bagikanKpiMaterial_(){
     await copyTextHistoryMaterial_(url);
     alert('Link berhasil disalin. Silakan kirim link tersebut.');
   }catch(e){
+    const loadingError=document.getElementById('shortShareLinkLoadingOverlay');
+    if(loadingError)loadingError.remove();
     console.error('SHARE WORKSHOP MATERIAL ERROR:',e);
     alert('Link tidak dapat dibuat. Silakan coba lagi.');
   }
