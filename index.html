@@ -6543,12 +6543,22 @@ async function bagikanKpiMaterial_(){
     // Payload dikompres dulu. URL request ke Apps Script tetap pendek,
     // sedangkan URL yang dibagikan hanya berisi token 10 karakter.
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
-    const response=await fetch(userApiUrl_('share_workshop_create',{
-      payload_gz:compressedPayload
-    }),{
-      method:'GET',
+
+    // PENTING: payload material tidak dikirim lewat query-string GET.
+    // Untuk daftar material yang banyak, URL GET bisa ditolak browser/server.
+    // Sekarang data pembuatan kode dikirim lewat POST; URL yang dibagikan
+    // tetap hanya membawa token pendek.
+    const response=await fetch(API_URL,{
+      method:'POST',
       cache:'no-store',
-      redirect:'follow'
+      redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'share_workshop_create',
+        deviceId:userDeviceId_,
+        deviceType:getUserDeviceType_(),
+        payload_gz:compressedPayload
+      })
     });
 
     if(!response.ok)throw new Error('HTTP '+response.status);
