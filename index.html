@@ -3661,11 +3661,18 @@ function exportSharedWorkshopExcel_(payload){
 function renderSharedWorkshopMaterialList_(payload){
   if(!payload||!Array.isArray(payload.m))return false;
 
-  const list=payload.m.map(function(x){
+  const unitList=Array.isArray(payload.u)
+    ? payload.u
+    : (Array.isArray(payload.units) ? payload.units : []);
+
+  const list=payload.m.map(function(x,i){
+    const unitFromRow=String(x&&x[2]||'').trim();
+    const unitFromTop=String(unitList[i]||'').trim();
+
     return {
       material:String(x&&x[0]||''),
       volume:String(x&&x[1]!=null?x[1]:''),
-      unit:String(x&&x[2]||'')
+      unit:unitFromRow || unitFromTop
     };
   });
 
@@ -6869,50 +6876,47 @@ async function bagikanKpiMaterial_(){
     console.warn('Gagal membaca SATUAN dari tabel tampilan:',e);
   }
 
+  // ============================================================
+  // PAYLOAD SHARE — MATERIAL + VOLUME + SATUAN
+  // ============================================================
+  // Sumber utama SATUAN tetap item.unit karena itulah field yang
+  // dipakai tabel aplikasi utama.
+  // Kita simpan SATUAN dua kali:
+  //   m[i][2] = satuan
+  //   u[i]   = satuan
+  // Jadi tampilan penerima punya fallback yang aman.
+  const satuanShare=[];
+  const payloadRows=rows.map(function(x){
+    const nama=String(x&&x.material!=null?x.material:'').trim();
+    let satuan=String(x&&x.unit!=null?x.unit:'').trim();
+
+    // Fallback field yang mungkin dipakai versi data tertentu.
+    if(!satuan || satuan==='-'){
+      satuan=String(x&&(
+        x.satuan||
+        x.unitMaterial||
+        x.satuanMaterial||
+        x.satuan_pm||
+        x.SATUAN_PM||
+        ''
+      )||'').trim();
+    }
+
+    satuanShare.push(satuan && satuan!=='-' ? satuan : '');
+
+    return [
+      nama,
+      String(x&&x.volume!=null?x.volume:0),
+      satuan && satuan!=='-' ? satuan : ''
+    ];
+  });
+
   const payload={
     w:2,
     d:tanggal,
     ti:rows.length,
-    m:rows.map(function(x){
-      const nama=String(x&& (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '');
-      const key=nama.toLowerCase().replace(/\\s+/g,' ').trim();
-
-      // Prioritas:
-      // 1) SATUAN yang sedang tampil di tabel
-      // 2) field unit/satuan dari object material
-      // 3) pencarian ulang pada materialDataTerakhir
-      let satuan=String(visibleUnitByMaterial[key]||'').trim();
-
-      if(!satuan || satuan==='-'){
-        satuan=String(x&&(
-          x.unit||
-          x.satuan||
-          x.unitMaterial||
-          x.satuanMaterial||
-          ''
-        )||'').trim();
-      }
-
-      if(!satuan || satuan==='-'){
-        const ref=Array.isArray(materialDataTerakhir)
-          ? materialDataTerakhir.find(function(m){
-              const mn=String(m&&(m.material||m.namaMaterial||m.itemMaterial||m.item||'')||'')
-                .toLowerCase().replace(/\\s+/g,' ').trim();
-              return mn===key;
-            })
-          : null;
-
-        if(ref){
-          satuan=String(ref.unit||ref.satuan||ref.unitMaterial||ref.satuanMaterial||'').trim();
-        }
-      }
-
-      return [
-        nama,
-        String(x&&x.volume!=null?x.volume:0),
-        (satuan && satuan!=='-' ? satuan : '')
-      ];
-    })
+    m:payloadRows,
+    u:satuanShare
   };
 
   try{
