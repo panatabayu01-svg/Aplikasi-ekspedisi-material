@@ -7284,11 +7284,57 @@ function exportExcel(){
     totalTon += Number(item.totalTon)||0;
   });
 
-  const tanggalKirimExport = String(
-    rows.find(function(item){ return item && item.tanggalKirim; })?.tanggalKirim ||
-    (document.getElementById('deliveryDateValue') ? document.getElementById('deliveryDateValue').textContent : '') ||
-    '-'
-  ).trim() || '-';
+  /*
+   * ============================================================
+   * SUMBER TANGGAL EXPORT
+   * ------------------------------------------------------------
+   * JANGAN mengambil rows[].tanggalKirim karena field tersebut
+   * adalah tanggal pengiriman/material dari MESIN_HITUNG.
+   *
+   * Untuk hasil EXPORT, tanggal harus mengikuti RENCANA KIRIM
+   * yang sedang aktif di aplikasi:
+   *   1. RENCANA KIRIM awal
+   *   2. RESCHEDULE terakhir jika ada
+   *   3. Jika tidak ada/expired -> BELUM ADA SCHEDULE
+   *
+   * Sumbernya sama dengan tampilan RENCANA KIRIM aplikasi,
+   * melalui window.__DATA_TERAKHIR__ + rescheduleHistory.
+   * ============================================================
+   */
+  const dataTerakhir = window.__DATA_TERAKHIR__ || {};
+  const historyReschedule = Array.isArray(dataTerakhir.rescheduleHistory)
+    ? dataTerakhir.rescheduleHistory
+    : [];
+
+  const statusRencanaExport = hitungStatusRencanaKirim_(
+    dataTerakhir,
+    rows,
+    historyReschedule
+  );
+
+  const tanggalRencanaExport = String(
+    statusRencanaExport && statusRencanaExport.text
+      ? statusRencanaExport.text
+      : 'BELUM ADA SCHEDULE'
+  ).trim() || 'BELUM ADA SCHEDULE';
+
+  const tanggalRencanaExportLengkap =
+    (tanggalRencanaExport === 'BELUM ADA SCHEDULE' ||
+     tanggalRencanaExport === 'BELUM ADA MATERIAL')
+      ? tanggalRencanaExport
+      : formatTanggalLengkapIndonesia_(tanggalRencanaExport);
+
+  /*
+   * Status KETERANGAN berlaku untuk SELURUH baris material.
+   * Tidak lagi membaca status/tanggal masing-masing material.
+   */
+  let keteranganExport = 'BELUM ADA SCHEDULE';
+
+  if(statusRencanaExport && statusRencanaExport.reason === 'RESCHEDULE_ACTIVE'){
+    keteranganExport = 'RESCHEDULE — ' + tanggalRencanaExportLengkap;
+  }else if(statusRencanaExport && statusRencanaExport.reason === 'SCHEDULE_ACTIVE'){
+    keteranganExport = 'ON SCHEDULE — ' + tanggalRencanaExportLengkap;
+  }
 
   function esc(v){
     return String(v==null?'':v)
@@ -7325,7 +7371,7 @@ function exportExcel(){
   html += '<tr><td colspan="10">'+esc(mode)+'</td></tr>';
   html += '<tr><th colspan="10">RENCANA PENGIRIMAN</th></tr>';
   html += '<tr><th colspan="10">TANGGAL PENGIRIMAN</th></tr>';
-  html += '<tr><td colspan="10">'+esc(tanggalKirimExport)+'</td></tr>';
+  html += '<tr><td colspan="10">'+esc(tanggalRencanaExportLengkap)+'</td></tr>';
   html += '<tr><th colspan="10">RINGKASAN</th></tr>';
   html += '<tr>'+
     '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="6"></th>'+
@@ -7339,12 +7385,12 @@ function exportExcel(){
     '</tr>';
   html += '<tr><td colspan="10"></td></tr>';
   html += '<tr>'+
-    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th><th>TANGGAL PENGIRIMAN</th>'+
+    '<th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th><th>KATEGORI</th><th>CBM</th><th>BERAT KG</th><th>TON</th><th>STATUS</th><th>KETERANGAN</th>'+
     '</tr>';
 
   rows.forEach(function(item,i){
     const st = tentukanStatusMaterial(item,rows);
-    const tanggalRow = String(item && item.tanggalKirim || tanggalKirimExport || '-').trim() || '-';
+
     html += '<tr>'+
       exportText(fmtExport(i+1,0)) +
       '<td>'+esc(item.material)+'</td>'+
@@ -7355,7 +7401,7 @@ function exportExcel(){
       exportText(fmtExport(item.totalWeightKg,2)) +
       exportText(fmtExport(item.totalTon,3)) +
       '<td>'+esc(st.label)+'</td>'+
-      '<td>'+esc(tanggalRow)+'</td>'+
+      '<td>'+esc(keteranganExport)+'</td>'+
       '</tr>';
   });
 
@@ -7376,6 +7422,7 @@ function exportExcel(){
   a.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
+
 
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 </script>
