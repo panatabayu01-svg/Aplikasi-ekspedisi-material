@@ -355,8 +355,8 @@
     .history-pengiriman-reschedule{margin-top:9px;padding:8px 10px;background:#fff5e5;border:1px solid #edc67b;border-left:4px solid #e58a00;border-radius:4px}
     .history-material-btn{height:28px;min-width:112px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-size:10px;font-weight:900;cursor:pointer;padding:0 10px;margin-left:8px;vertical-align:middle}
     .history-material-btn:hover{background:#236fa7}
-    .history-material-list-overlay{position:fixed;inset:0;z-index:10003;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58)}
-    .history-material-list-modal{width:min(620px,100%);max-height:min(78vh,680px);height:min(78vh,680px);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30);display:flex;flex-direction:column}
+    .history-material-list-overlay{position:fixed;inset:0;width:100vw;height:100vh;z-index:10003;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58);overflow:hidden;overscroll-behavior:contain;touch-action:none;box-sizing:border-box}
+    .history-material-list-modal{width:min(620px,100%);max-height:min(78vh,680px);height:min(78vh,680px);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30);display:flex;flex-direction:column;overscroll-behavior:contain;touch-action:auto;position:relative}
     .history-material-list-header{min-height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:900}
     .history-material-list-close{border:0;background:transparent;color:#fff;font-size:27px;line-height:1;cursor:pointer;padding:0 3px}
     .history-material-list-body{padding:12px 14px 16px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-height:0;flex:1}
@@ -364,7 +364,7 @@
     .history-material-list-summary{padding:8px 10px;margin-bottom:10px;background:#eef3f7;border:1px solid #d7e1ea;border-radius:5px;color:#17324d;font-size:11px;font-weight:800;flex:0 0 auto}
     .history-material-list-date{padding:8px 10px;margin-bottom:10px;background:#fff;border:1px solid #d7e1ea;border-radius:5px;color:#0b477d;font-size:11px;font-weight:800;flex:0 0 auto}
     .history-material-row{display:grid;grid-template-columns:38px 1fr 95px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #e1e8ee;font-size:12px}
-    .history-material-row:last-child{border-bottom:0}.history-material-list-content{min-height:0;flex:1;overflow:auto;background:#fff;position:relative;scrollbar-width:auto}
+    .history-material-row:last-child{border-bottom:0}.history-material-list-content{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;background:#fff;position:relative;scrollbar-width:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
     .history-material-table-head{display:grid;grid-template-columns:38px 1fr 95px;gap:8px;align-items:center;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-weight:900;font-size:11px;padding:8px;border:1px solid #0a3f70;border-radius:3px 3px 0 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 4px rgba(0,0,0,.18);} .history-material-table-head>div{text-align:center;} .history-material-table-head .history-material-head-name{text-align:center;}
 
     .history-material-no{font-weight:900;color:#0d5b91;text-align:center}
@@ -1719,6 +1719,14 @@
     overflow:hidden !important;
     text-overflow:ellipsis !important;
   }
+}
+
+/* LIST MATERIAL DI KIRIM — isolasi scroll popup: halaman belakang tidak ikut bergerak */
+html.history-material-list-scroll-lock,
+body.history-material-list-scroll-lock{
+  overflow:hidden !important;
+  height:100% !important;
+  overscroll-behavior:none !important;
 }
 
 /* LIST MATERIAL DI KIRIM — export/share/date update */
@@ -3365,13 +3373,29 @@ function bukaListMaterialHistory_(index){
     exportBtn.style.display=isPhone?'none':'';
     exportBtn.style.visibility=isPhone?'hidden':'';
   }
+  // Kunci scroll halaman belakang. Yang boleh scroll hanya area isi tabel.
+  document.documentElement.classList.add('history-material-list-scroll-lock');
+  document.body.classList.add('history-material-list-scroll-lock');
   overlay.style.display='flex';
 }
 function tutupListMaterialHistory_(event){
   if(event&&event.target&&event.target.id!=='historyMaterialListOverlay')return;
   const overlay=document.getElementById('historyMaterialListOverlay');
   if(overlay)overlay.style.display='none';
+  document.documentElement.classList.remove('history-material-list-scroll-lock');
+  document.body.classList.remove('history-material-list-scroll-lock');
 }
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    const overlay=document.getElementById('historyMaterialListOverlay');
+    if(overlay && overlay.style.display!=='none'){
+      overlay.style.display='none';
+      document.documentElement.classList.remove('history-material-list-scroll-lock');
+      document.body.classList.remove('history-material-list-scroll-lock');
+    }
+  }
+});
 
 function getHistoryMaterialSharePayload_(){
   const events=Array.isArray(window.__HISTORY_PENGIRIMAN_EVENTS__)?window.__HISTORY_PENGIRIMAN_EVENTS__:[];
