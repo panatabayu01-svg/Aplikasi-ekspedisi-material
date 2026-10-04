@@ -862,6 +862,11 @@
       }
       #kpiMaterialOverlay .kpi-material-meta-spacer{height:10px !important;}
       #kpiMaterialOverlay .kpi-material-mobile-footer{display:flex !important;}
+      /* HP: EXPORT EXCEL disembunyikan hanya di popup DATA MATERIAL utama.
+         Popup hasil LINK tetap menampilkan EXPORT EXCEL. */
+      #kpiMaterialOverlay .kpi-material-mobile-export{display:none !important;}
+      /* Setelah EXPORT disembunyikan, BAGIKAN LINK berdampingan dengan TUTUP. */
+      #kpiMaterialOverlay .kpi-material-mobile-footer-left{margin-left:auto !important;}
       #kpiMaterialOverlay .kpi-material-modal{max-height:88vh;}
     }
 
