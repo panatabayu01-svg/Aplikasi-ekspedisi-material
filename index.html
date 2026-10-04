@@ -1830,31 +1830,25 @@ body.history-material-list-scroll-lock{
 }
 .shared-material-body{
   padding:14px;
-  overflow:auto;
+  overflow:hidden;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
 }
-/* SHARE LINK LIST MATERIAL: hanya baris material yang boleh scroll.
-   Header popup + proyek + ringkasan + tanggal + footer tetap diam. */
-.shared-material-list-card .shared-material-body{
-  overflow:hidden !important;
-  min-height:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  flex:1 1 auto !important;
-}
-.shared-material-list-card .shared-material-list-top{
-  flex:0 0 auto !important;
-}
-.shared-material-list-card .shared-material-list-scroll{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
+/* SHARE LINK — hanya isi tabel yang boleh scroll.
+   Header popup + Proyek + Pengiriman + Tanggal tetap diam. */
+/* SHARE LINK — FIX SCROLL V31: informasi atas tetap, hanya daftar material yang scroll */
+.shared-material-table-wrap{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
 }
-.shared-material-list-card .shared-material-table-head{
-  position:sticky !important;
-  top:0 !important;
-  z-index:20 !important;
+.shared-material-table-wrap .shared-material-table-head{
+  position:sticky;
+  top:0;
+  z-index:20;
 }
 .shared-material-project{
   padding:10px 12px;
@@ -2069,10 +2063,8 @@ body.history-material-list-scroll-lock{
   .shared-material-view{padding:10px}
   .shared-material-card{max-height:calc(100vh - 20px);border-radius:7px}
   .shared-material-header{min-height:48px;padding:0 12px;font-size:14px}
-  .shared-material-body{padding:10px}
-  .shared-material-list-card .shared-material-list-scroll{
-    min-height:0 !important;
-  }
+  .shared-material-body{padding:10px;min-height:0}
+  .shared-material-table-wrap{min-height:0}
   .shared-material-project{font-size:13px}
   .shared-material-summary{font-size:10px;line-height:1.4}
   .shared-material-row{grid-template-columns:32px 1fr 80px;font-size:11px;padding:8px 4px}
@@ -3717,15 +3709,13 @@ function renderSharedMaterialList_(payload){
   document.body.classList.add('shared-material-mode');
   root.style.display='flex';
   root.innerHTML=
-    '<div class="shared-material-card shared-material-list-card">'+
+    '<div class="shared-material-card">'+
       '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
       '<div class="shared-material-body">'+
-        '<div class="shared-material-list-top">'+
-          '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
-          '<div class="shared-material-summary">PENGIRIMAN '+(Number(payload.n)||1)+' • '+formatAngkaHistory_(payload.ti,0)+' jenis • '+formatAngkaHistory_(payload.tv,0)+' unit • '+formatAngkaHistory_(payload.tt,3)+' Ton • '+formatAngkaHistory_(payload.tc,2)+' m³</div>'+
-          '<div class="shared-material-date">📅 '+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(payload.d||'-'))+'</div>'+
-        '</div>'+
-        '<div class="shared-material-list-scroll">'+
+        '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
+        '<div class="shared-material-summary">PENGIRIMAN '+(Number(payload.n)||1)+' • '+formatAngkaHistory_(payload.ti,0)+' jenis • '+formatAngkaHistory_(payload.tv,0)+' unit • '+formatAngkaHistory_(payload.tt,3)+' Ton • '+formatAngkaHistory_(payload.tc,2)+' m³</div>'+
+        '<div class="shared-material-date">📅 '+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(payload.d||'-'))+'</div>'+
+        '<div class="shared-material-table-wrap">'+
           '<div class="shared-material-list">'+
             (list.length?'<div class="shared-material-table-head"><div>NO</div><div class="shared-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
           '</div>'+
