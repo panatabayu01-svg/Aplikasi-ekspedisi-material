@@ -6640,30 +6640,80 @@ async function bagikanKpiMaterial_(){
 
   try{
     // ============================================================
-    // SHARE WORKSHOP — 1 REQUEST
-    // Payload sudah gzip + base64url, jadi untuk daftar material
-    // normal cukup satu request ke share_workshop_create.
-    // Ini menghilangkan puluhan request chunk yang membuat respon lambat.
+    // SHARE WORKSHOP V5
+    // Tidak memakai POST payload besar.
+    // Apps Script Web App dapat me-redirect POST sehingga body bisa
+    // hilang. Karena itu payload terkompresi dikirim bertahap lewat
+    // beberapa GET kecil. URL hasil share tetap hanya token pendek.
     // ============================================================
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
+    const CHUNK_SIZE=900;
+    const chunks=[];
+    for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE){
+      chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
+    }
+    if(!chunks.length || chunks.length>30){
+      throw new Error('Data material terlalu besar untuk dibuatkan link.');
+    }
 
-    const createResult=await fetch(userApiUrl_('share_workshop_create',{
-      payload_gz:compressedPayload
-    }),{
-      method:'GET',
-      cache:'no-store',
-      redirect:'follow'
+    const startResult=await fetch(userApiUrl_('share_workshop_start'),{
+      method:'GET',cache:'no-store',redirect:'follow'
     }).then(function(r){
       if(!r.ok)throw new Error('HTTP '+r.status);
       return r.json();
     });
 
-    if(!createResult||createResult.success!==true||!createResult.token){
-      if(createResult&&createResult.code==='USER_NOT_APPROVED'){
+    if(!startResult||startResult.success!==true||!startResult.upload_id){
+      if(startResult&&startResult.code==='USER_NOT_APPROVED'){
         alert('Perangkat belum disetujui Owner.');
         return;
       }
-      throw new Error(createResult&&createResult.message?createResult.message:'Kode share tidak dapat dibuat.');
+      throw new Error(startResult&&startResult.message?startResult.message:'Sesi share tidak dapat dibuat.');
+    }
+
+    const uploadId=String(startResult.upload_id);
+
+    // Kirim semua chunk secara PARALEL.
+    // Sebelumnya chunk dikirim satu per satu sehingga 36 material terasa lambat.
+    // Setiap chunk punya index sendiri sehingga aman dikumpulkan di server.
+    const chunkResults=await Promise.all(chunks.map(function(chunk,i){
+      return fetch(userApiUrl_('share_workshop_chunk',{
+        upload_id:uploadId,
+        chunk_index:i,
+        chunk_total:chunks.length,
+        chunk_data:chunk
+      }),{
+        method:'GET',cache:'no-store',redirect:'follow'
+      }).then(function(r){
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        return r.json();
+      });
+    }));
+
+    for(let i=0;i<chunkResults.length;i++){
+      const result=chunkResults[i];
+      if(!result||result.success!==true){
+        if(result&&result.code==='USER_NOT_APPROVED'){
+          alert('Perangkat belum disetujui Owner.');
+          return;
+        }
+        throw new Error(result&&result.message?result.message:'Bagian data share gagal dikirim.');
+      }
+    }
+
+    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{
+      method:'GET',cache:'no-store',redirect:'follow'
+    }).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    });
+
+    if(!finishResult||finishResult.success!==true||!finishResult.token){
+      if(finishResult&&finishResult.code==='USER_NOT_APPROVED'){
+        alert('Perangkat belum disetujui Owner.');
+        return;
+      }
+      throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
     }
 
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
