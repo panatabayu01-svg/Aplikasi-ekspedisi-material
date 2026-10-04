@@ -2410,7 +2410,7 @@
       <div id="kpiMaterialPlan" class="kpi-material-meta-line">Rencana Kirim : -</div>
       <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
       <div class="kpi-material-meta-spacer"></div>
-      <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : - | UNIT : 0 | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
+      <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : 0 UNIT | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
       <div id="kpiMaterialTarget" class="kpi-material-target-line">Target muatan: 0 m³ | 0 Ton</div>
     </div>
 
@@ -3782,7 +3782,7 @@ function renderSharedWorkshopMaterialList_(payload){
           '<div class="shared-material-plan">Rencana Kirim : '+escapeHtmlSafe_(payload.rk||'-')+'</div>'+
           '<div class="shared-material-update">Update : '+escapeHtmlSafe_(payload.up||payload.d||'-')+'</div>'+
           '<div class="shared-material-spacer"></div>'+
-          '<div class="shared-material-armada">ARMADA : '+escapeHtmlSafe_(payload.ar||'-')+' | UNIT : '+formatAngkaHistory_(payload.au,0)+' | MATERIAL : '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis | CBM : '+formatAngkaHistory_(payload.ac,2)+' m³ | TON : '+formatAngkaHistory_(payload.at,3)+' Ton</div>'+
+          '<div class="shared-material-armada">ARMADA : '+formatAngkaHistory_(payload.au,0)+' UNIT | MATERIAL : '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis | CBM : '+formatAngkaHistory_(payload.ac,2)+' m³ | TON : '+formatAngkaHistory_(payload.at,3)+' Ton</div>'+
           '<div class="shared-material-target">Target muatan: '+formatAngkaHistory_(payload.tc,2)+' m³ | '+formatAngkaHistory_(payload.tt,3)+' Ton</div>'+
         '</div>'+
 
@@ -6915,44 +6915,12 @@ function bukaKpiMaterial(){
   if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
   if(infoBox) infoBox.style.display='block';
 
-  /*
-   * POPUP HARUS MENGIKUTI ARMADA YANG SEDANG DIPILIH DI DROPDOWN
-   * REKOMENDASI ARMADA. Sebelumnya metadata popup selalu memakai
-   * armadaAutoSnapshot, sehingga walaupun dropdown dipilih CONTAINER,
-   * popup tetap menampilkan TRONTON (hasil AUTO).
-   *
-   * armadaTampilanTerakhir[0] = kartu ARMADA 1 yang sedang tampil.
-   * Jadi AUTO maupun pilihan manual akan tercermin di popup.
-   */
-  const metaBase=kpiMaterialMetaTerakhir_||{};
-  const currentCards=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
-  const currentArmada=currentCards.length ? currentCards[0] : null;
-  const meta=Object.assign({},metaBase);
-
-  if(currentArmada){
-    meta.armada=String(currentArmada.armada||meta.armada||'-').trim();
-    meta.unit=Number(currentArmada.kebutuhanUnit)||1;
-    meta.cbm=Number(currentArmada.totalCbmProyek);
-    meta.ton=Number(currentArmada.totalTonProyek);
-    meta.targetCbm=Number(currentArmada.totalCbmProyek);
-    meta.targetTon=Number(currentArmada.totalTonProyek);
-  }
-
-  /* Simpan metadata terbaru agar BAGIKAN LINK juga memakai pilihan yang sama. */
-  kpiMaterialMetaTerakhir_=Object.assign({},kpiMaterialMetaTerakhir_,{
-    armada:meta.armada,
-    unit:meta.unit,
-    cbm:meta.cbm,
-    ton:meta.ton,
-    targetCbm:meta.targetCbm,
-    targetTon:meta.targetTon
-  });
-
+  const meta=kpiMaterialMetaTerakhir_||{};
   if(projectEl) projectEl.textContent='Proyek : '+(meta.project||proyekAktif||'-');
   if(planEl) planEl.textContent='Rencana Kirim : '+(meta.rencanaKirim||'-');
   if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
   if(armadaEl){
-    armadaEl.textContent='ARMADA : '+(meta.armada||'-')+' | UNIT : '+formatNumber(meta.unit||0,0)+' | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
+    armadaEl.textContent='ARMADA : '+formatNumber(meta.unit||0,0)+' UNIT | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
   }
   if(targetEl){
     targetEl.textContent='Target muatan: '+formatNumber(meta.targetCbm||0,2)+' m³ | '+formatNumber(meta.targetTon||0,3)+' Ton';
