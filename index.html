@@ -3612,12 +3612,10 @@ function exportSharedWorkshopExcel_(payload){
     }
 
     const rows=payload.m.map(function(x){
-      const rawValue=String(x&&x[1]!=null?x[1]:'');
-      const parts=rawValue.split('♦');
       return {
         material:String(x&&x[0]||''),
-        volume:String(parts[0]||''),
-        unit:String((parts.length>1?parts.slice(1).join('♦'):'') || (x&&x[2]||''))
+        volume:String(x&&x[1]!=null?x[1]:''),
+        unit:String(x&&x[2]||'')
       };
     });
 
@@ -3664,12 +3662,10 @@ function renderSharedWorkshopMaterialList_(payload){
   if(!payload||!Array.isArray(payload.m))return false;
 
   const list=payload.m.map(function(x){
-    const rawValue=String(x&&x[1]!=null?x[1]:'');
-    const parts=rawValue.split('♦');
     return {
       material:String(x&&x[0]||''),
-      volume:String(parts[0]||''),
-      unit:String((parts.length>1?parts.slice(1).join('♦'):'') || (x&&x[2]||''))
+      volume:String(x&&x[1]!=null?x[1]:''),
+      unit:String(x&&x[2]||'')
     };
   });
 
@@ -6839,8 +6835,10 @@ function showShareLinkLoadingPopup_(){
 }
 
 async function bagikanKpiMaterial_(){
-  // SHARE V18: SATUAN dipaketkan di field volume agar kompatibel dengan 04_API saat ini.
-
+  // ============================================================
+  // SHARE WORKSHOP V19 — SATUAN DIAMBIL DARI DATA YANG BENAR-BENAR
+  // DIPAKAI TABEL UTAMA. 04_API.gs TIDAK DIUBAH.
+  // ============================================================
   showShareLinkLoadingPopup_();
 
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
@@ -6856,123 +6854,99 @@ async function bagikanKpiMaterial_(){
   const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const tanggal=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
 
-  // Ambil SATUAN langsung dari tabel material yang sedang tampil.
-  // Ini paling aman karena nilainya persis sama dengan yang dilihat user.
-  const visibleUnitByMaterial={};
+  // Cari SATUAN dari object material tanpa mengasumsikan nama field.
+  // Prioritas field yang paling mungkin dipakai aplikasi.
+  function ambilSatuanObj_(obj){
+    if(!obj || typeof obj!=='object') return '';
+    const prioritas=['unit','satuan','unitMaterial','satuanMaterial','SATUAN','SATUAN_PM','satuan_pm','UNIT'];
+    for(let i=0;i<prioritas.length;i++){
+      const k=prioritas[i];
+      if(Object.prototype.hasOwnProperty.call(obj,k)){
+        const v=String(obj[k]==null?'':obj[k]).trim();
+        if(v && v!=='-') return v;
+      }
+    }
+    // Fallback: cari key yang mengandung unit/satuan, tetapi abaikan
+    // field unitArmada/kebutuhanUnit karena itu bukan satuan material.
+    const keys=Object.keys(obj);
+    for(let i=0;i<keys.length;i++){
+      const k=keys[i];
+      const kl=k.toLowerCase();
+      if((kl==='unit'||kl==='satuan'||kl.includes('satuan')) && !kl.includes('armada')){
+        const v=String(obj[k]==null?'':obj[k]).trim();
+        if(v && v!=='-') return v;
+      }
+    }
+    return '';
+  }
+
+  // Baca SATUAN langsung dari baris tabel popup, berdasarkan NOMOR BARIS,
+  // bukan berdasarkan nama material. Ini menghindari mismatch spasi/karakter.
+  const visibleUnits=[];
   try{
     const tableBody=document.querySelector('#kpiMaterialBody .kpi-material-scroll tbody');
     if(tableBody){
       Array.from(tableBody.querySelectorAll('tr')).forEach(function(tr){
         const cells=tr.querySelectorAll('td');
-        if(cells.length>=4){
-          const nama=String(cells[1].textContent||'').trim();
-          const unit=String(cells[3].textContent||'').trim();
-          if(nama) visibleUnitByMaterial[nama.toLowerCase().replace(/\\s+/g,' ').trim()]=unit;
-        }
+        visibleUnits.push(cells.length>=4 ? String(cells[3].textContent||'').trim() : '');
       });
     }
   }catch(e){
-    console.warn('Gagal membaca SATUAN dari tabel tampilan:',e);
+    console.warn('Gagal membaca SATUAN tabel:',e);
   }
 
   const payload={
     w:2,
     d:tanggal,
     ti:rows.length,
-    m:rows.map(function(x){
-      const nama=String(x&& (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '');
-      const key=nama.toLowerCase().replace(/\\s+/g,' ').trim();
+    m:rows.map(function(x,i){
+      const nama=String(x && (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '').trim();
+      let satuan='';
 
-      // Prioritas:
-      // 1) SATUAN yang sedang tampil di tabel
-      // 2) field unit/satuan dari object material
-      // 3) pencarian ulang pada materialDataTerakhir
-      let satuan=String(visibleUnitByMaterial[key]||'').trim();
+      // 1. Nilai SATUAN yang terlihat di tabel pada baris yang sama.
+      const domUnit=String(visibleUnits[i]||'').trim();
+      if(domUnit && domUnit!=='-') satuan=domUnit;
 
-      if(!satuan || satuan==='-'){
-        satuan=String(x&&(
-          x.unit||
-          x.satuan||
-          x.unitMaterial||
-          x.satuanMaterial||
-          ''
-        )||'').trim();
+      // 2. Nilai SATUAN dari object data material.
+      if(!satuan) satuan=ambilSatuanObj_(x);
+
+      // 3. Cari object referensi dengan nama material yang sama.
+      if(!satuan){
+        const ref=rows.find(function(m){
+          const mn=String(m && (m.material||m.namaMaterial||m.itemMaterial||m.item||'') || '').trim();
+          return mn===nama;
+        });
+        satuan=ambilSatuanObj_(ref);
       }
 
-      if(!satuan || satuan==='-'){
-        const ref=Array.isArray(materialDataTerakhir)
-          ? materialDataTerakhir.find(function(m){
-              const mn=String(m&&(m.material||m.namaMaterial||m.itemMaterial||m.item||'')||'')
-                .toLowerCase().replace(/\\s+/g,' ').trim();
-              return mn===key;
-            })
-          : null;
-
-        if(ref){
-          satuan=String(ref.unit||ref.satuan||ref.unitMaterial||ref.satuanMaterial||'').trim();
-        }
-      }
-
-      // PENTING: 04_API yang sekarang dapat mengembalikan hanya 2 field m[].
-      // Karena itu SATUAN ditanam bersama VOLUME pada field ke-2.
-      // Format: VOLUME♦SATUAN. Ini tetap aman walaupun server hanya menyimpan m[0],m[1].
-      const volumeShare=String(x&&x.volume!=null?x.volume:0);
-      const unitShare=(satuan && satuan!=='-' ? satuan : '');
-      return [
-        nama,
-        volumeShare+'♦'+unitShare
-      ];
+      // 4. Kompatibilitas dengan API lama: gabungkan VOLUME + SATUAN
+      // dalam field kedua. Server tidak perlu mengetahui field SATUAN.
+      const volume=String(x && x.volume!=null ? x.volume : 0);
+      return [nama, volume+'♦'+(satuan||'')];
     })
   };
 
   try{
-    // ============================================================
-    // SHARE WORKSHOP V5
-    // Tidak memakai POST payload besar.
-    // Apps Script Web App dapat me-redirect POST sehingga body bisa
-    // hilang. Karena itu payload terkompresi dikirim bertahap lewat
-    // beberapa GET kecil. URL hasil share tetap hanya token pendek.
-    // ============================================================
     const compressedPayload=await encodeHistoryMaterialShare_(payload);
     const CHUNK_SIZE=900;
     const chunks=[];
-    for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE){
-      chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
-    }
-    if(!chunks.length || chunks.length>30){
-      throw new Error('Data material terlalu besar untuk dibuatkan link.');
-    }
+    for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE) chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
+    if(!chunks.length || chunks.length>30) throw new Error('Data material terlalu besar untuk dibuatkan link.');
 
-    const startResult=await fetch(userApiUrl_('share_workshop_start'),{
-      method:'GET',cache:'no-store',redirect:'follow'
-    }).then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status);
+    const startResult=await fetch(userApiUrl_('share_workshop_start'),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
       return r.json();
     });
-
     if(!startResult||startResult.success!==true||!startResult.upload_id){
-      if(startResult&&startResult.code==='USER_NOT_APPROVED'){
-        alert('Perangkat belum disetujui Owner.');
-        return;
-      }
-      throw new Error(startResult&&startResult.message?startResult.message:'Sesi share tidak dapat dibuat.');
+      if(startResult&&startResult.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
+      else throw new Error(startResult&&startResult.message?startResult.message:'Sesi share tidak dapat dibuat.');
+      return;
     }
 
     const uploadId=String(startResult.upload_id);
-
-    // Kirim semua chunk secara PARALEL.
-    // Sebelumnya chunk dikirim satu per satu sehingga 36 material terasa lambat.
-    // Setiap chunk punya index sendiri sehingga aman dikumpulkan di server.
     const chunkResults=await Promise.all(chunks.map(function(chunk,i){
-      return fetch(userApiUrl_('share_workshop_chunk',{
-        upload_id:uploadId,
-        chunk_index:i,
-        chunk_total:chunks.length,
-        chunk_data:chunk
-      }),{
-        method:'GET',cache:'no-store',redirect:'follow'
-      }).then(function(r){
-        if(!r.ok)throw new Error('HTTP '+r.status);
+      return fetch(userApiUrl_('share_workshop_chunk',{upload_id:uploadId,chunk_index:i,chunk_total:chunks.length,chunk_data:chunk}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
+        if(!r.ok) throw new Error('HTTP '+r.status);
         return r.json();
       });
     }));
@@ -6980,31 +6954,24 @@ async function bagikanKpiMaterial_(){
     for(let i=0;i<chunkResults.length;i++){
       const result=chunkResults[i];
       if(!result||result.success!==true){
-        if(result&&result.code==='USER_NOT_APPROVED'){
-          alert('Perangkat belum disetujui Owner.');
-          return;
-        }
-        throw new Error(result&&result.message?result.message:'Bagian data share gagal dikirim.');
+        if(result&&result.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
+        else throw new Error(result&&result.message?result.message:'Bagian data share gagal dikirim.');
+        return;
       }
     }
 
-    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{
-      method:'GET',cache:'no-store',redirect:'follow'
-    }).then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status);
+    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
       return r.json();
     });
-
     if(!finishResult||finishResult.success!==true||!finishResult.token){
-      if(finishResult&&finishResult.code==='USER_NOT_APPROVED'){
-        alert('Perangkat belum disetujui Owner.');
-        return;
-      }
-      throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
+      if(finishResult&&finishResult.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
+      else throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
+      return;
     }
 
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
-    if(loadingDone)loadingDone.remove();
+    if(loadingDone) loadingDone.remove();
 
     const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
@@ -7012,22 +6979,16 @@ async function bagikanKpiMaterial_(){
 
     if(navigator.share){
       navigator.share({title:title,text:text,url:url}).catch(function(err){
-        if(err&&err.name==='AbortError')return;
-        copyTextHistoryMaterial_(url).then(function(){
-          alert('Link berhasil disalin. Silakan kirim link tersebut.');
-        }).catch(function(){
-          showShortShareLinkPopup_(url,title);
-        });
+        if(err&&err.name==='AbortError') return;
+        copyTextHistoryMaterial_(url).then(function(){alert('Link berhasil disalin. Silakan kirim link tersebut.');}).catch(function(){showShortShareLinkPopup_(url,title);});
       });
-      return;
+    }else{
+      copyTextHistoryMaterial_(url).then(function(){alert('Link berhasil disalin. Silakan kirim link tersebut.');}).catch(function(){showShortShareLinkPopup_(url,title);});
     }
-
-    await copyTextHistoryMaterial_(url);
-    alert('Link berhasil disalin. Silakan kirim link tersebut.');
   }catch(e){
-    const loadingError=document.getElementById('shortShareLinkLoadingOverlay');
-    if(loadingError)loadingError.remove();
-    console.error('SHARE WORKSHOP MATERIAL ERROR:',e);
+    const loading=document.getElementById('shortShareLinkLoadingOverlay');
+    if(loading) loading.remove();
+    console.error('SHARE WORKSHOP V19 ERROR:',e);
     alert('Link tidak dapat dibuat. Silakan coba lagi.');
   }
 }
