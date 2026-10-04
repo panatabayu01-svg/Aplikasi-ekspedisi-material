@@ -3717,7 +3717,7 @@ function renderSharedWorkshopMaterialList_(payload){
       '</div>'+
 
       '<div class="shared-material-footer">'+
-        '<button type="button" class="history-material-list-action-btn" onclick="exportSharedWorkshopExcel_(window.__SHARED_WORKSHOP_PAYLOAD__)">📥 EXPORT EXCEL</button>'+
+        '<button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportSharedWorkshopExcel_(window.__SHARED_WORKSHOP_PAYLOAD__)">📥 EXPORT EXCEL</button>'+
         '<button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button>'+
       '</div>'+
     '</div>';
@@ -6851,16 +6851,28 @@ async function bagikanKpiMaterial_(){
     d:tanggal,
     ti:rows.length,
     m:rows.map(function(x){
+      // materialDataTerakhir berasal dari API dengan field material, volume, unit.
+      // Simpan SATUAN secara eksplisit ke payload share.
+      const nama=String(x&& (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '');
+      let satuan=String(x&& (x.unit||x.satuan||x.unitMaterial||x.satuanMaterial||'') || '').trim();
+
+      // Fallback: cari ulang pada data material terakhir berdasarkan nama.
+      if(!satuan && Array.isArray(materialDataTerakhir)){
+        const target=nama.toLowerCase().replace(/\s+/g,' ').trim();
+        const ref=materialDataTerakhir.find(function(m){
+          const mn=String(m&&(m.material||m.namaMaterial||m.itemMaterial||m.item||'')||'')
+            .toLowerCase().replace(/\s+/g,' ').trim();
+          return mn===target;
+        });
+        if(ref){
+          satuan=String(ref.unit||ref.satuan||ref.unitMaterial||ref.satuanMaterial||'').trim();
+        }
+      }
+
       return [
-        String(x&&x.material||''),
+        nama,
         String(x&&x.volume!=null?x.volume:0),
-        String(x&&(
-          x.unit||
-          x.satuan||
-          x.unitMaterial||
-          x.satuanMaterial||
-          ''
-        )||'')
+        satuan
       ];
     })
   };
