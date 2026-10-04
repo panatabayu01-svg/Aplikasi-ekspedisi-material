@@ -355,19 +355,15 @@
     .history-pengiriman-reschedule{margin-top:9px;padding:8px 10px;background:#fff5e5;border:1px solid #edc67b;border-left:4px solid #e58a00;border-radius:4px}
     .history-material-btn{height:28px;min-width:112px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-size:10px;font-weight:900;cursor:pointer;padding:0 10px;margin-left:8px;vertical-align:middle}
     .history-material-btn:hover{background:#236fa7}
-    .history-material-list-overlay{position:fixed;inset:0;width:100vw;height:100vh;z-index:10003;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58);overflow:hidden;overscroll-behavior:contain;touch-action:none;box-sizing:border-box}
-    .history-material-list-modal{width:min(620px,100%);max-height:min(78vh,680px);height:min(78vh,680px);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30);display:flex;flex-direction:column;overscroll-behavior:contain;touch-action:auto;position:relative}
+    .history-material-list-overlay{position:fixed;inset:0;z-index:10003;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58)}
+    .history-material-list-modal{width:min(620px,100%);max-height:min(78vh,680px);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30);display:flex;flex-direction:column}
     .history-material-list-header{min-height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:900}
     .history-material-list-close{border:0;background:transparent;color:#fff;font-size:27px;line-height:1;cursor:pointer;padding:0 3px}
-    .history-material-list-body{padding:12px 14px 16px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-height:0;flex:1}
-    #historyMaterialListContent{min-height:0;flex:1;overflow:hidden;display:flex;flex-direction:column;}
-    .history-material-list-project{padding:9px 12px;margin-bottom:10px;background:#eaf3fb;border:1px solid #d2e1ef;border-radius:5px;color:#0b477d;font-size:14px;font-weight:900;flex:0 0 auto}
-    .history-material-list-summary{padding:8px 10px;margin-bottom:10px;background:#eef3f7;border:1px solid #d7e1ea;border-radius:5px;color:#17324d;font-size:11px;font-weight:800;flex:0 0 auto}
-    .history-material-list-date{padding:8px 10px;margin-bottom:10px;background:#fff;border:1px solid #d7e1ea;border-radius:5px;color:#0b477d;font-size:11px;font-weight:800;flex:0 0 auto}
+    .history-material-list-body{padding:12px 14px 16px;overflow:auto;background:#fff}
+    .history-material-list-project{padding:9px 12px;margin-bottom:10px;background:#eaf3fb;border:1px solid #d2e1ef;border-radius:5px;color:#0b477d;font-size:14px;font-weight:900}
+    .history-material-list-summary{padding:8px 10px;margin-bottom:10px;background:#eef3f7;border:1px solid #d7e1ea;border-radius:5px;color:#17324d;font-size:11px;font-weight:800}
     .history-material-row{display:grid;grid-template-columns:38px 1fr 95px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #e1e8ee;font-size:12px}
-    .history-material-row:last-child{border-bottom:0}.history-material-list-content{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;background:#fff;position:relative;scrollbar-width:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-    .history-material-table-head{display:grid;grid-template-columns:38px 1fr 95px;gap:8px;align-items:center;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-weight:900;font-size:11px;padding:8px;border:1px solid #0a3f70;border-radius:3px 3px 0 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 4px rgba(0,0,0,.18);} .history-material-table-head>div{text-align:center;} .history-material-table-head .history-material-head-name{text-align:center;}
-
+    .history-material-row:last-child{border-bottom:0}
     .history-material-no{font-weight:900;color:#0d5b91;text-align:center}
     .history-material-name{font-weight:800;color:#17324d;word-break:break-word}
     .history-material-volume{text-align:right;font-weight:900;color:#168a49;white-space:nowrap}
@@ -379,7 +375,7 @@
     .history-pengiriman-reschedule-row{display:grid;grid-template-columns:125px 1fr;gap:4px 7px;font-size:11px;color:#5b4a2d}
     .history-pengiriman-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;text-align:right}
     .history-pengiriman-close-btn{height:36px;min-width:90px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-weight:800;cursor:pointer}
-    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
+    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
       .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
@@ -815,63 +811,6 @@
       .kpi-material-scroll td:nth-child(2){width:50% !important;text-align:left !important;}
       .kpi-material-sticky-head th:nth-child(3),.kpi-material-scroll td:nth-child(3){width:22% !important;text-align:center !important;}
       .kpi-material-sticky-head th:nth-child(4),.kpi-material-scroll td:nth-child(4){width:18% !important;}
-    }
-
-    /* WORKSHOP MATERIAL POPUP — KHUSUS HP ANDROID/iPHONE. PC TIDAK DIUBAH. */
-    /* INFO DI BAWAH HEADER: TANPA BACKGROUND BIRU, TANPA ICON */
-    .kpi-material-info-box{display:none;}
-    .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#17324d;}
-    .kpi-material-workshop-date{padding:5px 0 0;background:transparent;color:#17324d;font-size:12px;font-weight:900;border:0;}
-    .kpi-material-summary{padding:5px 0 0;background:transparent;border:0;color:#17324d;font-size:12px;font-weight:900;}
-    .kpi-material-meta-line{padding:2px 0 0;color:#17324d;font-size:12px;font-weight:800;line-height:1.35;}
-    .kpi-material-meta-spacer{height:10px;}
-    .kpi-material-armada-line{color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
-    .kpi-material-target-line{padding-top:3px;color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
-    .kpi-material-mobile-footer{display:none;align-items:center;justify-content:flex-end;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
-    .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:0;}
-    .kpi-material-mobile-action,.kpi-material-mobile-close{height:34px;border-radius:4px;border:1px solid #0d447f;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap;padding:0 9px;}
-    .kpi-material-mobile-share{background:#168a49;color:#fff;border-color:#168a49;}
-    .kpi-material-mobile-export{background:#f39a00;color:#fff;border-color:#d98500;}
-    .kpi-material-mobile-close{min-width:68px;background:#0d447f;color:#fff;}
-    @media(max-width:600px){
-      #kpiMaterialOverlay .kpi-material-info-box{
-        display:block !important;
-        padding:8px 10px 9px;
-        background:#fff !important;
-        color:#17324d !important;
-        border:0 !important;
-        border-radius:0 !important;
-        box-sizing:border-box;
-      }
-      #kpiMaterialOverlay .kpi-material-workshop-title{
-        display:block !important;
-        color:#17324d !important;
-      }
-      #kpiMaterialOverlay .kpi-material-workshop-date{
-        display:block !important;
-        color:#17324d !important;
-      }
-      #kpiMaterialOverlay .kpi-material-summary{
-        display:block !important;
-        margin:0;
-        color:#17324d !important;
-      }
-      #kpiMaterialOverlay .kpi-material-meta-line,
-      #kpiMaterialOverlay .kpi-material-armada-line,
-      #kpiMaterialOverlay .kpi-material-target-line{
-        display:block !important;
-        font-size:12px !important;
-        line-height:1.35 !important;
-        color:#17324d !important;
-      }
-      #kpiMaterialOverlay .kpi-material-meta-spacer{height:10px !important;}
-      #kpiMaterialOverlay .kpi-material-mobile-footer{display:flex !important;}
-      /* HP: EXPORT EXCEL disembunyikan hanya di popup DATA MATERIAL utama.
-         Popup hasil LINK tetap menampilkan EXPORT EXCEL. */
-      #kpiMaterialOverlay .kpi-material-mobile-export{display:none !important;}
-      /* Setelah EXPORT disembunyikan, BAGIKAN LINK berdampingan dengan TUTUP. */
-      #kpiMaterialOverlay .kpi-material-mobile-footer-left{margin-left:auto !important;}
-      #kpiMaterialOverlay .kpi-material-modal{max-height:88vh;}
     }
 
     .loading-status{min-height:20px;color:#718096;font-size:13px;margin-bottom:7px}
@@ -1722,14 +1661,6 @@
   }
 }
 
-/* LIST MATERIAL DI KIRIM — isolasi scroll popup: halaman belakang tidak ikut bergerak */
-html.history-material-list-scroll-lock,
-body.history-material-list-scroll-lock{
-  overflow:hidden !important;
-  height:100% !important;
-  overscroll-behavior:none !important;
-}
-
 /* LIST MATERIAL DI KIRIM — export/share/date update */
 .history-material-list-date{
   padding:7px 10px;
@@ -1755,7 +1686,6 @@ body.history-material-list-scroll-lock{
   align-items:center;
   gap:7px;
   min-width:0;
-  margin-left:auto;
 }
 .history-material-list-action-btn,
 .history-material-list-close-btn{
@@ -1796,6 +1726,7 @@ body.history-material-list-scroll-lock{
 }
 .shared-material-card{
   width:min(900px,100%);
+  height:min(calc(100vh - 40px),900px);
   max-height:calc(100vh - 40px);
   background:#fff;
   border:1px solid #d1dce6;
@@ -1804,252 +1735,24 @@ body.history-material-list-scroll-lock{
   overflow:hidden;
   display:flex;
   flex-direction:column;
+  min-height:0;
 }
-.shared-material-header{
-  min-height:52px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 10px 0 18px;
-  background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
-  color:#fff;
-  font-size:17px;
-  font-weight:900;
-}
-.shared-material-header-close{
-  width:34px;
-  height:34px;
-  border:0;
-  border-radius:5px;
-  background:transparent;
-  color:#fff;
-  font-size:25px;
-  font-weight:900;
-  line-height:1;
-  cursor:pointer;
-}
-.shared-material-body{
-  padding:14px;
-  overflow:auto;
-}
-.shared-material-project{
-  padding:10px 12px;
-  margin-bottom:10px;
-  background:#eaf3fb;
-  border:1px solid #d2e1ef;
-  border-radius:5px;
-  color:#0b477d;
-  font-size:15px;
-  font-weight:900;
-}
-.shared-material-summary{
-  padding:9px 10px;
-  margin-bottom:7px;
-  background:#eef3f7;
-  border:1px solid #d7e1ea;
-  border-radius:5px;
-  color:#17324d;
-  font-size:12px;
-  font-weight:900;
-}
-.shared-material-date{
-  padding:8px 10px;
-  margin-bottom:10px;
-  color:#0b477d;
-  font-size:12px;
-  font-weight:900;
-}
-.shared-workshop-view-mode .shared-material-card{
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-.shared-workshop-view-mode .shared-material-body{
-  overflow:hidden !important;
-  min-height:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  flex:1 1 auto !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-info{
-  flex:0 0 auto !important;
-  background:#fff !important;
-  position:relative !important;
-  z-index:30 !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-table-wrap{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  -webkit-overflow-scrolling:touch;
-  position:relative !important;
-  border-top:1px solid #d7e1ea;
-}
-
-.shared-workshop-view-mode .shared-material-project,
-.shared-workshop-view-mode .shared-material-plan,
-.shared-workshop-view-mode .shared-material-update,
-.shared-workshop-view-mode .shared-material-armada,
-.shared-workshop-view-mode .shared-material-target{
-  padding:2px 10px !important;
-  margin:0 !important;
-  background:transparent !important;
-  border:0 !important;
-  color:#17324d !important;
-  font-size:12px !important;
-  font-weight:800 !important;
-  line-height:1.35 !important;
-}
-.shared-workshop-view-mode .shared-material-spacer{height:10px !important;}
-.shared-workshop-view-mode .shared-material-armada,
-.shared-workshop-view-mode .shared-material-target{font-weight:900 !important;}
-
-.shared-workshop-view-mode .shared-workshop-table{
-  width:100% !important;
-  border-collapse:collapse !important;
-  border-spacing:0 !important;
-  table-layout:fixed !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-table th,
-.shared-workshop-view-mode .shared-workshop-table td{
-  box-sizing:border-box !important;
-  border:1px solid #cbd6df !important;
-  padding:7px 6px !important;
-  font-family:Arial,sans-serif !important;
-  font-size:12px !important;
-  line-height:1.2 !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-table thead th{
-  position:sticky !important;
-  top:0 !important;
-  z-index:50 !important;
-  background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;
-  color:#fff !important;
-  font-weight:800 !important;
-  text-align:center !important;
-  box-shadow:0 2px 4px rgba(0,0,0,.18) !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-table tbody td{
-  background:#fff !important;
-  color:#12395b !important;
-}
-
-.shared-workshop-view-mode .shared-workshop-table tbody td:nth-child(2){
-  text-align:left !important;
-}
-
-.shared-workshop-view-mode .shared-material-title{
-  padding:10px 10px 2px !important;
-  color:#102f4e !important;
-  font-size:20px !important;
-  font-weight:900 !important;
-}
-
-.shared-workshop-view-mode .shared-material-date{
-  padding:4px 10px !important;
-  margin:0 !important;
-  color:#17324d !important;
-  font-size:16px !important;
-  font-weight:800 !important;
-}
-
-.shared-workshop-view-mode .shared-material-summary{
-  padding:2px 10px 9px !important;
-  color:#17324d !important;
-  font-size:16px !important;
-  font-weight:900 !important;
-}
-
-.shared-workshop-view-mode .shared-material-footer{
-  flex:0 0 auto !important;
-}\n .shared-workshop-view-mode .shared-material-footer .history-material-list-export-btn{
-  background:#f39a16 !important;
-  border:1px solid #dc7f00 !important;
-  color:#fff !important;
-}
-
-.shared-material-table-head{display:grid;grid-template-columns:40px 1fr 105px;gap:8px;align-items:center;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-weight:900;font-size:11px;padding:8px;border:1px solid #0a3f70;border-radius:3px 3px 0 0;} .shared-material-table-head>div{text-align:center;} .shared-material-table-head .shared-material-head-name{text-align:center;}
-/* SHARE LINK — hanya isi tabel yang boleh scroll. Header popup + info tetap diam. */
-.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-card{
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-body{
-  min-height:0 !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  flex:1 1 auto !important;
-}
-.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-list{
-  min-height:0 !important;
-  flex:1 1 auto !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-}
-.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-table-head{
-  flex:0 0 auto !important;
-}
-.shared-material-list{border-top:1px solid #dfe7ed}
-.shared-material-row{
-  display:grid;
-  grid-template-columns:40px 1fr 105px;
-  gap:8px;
-  align-items:center;
-  padding:9px 8px;
-  border-bottom:1px solid #e1e8ee;
-  font-size:12px;
-}
+.shared-material-header{flex:0 0 auto;min-height:52px;display:flex;align-items:center;padding:0 18px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:17px;font-weight:900}
+.shared-material-body{flex:1 1 auto;min-height:0;padding:14px;overflow:hidden;display:flex;flex-direction:column}
+.shared-material-project{flex:0 0 auto;padding:10px 12px;margin-bottom:10px;background:#eaf3fb;border:1px solid #d2e1ef;border-radius:5px;color:#0b477d;font-size:15px;font-weight:900}
+.shared-material-summary{flex:0 0 auto;padding:9px 10px;margin-bottom:7px;background:#eef3f7;border:1px solid #d7e1ea;border-radius:5px;color:#17324d;font-size:12px;font-weight:900}
+.shared-material-date{flex:0 0 auto;padding:8px 10px;margin-bottom:10px;color:#0b477d;font-size:12px;font-weight:900}
+.shared-material-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-top:1px solid #dfe7ed}
+.shared-material-table-head{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:40px 1fr 105px;gap:8px;align-items:center;min-height:32px;padding:0 8px;background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%);color:#fff;border:1px solid #17324d;font-size:11px;font-weight:900;box-sizing:border-box}
+.shared-material-table-head>div{text-align:center}
+.shared-material-list{border:0}
+.shared-material-row{display:grid;grid-template-columns:40px 1fr 105px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid #e1e8ee;font-size:12px;background:#fff}
 .shared-material-no{font-weight:900;color:#0d5b91;text-align:center}
 .shared-material-name{font-weight:800;color:#17324d;word-break:break-word}
 .shared-material-volume{text-align:right;font-weight:900;color:#168a49;white-space:nowrap}
-.shared-material-footer{
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  gap:7px;
-  padding:10px 14px;
-  background:#eef3f7;
-  border-top:1px solid #d7e1ea;
-}
-.shared-material-footer .history-material-list-action-btn,
-.shared-material-footer .history-material-list-close-btn{
-  min-width:100px;
-}
+.shared-material-footer{flex:0 0 auto;padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.shared-material-close-btn{height:35px;min-width:90px;border:1px solid #0d447f;border-radius:4px;padding:0 12px;background:#0d447f;color:#fff;font-weight:900;cursor:pointer;white-space:nowrap}
 @media(max-width:600px){
-  .shared-workshop-view-mode .shared-material-body{
-    padding:10px !important;
-  }
-  .shared-workshop-view-mode .shared-workshop-table-wrap{
-    max-height:calc(100vh - 205px) !important;
-    overflow-y:auto !important;
-  }
-  .shared-workshop-view-mode .shared-workshop-table th,
-  .shared-workshop-view-mode .shared-workshop-table td{
-    font-size:11px !important;
-    padding:7px 5px !important;
-  }
-  .shared-workshop-view-mode .shared-material-title{
-    font-size:18px !important;
-  }
-  .shared-workshop-view-mode .shared-material-date,
-  .shared-workshop-view-mode .shared-material-summary{
-    font-size:14px !important;
-  }
-  .shared-workshop-view-mode .shared-workshop-table{
-    min-width:0 !important;
-  }
-
   .history-material-list-footer{
     gap:6px;
     padding:9px 10px;
@@ -2067,69 +1770,16 @@ body.history-material-list-scroll-lock{
   .history-material-list-close-btn{min-width:68px}
   .history-material-list-date{font-size:11px}
   .shared-material-view{padding:10px}
-  .shared-material-card{max-height:calc(100vh - 20px);border-radius:7px}
+  .shared-material-card{height:calc(100vh - 20px);max-height:calc(100vh - 20px);border-radius:7px}
   .shared-material-header{min-height:48px;padding:0 12px;font-size:14px}
   .shared-material-body{padding:10px}
   .shared-material-project{font-size:13px}
   .shared-material-summary{font-size:10px;line-height:1.4}
+  .shared-material-date{font-size:11px}
+  .shared-material-table-head{grid-template-columns:32px 1fr 80px;font-size:10px;padding:0 4px;min-height:32px}
   .shared-material-row{grid-template-columns:32px 1fr 80px;font-size:11px;padding:8px 4px}
   .shared-material-footer{padding:9px 10px}
-}
-</style>
-
-<style id="mobile-two-point-fix-20261004">
-/* PERUBAHAN HP SAJA:
-   1) INPUT TGL KIRIM: ukuran teks + ikon disamakan dengan HISTORY.
-   2) DATA MATERIAL: tombol EXPORT EXCEL disembunyikan di HP.
-   PC tidak berubah.
-*/
-@media (max-width:600px){
-  #btnInputTanggal{
-    font-size:12px !important;
-  }
-  #btnExportExcel{
-    display:none !important;
-  }
-}
-</style>
-
-
-<style id="mobile-two-point-fix-20261004-v23">
-/* V25 — HP ANDROID + IPHONE SAJA
-   1) NESTING digeser lebih ke kanan agar rata kanan dengan garis DATA MATERIAL.
-   2) INPUT TGL KIRIM tetap mengikuti ukuran V23.
-   PC TIDAK DIUBAH.
-*/
-@media (max-width:600px){
-  #btnNestingInternal{
-    transform:translateX(0) !important;
-  }
-
-  #btnInputTanggal{
-    font-size:11px !important;
-    padding-left:4px !important;
-    padding-right:4px !important;
-  }
-}
-</style>
-
-
-<style id="mobile-history-list-export-hide-20261004">
-/* HP SAJA: sembunyikan EXPORT EXCEL pada popup LIST MATERIAL DI KIRIM.
-   Popup hasil LINK BAGIKAN tetap menampilkan EXPORT EXCEL. PC tidak berubah. */
-@media (max-width:600px){
-  #historyMaterialListOverlay .history-material-list-export-btn,
-  #btnHistoryMaterialExport{
-    display:none !important;
-    visibility:hidden !important;
-    width:0 !important;
-    min-width:0 !important;
-    padding:0 !important;
-    margin:0 !important;
-  }
-  #historyMaterialListOverlay .history-material-list-footer-left{
-    margin-left:auto !important;
-  }
+  .shared-material-close-btn{height:34px;min-width:68px;padding:0 8px;font-size:10px}
 }
 </style>
 </head>
@@ -2247,7 +1897,7 @@ body.history-material-list-scroll-lock{
     </div>
     <div class="history-material-list-footer">
       <div class="history-material-list-footer-left">
-        <button id="btnHistoryMaterialExport" type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportListMaterialHistory_()">📥 EXPORT EXCEL</button>
+        <button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportListMaterialHistory_()">📥 EXPORT EXCEL</button>
         <button type="button" class="history-material-list-action-btn history-material-list-share-btn" onclick="bagikanListMaterialHistory_()">🔗 BAGIKAN LINK</button>
       </div>
       <button type="button" class="history-material-list-close-btn" onclick="tutupListMaterialHistory_()">TUTUP</button>
@@ -2463,25 +2113,8 @@ body.history-material-list-scroll-lock{
       <div id="kpiMaterialModalTitle">📦 MATERIAL</div>
       <button type="button" class="kpi-material-close" onclick="tutupKpiMaterial()">✕</button>
     </div>
-
-    <!-- KHUSUS HP: SATU KOTAK INFO DI BAWAH HEADER -->
-    <div id="kpiMaterialInfoBox" class="kpi-material-info-box" style="display:none">
-      <div id="kpiMaterialWorkshopTitle" class="kpi-material-workshop-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>
-      <div id="kpiMaterialProject" class="kpi-material-meta-line">Proyek : -</div>
-      <div id="kpiMaterialPlan" class="kpi-material-meta-line">Rencana Kirim : -</div>
-      <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
-      <div class="kpi-material-meta-spacer"></div>
-      <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : 0 UNIT | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
-    </div>
-
+    <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
-    <div id="kpiMaterialMobileFooter" class="kpi-material-mobile-footer" style="display:none">
-      <div class="kpi-material-mobile-footer-left">
-        <button type="button" class="kpi-material-mobile-action kpi-material-mobile-share" onclick="bagikanKpiMaterial_()">🔗 BAGIKAN LINK</button>
-        <button type="button" class="kpi-material-mobile-action kpi-material-mobile-export" onclick="exportExcel()">📥 EXPORT EXCEL</button>
-      </div>
-      <button type="button" class="kpi-material-mobile-close" onclick="tutupKpiMaterial()">TUTUP</button>
-    </div>
   </div>
 </div>
 
@@ -2838,7 +2471,6 @@ let armadaKartuPilihanManual = {};
 // Menjaga rekomendasi armada tetap tampil jika request refresh/server
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
 let armadaAktualTerakhir = [];
-let kpiMaterialMetaTerakhir_ = {project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
 let armadaAutoSnapshot = [];
 let armadaTampilanTerakhir = [];
 let armadaMaterialIndexTerakhir = -1;
@@ -3389,38 +3021,14 @@ function bukaListMaterialHistory_(index){
   if(summaryEl)summaryEl.textContent='PENGIRIMAN '+(Number(item.pengirimanKe)||index+1)+'  •  '+formatAngkaHistory_(item.totalItem,0)+' jenis  •  '+formatAngkaHistory_(item.totalVolume,0)+' unit  •  '+formatAngkaHistory_(item.totalTon,3)+' Ton  •  '+formatAngkaHistory_(item.totalCbm,2)+' m³';
   const dateEl=document.getElementById('historyMaterialListDate');
   if(dateEl)dateEl.textContent='📅 '+formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-');
-  contentEl.innerHTML=list.length?'<div class="history-material-list-content"><div class="history-material-table-head"><div>NO</div><div class="history-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+' unit':'-')+'</div></div>';}).join('')+'</div>':'<div class="history-material-list-content"><div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div></div>';
-  // HP: tombol EXPORT EXCEL popup LIST MATERIAL DI KIRIM disembunyikan.
-  // Popup hasil LINK BAGIKAN memakai tombol terpisah sehingga tetap tampil.
-  const exportBtn=document.getElementById('btnHistoryMaterialExport');
-  if(exportBtn){
-    const isPhone=window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
-    exportBtn.style.display=isPhone?'none':'';
-    exportBtn.style.visibility=isPhone?'hidden':'';
-  }
-  // Kunci scroll halaman belakang. Yang boleh scroll hanya area isi tabel.
-  document.documentElement.classList.add('history-material-list-scroll-lock');
-  document.body.classList.add('history-material-list-scroll-lock');
+  contentEl.innerHTML=list.length?list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+' unit':'-')+'</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div>';
   overlay.style.display='flex';
 }
 function tutupListMaterialHistory_(event){
   if(event&&event.target&&event.target.id!=='historyMaterialListOverlay')return;
   const overlay=document.getElementById('historyMaterialListOverlay');
   if(overlay)overlay.style.display='none';
-  document.documentElement.classList.remove('history-material-list-scroll-lock');
-  document.body.classList.remove('history-material-list-scroll-lock');
 }
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    const overlay=document.getElementById('historyMaterialListOverlay');
-    if(overlay && overlay.style.display!=='none'){
-      overlay.style.display='none';
-      document.documentElement.classList.remove('history-material-list-scroll-lock');
-      document.body.classList.remove('history-material-list-scroll-lock');
-    }
-  }
-});
 
 function getHistoryMaterialSharePayload_(){
   const events=Array.isArray(window.__HISTORY_PENGIRIMAN_EVENTS__)?window.__HISTORY_PENGIRIMAN_EVENTS__:[];
@@ -3523,106 +3131,6 @@ function copyTextHistoryMaterial_(text){
     }
   });
 }
-function showShortShareLinkPopup_(url,title){
-  try{
-    const old=document.getElementById('shortShareLinkPopupOverlay');
-    if(old)old.remove();
-    const overlay=document.createElement('div');
-    overlay.id='shortShareLinkPopupOverlay';
-    overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
-    const box=document.createElement('div');
-    box.style.cssText='width:min(560px,100%);background:#fff;border-radius:16px;padding:20px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.25);font-family:Arial,sans-serif;';
-    const h=document.createElement('div');
-    h.textContent=title||'LINK BERHASIL DIBUAT';
-    h.style.cssText='font-size:20px;font-weight:800;color:#12395b;margin-bottom:8px;';
-    const sub=document.createElement('div');
-    sub.textContent='Link pendek siap dibagikan:';
-    sub.style.cssText='font-size:14px;color:#555;margin-bottom:10px;';
-    const input=document.createElement('input');
-    input.type='text'; input.value=String(url||''); input.readOnly=true;
-    input.style.cssText='width:100%;height:46px;padding:10px 12px;border:1px solid #ccd5df;border-radius:10px;box-sizing:border-box;font-size:14px;color:#17324d;background:#f8fafc;';
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;';
-    const makeBtn=function(text,bg){
-      const b=document.createElement('button'); b.type='button'; b.textContent=text;
-      b.style.cssText='border:0;border-radius:10px;padding:11px 16px;font-weight:800;font-size:14px;color:#fff;background:'+bg+';cursor:pointer;';
-      return b;
-    };
-    const copyBtn=makeBtn('📋 SALIN LINK','#16834a');
-    const shareBtn=makeBtn('📤 BAGIKAN','#1261a0');
-    const closeBtn=makeBtn('TUTUP','#4b6175');
-    row.append(copyBtn,shareBtn,closeBtn);
-    box.append(h,sub,input,row); overlay.appendChild(box); document.body.appendChild(overlay);
-    const close=function(){overlay.remove();};
-    closeBtn.onclick=close;
-    overlay.onclick=function(e){if(e.target===overlay)close();};
-    input.onclick=function(){input.select();};
-    copyBtn.onclick=function(){
-      copyTextHistoryMaterial_(String(url||'')).then(function(){
-        copyBtn.textContent='✓ LINK TERSALIN';
-        setTimeout(function(){copyBtn.textContent='📋 SALIN LINK';},1800);
-      }).catch(function(){
-        input.focus(); input.select();
-        copyBtn.textContent='PILIH LINK LALU SALIN';
-        setTimeout(function(){copyBtn.textContent='📋 SALIN LINK';},2200);
-      });
-    };
-    shareBtn.onclick=function(){
-      if(navigator.share){
-        navigator.share({title:title||'APLIKASI EKSPEDISI MATERIAL',url:String(url||'')}).catch(function(err){
-          if(err&&err.name==='AbortError')return;
-          input.focus(); input.select();
-        });
-      }else{
-        input.focus(); input.select();
-      }
-    };
-    setTimeout(function(){input.focus();input.select();},50);
-  }catch(e){
-    console.error('SHORT SHARE POPUP ERROR:',e);
-    alert('Link berhasil dibuat. Silakan salin link dari alamat browser.');
-  }
-}
-
-function encodeShortShareProjectHistory_(project){
-  try{
-    return btoa(unescape(encodeURIComponent(String(project||''))))
-      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  }catch(e){
-    return btoa(String(project||''))
-      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  }
-}
-function decodeShortShareProjectHistory_(value){
-  try{
-    let b64=String(value||'').replace(/-/g,'+').replace(/_/g,'/');
-    while(b64.length%4)b64+='=';
-    return decodeURIComponent(escape(atob(b64)));
-  }catch(e){
-    try{
-      let b64=String(value||'').replace(/-/g,'+').replace(/_/g,'/');
-      while(b64.length%4)b64+='=';
-      return atob(b64);
-    }catch(e2){return '';}
-  }
-}
-function makeShortHistoryShareToken_(payload){
-  return 'sm1.'+encodeShortShareProjectHistory_(payload.p)+'.'+(Number(payload.n)||1);
-}
-function historyEventToMaterialSharePayload_(event,project,index){
-  if(!event)return null;
-  const list=parseMaterialHistoryList_(event.materialTurun);
-  return {
-    p:String(project||event.project||'-'),
-    n:Number(event.pengirimanKe)||index+1,
-    d:String(event.tanggalPengiriman||event.tanggal||'-'),
-    ti:Number(event.totalItem)||list.length,
-    tv:Number(event.totalVolume)||0,
-    tt:Number(event.totalTon)||0,
-    tc:Number(event.totalCbm)||0,
-    m:list.map(function(x){return [String(x.material||''),String(x.volume||'')];})
-  };
-}
 async function bagikanListMaterialHistory_(){
   const payload=getHistoryMaterialSharePayload_();
   if(!payload){
@@ -3630,35 +3138,60 @@ async function bagikanListMaterialHistory_(){
     return;
   }
 
-  const token=makeShortHistoryShareToken_(payload);
-  const url=window.location.origin+window.location.pathname+'#share-material='+token;
-  const title='LIST MATERIAL DI KIRIM — '+payload.p;
-  const text='Proyek : '+payload.p+' | Pengiriman '+payload.n+' | '+formatTanggalHistoryPengiriman_(payload.d);
-
-  if(navigator.share){
-    navigator.share({title:title,text:text,url:url}).catch(function(err){
-      if(err&&err.name==='AbortError')return;
-      copyTextHistoryMaterial_(url).then(function(){
-        alert('Link berhasil disalin. Silakan kirim link tersebut.');
-      }).catch(function(){showShortShareLinkPopup_(url,title);});
-    });
+  const project=String(payload.p||'').trim();
+  const pengiriman=Number(payload.n)||1;
+  if(!project){
+    alert('Nama proyek tidak tersedia.');
     return;
   }
 
-  copyTextHistoryMaterial_(url).then(function(){
-    alert('Link berhasil disalin. Silakan kirim link tersebut.');
-  }).catch(function(){
-    showShortShareLinkPopup_(url,title);
-  });
+  try{
+    // LINK PENDEK V3:
+    // Server hanya menyimpan referensi PROYEK + PENGIRIMAN KE.
+    // URL tidak lagi membawa daftar 203 material.
+    const response=await fetch(userApiUrl_('create_material_share',{
+      project:project,
+      pengiriman:pengiriman
+    }),{method:'GET',cache:'no-store',redirect:'follow'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const result=await response.json();
+    if(!result||result.success!==true||!result.token){
+      throw new Error(result&&result.message?result.message:'Gagal membuat token link.');
+    }
+
+    const url=window.location.origin+window.location.pathname+'#share-material=sm1.'+encodeURIComponent(String(result.token));
+    const title='LIST MATERIAL DI KIRIM — '+project;
+    const text='Proyek : '+project+' | Pengiriman '+pengiriman+' | '+formatTanggalHistoryPengiriman_(payload.d);
+
+    if(navigator.share){
+      navigator.share({title:title,text:text,url:url}).catch(function(err){
+        if(err&&err.name==='AbortError')return;
+        copyTextHistoryMaterial_(url).then(function(){
+          alert('Link pendek berhasil disalin. Silakan kirim link tersebut.');
+        }).catch(function(){prompt('Salin link berikut:',url);});
+      });
+      return;
+    }
+
+    copyTextHistoryMaterial_(url).then(function(){
+      alert('Link pendek berhasil disalin. Silakan kirim link tersebut.');
+    }).catch(function(){
+      prompt('Salin link berikut:',url);
+    });
+  }catch(err){
+    console.error('CREATE SHORT SHARE LINK ERROR:',err);
+    alert('Gagal membuat link pendek. Pastikan API terbaru sudah dipasang.');
+  }
 }
-function terbilangPengirimanHistory_(n){
-  n=Math.max(0,Math.floor(Number(n)||0));
-  const satu=['Nol','Satu','Dua','Tiga','Empat','Lima','Enam','Tujuh','Delapan','Sembilan','Sepuluh','Sebelas'];
-  if(n<12)return satu[n];
-  if(n<20)return satu[n-10]+' Belas';
-  if(n<100)return satu[Math.floor(n/10)]+' Puluh'+(n%10?' '+satu[n%10]:'');
+
+function terbilangPengirimanHistory_(value){
+  const n=Math.floor(Number(value)||0);
+  const kata=['Nol','Satu','Dua','Tiga','Empat','Lima','Enam','Tujuh','Delapan','Sembilan','Sepuluh','Sebelas'];
+  if(n<12)return kata[n];
+  if(n<20)return terbilangPengirimanHistory_(n-10)+' Belas';
+  if(n<100)return terbilangPengirimanHistory_(Math.floor(n/10))+' Puluh'+(n%10?' '+terbilangPengirimanHistory_(n%10):'');
   if(n<200)return 'Seratus'+(n%100?' '+terbilangPengirimanHistory_(n%100):'');
-  if(n<1000)return satu[Math.floor(n/100)]+' Ratus'+(n%100?' '+terbilangPengirimanHistory_(n%100):'');
+  if(n<1000)return terbilangPengirimanHistory_(Math.floor(n/100))+' Ratus'+(n%100?' '+terbilangPengirimanHistory_(n%100):'');
   if(n<2000)return 'Seribu'+(n%1000?' '+terbilangPengirimanHistory_(n%1000):'');
   if(n<1000000)return terbilangPengirimanHistory_(Math.floor(n/1000))+' Ribu'+(n%1000?' '+terbilangPengirimanHistory_(n%1000):'');
   return String(n);
@@ -3687,7 +3220,7 @@ function exportListMaterialHistory_(){
   html+='<tr><th colspan="4" style="font-size:16pt">LIST MATERIAL DI KIRIM</th></tr>';
   html+='<tr><th colspan="4">PROYEK</th></tr>';
   html+='<tr><td colspan="4">'+esc(payload.p)+'</td></tr>';
-  html+='<tr><th colspan="2">PENGIRIMAN</th><td colspan="2">'+esc(fmt(payload.n,0)+' ('+terbilangPengirimanHistory_(Number(payload.n)||1)+')')+'</td></tr>';
+  html+='<tr><th colspan="2">PENGIRIMAN</th><td colspan="2">'+esc(fmt(payload.n,0)+' ('+terbilangPengirimanHistory_(payload.n)+')')+'</td></tr>';
   html+='<tr><th colspan="2">TANGGAL PENGIRIMAN</th><td colspan="2">'+esc(formatTanggalHistoryPengiriman_(payload.d))+'</td></tr>';
   html+='<tr><th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL TONASE</th><th>TOTAL KUBIKASI</th></tr>';
   html+='<tr>'+textCell(fmt(payload.ti,0)+' jenis')+textCell(fmt(payload.tv,0)+' unit')+textCell(fmt(payload.tt,3)+' Ton')+textCell(fmt(payload.tc,2)+' m³')+'</tr>';
@@ -3715,29 +3248,22 @@ function renderSharedMaterialList_(payload){
   root.style.display='flex';
   root.innerHTML=
     '<div class="shared-material-card">'+
-      '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
+      '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="history-material-list-close" onclick="tutupSharedMaterialList_()">×</button></div>'+
       '<div class="shared-material-body">'+
         '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
         '<div class="shared-material-summary">PENGIRIMAN '+(Number(payload.n)||1)+' • '+formatAngkaHistory_(payload.ti,0)+' jenis • '+formatAngkaHistory_(payload.tv,0)+' unit • '+formatAngkaHistory_(payload.tt,3)+' Ton • '+formatAngkaHistory_(payload.tc,2)+' m³</div>'+
         '<div class="shared-material-date">📅 '+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(payload.d||'-'))+'</div>'+
-        '<div class="shared-material-list">'+
-          (list.length?'<div class="shared-material-table-head"><div>NO</div><div class="shared-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
+        '<div class="shared-material-scroll">'+
+          '<div class="shared-material-table-head"><div>NO</div><div>MATERIAL</div><div>VOLUME</div></div>'+
+          '<div class="shared-material-list">'+
+            (list.length?list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
+          '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="shared-material-footer"><button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportSharedMaterialList_()">📥 EXPORT EXCEL</button><button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button></div>'+
+      '<div class="shared-material-footer"><button type="button" class="history-material-list-action-btn history-material-list-export-btn" onclick="exportSharedMaterialList_()">📥 EXPORT EXCEL</button><button type="button" class="shared-material-close-btn" onclick="tutupSharedMaterialList_()">TUTUP</button></div>'+
     '</div>';
   window.__SHARED_MATERIAL_PAYLOAD__=payload;
   return true;
-}
-function tutupSharedMaterialView_(){
-  const root=document.getElementById('sharedMaterialView');
-  if(root)root.style.display='none';
-  document.body.classList.remove('shared-material-mode');
-  try{
-    history.replaceState(null,document.title,window.location.pathname+window.location.search);
-  }catch(e){
-    try{window.location.hash='';}catch(e2){}
-  }
 }
 function exportSharedMaterialList_(){
   const p=window.__SHARED_MATERIAL_PAYLOAD__;
@@ -3751,321 +3277,73 @@ function exportSharedMaterialList_(){
   window.__HISTORY_PENGIRIMAN_PROJECT__=oldProject;
   window.__HISTORY_PENGIRAN_ACTIVE_INDEX__=oldIndex;
 }
-function renderSharedMaterialLinkError_(message){
-  document.body.classList.add('shared-material-mode');
+function tutupSharedMaterialList_(){
   const root=document.getElementById('sharedMaterialView');
   if(root){
-    root.style.display='flex';
+    root.style.display='none';
+    root.innerHTML='';
+  }
+  document.body.classList.remove('shared-material-mode');
+  try{
+    history.replaceState(null,document.title,window.location.pathname+window.location.search);
+  }catch(e){
+    window.location.hash='';
+  }
+  window.__SHARED_MATERIAL_PAYLOAD__=null;
+}
+
+async function loadSharedMaterialByShortToken_(token){
+  const root=document.getElementById('sharedMaterialView');
+  if(!root)return;
+
+  root.style.display='flex';
+  root.innerHTML=
+    '<div class="shared-material-card">'+
+      '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="history-material-list-close" onclick="tutupSharedMaterialList_()">×</button></div>'+
+      '<div class="shared-material-body"><div class="history-material-list-empty">Memuat daftar material...</div></div>'+
+    '</div>';
+
+  try{
+    const response=await fetch(API_URL+'?action=get_material_share&token='+encodeURIComponent(String(token||''))+'&_='+Date.now(),{
+      method:'GET',cache:'no-store',redirect:'follow'
+    });
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const result=await response.json();
+    if(!result||result.success!==true||!result.payload){
+      throw new Error(result&&result.message?result.message:'Link tidak ditemukan atau sudah kedaluwarsa.');
+    }
+    renderSharedMaterialList_(result.payload);
+  }catch(err){
+    console.error('LOAD SHORT SHARE LINK ERROR:',err);
     root.innerHTML=
       '<div class="shared-material-card">'+
-        '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
-        '<div class="shared-material-body"><div class="history-material-list-empty">'+escapeHtmlSafe_(message||'Link pengiriman tidak dapat dibaca. Silakan minta link baru.')+'</div></div>'+
-        '<div class="shared-material-footer"><button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button></div>'+
+        '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="history-material-list-close" onclick="tutupSharedMaterialList_()">×</button></div>'+
+        '<div class="shared-material-body"><div class="history-material-list-empty">'+escapeHtmlSafe_(err&&err.message?err.message:'Link tidak dapat dibaca.')+'</div></div>'+
+        '<div class="shared-material-footer"><button type="button" class="shared-material-close-btn" onclick="tutupSharedMaterialList_()">TUTUP</button></div>'+
       '</div>';
   }
 }
 
-
-// Normalisasi data shared workshop.
-// V19 mengirim format lama: [MATERIAL, "VOLUME♦SATUAN"].
-// Versi lama renderer membaca x[2], sehingga SATUAN tampil "-".
-// Fungsi ini mendukung format baru maupun lama.
-function normalizeSharedWorkshopRows_(payload){
-  if(!payload || !Array.isArray(payload.m)) return [];
-
-  return payload.m.map(function(x){
-    const material=String(x&&x[0]!=null?x[0]:'');
-    let volume=String(x&&x[1]!=null?x[1]:'');
-    let unit=String(x&&x[2]!=null?x[2]:'').trim();
-
-    // Format V19: volume♦satuan
-    if(!unit && volume.indexOf('♦')>=0){
-      const parts=volume.split('♦');
-      volume=String(parts.shift()||'').trim();
-      unit=String(parts.join('♦')||'').trim();
-    }
-
-    return {
-      material:material,
-      volume:volume,
-      unit:unit
-    };
-  });
-}
-
-function exportSharedWorkshopExcel_(payload){
-  try{
-    if(!payload || !Array.isArray(payload.m) || !payload.m.length){
-      alert('Tidak ada data material untuk diexport.');
-      return;
-    }
-
-    const rows=normalizeSharedWorkshopRows_(payload);
-
-    const tanggal=String(payload.d||'-');
-    const totalItem=Number(payload.ti)||rows.length;
-
-    let htmlTable=
-      '<html><head><meta charset="UTF-8"></head><body>'+
-      '<table border="1">'+
-      '<tr><th colspan="4">LIST MATERIAL DI WORKSHOP SAAT INI</th></tr>'+
-      '<tr><td colspan="4">'+escapeHtmlSafe_(tanggal)+'</td></tr>'+
-      '<tr><td colspan="4">TOTAL ITEM: '+totalItem+' jenis</td></tr>'+
-      '<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr>';
-
-    rows.forEach(function(x,i){
-      htmlTable+='<tr>'+
-        '<td>'+(i+1)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.material)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.volume)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
-      '</tr>';
-    });
-
-    htmlTable+='</table></body></html>';
-
-    const blob=new Blob(['\ufeff',htmlTable],{
-      type:'application/vnd.ms-excel;charset=utf-8'
-    });
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download='LIST_MATERIAL_WORKSHOP_'+tanggal.replace(/[^0-9A-Za-z]+/g,'_')+'.xls';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function(){URL.revokeObjectURL(url);},1500);
-  }catch(e){
-    console.error('EXPORT SHARED WORKSHOP ERROR:',e);
-    alert('Export Excel gagal. Silakan coba lagi.');
-  }
-}
-
-function renderSharedWorkshopMaterialList_(payload){
-  if(!payload||!Array.isArray(payload.m))return false;
-
-  const list=normalizeSharedWorkshopRows_(payload);
-
-  const root=document.getElementById('sharedMaterialView');
-  if(!root)return false;
-
-  document.body.classList.add('shared-material-mode','shared-workshop-view-mode');
-  root.style.display='flex';
-
-  root.innerHTML=
-    '<div class="shared-material-card">'+
-      '<div class="shared-material-header">'+
-        '<span>📦 MATERIAL</span>'+
-        '<button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button>'+
-      '</div>'+
-
-      '<div class="shared-material-body">'+
-        '<div class="shared-workshop-info">'+
-          '<div class="shared-material-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>'+
-          '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
-          '<div class="shared-material-plan">Rencana Kirim : '+escapeHtmlSafe_(payload.rk||'-')+'</div>'+
-          '<div class="shared-material-update">Update : '+escapeHtmlSafe_(payload.up||payload.d||'-')+'</div>'+
-          '<div class="shared-material-spacer"></div>'+
-          '<div class="shared-material-armada">ARMADA : '+formatAngkaHistory_(payload.au,0)+' UNIT | MATERIAL : '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis | CBM : '+formatAngkaHistory_(payload.ac,2)+' m³ | TON : '+formatAngkaHistory_(payload.at,3)+' Ton</div>'+
-        '</div>'+
-
-        '<div class="shared-workshop-table-wrap">'+
-          '<table class="shared-workshop-table">'+
-            '<colgroup>'+
-              '<col style="width:9%">'+
-              '<col style="width:51%">'+
-              '<col style="width:20%">'+
-              '<col style="width:20%">'+
-            '</colgroup>'+
-            '<thead><tr>'+
-              '<th>NO</th>'+
-              '<th>MATERIAL</th>'+
-              '<th>VOLUME</th>'+
-              '<th>SATUAN</th>'+
-            '</tr></thead>'+
-            '<tbody>'+
-              (list.length ? list.map(function(x,i){
-                return '<tr>'+
-                  '<td style="text-align:center">'+(i+1)+'</td>'+
-                  '<td style="text-align:left">'+escapeHtmlSafe_(x.material||'-')+'</td>'+
-                  '<td style="text-align:center">'+escapeHtmlSafe_(x.volume||'0')+'</td>'+
-                  '<td style="text-align:center">'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
-                '</tr>';
-              }).join('') :
-              '<tr><td colspan="4" style="text-align:center">Tidak ada material.</td></tr>')+
-            '</tbody>'+
-          '</table>'+
-        '</div>'+
-      '</div>'+
-
-      '<div class="shared-material-footer">'+
-        '<button type="button" class="history-material-list-action-btn history-material-list-export-btn" style="background:#f39a16 !important;border-color:#dc7f00 !important;color:#fff !important;" onclick="exportSharedWorkshopExcel_(window.__SHARED_WORKSHOP_PAYLOAD__)">📥 EXPORT EXCEL</button>'+
-        '<button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button>'+
-      '</div>'+
-    '</div>';
-
-  window.__SHARED_WORKSHOP_PAYLOAD__=payload;
-  return true;
-}
 function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
   const prefix='#share-material=';
-  const workshopPrefix='#share-workshop=';
-  const workshopShortPrefix='#sw=';
-  const workshopServerShortPrefix='#sw1=';
-
-  // LINK PENDEK SERVER V1: URL hanya membawa token 10 karakter.
-  if(hash.indexOf(workshopServerShortPrefix)===0){
-    // Token server tetap hanya bagian sebelum '&'. Metadata tambahan
-    // disimpan di hash agar link tetap dapat dibuka tanpa mengubah 04_API.gs.
-    const hashBody=hash.slice(workshopServerShortPrefix.length);
-    const hashParts=hashBody.split('&');
-    const token=decodeURIComponent(hashParts[0]||'');
-    let shareMeta=null;
-    try{
-      const metaPart=hashParts.find(function(part){return part.indexOf('meta=')===0;});
-      if(metaPart){
-        const metaEncoded=decodeURIComponent(metaPart.slice(5));
-        const metaBytes=base64UrlToBytesHistory_(metaEncoded);
-        const metaJson=new TextDecoder().decode(metaBytes);
-        shareMeta=JSON.parse(metaJson);
-      }
-    }catch(metaErr){
-      console.warn('SHARE META FALLBACK TIDAK DAPAT DIBACA:',metaErr);
-      shareMeta=null;
-    }
-
-    document.body.classList.add('shared-material-mode');
-    const root=document.getElementById('sharedMaterialView');
-    if(root){
-      root.style.display='flex';
-      root.innerHTML=
-        '<div class="shared-material-card">'+
-          '<div class="shared-material-header"><span>📦 LIST MATERIAL DI WORKSHOP SAAT INI</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
-          '<div class="shared-material-body"><div class="history-material-list-empty">Memuat data material...</div></div>'+
-        '</div>';
-    }
-
-    fetch(userApiUrl_('share_workshop_get',{token:token}),{
-      method:'GET',
-      cache:'no-store',
-      redirect:'follow'
-    })
-    .then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      return r.json();
-    })
-    .then(function(result){
-      if(!result||result.success!==true||!result.payload){
-        throw new Error(result&&result.message?result.message:'Data material tidak ditemukan.');
-      }
-
-      // API lama/whitelist tertentu dapat hanya mengembalikan data tabel.
-      // Isi metadata yang kosong dari metadata aman yang ikut dibawa link.
-      if(shareMeta && result.payload){
-        const metaKeys=['p','rk','up','ar','au','ac','at','tc','tt'];
-        metaKeys.forEach(function(k){
-          const current=result.payload[k];
-          const missing=(current===undefined || current===null || String(current).trim()==='' || (Number(current)===0 && ['au','ac','at','tc','tt'].indexOf(k)>=0));
-          if(missing && shareMeta[k]!==undefined) result.payload[k]=shareMeta[k];
-        });
-      }
-
-      if(!renderSharedWorkshopMaterialList_(result.payload)){
-        throw new Error('Tampilan material tidak dapat dibuat.');
-      }
-    })
-    .catch(function(err){
-      console.error('LOAD SHORT WORKSHOP SHARE ERROR:',err);
-      renderSharedMaterialLinkError_(err&&err.message?err.message:'Link material workshop tidak dapat dibaca.');
-    });
-    return true;
-  }
-
-  if(hash.indexOf(workshopShortPrefix)===0 || hash.indexOf(workshopPrefix)===0){
-    const prefixLen=hash.indexOf(workshopShortPrefix)===0 ? workshopShortPrefix.length : workshopPrefix.length;
-    const token=decodeURIComponent(hash.slice(prefixLen));
-    decodeHistoryMaterialShareCompressed_(token).then(function(payload){
-      if(payload&&(payload.w===1||payload.w===2)){
-        renderSharedWorkshopMaterialList_(payload);
-      }else{
-        renderSharedMaterialLinkError_('Link material workshop tidak valid atau sudah tidak dapat dibaca.');
-      }
-    }).catch(function(){
-      renderSharedMaterialLinkError_('Link material workshop tidak dapat dibaca.');
-    });
-    return true;
-  }
-
   if(hash.indexOf(prefix)!==0)return false;
 
   const token=decodeURIComponent(hash.slice(prefix.length));
-
-  // LINK PENDEK V3:
-  // URL hanya membawa token proyek + nomor pengiriman.
-  // Data material dibaca kembali dari HISTORI_PENGIRIMAN melalui API.
   if(token.indexOf('sm1.')===0){
-    const parts=token.split('.');
-    const project=decodeShortShareProjectHistory_(parts[1]||'');
-    const pengirimanKe=Number(parts[2]||1)||1;
-
-    if(!project){
-      renderSharedMaterialLinkError_('Link pengiriman tidak valid.');
-      return true;
-    }
-
-    document.body.classList.add('shared-material-mode');
-    const root=document.getElementById('sharedMaterialView');
-    if(root){
-      root.style.display='flex';
-      root.innerHTML=
-        '<div class="shared-material-card">'+
-          '<div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
-          '<div class="shared-material-body"><div class="history-material-list-empty">Memuat data pengiriman...</div></div>'+
-        '</div>';
-    }
-
-    fetch(userApiUrl_('delivery_history',{project:project}),{method:'GET',cache:'no-store',redirect:'follow'})
-      .then(function(r){
-        if(!r.ok)throw new Error('HTTP '+r.status);
-        return r.json();
-      })
-      .then(function(result){
-        if(!result||result.success!==true||!Array.isArray(result.history)){
-          throw new Error(result&&result.message?result.message:'Data pengiriman tidak ditemukan.');
-        }
-        const history=result.history;
-        let found=null;
-        let foundIndex=0;
-        for(let i=0;i<history.length;i++){
-          const ev=history[i];
-          const type=String(ev.eventType||ev.jenisEvent||'').toUpperCase();
-          if(type!=='PENGIRIMAN')continue;
-          if((Number(ev.pengirimanKe)||0)===pengirimanKe){
-            found=ev;
-            foundIndex=i;
-            break;
-          }
-        }
-        if(!found){
-          throw new Error('Data Pengiriman '+pengirimanKe+' tidak ditemukan untuk proyek tersebut.');
-        }
-        const payload=historyEventToMaterialSharePayload_(found,project,foundIndex);
-        if(!payload)throw new Error('Data material pengiriman tidak tersedia.');
-        renderSharedMaterialList_(payload);
-      })
-      .catch(function(err){
-        console.error('LOAD SHORT SHARE LINK ERROR:',err);
-        renderSharedMaterialLinkError_(err&&err.message?err.message:'Data pengiriman tidak dapat dimuat.');
-      });
+    loadSharedMaterialByShortToken_(token.slice(4));
     return true;
   }
 
-  // Link lama V2 yang membawa payload GZIP masih didukung.
   if(token.indexOf('gz1.')===0){
     decodeHistoryMaterialShareCompressed_(token).then(function(payload){
       if(!payload){
-        renderSharedMaterialLinkError_('Link pengiriman tidak dapat dibaca. Silakan minta link baru.');
+        document.body.classList.add('shared-material-mode');
+        const root=document.getElementById('sharedMaterialView');
+        if(root){
+          root.style.display='flex';
+          root.innerHTML='<div class="shared-material-card"><div class="shared-material-header"><span>📦 LIST MATERIAL DI KIRIM</span><button type="button" class="history-material-list-close" onclick="tutupSharedMaterialList_()">×</button></div><div class="shared-material-body"><div class="history-material-list-empty">Link pengiriman tidak dapat dibaca. Silakan minta link baru.</div></div><div class="shared-material-footer"><button type="button" class="shared-material-close-btn" onclick="tutupSharedMaterialList_()">TUTUP</button></div></div>';
+        }
         return;
       }
       renderSharedMaterialList_(payload);
@@ -4081,9 +3359,9 @@ function initSharedMaterialView_(){
     payload=null;
   }
   if(payload)renderSharedMaterialList_(payload);
-  else renderSharedMaterialLinkError_('Link pengiriman tidak valid atau sudah tidak dapat dibaca.');
   return true;
 }
+
 function renderHistoryPengiriman_(project,history){
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
@@ -4108,7 +3386,7 @@ function renderHistoryPengiriman_(project,history){
     const prevTime=index>0?(parseWaktuRiwayatReschedule_(shipments[index-1].timestamp||'')||0):0;
     const related=reschedules.filter(function(r){const rt=parseWaktuRiwayatReschedule_(r.timestamp||'')||0;const no=Number(r.pengirimanKe)||0;return no===shipmentNo||(rt>prevTime&&rt<=shipmentTime);});
     return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title">PENGIRIMAN '+(shipmentNo===1?'PERTAMA':shipmentNo===2?'KEDUA':shipmentNo===3?'KETIGA':'KE-'+shipmentNo)+'</div><div class="history-pengiriman-grid">'+
-      '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
+      '<div class="history-pengiriman-label">📅 Tanggal Pengiriman</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
       '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+
       '<div class="history-pengiriman-label">⚖ Total Tonase</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalTon,3)+' Ton &nbsp; | &nbsp; Total Kubikasi: '+formatAngkaHistory_(item.totalCbm,2)+' m³</div>'+
@@ -5228,26 +4506,6 @@ function tampilkanData(data){
       armadaList[idx]=buatKartuManualDariTarget_(master,target);
     });
   }
-
-  // Metadata popup LIST MATERIAL mengikuti proyek aktif.
-  // UPDATE selalu tanggal perangkat saat popup dibuka.
-  const metaNow=new Date();
-  const metaHari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const metaBulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const metaUpdate=metaHari[metaNow.getDay()]+', '+String(metaNow.getDate()).padStart(2,'0')+' '+metaBulan[metaNow.getMonth()]+' '+metaNow.getFullYear();
-  const metaArmada=Array.isArray(armadaAutoSnapshot)&&armadaAutoSnapshot.length ? armadaAutoSnapshot[0] : null;
-  kpiMaterialMetaTerakhir_={
-    project:String(proyekAktif||'').trim(),
-    rencanaKirim:formatTanggalLengkapIndonesia_(tanggalKirim),
-    update:metaUpdate,
-    armada:metaArmada ? String(metaArmada.armada||'-').trim() : '-',
-    unit:metaArmada ? Number(metaArmada.kebutuhanUnit)||0 : 0,
-    material:kpiItem,
-    cbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
-    ton:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon,
-    targetCbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
-    targetTon:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon
-  };
 
   /* Dropdown pertama selalu dibangun dari snapshot AUTO asli. */
   siapkanDropdownArmada_(armadaAutoSnapshot,summaryUntukArmada);
@@ -6984,32 +6242,11 @@ function bukaKpiMaterial(){
 
   const overlay=document.getElementById('kpiMaterialOverlay');
   const body=document.getElementById('kpiMaterialBody');
-  const infoBox=document.getElementById('kpiMaterialInfoBox');
-  const infoTitle=document.getElementById('kpiMaterialWorkshopTitle');
-  const projectEl=document.getElementById('kpiMaterialProject');
-  const planEl=document.getElementById('kpiMaterialPlan');
-  const updateEl=document.getElementById('kpiMaterialUpdate');
-  const armadaEl=document.getElementById('kpiMaterialArmada');
-  const footer=document.getElementById('kpiMaterialMobileFooter');
+  const summary=document.getElementById('kpiMaterialSummary');
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
 
-  if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
-  if(infoBox) infoBox.style.display='block';
-
-  const meta=kpiMaterialMetaTerakhir_||{};
-  if(projectEl) projectEl.textContent='Proyek : '+(meta.project||proyekAktif||'-');
-  if(planEl) planEl.textContent='Rencana Kirim : '+(meta.rencanaKirim||'-');
-  if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
-  if(armadaEl){
-    armadaEl.textContent='ARMADA : '+formatNumber(meta.unit||0,0)+' UNIT | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
-  }
-  if(footer) footer.style.display='flex';
-  const mobileExportBtn=footer ? footer.querySelector('.kpi-material-mobile-export') : null;
-  if(mobileExportBtn){
-    const isMobile=window.matchMedia && window.matchMedia('(max-width:600px)').matches;
-    mobileExportBtn.style.display=isMobile ? 'none' : '';
-  }
+  if(summary) summary.textContent='TOTAL ITEM: '+formatNumber(rows.length,0)+' jenis';
 
   if(!rows.length){
     body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
@@ -7026,232 +6263,10 @@ function bukaKpiMaterial(){
   document.body.style.overflow='hidden';
 }
 
-function showShareLinkLoadingPopup_(){
-  try{
-    const old=document.getElementById('shortShareLinkLoadingOverlay');
-    if(old)old.remove();
-
-    const overlay=document.createElement('div');
-    overlay.id='shortShareLinkLoadingOverlay';
-    overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
-
-    const box=document.createElement('div');
-    box.style.cssText='width:min(390px,100%);background:#fff;border-radius:16px;padding:24px 20px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.25);font-family:Arial,sans-serif;text-align:center;';
-
-    const spin=document.createElement('div');
-    spin.style.cssText='width:38px;height:38px;border:4px solid #d9e2ec;border-top-color:#1261a0;border-radius:50%;margin:0 auto 14px;animation:shareLinkSpin .8s linear infinite;';
-
-    const title=document.createElement('div');
-    title.textContent='🔗 MEMBUAT LINK...';
-    title.style.cssText='font-size:18px;font-weight:800;color:#12395b;margin-bottom:7px;';
-
-    const sub=document.createElement('div');
-    sub.textContent='Mohon tunggu sebentar';
-    sub.style.cssText='font-size:14px;color:#667085;';
-
-    box.append(spin,title,sub);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    if(!document.getElementById('shareLinkSpinStyle')){
-      const style=document.createElement('style');
-      style.id='shareLinkSpinStyle';
-      style.textContent='@keyframes shareLinkSpin{to{transform:rotate(360deg)}}';
-      document.head.appendChild(style);
-    }
-  }catch(e){}
-}
-
-async function bagikanKpiMaterial_(){
-  // ============================================================
-  // SHARE WORKSHOP V19 — SATUAN DIAMBIL DARI DATA YANG BENAR-BENAR
-  // DIPAKAI TABEL UTAMA. 04_API.gs TIDAK DIUBAH.
-  // ============================================================
-  showShareLinkLoadingPopup_();
-
-  const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
-  if(!rows.length){
-    const loading=document.getElementById('shortShareLinkLoadingOverlay');
-    if(loading)loading.remove();
-    alert('Tidak ada data material untuk dibagikan.');
-    return;
-  }
-
-  const now=new Date();
-  const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  const tanggal=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
-
-  // Cari SATUAN dari object material tanpa mengasumsikan nama field.
-  // Prioritas field yang paling mungkin dipakai aplikasi.
-  function ambilSatuanObj_(obj){
-    if(!obj || typeof obj!=='object') return '';
-    const prioritas=['unit','satuan','unitMaterial','satuanMaterial','SATUAN','SATUAN_PM','satuan_pm','UNIT'];
-    for(let i=0;i<prioritas.length;i++){
-      const k=prioritas[i];
-      if(Object.prototype.hasOwnProperty.call(obj,k)){
-        const v=String(obj[k]==null?'':obj[k]).trim();
-        if(v && v!=='-') return v;
-      }
-    }
-    // Fallback: cari key yang mengandung unit/satuan, tetapi abaikan
-    // field unitArmada/kebutuhanUnit karena itu bukan satuan material.
-    const keys=Object.keys(obj);
-    for(let i=0;i<keys.length;i++){
-      const k=keys[i];
-      const kl=k.toLowerCase();
-      if((kl==='unit'||kl==='satuan'||kl.includes('satuan')) && !kl.includes('armada')){
-        const v=String(obj[k]==null?'':obj[k]).trim();
-        if(v && v!=='-') return v;
-      }
-    }
-    return '';
-  }
-
-  // Baca SATUAN langsung dari baris tabel popup, berdasarkan NOMOR BARIS,
-  // bukan berdasarkan nama material. Ini menghindari mismatch spasi/karakter.
-  const visibleUnits=[];
-  try{
-    const tableBody=document.querySelector('#kpiMaterialBody .kpi-material-scroll tbody');
-    if(tableBody){
-      Array.from(tableBody.querySelectorAll('tr')).forEach(function(tr){
-        const cells=tr.querySelectorAll('td');
-        visibleUnits.push(cells.length>=4 ? String(cells[3].textContent||'').trim() : '');
-      });
-    }
-  }catch(e){
-    console.warn('Gagal membaca SATUAN tabel:',e);
-  }
-
-  const payload={
-    w:2,
-    d:tanggal,
-    ti:rows.length,
-    p:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.project || proyekAktif || '').trim(),
-    rk:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.rencanaKirim || '-').trim(),
-    up:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.update || tanggal).trim(),
-    ar:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.armada || '-').trim(),
-    au:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.unit || 0),
-    ac:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.cbm || 0),
-    at:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.ton || 0),
-    tc:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetCbm || 0),
-    tt:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetTon || 0),
-    m:rows.map(function(x,i){
-      const nama=String(x && (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '').trim();
-      let satuan='';
-
-      // 1. Nilai SATUAN yang terlihat di tabel pada baris yang sama.
-      const domUnit=String(visibleUnits[i]||'').trim();
-      if(domUnit && domUnit!=='-') satuan=domUnit;
-
-      // 2. Nilai SATUAN dari object data material.
-      if(!satuan) satuan=ambilSatuanObj_(x);
-
-      // 3. Cari object referensi dengan nama material yang sama.
-      if(!satuan){
-        const ref=rows.find(function(m){
-          const mn=String(m && (m.material||m.namaMaterial||m.itemMaterial||m.item||'') || '').trim();
-          return mn===nama;
-        });
-        satuan=ambilSatuanObj_(ref);
-      }
-
-      // 4. Kompatibilitas dengan API lama: gabungkan VOLUME + SATUAN
-      // dalam field kedua. Server tidak perlu mengetahui field SATUAN.
-      const volume=String(x && x.volume!=null ? x.volume : 0);
-      return [nama, volume+'♦'+(satuan||'')];
-    })
-  };
-
-  try{
-    const compressedPayload=await encodeHistoryMaterialShare_(payload);
-    const CHUNK_SIZE=900;
-    const chunks=[];
-    for(let i=0;i<compressedPayload.length;i+=CHUNK_SIZE) chunks.push(compressedPayload.slice(i,i+CHUNK_SIZE));
-    if(!chunks.length || chunks.length>30) throw new Error('Data material terlalu besar untuk dibuatkan link.');
-
-    const startResult=await fetch(userApiUrl_('share_workshop_start'),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    });
-    if(!startResult||startResult.success!==true||!startResult.upload_id){
-      if(startResult&&startResult.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
-      else throw new Error(startResult&&startResult.message?startResult.message:'Sesi share tidak dapat dibuat.');
-      return;
-    }
-
-    const uploadId=String(startResult.upload_id);
-    const chunkResults=await Promise.all(chunks.map(function(chunk,i){
-      return fetch(userApiUrl_('share_workshop_chunk',{upload_id:uploadId,chunk_index:i,chunk_total:chunks.length,chunk_data:chunk}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        return r.json();
-      });
-    }));
-
-    for(let i=0;i<chunkResults.length;i++){
-      const result=chunkResults[i];
-      if(!result||result.success!==true){
-        if(result&&result.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
-        else throw new Error(result&&result.message?result.message:'Bagian data share gagal dikirim.');
-        return;
-      }
-    }
-
-    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    });
-    if(!finishResult||finishResult.success!==true||!finishResult.token){
-      if(finishResult&&finishResult.code==='USER_NOT_APPROVED') alert('Perangkat belum disetujui Owner.');
-      else throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
-      return;
-    }
-
-    const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
-    if(loadingDone) loadingDone.remove();
-
-    // V30: metadata sudah disimpan di SERVER bersama token.
-    // URL cukup membawa token 10 karakter agar link sangat pendek.
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
-    const title='LIST MATERIAL DI WORKSHOP SAAT INI';
-    const text=tanggal+' | '+rows.length+' jenis material';
-
-    if(navigator.share){
-      navigator.share({title:title,text:text,url:url}).catch(function(err){
-        if(err&&err.name==='AbortError') return;
-        copyTextHistoryMaterial_(url).then(function(){alert('Link berhasil disalin. Silakan kirim link tersebut.');}).catch(function(){showShortShareLinkPopup_(url,title);});
-      });
-    }else{
-      copyTextHistoryMaterial_(url).then(function(){alert('Link berhasil disalin. Silakan kirim link tersebut.');}).catch(function(){showShortShareLinkPopup_(url,title);});
-    }
-  }catch(e){
-    const loading=document.getElementById('shortShareLinkLoadingOverlay');
-    if(loading) loading.remove();
-    console.error('SHARE WORKSHOP V19 ERROR:',e);
-    alert('Link tidak dapat dibuat. Silakan coba lagi.');
-  }
-}
-
 function tutupKpiMaterial(event){
   if(event && event.target && event.target.id!=='kpiMaterialOverlay') return;
   const overlay=document.getElementById('kpiMaterialOverlay');
-  const title=document.getElementById('kpiMaterialModalTitle');
-  const infoBox=document.getElementById('kpiMaterialInfoBox');
-  const infoTitle=document.getElementById('kpiMaterialWorkshopTitle');
-  const dateEl=document.getElementById('kpiMaterialWorkshopDate');
-  const summary=document.getElementById('kpiMaterialSummary');
-  const footer=document.getElementById('kpiMaterialMobileFooter');
   if(overlay) overlay.style.display='none';
-  if(title) title.textContent='📦 MATERIAL';
-  if(infoBox) infoBox.style.display='none';
-  if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
-  if(dateEl){
-    dateEl.textContent='-';
-    dateEl.style.display='none';
-  }
-  if(summary) summary.textContent='TOTAL ITEM: 0 jenis';
-  if(footer) footer.style.display='none';
-  kpiMaterialMetaTerakhir_={project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
   document.body.style.overflow='';
 }
 
