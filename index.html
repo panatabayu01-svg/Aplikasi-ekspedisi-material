@@ -3833,7 +3833,24 @@ function initSharedMaterialView_(){
 
   // LINK PENDEK SERVER V1: URL hanya membawa token 10 karakter.
   if(hash.indexOf(workshopServerShortPrefix)===0){
-    const token=decodeURIComponent(hash.slice(workshopServerShortPrefix.length));
+    // Token server tetap hanya bagian sebelum '&'. Metadata tambahan
+    // disimpan di hash agar link tetap dapat dibuka tanpa mengubah 04_API.gs.
+    const hashBody=hash.slice(workshopServerShortPrefix.length);
+    const hashParts=hashBody.split('&');
+    const token=decodeURIComponent(hashParts[0]||'');
+    let shareMeta=null;
+    try{
+      const metaPart=hashParts.find(function(part){return part.indexOf('meta=')===0;});
+      if(metaPart){
+        const metaEncoded=decodeURIComponent(metaPart.slice(5));
+        const metaBytes=base64UrlToBytesHistory_(metaEncoded);
+        const metaJson=new TextDecoder().decode(metaBytes);
+        shareMeta=JSON.parse(metaJson);
+      }
+    }catch(metaErr){
+      console.warn('SHARE META FALLBACK TIDAK DAPAT DIBACA:',metaErr);
+      shareMeta=null;
+    }
 
     document.body.classList.add('shared-material-mode');
     const root=document.getElementById('sharedMaterialView');
@@ -3859,6 +3876,18 @@ function initSharedMaterialView_(){
       if(!result||result.success!==true||!result.payload){
         throw new Error(result&&result.message?result.message:'Data material tidak ditemukan.');
       }
+
+      // API lama/whitelist tertentu dapat hanya mengembalikan data tabel.
+      // Isi metadata yang kosong dari metadata aman yang ikut dibawa link.
+      if(shareMeta && result.payload){
+        const metaKeys=['p','rk','up','ar','au','ac','at','tc','tt'];
+        metaKeys.forEach(function(k){
+          const current=result.payload[k];
+          const missing=(current===undefined || current===null || String(current).trim()==='' || (Number(current)===0 && ['au','ac','at','tc','tt'].indexOf(k)>=0));
+          if(missing && shareMeta[k]!==undefined) result.payload[k]=shareMeta[k];
+        });
+      }
+
       if(!renderSharedWorkshopMaterialList_(result.payload)){
         throw new Error('Tampilan material tidak dapat dibuat.');
       }
@@ -7097,7 +7126,22 @@ async function bagikanKpiMaterial_(){
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
     if(loadingDone) loadingDone.remove();
 
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
+    // Simpan metadata tampilan di URL bersama token server.
+    // Ini menjadi fallback jika API share hanya mengembalikan daftar material
+    // tetapi tidak mengembalikan field metadata (proyek, rencana kirim, armada, dll).
+    const shareMeta={
+      p:payload.p,
+      rk:payload.rk,
+      up:payload.up,
+      ar:payload.ar,
+      au:payload.au,
+      ac:payload.ac,
+      at:payload.at,
+      tc:payload.tc,
+      tt:payload.tt
+    };
+    const shareMetaEncoded=bytesToBase64UrlHistory_(new TextEncoder().encode(JSON.stringify(shareMeta)));
+    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token)+'&meta='+encodeURIComponent(shareMetaEncoded);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
 
