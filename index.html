@@ -1893,6 +1893,10 @@
   color:#12395b !important;
 }
 
+.shared-workshop-view-mode .shared-workshop-table tbody td:nth-child(2){
+  text-align:left !important;
+}
+
 .shared-workshop-view-mode .shared-material-title{
   padding:10px 10px 2px !important;
   color:#102f4e !important;
@@ -3725,7 +3729,7 @@ function renderSharedWorkshopMaterialList_(payload){
               (list.length ? list.map(function(x,i){
                 return '<tr>'+
                   '<td style="text-align:center">'+(i+1)+'</td>'+
-                  '<td>'+escapeHtmlSafe_(x.material||'-')+'</td>'+
+                  '<td style="text-align:left">'+escapeHtmlSafe_(x.material||'-')+'</td>'+
                   '<td style="text-align:center">'+escapeHtmlSafe_(x.volume||'0')+'</td>'+
                   '<td style="text-align:center">'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
                 '</tr>';
