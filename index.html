@@ -6915,7 +6915,39 @@ function bukaKpiMaterial(){
   if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
   if(infoBox) infoBox.style.display='block';
 
-  const meta=kpiMaterialMetaTerakhir_||{};
+  /*
+   * POPUP HARUS MENGIKUTI ARMADA YANG SEDANG DIPILIH DI DROPDOWN
+   * REKOMENDASI ARMADA. Sebelumnya metadata popup selalu memakai
+   * armadaAutoSnapshot, sehingga walaupun dropdown dipilih CONTAINER,
+   * popup tetap menampilkan TRONTON (hasil AUTO).
+   *
+   * armadaTampilanTerakhir[0] = kartu ARMADA 1 yang sedang tampil.
+   * Jadi AUTO maupun pilihan manual akan tercermin di popup.
+   */
+  const metaBase=kpiMaterialMetaTerakhir_||{};
+  const currentCards=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
+  const currentArmada=currentCards.length ? currentCards[0] : null;
+  const meta=Object.assign({},metaBase);
+
+  if(currentArmada){
+    meta.armada=String(currentArmada.armada||meta.armada||'-').trim();
+    meta.unit=Number(currentArmada.kebutuhanUnit)||1;
+    meta.cbm=Number(currentArmada.totalCbmProyek);
+    meta.ton=Number(currentArmada.totalTonProyek);
+    meta.targetCbm=Number(currentArmada.totalCbmProyek);
+    meta.targetTon=Number(currentArmada.totalTonProyek);
+  }
+
+  /* Simpan metadata terbaru agar BAGIKAN LINK juga memakai pilihan yang sama. */
+  kpiMaterialMetaTerakhir_=Object.assign({},kpiMaterialMetaTerakhir_,{
+    armada:meta.armada,
+    unit:meta.unit,
+    cbm:meta.cbm,
+    ton:meta.ton,
+    targetCbm:meta.targetCbm,
+    targetTon:meta.targetTon
+  });
+
   if(projectEl) projectEl.textContent='Proyek : '+(meta.project||proyekAktif||'-');
   if(planEl) planEl.textContent='Rencana Kirim : '+(meta.rencanaKirim||'-');
   if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
