@@ -6251,7 +6251,7 @@ function perbaruiKartuArmada_(index,a){
     '</div>'+
     '<div class="armada-panel">'+
       '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
-      '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(totalCbmKpi,2)+' m³</span></div>'+
+      '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
       '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
       '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
       '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
@@ -6290,13 +6290,6 @@ function tampilkanArmada(list){
   empty.style.display='none';
   result.style.display='block';
   container.innerHTML='';
-
-  // TOTAL KUBIKASI HASIL PERHITUNGAN harus mengikuti KPI
-  // yang dihitung dari materialDataTerakhir (sumber MESIN_HITUNG).
-  // Jangan ubah logika pembagian muatan/kapasitas armada.
-  const totalCbmKpi = materialDataTerakhir.reduce(function(sum,item){
-    return sum + (Number(item && item.totalCbm)||0);
-  },0);
 
   // Simpan daftar yang sedang ditampilkan agar dropdown kartu berikutnya
   // bekerja pada hasil terakhir, bukan kembali ke hasil AUTO awal.
@@ -6378,7 +6371,7 @@ function tampilkanArmada(list){
       '</div>'+
       '<div class="armada-panel">'+
         '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
-        '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(totalCbmKpi,2)+' m³</span></div>'+
+        '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
         '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
         '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
