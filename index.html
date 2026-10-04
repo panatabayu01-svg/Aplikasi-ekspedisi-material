@@ -2003,6 +2003,23 @@
   .shared-material-footer{padding:9px 10px}
 }
 </style>
+
+<style id="mobile-two-point-fix-20261004">
+/* PERUBAHAN HP SAJA:
+   1) INPUT TGL KIRIM: ukuran teks + ikon disamakan dengan HISTORY.
+   2) DATA MATERIAL: tombol EXPORT EXCEL disembunyikan di HP.
+   PC tidak berubah.
+*/
+@media (max-width:600px){
+  #btnInputTanggal{
+    font-size:12px !important;
+  }
+  #btnExportExcel{
+    display:none !important;
+  }
+}
+</style>
+
 </head>
 
 <body style="background:#eef3f7 !important;">
