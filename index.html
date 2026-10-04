@@ -819,6 +819,10 @@
     .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#17324d;}
     .kpi-material-workshop-date{padding:5px 0 0;background:transparent;color:#17324d;font-size:12px;font-weight:900;border:0;}
     .kpi-material-summary{padding:5px 0 0;background:transparent;border:0;color:#17324d;font-size:12px;font-weight:900;}
+    .kpi-material-meta-line{padding:2px 0 0;color:#17324d;font-size:12px;font-weight:800;line-height:1.35;}
+    .kpi-material-meta-spacer{height:10px;}
+    .kpi-material-armada-line{color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
+    .kpi-material-target-line{padding-top:3px;color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
     .kpi-material-mobile-footer{display:none;align-items:center;justify-content:flex-end;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
     .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:0;}
     .kpi-material-mobile-action,.kpi-material-mobile-close{height:34px;border-radius:4px;border:1px solid #0d447f;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap;padding:0 9px;}
@@ -848,6 +852,15 @@
         margin:0;
         color:#17324d !important;
       }
+      #kpiMaterialOverlay .kpi-material-meta-line,
+      #kpiMaterialOverlay .kpi-material-armada-line,
+      #kpiMaterialOverlay .kpi-material-target-line{
+        display:block !important;
+        font-size:12px !important;
+        line-height:1.35 !important;
+        color:#17324d !important;
+      }
+      #kpiMaterialOverlay .kpi-material-meta-spacer{height:10px !important;}
       #kpiMaterialOverlay .kpi-material-mobile-footer{display:flex !important;}
       #kpiMaterialOverlay .kpi-material-modal{max-height:88vh;}
     }
@@ -1860,6 +1873,24 @@
   border-top:1px solid #d7e1ea;
 }
 
+.shared-workshop-view-mode .shared-material-project,
+.shared-workshop-view-mode .shared-material-plan,
+.shared-workshop-view-mode .shared-material-update,
+.shared-workshop-view-mode .shared-material-armada,
+.shared-workshop-view-mode .shared-material-target{
+  padding:2px 10px !important;
+  margin:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  color:#17324d !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  line-height:1.35 !important;
+}
+.shared-workshop-view-mode .shared-material-spacer{height:10px !important;}
+.shared-workshop-view-mode .shared-material-armada,
+.shared-workshop-view-mode .shared-material-target{font-weight:900 !important;}
+
 .shared-workshop-view-mode .shared-workshop-table{
   width:100% !important;
   border-collapse:collapse !important;
@@ -2375,8 +2406,12 @@
     <!-- KHUSUS HP: SATU KOTAK INFO DI BAWAH HEADER -->
     <div id="kpiMaterialInfoBox" class="kpi-material-info-box" style="display:none">
       <div id="kpiMaterialWorkshopTitle" class="kpi-material-workshop-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>
-      <div id="kpiMaterialWorkshopDate" class="kpi-material-workshop-date">-</div>
-      <div id="kpiMaterialSummary" class="kpi-material-summary">TOTAL ITEM: 0 jenis</div>
+      <div id="kpiMaterialProject" class="kpi-material-meta-line">Proyek : -</div>
+      <div id="kpiMaterialPlan" class="kpi-material-meta-line">Rencana Kirim : -</div>
+      <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
+      <div class="kpi-material-meta-spacer"></div>
+      <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : - | UNIT : 0 | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
+      <div id="kpiMaterialTarget" class="kpi-material-target-line">Target muatan: 0 m³ | 0 Ton</div>
     </div>
 
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
@@ -2743,6 +2778,7 @@ let armadaKartuPilihanManual = {};
 // Menjaga rekomendasi armada tetap tampil jika request refresh/server
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
 let armadaAktualTerakhir = [];
+let kpiMaterialMetaTerakhir_ = {project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
 let armadaAutoSnapshot = [];
 let armadaTampilanTerakhir = [];
 let armadaMaterialIndexTerakhir = -1;
@@ -3742,10 +3778,12 @@ function renderSharedWorkshopMaterialList_(payload){
       '<div class="shared-material-body">'+
         '<div class="shared-workshop-info">'+
           '<div class="shared-material-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>'+
-          '<div class="shared-material-date">'+escapeHtmlSafe_(payload.d||'-')+'</div>'+
-          '<div class="shared-material-summary">TOTAL ITEM: '+
-            formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+
-            ' jenis</div>'+
+          '<div class="shared-material-project">Proyek : '+escapeHtmlSafe_(payload.p||'-')+'</div>'+
+          '<div class="shared-material-plan">Rencana Kirim : '+escapeHtmlSafe_(payload.rk||'-')+'</div>'+
+          '<div class="shared-material-update">Update : '+escapeHtmlSafe_(payload.up||payload.d||'-')+'</div>'+
+          '<div class="shared-material-spacer"></div>'+
+          '<div class="shared-material-armada">ARMADA : '+escapeHtmlSafe_(payload.ar||'-')+' | UNIT : '+formatAngkaHistory_(payload.au,0)+' | MATERIAL : '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis | CBM : '+formatAngkaHistory_(payload.ac,2)+' m³ | TON : '+formatAngkaHistory_(payload.at,3)+' Ton</div>'+
+          '<div class="shared-material-target">Target muatan: '+formatAngkaHistory_(payload.tc,2)+' m³ | '+formatAngkaHistory_(payload.tt,3)+' Ton</div>'+
         '</div>'+
 
         '<div class="shared-workshop-table-wrap">'+
@@ -5078,6 +5116,26 @@ function tampilkanData(data){
       armadaList[idx]=buatKartuManualDariTarget_(master,target);
     });
   }
+
+  // Metadata popup LIST MATERIAL mengikuti proyek aktif.
+  // UPDATE selalu tanggal perangkat saat popup dibuka.
+  const metaNow=new Date();
+  const metaHari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const metaBulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const metaUpdate=metaHari[metaNow.getDay()]+', '+String(metaNow.getDate()).padStart(2,'0')+' '+metaBulan[metaNow.getMonth()]+' '+metaNow.getFullYear();
+  const metaArmada=Array.isArray(armadaAutoSnapshot)&&armadaAutoSnapshot.length ? armadaAutoSnapshot[0] : null;
+  kpiMaterialMetaTerakhir_={
+    project:String(proyekAktif||'').trim(),
+    rencanaKirim:formatTanggalLengkapIndonesia_(tanggalKirim),
+    update:metaUpdate,
+    armada:metaArmada ? String(metaArmada.armada||'-').trim() : '-',
+    unit:metaArmada ? Number(metaArmada.kebutuhanUnit)||0 : 0,
+    material:kpiItem,
+    cbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
+    ton:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon,
+    targetCbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
+    targetTon:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon
+  };
 
   /* Dropdown pertama selalu dibangun dari snapshot AUTO asli. */
   siapkanDropdownArmada_(armadaAutoSnapshot,summaryUntukArmada);
@@ -6816,29 +6874,29 @@ function bukaKpiMaterial(){
   const body=document.getElementById('kpiMaterialBody');
   const infoBox=document.getElementById('kpiMaterialInfoBox');
   const infoTitle=document.getElementById('kpiMaterialWorkshopTitle');
-  const dateEl=document.getElementById('kpiMaterialWorkshopDate');
-  const summary=document.getElementById('kpiMaterialSummary');
-  const headerTitle=document.getElementById('kpiMaterialModalTitle');
+  const projectEl=document.getElementById('kpiMaterialProject');
+  const planEl=document.getElementById('kpiMaterialPlan');
+  const updateEl=document.getElementById('kpiMaterialUpdate');
+  const armadaEl=document.getElementById('kpiMaterialArmada');
+  const targetEl=document.getElementById('kpiMaterialTarget');
   const footer=document.getElementById('kpiMaterialMobileFooter');
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
 
-  // KHUSUS HP: HEADER tetap "MATERIAL".
-  // Di bawah header dibuat SATU KOTAK BIRU berisi judul, tanggal perangkat, dan total item.
-  if(headerTitle) headerTitle.textContent='📦 MATERIAL';
-  if(infoBox) infoBox.style.display='block';
   if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
+  if(infoBox) infoBox.style.display='block';
 
-  if(dateEl){
-    const now=new Date();
-    const hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-    const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    dateEl.textContent=hari[now.getDay()]+', '+String(now.getDate()).padStart(2,'0')+' '+bulan[now.getMonth()]+' '+now.getFullYear();
-    dateEl.style.display='block';
+  const meta=kpiMaterialMetaTerakhir_||{};
+  if(projectEl) projectEl.textContent='Proyek : '+(meta.project||proyekAktif||'-');
+  if(planEl) planEl.textContent='Rencana Kirim : '+(meta.rencanaKirim||'-');
+  if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
+  if(armadaEl){
+    armadaEl.textContent='ARMADA : '+(meta.armada||'-')+' | UNIT : '+formatNumber(meta.unit||0,0)+' | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
+  }
+  if(targetEl){
+    targetEl.textContent='Target muatan: '+formatNumber(meta.targetCbm||0,2)+' m³ | '+formatNumber(meta.targetTon||0,3)+' Ton';
   }
   if(footer) footer.style.display='flex';
-
-  if(summary) summary.textContent='TOTAL ITEM: '+formatNumber(rows.length,0)+' jenis';
 
   if(!rows.length){
     body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
@@ -6956,6 +7014,15 @@ async function bagikanKpiMaterial_(){
     w:2,
     d:tanggal,
     ti:rows.length,
+    p:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.project || proyekAktif || '').trim(),
+    rk:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.rencanaKirim || '-').trim(),
+    up:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.update || tanggal).trim(),
+    ar:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.armada || '-').trim(),
+    au:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.unit || 0),
+    ac:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.cbm || 0),
+    at:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.ton || 0),
+    tc:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetCbm || 0),
+    tt:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetTon || 0),
     m:rows.map(function(x,i){
       const nama=String(x && (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '').trim();
       let satuan='';
@@ -7069,6 +7136,7 @@ function tutupKpiMaterial(event){
   }
   if(summary) summary.textContent='TOTAL ITEM: 0 jenis';
   if(footer) footer.style.display='none';
+  kpiMaterialMetaTerakhir_={project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
   document.body.style.overflow='';
 }
 
