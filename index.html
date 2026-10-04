@@ -1831,6 +1831,8 @@
 }
 .shared-workshop-view-mode .shared-material-card{
   overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
 }
 
 .shared-workshop-view-mode .shared-material-body{
@@ -1838,10 +1840,14 @@
   min-height:0 !important;
   display:flex !important;
   flex-direction:column !important;
+  flex:1 1 auto !important;
 }
 
 .shared-workshop-view-mode .shared-workshop-info{
   flex:0 0 auto !important;
+  background:#fff !important;
+  position:relative !important;
+  z-index:30 !important;
 }
 
 .shared-workshop-view-mode .shared-workshop-table-wrap{
@@ -1850,8 +1856,8 @@
   overflow-y:auto !important;
   overflow-x:hidden !important;
   -webkit-overflow-scrolling:touch;
+  position:relative !important;
   border-top:1px solid #d7e1ea;
-  position:relative;
 }
 
 .shared-workshop-view-mode .shared-workshop-table{
@@ -1861,17 +1867,56 @@
   table-layout:fixed !important;
 }
 
+.shared-workshop-view-mode .shared-workshop-table th,
+.shared-workshop-view-mode .shared-workshop-table td{
+  box-sizing:border-box !important;
+  border:1px solid #cbd6df !important;
+  padding:7px 6px !important;
+  font-family:Arial,sans-serif !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+}
+
 .shared-workshop-view-mode .shared-workshop-table thead th{
   position:sticky !important;
   top:0 !important;
-  z-index:20 !important;
+  z-index:50 !important;
   background:linear-gradient(90deg,#0a3f70 0%,#236fa7 100%) !important;
   color:#fff !important;
-  box-shadow:0 1px 0 #17324d, 0 2px 4px rgba(0,0,0,.12);
+  font-weight:800 !important;
+  text-align:center !important;
+  box-shadow:0 2px 4px rgba(0,0,0,.18) !important;
 }
 
 .shared-workshop-view-mode .shared-workshop-table tbody td{
-  background:#fff;
+  background:#fff !important;
+  color:#12395b !important;
+}
+
+.shared-workshop-view-mode .shared-material-title{
+  padding:10px 10px 2px !important;
+  color:#102f4e !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+}
+
+.shared-workshop-view-mode .shared-material-date{
+  padding:4px 10px !important;
+  margin:0 !important;
+  color:#17324d !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+}
+
+.shared-workshop-view-mode .shared-material-summary{
+  padding:2px 10px 9px !important;
+  color:#17324d !important;
+  font-size:16px !important;
+  font-weight:900 !important;
+}
+
+.shared-workshop-view-mode .shared-material-footer{
+  flex:0 0 auto !important;
 }
 
 .shared-material-list{border-top:1px solid #dfe7ed}
@@ -1906,6 +1951,19 @@
   }
   .shared-workshop-view-mode .shared-workshop-table-wrap{
     max-height:calc(100vh - 205px) !important;
+    overflow-y:auto !important;
+  }
+  .shared-workshop-view-mode .shared-workshop-table th,
+  .shared-workshop-view-mode .shared-workshop-table td{
+    font-size:11px !important;
+    padding:7px 5px !important;
+  }
+  .shared-workshop-view-mode .shared-material-title{
+    font-size:18px !important;
+  }
+  .shared-workshop-view-mode .shared-material-date,
+  .shared-workshop-view-mode .shared-material-summary{
+    font-size:14px !important;
   }
   .shared-workshop-view-mode .shared-workshop-table{
     min-width:0 !important;
@@ -3542,25 +3600,129 @@ function renderSharedMaterialLinkError_(message){
   }
 }
 
+function exportSharedWorkshopExcel_(payload){
+  try{
+    if(!payload || !Array.isArray(payload.m) || !payload.m.length){
+      alert('Tidak ada data material untuk diexport.');
+      return;
+    }
+
+    const rows=payload.m.map(function(x){
+      return {
+        material:String(x&&x[0]||''),
+        volume:String(x&&x[1]!=null?x[1]:''),
+        unit:String(x&&x[2]||'')
+      };
+    });
+
+    const tanggal=String(payload.d||'-');
+    const totalItem=Number(payload.ti)||rows.length;
+
+    let htmlTable=
+      '<html><head><meta charset="UTF-8"></head><body>'+
+      '<table border="1">'+
+      '<tr><th colspan="4">LIST MATERIAL DI WORKSHOP SAAT INI</th></tr>'+
+      '<tr><td colspan="4">'+escapeHtmlSafe_(tanggal)+'</td></tr>'+
+      '<tr><td colspan="4">TOTAL ITEM: '+totalItem+' jenis</td></tr>'+
+      '<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr>';
+
+    rows.forEach(function(x,i){
+      htmlTable+='<tr>'+
+        '<td>'+(i+1)+'</td>'+
+        '<td>'+escapeHtmlSafe_(x.material)+'</td>'+
+        '<td>'+escapeHtmlSafe_(x.volume)+'</td>'+
+        '<td>'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
+      '</tr>';
+    });
+
+    htmlTable+='</table></body></html>';
+
+    const blob=new Blob(['\ufeff',htmlTable],{
+      type:'application/vnd.ms-excel;charset=utf-8'
+    });
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='LIST_MATERIAL_WORKSHOP_'+tanggal.replace(/[^0-9A-Za-z]+/g,'_')+'.xls';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  }catch(e){
+    console.error('EXPORT SHARED WORKSHOP ERROR:',e);
+    alert('Export Excel gagal. Silakan coba lagi.');
+  }
+}
+
 function renderSharedWorkshopMaterialList_(payload){
   if(!payload||!Array.isArray(payload.m))return false;
-  const list=payload.m.map(function(x){return {material:String(x[0]||''),volume:String(x[1]||'')};});
+
+  const list=payload.m.map(function(x){
+    return {
+      material:String(x&&x[0]||''),
+      volume:String(x&&x[1]!=null?x[1]:''),
+      unit:String(x&&x[2]||'')
+    };
+  });
+
   const root=document.getElementById('sharedMaterialView');
   if(!root)return false;
-  document.body.classList.add('shared-material-mode');
+
+  document.body.classList.add('shared-material-mode','shared-workshop-view-mode');
   root.style.display='flex';
+
   root.innerHTML=
     '<div class="shared-material-card">'+
-      '<div class="shared-material-header"><span>📦 LIST MATERIAL DI WORKSHOP SAAT INI</span><button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button></div>'+
+      '<div class="shared-material-header">'+
+        '<span>📦 MATERIAL</span>'+
+        '<button type="button" class="shared-material-header-close" aria-label="Tutup" onclick="tutupSharedMaterialView_()">×</button>'+
+      '</div>'+
+
       '<div class="shared-material-body">'+
-        '<div class="shared-material-date">'+escapeHtmlSafe_(payload.d||'-')+'</div>'+
-        '<div class="shared-material-summary">TOTAL ITEM: '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis</div>'+
-        '<div class="shared-material-list">'+
-          (list.length?list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
+        '<div class="shared-workshop-info">'+
+          '<div class="shared-material-title">LIST MATERIAL DI WORKSHOP SAAT INI</div>'+
+          '<div class="shared-material-date">'+escapeHtmlSafe_(payload.d||'-')+'</div>'+
+          '<div class="shared-material-summary">TOTAL ITEM: '+
+            formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+
+            ' jenis</div>'+
+        '</div>'+
+
+        '<div class="shared-workshop-table-wrap">'+
+          '<table class="shared-workshop-table">'+
+            '<colgroup>'+
+              '<col style="width:9%">'+
+              '<col style="width:51%">'+
+              '<col style="width:20%">'+
+              '<col style="width:20%">'+
+            '</colgroup>'+
+            '<thead><tr>'+
+              '<th>NO</th>'+
+              '<th>MATERIAL</th>'+
+              '<th>VOLUME</th>'+
+              '<th>SATUAN</th>'+
+            '</tr></thead>'+
+            '<tbody>'+
+              (list.length ? list.map(function(x,i){
+                return '<tr>'+
+                  '<td style="text-align:center">'+(i+1)+'</td>'+
+                  '<td>'+escapeHtmlSafe_(x.material||'-')+'</td>'+
+                  '<td style="text-align:center">'+escapeHtmlSafe_(x.volume||'0')+'</td>'+
+                  '<td style="text-align:center">'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
+                '</tr>';
+              }).join('') :
+              '<tr><td colspan="4" style="text-align:center">Tidak ada material.</td></tr>')+
+            '</tbody>'+
+          '</table>'+
         '</div>'+
       '</div>'+
-      '<div class="shared-material-footer"><button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button></div>'+
+
+      '<div class="shared-material-footer">'+
+        '<button type="button" class="history-material-list-action-btn" onclick="exportSharedWorkshopExcel_(window.__SHARED_WORKSHOP_PAYLOAD__)">📥 EXPORT EXCEL</button>'+
+        '<button type="button" class="history-material-list-close-btn" onclick="tutupSharedMaterialView_()">TUTUP</button>'+
+      '</div>'+
     '</div>';
+
+  window.__SHARED_WORKSHOP_PAYLOAD__=payload;
   return true;
 }
 function initSharedMaterialView_(){
