@@ -2416,7 +2416,6 @@
       <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
       <div class="kpi-material-meta-spacer"></div>
       <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : 0 UNIT | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
-      <div id="kpiMaterialTarget" class="kpi-material-target-line">Target muatan: 0 m³ | 0 Ton</div>
     </div>
 
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
@@ -3788,7 +3787,6 @@ function renderSharedWorkshopMaterialList_(payload){
           '<div class="shared-material-update">Update : '+escapeHtmlSafe_(payload.up||payload.d||'-')+'</div>'+
           '<div class="shared-material-spacer"></div>'+
           '<div class="shared-material-armada">ARMADA : '+formatAngkaHistory_(payload.au,0)+' UNIT | MATERIAL : '+formatAngkaHistory_(payload.ti!=null?payload.ti:list.length,0)+' jenis | CBM : '+formatAngkaHistory_(payload.ac,2)+' m³ | TON : '+formatAngkaHistory_(payload.at,3)+' Ton</div>'+
-          '<div class="shared-material-target">Target muatan: '+formatAngkaHistory_(payload.tc,2)+' m³ | '+formatAngkaHistory_(payload.tt,3)+' Ton</div>'+
         '</div>'+
 
         '<div class="shared-workshop-table-wrap">'+
@@ -6912,7 +6910,6 @@ function bukaKpiMaterial(){
   const planEl=document.getElementById('kpiMaterialPlan');
   const updateEl=document.getElementById('kpiMaterialUpdate');
   const armadaEl=document.getElementById('kpiMaterialArmada');
-  const targetEl=document.getElementById('kpiMaterialTarget');
   const footer=document.getElementById('kpiMaterialMobileFooter');
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
@@ -6927,10 +6924,12 @@ function bukaKpiMaterial(){
   if(armadaEl){
     armadaEl.textContent='ARMADA : '+formatNumber(meta.unit||0,0)+' UNIT | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
   }
-  if(targetEl){
-    targetEl.textContent='Target muatan: '+formatNumber(meta.targetCbm||0,2)+' m³ | '+formatNumber(meta.targetTon||0,3)+' Ton';
-  }
   if(footer) footer.style.display='flex';
+  const mobileExportBtn=footer ? footer.querySelector('.kpi-material-mobile-export') : null;
+  if(mobileExportBtn){
+    const isMobile=window.matchMedia && window.matchMedia('(max-width:600px)').matches;
+    mobileExportBtn.style.display=isMobile ? 'none' : '';
+  }
 
   if(!rows.length){
     body.innerHTML='<div class="kpi-material-empty">Belum ada data material.</div>';
