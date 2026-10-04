@@ -1976,6 +1976,30 @@ body.history-material-list-scroll-lock{
 }
 
 .shared-material-table-head{display:grid;grid-template-columns:40px 1fr 105px;gap:8px;align-items:center;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-weight:900;font-size:11px;padding:8px;border:1px solid #0a3f70;border-radius:3px 3px 0 0;} .shared-material-table-head>div{text-align:center;} .shared-material-table-head .shared-material-head-name{text-align:center;}
+/* SHARE LINK — hanya isi tabel yang boleh scroll. Header popup + info tetap diam. */
+.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-card{
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-body{
+  min-height:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  flex:1 1 auto !important;
+}
+.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-list{
+  min-height:0 !important;
+  flex:1 1 auto !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.shared-material-mode:not(.shared-workshop-view-mode) .shared-material-table-head{
+  flex:0 0 auto !important;
+}
 .shared-material-list{border-top:1px solid #dfe7ed}
 .shared-material-row{
   display:grid;
