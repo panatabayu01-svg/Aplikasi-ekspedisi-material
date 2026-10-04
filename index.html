@@ -6663,7 +6663,7 @@ async function bagikanKpiMaterial_(){
       return r.json();
     });
 
-    if(!startResult||startResult.success!==true||!startResult.upload_id){
+    if(!startResult||startResult.success!==true||!startResult.upload_id||!startResult.token){
       if(startResult&&startResult.code==='USER_NOT_APPROVED'){
         alert('Perangkat belum disetujui Owner.');
         return;
@@ -6701,25 +6701,16 @@ async function bagikanKpiMaterial_(){
       }
     }
 
-    const finishResult=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{
-      method:'GET',cache:'no-store',redirect:'follow'
-    }).then(function(r){
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      return r.json();
-    });
-
-    if(!finishResult||finishResult.success!==true||!finishResult.token){
-      if(finishResult&&finishResult.code==='USER_NOT_APPROVED'){
-        alert('Perangkat belum disetujui Owner.');
-        return;
-      }
-      throw new Error(finishResult&&finishResult.message?finishResult.message:'Kode share tidak dapat dibuat.');
+    // Token publik sudah dibuat saat START. Setelah seluruh chunk berhasil,
+    // link dapat langsung ditampilkan tanpa menunggu request FINISH.
+    if(!startResult.token){
+      throw new Error('Token share tidak tersedia.');
     }
 
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
     if(loadingDone)loadingDone.remove();
 
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
+    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(startResult.token);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
 
