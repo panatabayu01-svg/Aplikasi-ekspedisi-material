@@ -3604,6 +3604,34 @@ function renderSharedMaterialLinkError_(message){
   }
 }
 
+
+// Normalisasi data shared workshop.
+// V19 mengirim format lama: [MATERIAL, "VOLUME♦SATUAN"].
+// Versi lama renderer membaca x[2], sehingga SATUAN tampil "-".
+// Fungsi ini mendukung format baru maupun lama.
+function normalizeSharedWorkshopRows_(payload){
+  if(!payload || !Array.isArray(payload.m)) return [];
+
+  return payload.m.map(function(x){
+    const material=String(x&&x[0]!=null?x[0]:'');
+    let volume=String(x&&x[1]!=null?x[1]:'');
+    let unit=String(x&&x[2]!=null?x[2]:'').trim();
+
+    // Format V19: volume♦satuan
+    if(!unit && volume.indexOf('♦')>=0){
+      const parts=volume.split('♦');
+      volume=String(parts.shift()||'').trim();
+      unit=String(parts.join('♦')||'').trim();
+    }
+
+    return {
+      material:material,
+      volume:volume,
+      unit:unit
+    };
+  });
+}
+
 function exportSharedWorkshopExcel_(payload){
   try{
     if(!payload || !Array.isArray(payload.m) || !payload.m.length){
@@ -3611,13 +3639,7 @@ function exportSharedWorkshopExcel_(payload){
       return;
     }
 
-    const rows=payload.m.map(function(x){
-      return {
-        material:String(x&&x[0]||''),
-        volume:String(x&&x[1]!=null?x[1]:''),
-        unit:String(x&&x[2]||'')
-      };
-    });
+    const rows=normalizeSharedWorkshopRows_(payload);
 
     const tanggal=String(payload.d||'-');
     const totalItem=Number(payload.ti)||rows.length;
@@ -3661,13 +3683,7 @@ function exportSharedWorkshopExcel_(payload){
 function renderSharedWorkshopMaterialList_(payload){
   if(!payload||!Array.isArray(payload.m))return false;
 
-  const list=payload.m.map(function(x){
-    return {
-      material:String(x&&x[0]||''),
-      volume:String(x&&x[1]!=null?x[1]:''),
-      unit:String(x&&x[2]||'')
-    };
-  });
+  const list=normalizeSharedWorkshopRows_(payload);
 
   const root=document.getElementById('sharedMaterialView');
   if(!root)return false;
