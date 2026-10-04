@@ -7126,22 +7126,9 @@ async function bagikanKpiMaterial_(){
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
     if(loadingDone) loadingDone.remove();
 
-    // Simpan metadata tampilan di URL bersama token server.
-    // Ini menjadi fallback jika API share hanya mengembalikan daftar material
-    // tetapi tidak mengembalikan field metadata (proyek, rencana kirim, armada, dll).
-    const shareMeta={
-      p:payload.p,
-      rk:payload.rk,
-      up:payload.up,
-      ar:payload.ar,
-      au:payload.au,
-      ac:payload.ac,
-      at:payload.at,
-      tc:payload.tc,
-      tt:payload.tt
-    };
-    const shareMetaEncoded=bytesToBase64UrlHistory_(new TextEncoder().encode(JSON.stringify(shareMeta)));
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token)+'&meta='+encodeURIComponent(shareMetaEncoded);
+    // V30: metadata sudah disimpan di SERVER bersama token.
+    // URL cukup membawa token 10 karakter agar link sangat pendek.
+    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
 
