@@ -5307,10 +5307,10 @@ function tampilkanData(data){
     armada:metaArmada ? String(metaArmada.armada||'-').trim() : '-',
     unit:metaArmada ? Number(metaArmada.kebutuhanUnit)||0 : 0,
     material:kpiItem,
-    cbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
-    ton:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon,
-    targetCbm:metaArmada ? Number(metaArmada.totalCbmProyek)||0 : kpiCbm,
-    targetTon:metaArmada ? Number(metaArmada.totalTonProyek)||0 : kpiTon
+    cbm:kpiCbm,
+    ton:kpiTon,
+    targetCbm:kpiCbm,
+    targetTon:kpiTon
   };
 
   /* Dropdown pertama selalu dibangun dari snapshot AUTO asli. */
@@ -7322,7 +7322,8 @@ function tutupKpiMaterial(event){
   }
   if(summary) summary.textContent='TOTAL ITEM: 0 jenis';
   if(footer) footer.style.display='none';
-  kpiMaterialMetaTerakhir_={project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
+  // Metadata tidak di-reset saat popup ditutup.
+  // Data tetap tersedia ketika popup dibuka kembali.
   document.body.style.overflow='';
 }
 
