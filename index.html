@@ -5302,7 +5302,7 @@ function tampilkanData(data){
   const metaArmada=Array.isArray(armadaAutoSnapshot)&&armadaAutoSnapshot.length ? armadaAutoSnapshot[0] : null;
   kpiMaterialMetaTerakhir_={
     project:String(proyekAktif||'').trim(),
-    rencanaKirim:formatTanggalLengkapIndonesia_(tanggalKirim),
+    rencanaKirim:(String(statusRencanaKirim && statusRencanaKirim.text || '').trim() || 'BELUM ADA SCHEDULE')==='BELUM ADA SCHEDULE' ? 'BELUM ADA SCHEDULE' : formatTanggalLengkapIndonesia_(tanggalKirim),
     update:metaUpdate,
     armada:metaArmada ? String(metaArmada.armada||'-').trim() : '-',
     unit:metaArmada ? Number(metaArmada.kebutuhanUnit)||0 : 0,
