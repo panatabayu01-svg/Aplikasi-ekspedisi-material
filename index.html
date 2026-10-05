@@ -7065,15 +7065,44 @@ function bukaKpiMaterial(){
   const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
 
+  // Jika metadata belum tersedia, bangun ulang dari state aplikasi yang
+  // sedang aktif agar popup tidak kembali menjadi '-' atau 0.
+  if(!kpiMaterialMetaTerakhir_ || !kpiMaterialMetaTerakhir_.project){
+    const firstAuto=Array.isArray(armadaAutoSnapshot)&&armadaAutoSnapshot.length ? armadaAutoSnapshot[0] : null;
+    kpiMaterialMetaTerakhir_=Object.assign({},kpiMaterialMetaTerakhir_||{},{
+      project:String(proyekAktif||'').trim(),
+      armada:firstAuto ? String(firstAuto.armada||'-').trim() : (kpiMaterialMetaTerakhir_||{}).armada||'-',
+      unit:firstAuto ? Number(firstAuto.kebutuhanUnit)||0 : Number((kpiMaterialMetaTerakhir_||{}).unit)||0,
+      material:rows.length
+    });
+  }
+
   if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
   if(infoBox) infoBox.style.display='block';
 
   const meta=kpiMaterialMetaTerakhir_||{};
+
+  // Saat popup dibuka, ambil nilai CBM/TON langsung dari KPI yang
+  // sedang tampil. Dengan demikian popup tidak pernah memakai nilai
+  // muatan armada pertama atau metadata lama.
+  const kpiCbmEl=document.getElementById('totalCbm');
+  const kpiTonEl=document.getElementById('totalTon');
+  const liveCbmText=kpiCbmEl ? String(kpiCbmEl.textContent||'').trim() : '';
+  const liveTonText=kpiTonEl ? String(kpiTonEl.textContent||'').trim() : '';
+  const liveCbm=liveCbmText ? liveCbmText.replace(/\\s*m³.*$/,'').trim() : '';
+  const liveTon=liveTonText ? liveTonText.replace(/\\s*Ton.*$/,'').trim() : '';
+
+  // Jika metadata popup kosong setelah startup/reload, gunakan state
+  // proyek aktif yang sedang tampil tanpa mengubah data aplikasi.
   if(projectEl) projectEl.textContent='Proyek : '+(meta.project||proyekAktif||'-');
   if(planEl) planEl.textContent='Rencana Kirim : '+(meta.rencanaKirim||'-');
   if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
   if(armadaEl){
-    armadaEl.textContent='ARMADA : '+formatNumber(meta.unit||0,0)+' UNIT | MATERIAL : '+formatNumber(meta.material||rows.length,0)+' jenis | CBM : '+formatNumber(meta.cbm||0,2)+' m³ | TON : '+formatNumber(meta.ton||0,3)+' Ton';
+    const armadaUnit=Number(meta.unit)||0;
+    const materialCount=Number(meta.material)||rows.length;
+    const cbmDisplay=liveCbm || formatNumber(meta.cbm||0,2);
+    const tonDisplay=liveTon || formatNumber(meta.ton||0,3);
+    armadaEl.textContent='ARMADA : '+formatNumber(armadaUnit,0)+' UNIT | MATERIAL : '+formatNumber(materialCount,0)+' jenis | CBM : '+cbmDisplay+' m³ | TON : '+tonDisplay+' Ton';
   }
   if(footer) footer.style.display='flex';
   const mobileExportBtn=footer ? footer.querySelector('.kpi-material-mobile-export') : null;
