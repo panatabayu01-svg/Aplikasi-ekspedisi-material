@@ -7311,8 +7311,9 @@ function exportExcel(){
   const tanggalExport = now.toLocaleString('id-ID');
 
   let html = '<html><head><meta charset="UTF-8"></head><body>';
-  html += '<table border="1" cellspacing="0" cellpadding="5">';
-  html += '<tr><th colspan="10" style="font-size:16pt">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<table border="1" cellspacing="0" cellpadding="5" style="text-align:center;">';
+  html += '<tr><th colspan="10" style="font-size:16pt;text-align:center;">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;background-color:#ffff00;">PT. PANATA BAYU NUGRAHA</th></tr>';
   html += '<tr><th colspan="10">PROYEK</th></tr>';
   html += '<tr><td colspan="10">'+esc(proyek)+'</td></tr>';
   html += '<tr><th colspan="10">METODE INPUT</th></tr>';
@@ -7338,7 +7339,7 @@ function exportExcel(){
 
     html += '<tr>'+
       exportText(fmtExport(i+1,0)) +
-      '<td>'+esc(item.material)+'</td>'+
+      '<td style="text-align:left;">'+esc(item.material)+'</td>'+
       exportText(fmtExport(item.volume,0)) +
       '<td>'+esc(item.unit)+'</td>'+
       '<td>'+esc(item.category)+'</td>'+
