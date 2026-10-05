@@ -2655,8 +2655,41 @@ function daftarUserBaru_(){
   }).catch(e=>{alert(e.message||'Pendaftaran gagal.');setUserAccessMode_('FORM')})
   .finally(()=>{if(btn){btn.disabled=false;btn.textContent='SEND REGISTRATION'}});
 }
+function prewarmStartupCache_(){
+  // OPTIMASI STARTUP HP SAJA:
+  // Siapkan data cache lokal sebelum menunggu check_user dari server.
+  // Tidak melakukan request server dan tidak mengubah data/logika aplikasi.
+  try{
+    const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
+    if(!Array.isArray(cachedProjects) || !cachedProjects.length) return;
+
+    daftarProyek=filterProyekOtomatis_(cachedProjects);
+    if(typeof isiDropdownProyek==='function') isiDropdownProyek(false);
+    if(typeof updateModeUI_==='function') updateModeUI_();
+
+    const target=daftarProyek[0] || '';
+    if(!target) return;
+
+    const select=document.getElementById('projectSelect');
+    if(select) select.value=target;
+    proyekAktif=target;
+
+    const cachedData=getCache_(getProjectCacheKey_(target));
+    if(cachedData && cachedData.success===true){
+      tampilkanData(cachedData);
+      setStatus('Data tersimpan ditampilkan. Memperbarui data...');
+      showLoading(false);
+    }
+  }catch(e){
+    console.warn('STARTUP CACHE PREWARM ERROR:',e);
+  }
+}
+
 function mulaiSistemUser_(){
   userDeviceId_=getUserDeviceId_();
+  // Siapkan cache lokal lebih awal agar HP tidak menunggu respons
+  // check_user sebelum data yang sudah tersimpan dapat ditampilkan.
+  prewarmStartupCache_();
   // Jangan tampilkan popup saat startup. Popup hanya ditampilkan
   // setelah server memastikan perangkat memang belum APPROVED.
   hideUserAccessOverlay_();
