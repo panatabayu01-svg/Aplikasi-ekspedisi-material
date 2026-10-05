@@ -7304,23 +7304,31 @@ function exportExcel(){
   }
 
   function exportText(v){
-    return '<td style="mso-number-format:\'@\';">'+esc(v)+'</td>';
+    return '<td style="mso-number-format:\'@\';text-align:center;vertical-align:middle;">'+esc(v)+'</td>';
+  }
+
+  function exportCell(v, align){
+    return '<td style="text-align:'+(align||'center')+';vertical-align:middle;">'+esc(v)+'</td>';
+  }
+
+  function exportHeader(v){
+    return '<th style="text-align:center;vertical-align:middle;">'+esc(v)+'</th>';
   }
 
   const now = new Date();
   const tanggalExport = now.toLocaleString('id-ID');
 
   let html = '<html><head><meta charset="UTF-8"></head><body>';
-  html += '<table border="1" cellspacing="0" cellpadding="5" style="text-align:center;">';
-  html += '<tr><th colspan="10" style="font-size:16pt;text-align:center;">APLIKASI EKSPEDISI MATERIAL</th></tr>';
-  html += '<tr><th colspan="10" style="text-align:center;background-color:#ffff00;">PT. PANATA BAYU NUGRAHA</th></tr>';
-  html += '<tr><th colspan="10">PROYEK</th></tr>';
-  html += '<tr><td colspan="10">'+esc(proyek)+'</td></tr>';
-  html += '<tr><th colspan="10">METODE INPUT</th></tr>';
-  html += '<tr><td colspan="10">'+esc(mode)+'</td></tr>';
-  html += '<tr><th colspan="10">RINGKASAN</th></tr>';
+  html += '<table border="1" cellspacing="0" cellpadding="5" style="text-align:center;vertical-align:middle;">';
+  html += '<tr><th colspan="10" style="font-size:16pt;text-align:center;vertical-align:middle;">APLIKASI EKSPEDISI MATERIAL</th></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">PT. PANATA BAYU NUGRAHA</th></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">PROYEK</th></tr>';
+  html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">'+esc(proyek)+'</td></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">METODE INPUT</th></tr>';
+  html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">'+esc(mode)+'</td></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">RINGKASAN</th></tr>';
   html += '<tr>'+
-    '<th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL KUBIKASI</th><th>TOTAL TONASE</th><th colspan="6"></th>'+
+    exportHeader('TOTAL ITEM')+exportHeader('TOTAL VOLUME')+exportHeader('TOTAL KUBIKASI')+exportHeader('TOTAL TONASE')+'<th colspan="6"></th>'+
     '</tr>';
   html += '<tr>'+
     exportText(fmtExport(totalItem,0))+
@@ -7339,20 +7347,20 @@ function exportExcel(){
 
     html += '<tr>'+
       exportText(fmtExport(i+1,0)) +
-      '<td style="text-align:left;">'+esc(item.material)+'</td>'+
+      exportCell(item.material,'left')+
       exportText(fmtExport(item.volume,0)) +
-      '<td>'+esc(item.unit)+'</td>'+
-      '<td>'+esc(item.category)+'</td>'+
+      exportCell(item.unit,'center')+
+      exportCell(item.category,'center')+
       exportText(fmtExport(item.totalCbm,3)) +
       exportText(fmtExport(item.totalWeightKg,2)) +
       exportText(fmtExport(item.totalTon,3)) +
-      '<td>'+esc(st.label)+'</td>'+
+      exportCell(st.label,'center')+
       '<td></td>'+
       '</tr>';
   });
 
   html += '<tr><td colspan="10"></td></tr>';
-  html += '<tr><td colspan="10">Export: '+esc(tanggalExport)+'</td></tr>';
+  html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">Export: '+esc(tanggalExport)+'</td></tr>';
   html += '</table></body></html>';
 
   const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
