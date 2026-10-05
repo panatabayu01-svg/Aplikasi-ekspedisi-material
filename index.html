@@ -3810,36 +3810,78 @@ function exportSharedWorkshopExcel_(payload){
     }
 
     const rows=normalizeSharedWorkshopRows_(payload);
-
-    const tanggal=String(payload.d||'-');
+    const proyek=String(payload.p||'-').trim() || '-';
+    const tanggalRencana=String(payload.rk||'-').trim() || '-';
+    const tanggalUpdate=String(payload.up||payload.d||'-').trim() || '-';
     const totalItem=Number(payload.ti)||rows.length;
+    const armada=Number(payload.au)||0;
+    const cbm=Number(payload.ac)||0;
+    const ton=Number(payload.at)||0;
 
-    let htmlTable=
-      '<html><head><meta charset="UTF-8"></head><body>'+
-      '<table border="1">'+
-      '<tr><th colspan="4">LIST MATERIAL DI WORKSHOP SAAT INI</th></tr>'+
-      '<tr><td colspan="4">'+escapeHtmlSafe_(tanggal)+'</td></tr>'+
-      '<tr><td colspan="4">TOTAL ITEM: '+totalItem+' jenis</td></tr>'+
-      '<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>SATUAN</th></tr>';
+    function esc(v){
+      return String(v==null?'':v)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    function fmt(v,digits){
+      const n=Number(v);
+      if(!isFinite(n)) return '0';
+      return n.toLocaleString('id-ID',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+    }
+
+    // Semua informasi sebelum tabel dibuat satu blok/kolom penuh (A:D), center.
+    // Hanya isi tabel material yang memakai 4 kolom terpisah.
+    const centerCell=function(text,style){
+      return '<tr><td colspan="4" style="text-align:center;vertical-align:middle;'+(style||'')+'">'+text+'</td></tr>';
+    };
+
+    let html=
+      '<html><head><meta charset="UTF-8"><style>'+
+      'table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:11pt;}'+
+      'th,td{border:1px solid #000;}'+
+      '.center{text-align:center;vertical-align:middle;}'+
+      '.left{text-align:left;vertical-align:middle;}'+
+      '.head{font-weight:700;text-align:center;vertical-align:middle;}'+
+      '.title{font-size:16pt;font-weight:700;}'+
+      '.company{font-size:12pt;font-weight:700;}'+
+      '.summary{font-weight:700;}'+
+      '</style></head><body>'+
+      '<table border="1" cellspacing="0" cellpadding="5">';
+
+    html+=centerCell('LIST MATERIAL DI WORKSHOP SAAT INI','font-size:16pt;font-weight:700;');
+    html+=centerCell('PT. PANATA BAYU NUGRAHA','font-size:12pt;font-weight:700;');
+    html+=centerCell('<b>PROYEK : </b>'+esc(proyek),'font-weight:700;');
+    html+=centerCell('<b>Rencana Kirim : </b>'+esc(tanggalRencana));
+    html+=centerCell('<b>Update : </b>'+esc(tanggalUpdate));
+    html+=centerCell('<b>ARMADA : '+fmt(armada,0)+' UNIT | MATERIAL : '+fmt(totalItem,0)+' jenis | CBM : '+fmt(cbm,2)+' m³ | TON : '+fmt(ton,3)+' Ton</b>','font-weight:700;');
+
+    html+='<tr>'+\
+      '<th style="text-align:center;vertical-align:middle;">NO</th>'+\
+      '<th style="text-align:center;vertical-align:middle;">MATERIAL</th>'+\
+      '<th style="text-align:center;vertical-align:middle;">VOLUME</th>'+\
+      '<th style="text-align:center;vertical-align:middle;">SATUAN</th>'+\
+      '</tr>';
 
     rows.forEach(function(x,i){
-      htmlTable+='<tr>'+
-        '<td>'+(i+1)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.material)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.volume)+'</td>'+
-        '<td>'+escapeHtmlSafe_(x.unit||'-')+'</td>'+
+      html+='<tr>'+\
+        '<td style="text-align:center;vertical-align:middle;">'+esc(i+1)+'</td>'+\
+        '<td style="text-align:left;vertical-align:middle;">'+esc(x.material)+'</td>'+\
+        '<td style="text-align:center;vertical-align:middle;mso-number-format:\'@\';">'+esc(x.volume)+'</td>'+\
+        '<td style="text-align:center;vertical-align:middle;">'+esc(x.unit||'-')+'</td>'+\
       '</tr>';
     });
 
-    htmlTable+='</table></body></html>';
+    html+='</table></body></html>';
 
-    const blob=new Blob(['\ufeff',htmlTable],{
-      type:'application/vnd.ms-excel;charset=utf-8'
-    });
+    const blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download='LIST_MATERIAL_WORKSHOP_'+tanggal.replace(/[^0-9A-Za-z]+/g,'_')+'.xls';
+    const namaProyek=proyek.replace(/[^a-zA-Z0-9\\u00C0-\\u024F\\u1E00-\\u1EFF]+/g,'_').replace(/^_+|_+$/g,'')||'WORKSHOP';
+    a.download='LIST_MATERIAL_WORKSHOP_'+namaProyek+'.xls';
     document.body.appendChild(a);
     a.click();
     a.remove();
