@@ -3681,20 +3681,28 @@ function exportListMaterialHistory_(){
   };
   const textCell=function(v){return '<td style="mso-number-format:\'@\';">'+esc(v)+'</td>';};
   const exportedAt=new Date().toLocaleString('id-ID');
-  let html='<html><head><meta charset="UTF-8"></head><body>';
+  let html='<html><head><meta charset="UTF-8"><style>'+
+    'table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:11pt;}'+
+    'th,td{border:1px solid #000;padding:5px;text-align:center;vertical-align:middle;}'+
+    '.title{font-size:16pt;font-weight:bold;height:28px;}'+
+    '.company{font-size:13pt;font-weight:bold;height:24px;}'+
+    '.label{font-weight:bold;}'+
+    '.table-head{font-weight:bold;background:#d9d9d9;}'+
+    '.material{text-align:left;}'+
+    '</style></head><body>';
   html+='<table border="1" cellspacing="0" cellpadding="5">';
-  html+='<tr><th colspan="4" style="font-size:16pt">LIST MATERIAL DI KIRIM</th></tr>';
-  html+='<tr><th colspan="4">PROYEK</th></tr>';
+  html+='<tr><th colspan="4" class="title">LIST MATERIAL DI KIRIM</th></tr>';
+  html+='<tr><th colspan="4" class="company">PT. PANTA BAYU NUGRAHA</th></tr>';
+  html+='<tr><th colspan="4" class="label">PROYEK</th></tr>';
   html+='<tr><td colspan="4">'+esc(payload.p)+'</td></tr>';
-  html+='<tr><th colspan="2">PENGIRIMAN</th><td colspan="2">'+esc(fmt(payload.n,0)+' ('+terbilangPengirimanHistory_(Number(payload.n)||1)+')')+'</td></tr>';
-  html+='<tr><th colspan="2">TANGGAL PENGIRIMAN</th><td colspan="2">'+esc(formatTanggalHistoryPengiriman_(payload.d))+'</td></tr>';
-  html+='<tr><th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL TONASE</th><th>TOTAL KUBIKASI</th></tr>';
+  html+='<tr><th colspan="2" class="label">PENGIRIMAN</th><td colspan="2">'+esc(fmt(payload.n,0)+' ('+terbilangPengirimanHistory_(Number(payload.n)||1)+')')+'</td></tr>';
+  html+='<tr><th colspan="2" class="label">TANGGAL PENGIRIMAN</th><td colspan="2">'+esc(formatTanggalHistoryPengiriman_(payload.d))+'</td></tr>';
+  html+='<tr class="label"><th>TOTAL ITEM</th><th>TOTAL VOLUME</th><th>TOTAL TONASE</th><th>TOTAL KUBIKASI</th></tr>';
   html+='<tr>'+textCell(fmt(payload.ti,0)+' jenis')+textCell(fmt(payload.tv,0)+' unit')+textCell(fmt(payload.tt,3)+' Ton')+textCell(fmt(payload.tc,2)+' m³')+'</tr>';
-  html+='<tr><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th></tr>';
+  html+='<tr class="table-head"><th>NO</th><th>MATERIAL</th><th>VOLUME</th><th>UNIT</th></tr>';
   rows.forEach(function(r,i){
-    html+='<tr>'+textCell(i+1)+'<td>'+esc(r[0])+'</td>'+textCell(r[1]||'0')+'<td>unit</td></tr>';
+    html+='<tr><td>'+esc(i+1)+'</td><td class="material">'+esc(r[0])+'</td>'+textCell(r[1]||'0')+'<td>unit</td></tr>';
   });
-  html+='<tr><td colspan="4">Dibuat: '+esc(exportedAt)+'</td></tr>';
   html+='</table></body></html>';
   const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
   const url=URL.createObjectURL(blob);
