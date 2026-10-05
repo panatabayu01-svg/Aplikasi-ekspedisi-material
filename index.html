@@ -7324,8 +7324,9 @@ function exportExcel(){
   html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">PT. PANATA BAYU NUGRAHA</th></tr>';
   html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">PROYEK</th></tr>';
   html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">'+esc(proyek)+'</td></tr>';
-  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">METODE INPUT</th></tr>';
-  html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">'+esc(mode)+'</td></tr>';
+  html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">RENCANA KIRIM</th></tr>';
+  const rencanaKirimExport = String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.rencanaKirim || '').trim() || '-';
+  html += '<tr><td colspan="10" style="text-align:center;vertical-align:middle;">'+esc(rencanaKirimExport)+'</td></tr>';
   html += '<tr><th colspan="10" style="text-align:center;vertical-align:middle;">RINGKASAN</th></tr>';
   html += '<tr>'+
     exportHeader('TOTAL ITEM')+exportHeader('TOTAL VOLUME')+exportHeader('TOTAL KUBIKASI')+exportHeader('TOTAL TONASE')+'<th colspan="6"></th>'+
