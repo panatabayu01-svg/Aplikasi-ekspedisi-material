@@ -6136,7 +6136,10 @@ function isiDropdownArmadaKartu_(select,a,index){
   /* AUTO asli kartu ini disimpan agar tetap bisa dipilih kembali
    * setelah pengguna mengganti kartu menjadi armada manual. */
   const autoNama=normalisasiNamaArmada_(a._autoArmada || (a._isAutoResult===true ? a.armada : ''));
-  const isAutoResult=!!autoNama;
+  // AUTO hanya untuk kartu yang benar-benar masih merupakan hasil AUTO.
+  // Setelah Armada 2 dipilih manual, _autoArmada tetap disimpan sebagai
+  // referensi untuk kembali ke AUTO, tetapi kartu tersebut bukan AUTO lagi.
+  const isAutoResult=(a._isAutoResult===true);
 
   const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
     const effective=Math.min(
@@ -6197,9 +6200,23 @@ function isiDropdownArmadaKartu_(select,a,index){
   });
 
   const savedManual=normalisasiNamaArmada_(armadaKartuPilihanManual[index]||'');
-  const savedAda=savedManual && savedManual!=='AUTO' && pilihan.some(function(k){
+  let savedAda=savedManual && savedManual!=='AUTO' && pilihan.some(function(k){
     return normalisasiNamaArmada_(k.master.armada)===savedManual && !k.isAuto;
   });
+
+  // Pilihan manual yang sedang dipakai harus selalu dipertahankan.
+  // Jangan biarkan render ulang mengembalikan Armada 2 ke AUTO hanya karena
+  // kendaraan manual tersebut tidak lagi masuk 4 kandidat teratas.
+  if(savedManual && savedManual!=='AUTO' && !savedAda){
+    const savedMaster=cariMasterArmada_(savedManual);
+    if(savedMaster){
+      const option=document.createElement('option');
+      option.value=savedManual;
+      option.textContent=savedMaster.armada;
+      select.appendChild(option);
+      savedAda=true;
+    }
+  }
 
   if(savedAda){
     select.value=savedManual;
@@ -6254,6 +6271,12 @@ function pilihArmadaKartuManual(index,selectEl){
 
   /* JANGAN ubah armadaAktualTerakhir / armadaAutoSnapshot. */
   perbaruiKartuArmada_(index,hasil);
+
+  // Pastikan pilihan baru tetap terlihat setelah kartu dirender ulang.
+  const selectBaru=document.querySelector('#armadaSelectCard'+index);
+  if(selectBaru){
+    selectBaru.value=nama;
+  }
 
   setStatus('Armada '+(index+1)+' dipilih manual: '+master.armada+' — 1 UNIT.');
 }
