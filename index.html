@@ -377,9 +377,23 @@
 
     .history-pengiriman-reschedule-title{font-size:11px;font-weight:900;color:#a56600;margin-bottom:5px}
     .history-pengiriman-reschedule-row{display:grid;grid-template-columns:125px 1fr;gap:4px 7px;font-size:11px;color:#5b4a2d}
-    .history-pengiriman-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;text-align:right}
+    .history-pengiriman-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .history-pengiriman-footer-left{display:flex;align-items:center;gap:8px}
+    .history-pengiriman-save-btn{height:36px;min-width:175px;border:1px solid #168a49;border-radius:4px;background:#168a49;color:#fff;font-weight:900;cursor:pointer;padding:0 14px}
+    .history-pengiriman-save-btn:hover{background:#0f6f3a}
+    .history-pengiriman-save-btn:disabled{opacity:.6;cursor:not-allowed}
     .history-pengiriman-close-btn{height:36px;min-width:90px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-weight:800;cursor:pointer}
-    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
+    .history-pengiriman-confirm-overlay{position:fixed;inset:0;width:100vw;height:100vh;z-index:10020;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(18,38,58,.58);box-sizing:border-box}
+    .history-pengiriman-confirm-modal{width:min(430px,100%);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 14px 45px rgba(0,0,0,.30)}
+    .history-pengiriman-confirm-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:15px;font-weight:900}
+    .history-pengiriman-confirm-body{padding:18px 16px;color:#17324d;font-size:13px;line-height:1.5}
+    .history-pengiriman-confirm-project{margin-top:8px;padding:9px 10px;background:#eaf3fb;border:1px solid #d2e1ef;border-radius:5px;color:#0b477d;font-weight:900}
+    .history-pengiriman-confirm-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;display:flex;justify-content:flex-end;gap:8px}
+    .history-pengiriman-confirm-cancel,.history-pengiriman-confirm-save{height:36px;border-radius:4px;font-weight:900;cursor:pointer;padding:0 14px}
+    .history-pengiriman-confirm-cancel{min-width:90px;border:1px solid #7a8b99;background:#fff;color:#4d6170}
+    .history-pengiriman-confirm-save{min-width:150px;border:1px solid #168a49;background:#168a49;color:#fff}
+    .history-pengiriman-confirm-save:disabled{opacity:.6;cursor:not-allowed}
+    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
     @media(max-width:600px){
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
       .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
@@ -2227,7 +2241,28 @@ body.history-material-list-scroll-lock{
       <div id="historyPengirimanList"></div>
     </div>
     <div class="history-pengiriman-footer">
+      <div class="history-pengiriman-footer-left">
+        <button type="button" class="history-pengiriman-save-btn" onclick="bukaKonfirmasiSimpanPengiriman_()">🚚 SIMPAN PENGIRIMAN</button>
+      </div>
       <button type="button" class="history-pengiriman-close-btn" onclick="tutupHistoryPengiriman_()">TUTUP</button>
+    </div>
+  </div>
+</div>
+
+<div id="historyPengirimanConfirmOverlay" class="history-pengiriman-confirm-overlay" onclick="tutupKonfirmasiSimpanPengiriman_(event)">
+  <div class="history-pengiriman-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="historyPengirimanConfirmTitle" onclick="event.stopPropagation()">
+    <div class="history-pengiriman-confirm-header">
+      <span id="historyPengirimanConfirmTitle">🚚 KONFIRMASI PENGIRIMAN</span>
+      <button type="button" class="history-pengiriman-close" onclick="tutupKonfirmasiSimpanPengiriman_()">×</button>
+    </div>
+    <div class="history-pengiriman-confirm-body">
+      <div>Apakah pengiriman material untuk proyek ini sudah benar-benar dilakukan?</div>
+      <div id="historyPengirimanConfirmProject" class="history-pengiriman-confirm-project">-</div>
+      <div style="margin-top:10px;color:#657786;">Setelah disimpan, data akan menjadi histori pengiriman berikutnya.</div>
+    </div>
+    <div class="history-pengiriman-confirm-footer">
+      <button id="historyPengirimanConfirmCancel" type="button" class="history-pengiriman-confirm-cancel" onclick="tutupKonfirmasiSimpanPengiriman_()">BATAL</button>
+      <button id="historyPengirimanConfirmSave" type="button" class="history-pengiriman-confirm-save" onclick="simpanPengirimanManual_()">✓ SIMPAN PENGIRIMAN</button>
     </div>
   </div>
 </div>
@@ -4183,6 +4218,55 @@ function renderHistoryPengiriman_(project,history){
   const unassigned=reschedules.filter(function(r){const no=Number(r.pengirimanKe)||0;return !shipments.some(function(x){return (Number(x.pengirimanKe)||0)===no;});});
   if(unassigned.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE PENGIRIMAN BERIKUTNYA</div>'+unassigned.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
 }
+
+function bukaKonfirmasiSimpanPengiriman_(){
+  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
+  if(!project){alert('Pilih proyek terlebih dahulu.');return;}
+  const overlay=document.getElementById('historyPengirimanConfirmOverlay');
+  const projectEl=document.getElementById('historyPengirimanConfirmProject');
+  const saveBtn=document.getElementById('historyPengirimanConfirmSave');
+  if(projectEl)projectEl.textContent='Proyek : '+project;
+  if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='✓ SIMPAN PENGIRIMAN';}
+  if(overlay)overlay.style.display='flex';
+}
+
+function tutupKonfirmasiSimpanPengiriman_(event){
+  if(event&&event.target&&event.target.id!=='historyPengirimanConfirmOverlay')return;
+  const overlay=document.getElementById('historyPengirimanConfirmOverlay');
+  if(overlay)overlay.style.display='none';
+}
+
+function setSimpanPengirimanLoading_(loading){
+  const saveBtn=document.getElementById('historyPengirimanConfirmSave');
+  const cancelBtn=document.getElementById('historyPengirimanConfirmCancel');
+  if(saveBtn){saveBtn.disabled=loading;saveBtn.textContent=loading?'MENYIMPAN...':'✓ SIMPAN PENGIRIMAN';}
+  if(cancelBtn)cancelBtn.disabled=loading;
+}
+
+function simpanPengirimanManual_(){
+  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
+  if(!project){alert('Pilih proyek terlebih dahulu.');return;}
+  setSimpanPengirimanLoading_(true);
+
+  fetch(userApiUrl_('save_delivery_history',{project:project}),{
+    method:'GET',cache:'no-store',redirect:'follow'
+  })
+  .then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
+  .then(function(result){
+    if(!result||result.success!==true)throw Error(result&&result.message?result.message:'Pengiriman gagal disimpan.');
+    const confirmOverlay=document.getElementById('historyPengirimanConfirmOverlay');
+    if(confirmOverlay)confirmOverlay.style.display='none';
+    renderHistoryPengiriman_(project,Array.isArray(result.history)?result.history:[]);
+    setSimpanPengirimanLoading_(false);
+    alert('Pengiriman berhasil disimpan ke HISTORI_PENGIRIMAN.');
+  })
+  .catch(function(err){
+    console.error('SIMPAN PENGIRIMAN ERROR:',err);
+    setSimpanPengirimanLoading_(false);
+    alert(err&&err.message?err.message:'Pengiriman gagal disimpan.');
+  });
+}
+
 function bukaHistoryPengiriman_(){
   const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
   if(!project){alert('Pilih proyek terlebih dahulu.');return;}
