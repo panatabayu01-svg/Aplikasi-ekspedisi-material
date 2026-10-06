@@ -6136,10 +6136,7 @@ function isiDropdownArmadaKartu_(select,a,index){
   /* AUTO asli kartu ini disimpan agar tetap bisa dipilih kembali
    * setelah pengguna mengganti kartu menjadi armada manual. */
   const autoNama=normalisasiNamaArmada_(a._autoArmada || (a._isAutoResult===true ? a.armada : ''));
-  // AUTO hanya untuk kartu yang benar-benar masih merupakan hasil AUTO.
-  // Setelah Armada 2 dipilih manual, _autoArmada tetap disimpan sebagai
-  // referensi untuk kembali ke AUTO, tetapi kartu tersebut bukan AUTO lagi.
-  const isAutoResult=(a._isAutoResult===true);
+  const isAutoResult=!!autoNama;
 
   const kandidat=MASTER_ARMADA_PILIHAN.map(function(m){
     const effective=Math.min(
@@ -6174,7 +6171,7 @@ function isiDropdownArmadaKartu_(select,a,index){
    * Fallback AUTO hanya untuk kartu yang benar-benar AUTO.
    * Kartu manual TIDAK BOLEH dibuatkan opsi AUTO.
    */
-  if(isAutoResult && !pilihan.some(function(k){return k.isAuto;})){
+  if(autoNama && !pilihan.some(function(k){return k.isAuto;})){
     pilihan.unshift({
       master:{
         armada:a.armada,
@@ -6190,6 +6187,13 @@ function isiDropdownArmadaKartu_(select,a,index){
     });
   }
 
+  if(autoNama && !pilihan.some(function(k){return k.isAuto;})){
+    const autoMaster=cariMasterArmada_(autoNama);
+    if(autoMaster){
+      pilihan.unshift({master:autoMaster,isAuto:true,unit:1,effective:0});
+    }
+  }
+
   select.innerHTML='';
   pilihan.forEach(function(k){
     const option=document.createElement('option');
@@ -6200,23 +6204,9 @@ function isiDropdownArmadaKartu_(select,a,index){
   });
 
   const savedManual=normalisasiNamaArmada_(armadaKartuPilihanManual[index]||'');
-  let savedAda=savedManual && savedManual!=='AUTO' && pilihan.some(function(k){
+  const savedAda=savedManual && savedManual!=='AUTO' && pilihan.some(function(k){
     return normalisasiNamaArmada_(k.master.armada)===savedManual && !k.isAuto;
   });
-
-  // Pilihan manual yang sedang dipakai harus selalu dipertahankan.
-  // Jangan biarkan render ulang mengembalikan Armada 2 ke AUTO hanya karena
-  // kendaraan manual tersebut tidak lagi masuk 4 kandidat teratas.
-  if(savedManual && savedManual!=='AUTO' && !savedAda){
-    const savedMaster=cariMasterArmada_(savedManual);
-    if(savedMaster){
-      const option=document.createElement('option');
-      option.value=savedManual;
-      option.textContent=savedMaster.armada;
-      select.appendChild(option);
-      savedAda=true;
-    }
-  }
 
   if(savedAda){
     select.value=savedManual;
@@ -6272,12 +6262,6 @@ function pilihArmadaKartuManual(index,selectEl){
   /* JANGAN ubah armadaAktualTerakhir / armadaAutoSnapshot. */
   perbaruiKartuArmada_(index,hasil);
 
-  // Pastikan pilihan baru tetap terlihat setelah kartu dirender ulang.
-  const selectBaru=document.querySelector('#armadaSelectCard'+index);
-  if(selectBaru){
-    selectBaru.value=nama;
-  }
-
   setStatus('Armada '+(index+1)+' dipilih manual: '+master.armada+' — 1 UNIT.');
 }
 
@@ -6289,6 +6273,11 @@ function perbaruiKartuArmada_(index,a){
   if(!wrap) return;
   const card=wrap.querySelector('.armada-layout');
   if(!card) return;
+
+  // FIX Armada 2+: totalCbmKpi harus lokal agar handler dropdown tidak error.
+  const totalCbmKpi=materialDataTerakhir.reduce(function(sum,item){
+    return sum + (Number(item && item.totalCbm)||0);
+  },0);
 
   const dimPanjang=Number(a.panjangM)||0;
   const dimLebar=Number(a.lebarM)||0;
