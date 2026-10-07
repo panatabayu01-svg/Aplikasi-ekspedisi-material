@@ -2241,32 +2241,10 @@ body.history-material-list-scroll-lock{
       <div id="historyPengirimanList"></div>
     </div>
     <div class="history-pengiriman-footer">
-      <div class="history-pengiriman-footer-left">
-        <button type="button" class="history-pengiriman-save-btn" onclick="bukaKonfirmasiSimpanPengiriman_()">🚚 SIMPAN PENGIRIMAN</button>
-      </div>
       <button type="button" class="history-pengiriman-close-btn" onclick="tutupHistoryPengiriman_()">TUTUP</button>
     </div>
   </div>
 </div>
-
-<div id="historyPengirimanConfirmOverlay" class="history-pengiriman-confirm-overlay" onclick="tutupKonfirmasiSimpanPengiriman_(event)">
-  <div class="history-pengiriman-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="historyPengirimanConfirmTitle" onclick="event.stopPropagation()">
-    <div class="history-pengiriman-confirm-header">
-      <span id="historyPengirimanConfirmTitle">🚚 KONFIRMASI PENGIRIMAN</span>
-      <button type="button" class="history-pengiriman-close" onclick="tutupKonfirmasiSimpanPengiriman_()">×</button>
-    </div>
-    <div class="history-pengiriman-confirm-body">
-      <div>Apakah pengiriman material untuk proyek ini sudah benar-benar dilakukan?</div>
-      <div id="historyPengirimanConfirmProject" class="history-pengiriman-confirm-project">-</div>
-      <div style="margin-top:10px;color:#657786;">Setelah disimpan, data akan menjadi histori pengiriman berikutnya.</div>
-    </div>
-    <div class="history-pengiriman-confirm-footer">
-      <button id="historyPengirimanConfirmCancel" type="button" class="history-pengiriman-confirm-cancel" onclick="tutupKonfirmasiSimpanPengiriman_()">BATAL</button>
-      <button id="historyPengirimanConfirmSave" type="button" class="history-pengiriman-confirm-save" onclick="simpanPengirimanManual_()">✓ SIMPAN PENGIRIMAN</button>
-    </div>
-  </div>
-</div>
-
 <div id="historyMaterialListOverlay" class="history-material-list-overlay" onclick="tutupListMaterialHistory_(event)">
   <div class="history-material-list-modal" role="dialog" aria-modal="true" aria-labelledby="historyMaterialListTitle" onclick="event.stopPropagation()">
     <div class="history-material-list-header">
@@ -4217,54 +4195,6 @@ function renderHistoryPengiriman_(project,history){
   }).join('');
   const unassigned=reschedules.filter(function(r){const no=Number(r.pengirimanKe)||0;return !shipments.some(function(x){return (Number(x.pengirimanKe)||0)===no;});});
   if(unassigned.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE PENGIRIMAN BERIKUTNYA</div>'+unassigned.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
-}
-
-function bukaKonfirmasiSimpanPengiriman_(){
-  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
-  if(!project){alert('Pilih proyek terlebih dahulu.');return;}
-  const overlay=document.getElementById('historyPengirimanConfirmOverlay');
-  const projectEl=document.getElementById('historyPengirimanConfirmProject');
-  const saveBtn=document.getElementById('historyPengirimanConfirmSave');
-  if(projectEl)projectEl.textContent='Proyek : '+project;
-  if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='✓ SIMPAN PENGIRIMAN';}
-  if(overlay)overlay.style.display='flex';
-}
-
-function tutupKonfirmasiSimpanPengiriman_(event){
-  if(event&&event.target&&event.target.id!=='historyPengirimanConfirmOverlay')return;
-  const overlay=document.getElementById('historyPengirimanConfirmOverlay');
-  if(overlay)overlay.style.display='none';
-}
-
-function setSimpanPengirimanLoading_(loading){
-  const saveBtn=document.getElementById('historyPengirimanConfirmSave');
-  const cancelBtn=document.getElementById('historyPengirimanConfirmCancel');
-  if(saveBtn){saveBtn.disabled=loading;saveBtn.textContent=loading?'MENYIMPAN...':'✓ SIMPAN PENGIRIMAN';}
-  if(cancelBtn)cancelBtn.disabled=loading;
-}
-
-function simpanPengirimanManual_(){
-  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
-  if(!project){alert('Pilih proyek terlebih dahulu.');return;}
-  setSimpanPengirimanLoading_(true);
-
-  fetch(userApiUrl_('save_delivery_history',{project:project}),{
-    method:'GET',cache:'no-store',redirect:'follow'
-  })
-  .then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();})
-  .then(function(result){
-    if(!result||result.success!==true)throw Error(result&&result.message?result.message:'Pengiriman gagal disimpan.');
-    const confirmOverlay=document.getElementById('historyPengirimanConfirmOverlay');
-    if(confirmOverlay)confirmOverlay.style.display='none';
-    renderHistoryPengiriman_(project,Array.isArray(result.history)?result.history:[]);
-    setSimpanPengirimanLoading_(false);
-    alert('Pengiriman berhasil disimpan ke HISTORI_PENGIRIMAN.');
-  })
-  .catch(function(err){
-    console.error('SIMPAN PENGIRIMAN ERROR:',err);
-    setSimpanPengirimanLoading_(false);
-    alert(err&&err.message?err.message:'Pengiriman gagal disimpan.');
-  });
 }
 
 function bukaHistoryPengiriman_(){
