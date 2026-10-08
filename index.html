@@ -315,6 +315,40 @@
     }
     .shipment-status-card.status-ok .shipment-status-value{color:#168a49;}
     .shipment-status-card.status-partial .shipment-status-value{color:#c87500;}
+    .shipment-status-bottom-row{
+      margin-top:6px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      width:100%;
+    }
+    .shipment-status-bottom-row .shipment-status-note{
+      margin-top:0;
+      min-width:0;
+      flex:1 1 auto;
+    }
+    .btn-status-list-material{
+      flex:0 0 auto;
+      height:30px;
+      min-width:118px;
+      padding:0 11px;
+      border:1px solid #0d447f;
+      border-radius:4px;
+      background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      cursor:pointer;
+      white-space:nowrap;
+      box-shadow:0 2px 5px rgba(13,68,127,.18);
+    }
+    .btn-status-list-material:hover{
+      background:linear-gradient(135deg,#0d4c82 0%,#2b7fba 100%);
+    }
+    .btn-status-list-material:active{
+      transform:translateY(1px);
+    }
     .shipment-status-note{
       margin-top:5px;
       font-size:13px;
@@ -395,6 +429,8 @@
     .history-pengiriman-confirm-save:disabled{opacity:.6;cursor:not-allowed}
     @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
     @media(max-width:600px){
+      .shipment-status-bottom-row{display:block;}
+      .btn-status-list-material{display:none;}
       .delivery-date-rescheduled-badge{font-size:9px;padding:0 5px;}
       .delivery-date-detail-btn{font-size:9px;padding:0 5px;}
       .reschedule-history-modal{width:100%;max-height:86vh;}
@@ -673,9 +709,10 @@
     .kpi-material-modal-header{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px;background:linear-gradient(135deg,#0a3f70 0%,#236fa7 100%);color:#fff;font-size:16px;font-weight:700;}
     .kpi-material-close{width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;}
     .kpi-material-summary{padding:9px 12px;background:#eef5fa;border-bottom:1px solid #d6e1e9;color:#17324d;font-size:12px;font-weight:700;}
-    /* PERBAIKAN #21 — TOMBOL MATERIAL PINDAH KE SAMPING INPUT TGL KIRIM (HP SAJA)
+    /* PERBAIKAN #21 — TOMBOL MATERIAL UTAMA UNTUK HP.
        Android + iPhone: MATERIAL | INPUT TGL KIRIM | REFRESH.
-       PC tidak berubah. */
+       PC juga dapat membuka popup material melalui tombol LIST MATERIAL
+       di kotak STATUS REALISASI pada popup RIWAYAT. */
     @media(max-width:600px){
       .btn-kpi-material{
         display:flex !important;
@@ -831,7 +868,7 @@
       .kpi-material-sticky-head th:nth-child(4),.kpi-material-scroll td:nth-child(4){width:18% !important;}
     }
 
-    /* WORKSHOP MATERIAL POPUP — KHUSUS HP ANDROID/iPHONE. PC TIDAK DIUBAH. */
+    /* WORKSHOP MATERIAL POPUP — DIPAKAI HP + PC. */
     /* INFO DI BAWAH HEADER: TANPA BACKGROUND BIRU, TANPA ICON */
     .kpi-material-info-box{display:none;}
     .kpi-material-workshop-title{font-size:14px;font-weight:900;line-height:1.25;color:#17324d;}
@@ -2219,7 +2256,10 @@ body.history-material-list-scroll-lock{
       <div id="rescheduleHistoryStatus" class="shipment-status-card status-partial">
         <div class="shipment-status-title">STATUS REALISASI</div>
         <div id="shipmentStatusValue" class="shipment-status-value">🟠 MENUNGGU PENGIRIMAN</div>
-        <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
+        <div class="shipment-status-bottom-row">
+          <div id="shipmentStatusNote" class="shipment-status-note">RENCANA KIRIM: -</div>
+          <button id="btnStatusListMaterial" type="button" class="btn-status-list-material" onclick="bukaKpiMaterial()">📦 LIST MATERIAL</button>
+        </div>
       </div>
       <div id="rescheduleHistoryProject" class="reschedule-history-project">-</div>
       <div id="rescheduleHistoryList"></div>
@@ -2468,7 +2508,7 @@ body.history-material-list-scroll-lock{
   </div>
 </div>
 
-<!-- PERBAIKAN #16 — POPUP MATERIAL DARI KPI TOTAL ITEM (KHUSUS HP) -->
+<!-- POPUP MATERIAL DARI KPI TOTAL ITEM / STATUS REALISASI — HP + PC -->
 <div id="kpiMaterialOverlay" onclick="tutupKpiMaterial(event)">
   <div class="kpi-material-modal" role="dialog" aria-modal="true" aria-labelledby="kpiMaterialModalTitle" onclick="event.stopPropagation()">
     <div class="kpi-material-modal-header">
@@ -7077,8 +7117,6 @@ document.addEventListener('keydown',function(e){
 });
 
 function bukaKpiMaterial(){
-  if(window.matchMedia && !window.matchMedia('(max-width:600px)').matches) return;
-
   const overlay=document.getElementById('kpiMaterialOverlay');
   const body=document.getElementById('kpiMaterialBody');
   const infoBox=document.getElementById('kpiMaterialInfoBox');
