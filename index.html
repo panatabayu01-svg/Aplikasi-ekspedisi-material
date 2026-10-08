@@ -2523,7 +2523,7 @@ body.history-material-list-scroll-lock{
       <div id="kpiMaterialPlan" class="kpi-material-meta-line">Rencana Kirim : -</div>
       <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
       <div class="kpi-material-meta-spacer"></div>
-      <div id="kpiMaterialArmada" class="kpi-material-armada-line">ARMADA : 0 UNIT | MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
+      <div id="kpiMaterialArmada" class="kpi-material-armada-line">MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
     </div>
 
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
@@ -7166,7 +7166,7 @@ function bukaKpiMaterial(){
     const materialCount=Number(meta.material)||rows.length;
     const cbmDisplay=liveCbm || formatNumber(meta.cbm||0,2);
     const tonDisplay=liveTon || formatNumber(meta.ton||0,3);
-    armadaEl.textContent='ARMADA : '+formatNumber(armadaUnit,0)+' UNIT | MATERIAL : '+formatNumber(materialCount,0)+' jenis | CBM : '+cbmDisplay+' m³ | TON : '+tonDisplay+' Ton';
+    armadaEl.textContent='MATERIAL : '+formatNumber(materialCount,0)+' jenis | CBM : '+cbmDisplay+' m³ | TON : '+tonDisplay+' Ton';
   }
   if(footer) footer.style.display='flex';
   const mobileExportBtn=footer ? footer.querySelector('.kpi-material-mobile-export') : null;
