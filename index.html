@@ -2960,8 +2960,6 @@ let armadaKartuPilihanManual = {};
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
 let armadaAktualTerakhir = [];
 let kpiMaterialMetaTerakhir_ = {project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
-let manualPopupMaterialRows_ = null;
-let manualPopupMaterialLoading_ = false;
 let armadaAutoSnapshot = [];
 let armadaTampilanTerakhir = [];
 let armadaMaterialIndexTerakhir = -1;
@@ -7155,26 +7153,6 @@ document.addEventListener('keydown',function(e){
 });
 
 function bukaKpiMaterial(){
-  // Filter kandidat popup hanya pada MANUAL. AUTO tetap memakai data yang sudah ada.
-  if(modeAplikasi==='MANUAL' && manualPopupMaterialRows_===null && !manualPopupMaterialLoading_){
-    manualPopupMaterialLoading_=true;
-    const bodyLoading=document.getElementById('kpiMaterialBody');
-    const overlayLoading=document.getElementById('kpiMaterialOverlay');
-    if(bodyLoading) bodyLoading.innerHTML='<div class="kpi-material-empty">Memuat material MANUAL...</div>';
-    if(overlayLoading) overlayLoading.style.display='flex';
-    fetch(userApiUrl_('manual_popup_material'),{method:'GET',cache:'no-store',redirect:'follow'})
-      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-      .then(function(result){
-        if(!result || result.success!==true) throw new Error(result&&result.message?result.message:'Data material MANUAL gagal dimuat.');
-        manualPopupMaterialRows_=Array.isArray(result.material)?result.material:[];
-      })
-      .catch(function(err){
-        console.error('MANUAL POPUP MATERIAL ERROR:',err);
-        manualPopupMaterialRows_=[];
-      })
-      .finally(function(){manualPopupMaterialLoading_=false;bukaKpiMaterial();});
-    return;
-  }
   const overlay=document.getElementById('kpiMaterialOverlay');
   const body=document.getElementById('kpiMaterialBody');
   const infoBox=document.getElementById('kpiMaterialInfoBox');
@@ -7184,7 +7162,7 @@ function bukaKpiMaterial(){
   const updateEl=document.getElementById('kpiMaterialUpdate');
   const armadaEl=document.getElementById('kpiMaterialArmada');
   const footer=document.getElementById('kpiMaterialMobileFooter');
-  const rows=modeAplikasi==='MANUAL' && Array.isArray(manualPopupMaterialRows_) ? manualPopupMaterialRows_ : (Array.isArray(materialDataTerakhir)?materialDataTerakhir:[]);
+  const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
   if(!overlay || !body) return;
 
   // Jika metadata belum tersedia, bangun ulang dari state aplikasi yang
