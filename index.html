@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="APLIKASI EKSPEDISI MATERIAL">
   <meta name="application-name" content="APLIKASI EKSPEDISI MATERIAL">
   <meta name="msapplication-TileImage" content="./apple-touch-icon.png">
-  <link rel="iamage_src" href="./og-preview-wa.png">
+  <link rel="image_src" href="./og-preview-wa.png">
 
   <!-- LOGO PREVIEW WHATSAPP / SOCIAL SHARE -->
   <meta property="og:type" content="website">
@@ -7541,6 +7541,63 @@ function exportExcel(){
 
 
 function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' | '+n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+</script>
+
+<!-- PC ONLY: tampilkan tombol LIST MATERIAL pada baris kedua,
+     dari sisi kiri RENCANA KIRIM sampai sisi kanan INPUT TGL KIRIM.
+     Tidak mengubah fungsi tombol atau layout HP. -->
+<style id="pc-workshop-material-button-mapping">
+@media (min-width:601px){
+  .control-bar{position:relative !important;padding-bottom:43px !important;}
+  #btnKpiMaterial{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    position:absolute !important;
+    top:45px !important;
+    left:0;
+    width:auto;
+    min-width:0 !important;
+    height:36px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    z-index:3;
+    white-space:nowrap !important;
+  }
+}
+@media (max-width:600px){
+  .control-bar{padding-bottom:0 !important;}
+}
+</style>
+<script id="pc-workshop-material-button-position">
+(function(){
+  function positionWorkshopMaterialButton(){
+    if(window.innerWidth<=600) return;
+    var bar=document.querySelector('.control-bar');
+    var plan=document.getElementById('deliveryDate');
+    var input=document.getElementById('btnInputTanggal');
+    var btn=document.getElementById('btnKpiMaterial');
+    if(!bar||!plan||!input||!btn) return;
+    var br=bar.getBoundingClientRect();
+    var pr=plan.getBoundingClientRect();
+    var ir=input.getBoundingClientRect();
+    var left=pr.left-br.left;
+    var right=ir.right-br.left;
+    if(right>left){
+      btn.style.left=left+'px';
+      btn.style.width=(right-left)+'px';
+    }
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',positionWorkshopMaterialButton);
+  }else{
+    positionWorkshopMaterialButton();
+  }
+  window.addEventListener('load',positionWorkshopMaterialButton);
+  window.addEventListener('resize',positionWorkshopMaterialButton);
+  setTimeout(positionWorkshopMaterialButton,300);
+  setTimeout(positionWorkshopMaterialButton,1000);
+})();
 </script>
 </body>
 </html>
