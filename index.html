@@ -390,6 +390,13 @@
     .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
     .history-pengiriman-status.proses{background:#fff0cf;color:#a56600;border-color:#edc66c}
+    .history-pengiriman-realisasi{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding:12px 14px;background:#fff8e8;border:1px solid #f1cc83;border-left:4px solid #ed9200;border-radius:5px;box-sizing:border-box}
+    .history-pengiriman-realisasi-main{min-width:0;flex:1}
+    .history-pengiriman-realisasi-status{font-size:15px;font-weight:900;color:#d47b00;line-height:1.35;margin-bottom:8px}
+    .history-pengiriman-realisasi-date{font-size:12px;font-weight:800;color:#526b7f;line-height:1.4}
+    .history-pengiriman-realisasi-date strong{color:#173f60}
+    .history-pengiriman-realisasi-btn{height:36px;flex:0 0 auto;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-size:11px;font-weight:900;cursor:pointer;padding:0 14px;white-space:nowrap}
+    .history-pengiriman-realisasi-btn:hover{background:#236fa7}
     .history-pengiriman-reschedule{margin-top:9px;padding:8px 10px;background:#fff5e5;border:1px solid #edc67b;border-left:4px solid #e58a00;border-radius:4px}
     .history-material-btn{height:28px;min-width:112px;border:1px solid #0d447f;border-radius:4px;background:#0d447f;color:#fff;font-size:10px;font-weight:900;cursor:pointer;padding:0 10px;margin-left:8px;vertical-align:middle}
     .history-material-btn:hover{background:#236fa7}
@@ -431,7 +438,7 @@
     .history-pengiriman-confirm-cancel{min-width:90px;border:1px solid #7a8b99;background:#fff;color:#4d6170}
     .history-pengiriman-confirm-save{min-width:150px;border:1px solid #168a49;background:#168a49;color:#fff}
     .history-pengiriman-confirm-save:disabled{opacity:.6;cursor:not-allowed}
-    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}}
+    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}.history-pengiriman-realisasi{align-items:stretch;gap:9px;padding:10px;flex-wrap:wrap}.history-pengiriman-realisasi-main{flex-basis:100%}.history-pengiriman-realisasi-status{font-size:13px}.history-pengiriman-realisasi-date{font-size:11px}.history-pengiriman-realisasi-btn{width:100%;height:34px}}
     @media(max-width:600px){
       .shipment-status-bottom-row{display:block;}
       .btn-status-list-material{display:none;}
@@ -4237,6 +4244,21 @@ function initSharedMaterialView_(){
   else renderSharedMaterialLinkError_('Link pengiriman tidak valid atau sudah tidak dapat dibaca.');
   return true;
 }
+function renderHistoryRealisasiPopup_(){
+  const data=window.__DATA_TERAKHIR__||{};
+  const status=getStatusRealisasi_(data);
+  const rawNote=String(status.note||'');
+  const dateText=rawNote.replace(/^RENCANA KIRIM:\s*/i,'').trim()||'-';
+  const isSent=String(status.value||'').toUpperCase().indexOf('SUDAH TERKIRIM')!==-1;
+  return '<div class="history-pengiriman-realisasi">'+
+    '<div class="history-pengiriman-realisasi-main">'+
+      '<div class="history-pengiriman-realisasi-status">'+escapeHtmlSafe_(status.value||'🟠 MENUNGGU PENGIRIMAN')+'</div>'+
+      '<div class="history-pengiriman-realisasi-date"><strong>RENCANA KIRIM:</strong> '+escapeHtmlSafe_(dateText)+'</div>'+
+    '</div>'+
+    '<button type="button" class="history-pengiriman-realisasi-btn" onclick="bukaKpiMaterial()">📦 LIST MATERIAL</button>'+
+  '</div>';
+}
+
 function renderHistoryPengiriman_(project,history){
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
@@ -4251,6 +4273,7 @@ function renderHistoryPengiriman_(project,history){
   if(!shipments.length){
     listEl.innerHTML='<div class="history-pengiriman-empty">Belum ada histori pengiriman untuk proyek ini.</div>';
     if(reschedules.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RIWAYAT RESCHEDULE</div>'+reschedules.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
+    listEl.innerHTML+=renderHistoryRealisasiPopup_();
     return;
   }
   listEl.innerHTML=shipments.map(function(item,index){
@@ -4271,6 +4294,7 @@ function renderHistoryPengiriman_(project,history){
   }).join('');
   const unassigned=reschedules.filter(function(r){const no=Number(r.pengirimanKe)||0;return !shipments.some(function(x){return (Number(x.pengirimanKe)||0)===no;});});
   if(unassigned.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE PENGIRIMAN BERIKUTNYA</div>'+unassigned.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
+  listEl.innerHTML+=renderHistoryRealisasiPopup_();
 }
 
 function bukaHistoryPengiriman_(){
