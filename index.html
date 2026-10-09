@@ -4080,6 +4080,10 @@ function initSharedMaterialView_(){
       return true;
     }
     document.body.classList.add('shared-history-view-mode');
+    // Snapshot material workshop ikut dibawa pada link history yang baru.
+    // Jadi tombol LIST MATERIAL pada perangkat penerima tidak bergantung
+    // pada state lokal yang memang kosong di perangkat tersebut.
+    window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
     const overlay=document.getElementById('historyPengirimanOverlay');
     const listEl=document.getElementById('historyPengirimanList');
     if(overlay)overlay.style.display='flex';
@@ -4282,7 +4286,7 @@ function renderHistoryRealisasiPopup_(sharedStatus){
       '<div class="history-pengiriman-realisasi-status">'+escapeHtmlSafe_(status.value||'🟠 MENUNGGU PENGIRIMAN')+'</div>'+
       '<div class="history-pengiriman-realisasi-date"><strong>RENCANA KIRIM:</strong> '+escapeHtmlSafe_(dateText)+'</div>'+
     '</div>'+
-    '<button type="button" class="history-material-btn" onclick="bukaKpiMaterial()">📋 LIST MATERIAL</button>'+
+    '<button type="button" class="history-material-btn" onclick="bukaMaterialRealisasiHistory_()">📋 LIST MATERIAL</button>'+
   '</div>';
 }
 
@@ -4332,12 +4336,83 @@ function decodeSharedHistoryState_(value){
   try{return JSON.parse(new TextDecoder().decode(base64UrlToBytesHistory_(value)));}
   catch(e){return null;}
 }
+async function bukaMaterialRealisasiHistory_(){
+  // Link history yang dibagikan membawa snapshot material agar penerima
+  // dapat melihat daftar yang sama walau state aplikasi lokalnya kosong.
+  const token=String(window.__SHARED_HISTORY_WORKSHOP_TOKEN__||'');
+  if(document.body.classList.contains('shared-history-view-mode')){
+    if(!token){
+      alert('Link HISTORY ini dibuat sebelum data material disertakan. Minta pengirim membagikan link HISTORY yang baru.');
+      return;
+    }
+    try{
+      const payload=await decodeHistoryMaterialShareCompressed_(token);
+      if(!payload||!Array.isArray(payload.m)||!payload.m.length){
+        throw new Error('Snapshot material tidak tersedia.');
+      }
+      if(!renderSharedWorkshopMaterialList_(payload))throw new Error('Popup material tidak dapat dibuka.');
+    }catch(err){
+      console.error('OPEN SHARED HISTORY MATERIAL ERROR:',err);
+      alert('Daftar material tidak dapat dimuat dari link ini. Minta pengirim membuat link baru.');
+    }
+    return;
+  }
+  bukaKpiMaterial();
+}
+
 async function bagikanHistoryPengiriman_(){
   const project=String(proyekAktif||document.getElementById('projectSelect')?.value||window.__HISTORY_PENGIRIMAN_PROJECT__||'').trim();
   if(!project){alert('Proyek tidak tersedia untuk dibagikan.');return;}
   const data=window.__DATA_TERAKHIR__||{};
   const status=getStatusRealisasi_(data);
   const state={p:project,s:String(status.value||'🟠 MENUNGGU PENGIRIMAN'),note:String(status.note||'RENCANA KIRIM: -'),cls:String(status.cls||'status-partial')};
+
+  // Sertakan snapshot material workshop pada link history. Tanpa ini,
+  // tombol LIST MATERIAL di perangkat penerima memanggil state lokal
+  // yang kosong dan popup menampilkan 0 jenis.
+  try{
+    const rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir:[];
+    if(rows.length){
+      const meta=kpiMaterialMetaTerakhir_||{};
+      function shareUnit_(item){
+        const keys=['unit','satuan','unitMaterial','satuanMaterial','SATUAN','SATUAN_PM','satuan_pm','UNIT'];
+        for(let i=0;i<keys.length;i++){
+          const v=String(item&&item[keys[i]]!=null?item[keys[i]]:'').trim();
+          if(v&&v!=='-')return v;
+        }
+        return '';
+      }
+      const visibleUnits=[];
+      try{
+        const tableBody=document.querySelector('#kpiMaterialBody .kpi-material-scroll tbody');
+        if(tableBody)Array.from(tableBody.querySelectorAll('tr')).forEach(function(tr){
+          const cells=tr.querySelectorAll('td');
+          visibleUnits.push(cells.length>=4?String(cells[3].textContent||'').trim():'');
+        });
+      }catch(unitReadErr){}
+      const kpiCbmEl=document.getElementById('totalCbm');
+      const kpiTonEl=document.getElementById('totalTon');
+      const cbmText=kpiCbmEl?String(kpiCbmEl.textContent||'').trim():'';
+      const tonText=kpiTonEl?String(kpiTonEl.textContent||'').trim():'';
+      const cbmMatch=cbmText.replace(/\s*m³.*$/,'').replace(/\./g,'').replace(',','.');
+      const tonMatch=tonText.replace(/\s*Ton.*$/i,'').replace(/\./g,'').replace(',','.');
+      const workshopPayload={
+        w:2,p:project, rk:String(meta.rencanaKirim||status.note||'-').replace(/^RENCANA KIRIM:\s*/i,''),
+        up:String(meta.update||new Date().toLocaleDateString('id-ID')),
+        ar:String(meta.armada||'-'),au:Number(meta.unit)||0,
+        ac:Number(meta.cbm)||Number(cbmMatch)||0,at:Number(meta.ton)||Number(tonMatch)||0,ti:rows.length,
+        m:rows.map(function(item,index){
+          const name=String(item&&(item.material||item.namaMaterial||item.itemMaterial||item.item)||'').trim();
+          const volume=String(item&&item.volume!=null?item.volume:0);
+          const unit=String(visibleUnits[index]||'').trim()||shareUnit_(item);
+          return [name,volume+'♦'+unit];
+        })
+      };
+      state.wm=await encodeHistoryMaterialShare_(workshopPayload);
+    }
+  }catch(snapshotErr){
+    console.warn('SNAPSHOT MATERIAL UNTUK LINK HISTORY TIDAK DAPAT DIBUAT:',snapshotErr);
+  }
   const encoded=encodeSharedHistoryState_(state);
   if(!encoded){alert('Link history tidak dapat dibuat.');return;}
   const url=window.location.origin+window.location.pathname+'#share-history='+encodeURIComponent(encoded);
