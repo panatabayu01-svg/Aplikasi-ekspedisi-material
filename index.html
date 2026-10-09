@@ -2960,6 +2960,8 @@ let armadaKartuPilihanManual = {};
 // berikutnya mengembalikan data proyek tanpa field armadaAktual.
 let armadaAktualTerakhir = [];
 let kpiMaterialMetaTerakhir_ = {project:'',rencanaKirim:'',update:'',armada:'',unit:0,material:0,cbm:0,ton:0,targetCbm:0,targetTon:0};
+let manualPopupMaterialRows_ = null;
+let manualPopupMaterialLoading_ = false;
 let armadaAutoSnapshot = [];
 let armadaTampilanTerakhir = [];
 let armadaMaterialIndexTerakhir = -1;
@@ -7152,7 +7154,27 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-async function bukaKpiMaterial(){
+function bukaKpiMaterial(){
+  // Filter kandidat popup hanya pada MANUAL. AUTO tetap memakai data yang sudah ada.
+  if(modeAplikasi==='MANUAL' && manualPopupMaterialRows_===null && !manualPopupMaterialLoading_){
+    manualPopupMaterialLoading_=true;
+    const bodyLoading=document.getElementById('kpiMaterialBody');
+    const overlayLoading=document.getElementById('kpiMaterialOverlay');
+    if(bodyLoading) bodyLoading.innerHTML='<div class="kpi-material-empty">Memuat material MANUAL...</div>';
+    if(overlayLoading) overlayLoading.style.display='flex';
+    fetch(userApiUrl_('manual_popup_material'),{method:'GET',cache:'no-store',redirect:'follow'})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(result){
+        if(!result || result.success!==true) throw new Error(result&&result.message?result.message:'Data material MANUAL gagal dimuat.');
+        manualPopupMaterialRows_=Array.isArray(result.material)?result.material:[];
+      })
+      .catch(function(err){
+        console.error('MANUAL POPUP MATERIAL ERROR:',err);
+        manualPopupMaterialRows_=[];
+      })
+      .finally(function(){manualPopupMaterialLoading_=false;bukaKpiMaterial();});
+    return;
+  }
   const overlay=document.getElementById('kpiMaterialOverlay');
   const body=document.getElementById('kpiMaterialBody');
   const infoBox=document.getElementById('kpiMaterialInfoBox');
@@ -7162,26 +7184,8 @@ async function bukaKpiMaterial(){
   const updateEl=document.getElementById('kpiMaterialUpdate');
   const armadaEl=document.getElementById('kpiMaterialArmada');
   const footer=document.getElementById('kpiMaterialMobileFooter');
-  let rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir.slice():[];
+  const rows=modeAplikasi==='MANUAL' && Array.isArray(manualPopupMaterialRows_) ? manualPopupMaterialRows_ : (Array.isArray(materialDataTerakhir)?materialDataTerakhir:[]);
   if(!overlay || !body) return;
-
-  // Filter khusus popup MANUAL; AUTO tetap memakai data asli.
-  if(modeAplikasi==='MANUAL'){
-    overlay.style.display='flex';
-    document.body.style.overflow='hidden';
-    body.innerHTML='<div class="kpi-material-empty">Memeriksa ID material...</div>';
-    try{
-      const response=await fetch(userApiUrl_('manual_popup_material',{project:String(proyekAktif||'').trim()}),{method:'GET',cache:'no-store',redirect:'follow'});
-      if(!response.ok) throw new Error('HTTP '+response.status);
-      const result=await response.json();
-      if(!result||result.success!==true) throw new Error(result&&result.message?result.message:'Gagal memeriksa ID material.');
-      rows=Array.isArray(result.material)?result.material:[];
-    }catch(err){
-      console.error('FILTER ID MATERIAL MANUAL:',err);
-      body.innerHTML='<div class="kpi-material-empty">Filter material MANUAL gagal dimuat. Periksa deployment API.</div>';
-      return;
-    }
-  }
 
   // Jika metadata belum tersedia, bangun ulang dari state aplikasi yang
   // sedang aktif agar popup tidak kembali menjadi '-' atau 0.
@@ -7217,7 +7221,7 @@ async function bukaKpiMaterial(){
   if(updateEl) updateEl.textContent='Update : '+(meta.update||'-');
   if(armadaEl){
     const armadaUnit=Number(meta.unit)||0;
-    const materialCount=modeAplikasi==='MANUAL' ? rows.length : (Number(meta.material)||rows.length);
+    const materialCount=Number(meta.material)||rows.length;
     const cbmDisplay=liveCbm || formatNumber(meta.cbm||0,2);
     const tonDisplay=liveTon || formatNumber(meta.ton||0,3);
     armadaEl.textContent='MATERIAL : '+formatNumber(materialCount,0)+' jenis | CBM : '+cbmDisplay+' m³ | TON : '+tonDisplay+' Ton';
