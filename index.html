@@ -1283,6 +1283,19 @@
 
   <!-- V12 COLOR UPDATE: Auto=Blue, Manual=Green, Open Sheet=Orange, Refresh=Gray, Material=Dark Blue, Nesting=Purple, Export=Orange -->
 
+  <!-- PC ONLY: baris kedua tombol LIST MATERIAL, tanpa mengubah fungsi atau layout HP -->
+  <style id="pc-list-material-row-fix">
+    @media (min-width:601px){
+      .control-bar{position:relative;min-height:80px !important;margin-bottom:7px;overflow:visible !important;}
+      #btnKpiMaterial.pc-material-row{
+        display:flex !important;align-items:center !important;justify-content:center !important;
+        position:absolute !important;top:45px !important;left:0;width:0;height:36px;
+        min-width:0 !important;max-width:none !important;margin:0 !important;padding:0 10px !important;
+        box-sizing:border-box !important;white-space:nowrap;z-index:4;
+      }
+    }
+  </style>
+
   <!-- FINAL PC RESPONSIVE FIX: RENCANA KIRIM + INPUT TGL KIRIM -->
   <style id="final-pc-responsive-fix">
     /* Hanya PC/tablet. HP tidak disentuh.
@@ -2186,37 +2199,6 @@ body.history-material-list-scroll-lock{
   }
 }
 </style>
-
-  <!-- PERBAIKAN #22 — PC: TOMBOL LIST MATERIAL MEMANJANG KE KIRI, TEKS TETAP DI TENGAH. HP TIDAK DIUBAH. -->
-  <style id="pc-material-button-row-fix">
-    @media (min-width:601px){
-      .control-bar{
-        position:relative !important;
-        padding-bottom:46px !important;
-        overflow:visible !important;
-      }
-      #btnKpiMaterial{
-        display:flex !important;
-        position:absolute !important;
-        left:0 !important;
-        right:0 !important;
-        bottom:0 !important;
-        width:100% !important;
-        min-width:0 !important;
-        max-width:none !important;
-        height:38px !important;
-        margin:0 !important;
-        padding:0 12px !important;
-        box-sizing:border-box !important;
-        align-items:center !important;
-        justify-content:center !important;
-        text-align:center !important;
-        white-space:nowrap !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-      }
-    }
-  </style>
 </head>
 
 <body style="background:#eef3f7 !important;">
@@ -3824,7 +3806,39 @@ function exportListMaterialHistory_(){
   rows.forEach(function(r,i){
     html+='<tr><td>'+esc(i+1)+'</td><td class="material">'+esc(r[0])+'</td>'+textCell(r[1]||'0')+'<td>unit</td></tr>';
   });
-  html+='</table></body></html>';
+  html+='</table><script id="pc-list-material-row-layout-fix">
+(function(){
+  function positionPcMaterialButton(){
+    var button=document.getElementById('btnKpiMaterial');
+    var bar=document.querySelector('.control-bar');
+    var date=document.getElementById('deliveryDate');
+    var history=document.getElementById('btnHistoryPengiriman');
+    var inputDate=document.getElementById('btnInputTanggal');
+    if(!button||!bar||!date||!history||!inputDate)return;
+    if(window.innerWidth<=600){
+      button.classList.remove('pc-material-row');
+      button.style.left='';button.style.width='';button.style.top='';
+      return;
+    }
+    button.classList.add('pc-material-row');
+    var barRect=bar.getBoundingClientRect();
+    var dateRect=date.getBoundingClientRect();
+    var inputRect=inputDate.getBoundingClientRect();
+    var left=dateRect.left-barRect.left;
+    var width=inputRect.right-dateRect.left;
+    if(isFinite(left)&&isFinite(width)&&width>0){
+      button.style.left=left+'px';
+      button.style.width=width+'px';
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',positionPcMaterialButton);
+  else positionPcMaterialButton();
+  window.addEventListener('resize',positionPcMaterialButton,{passive:true});
+  window.addEventListener('load',positionPcMaterialButton);
+  setTimeout(positionPcMaterialButton,250);
+})();
+</script>
+</body></html>';
   const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
