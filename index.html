@@ -423,6 +423,8 @@
     .history-pengiriman-reschedule-title{font-size:11px;font-weight:900;color:#a56600;margin-bottom:5px}
     .history-pengiriman-reschedule-row{display:grid;grid-template-columns:125px 1fr;gap:4px 7px;font-size:11px;color:#5b4a2d}
     .history-pengiriman-footer{padding:10px 14px;background:#eef3f7;border-top:1px solid #d7e1ea;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+    .history-pengiriman-share-btn{height:36px;padding:0 14px;border:1px solid #168a49;border-radius:5px;background:#168a49;color:#fff;font-weight:900;cursor:pointer}
+    .shared-history-view-mode .history-pengiriman-share-btn,.shared-history-view-mode .history-material-list-share-btn{display:none!important}
     .history-pengiriman-footer-left{display:flex;align-items:center;gap:8px}
     .history-pengiriman-save-btn{height:36px;min-width:175px;border:1px solid #168a49;border-radius:4px;background:#168a49;color:#fff;font-weight:900;cursor:pointer;padding:0 14px}
     .history-pengiriman-save-btn:hover{background:#0f6f3a}
@@ -2324,6 +2326,7 @@ body.history-material-list-scroll-lock{
       <div id="historyPengirimanList"></div>
     </div>
     <div class="history-pengiriman-footer">
+      <button type="button" class="history-pengiriman-share-btn" onclick="bagikanHistoryPengiriman_()">🔗 BAGIKAN LINK</button>
       <button type="button" class="history-pengiriman-close-btn" onclick="tutupHistoryPengiriman_()">TUTUP</button>
     </div>
   </div>
@@ -4069,6 +4072,30 @@ function renderSharedWorkshopMaterialList_(payload){
 }
 function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
+  const historyPrefix='#share-history=';
+  if(hash.indexOf(historyPrefix)===0){
+    const shared=decodeSharedHistoryState_(decodeURIComponent(hash.slice(historyPrefix.length)));
+    if(!shared||!shared.p){
+      renderSharedMaterialLinkError_('Link HISTORY PENGIRIMAN tidak valid.');
+      return true;
+    }
+    document.body.classList.add('shared-history-view-mode');
+    const overlay=document.getElementById('historyPengirimanOverlay');
+    const listEl=document.getElementById('historyPengirimanList');
+    if(overlay)overlay.style.display='flex';
+    if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Memuat history pengiriman...</div>';
+    fetch(userApiUrl_('delivery_history',{project:String(shared.p)}),{method:'GET',cache:'no-store',redirect:'follow'})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(result){
+        if(!result||result.success!==true||!Array.isArray(result.history))throw new Error(result&&result.message?result.message:'History pengiriman gagal dimuat.');
+        renderHistoryPengiriman_(String(shared.p),result.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'});
+      })
+      .catch(function(err){
+        console.error('LOAD SHARED HISTORY ERROR:',err);
+        if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">History pengiriman tidak dapat dimuat. Minta pengirim membuat link baru.</div>';
+      });
+    return true;
+  }
   const prefix='#share-material=';
   const workshopPrefix='#share-workshop=';
   const workshopShortPrefix='#sw=';
@@ -4244,9 +4271,9 @@ function initSharedMaterialView_(){
   else renderSharedMaterialLinkError_('Link pengiriman tidak valid atau sudah tidak dapat dibaca.');
   return true;
 }
-function renderHistoryRealisasiPopup_(){
+function renderHistoryRealisasiPopup_(sharedStatus){
   const data=window.__DATA_TERAKHIR__||{};
-  const status=getStatusRealisasi_(data);
+  const status=sharedStatus && typeof sharedStatus==='object' ? sharedStatus : getStatusRealisasi_(data);
   const rawNote=String(status.note||'');
   const dateText=rawNote.replace(/^RENCANA KIRIM:\s*/i,'').trim()||'-';
   const isSent=String(status.value||'').toUpperCase().indexOf('SUDAH TERKIRIM')!==-1;
@@ -4259,7 +4286,7 @@ function renderHistoryRealisasiPopup_(){
   '</div>';
 }
 
-function renderHistoryPengiriman_(project,history){
+function renderHistoryPengiriman_(project,history,sharedStatus){
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
   if(nameEl)nameEl.textContent=project||'-';
@@ -4273,7 +4300,7 @@ function renderHistoryPengiriman_(project,history){
   if(!shipments.length){
     listEl.innerHTML='<div class="history-pengiriman-empty">Belum ada histori pengiriman untuk proyek ini.</div>';
     if(reschedules.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RIWAYAT RESCHEDULE</div>'+reschedules.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
-    listEl.innerHTML+=renderHistoryRealisasiPopup_();
+    listEl.innerHTML+=renderHistoryRealisasiPopup_(sharedStatus);
     return;
   }
   listEl.innerHTML=shipments.map(function(item,index){
@@ -4294,7 +4321,34 @@ function renderHistoryPengiriman_(project,history){
   }).join('');
   const unassigned=reschedules.filter(function(r){const no=Number(r.pengirimanKe)||0;return !shipments.some(function(x){return (Number(x.pengirimanKe)||0)===no;});});
   if(unassigned.length)listEl.innerHTML+='<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE PENGIRIMAN BERIKUTNYA</div>'+unassigned.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>';
-  listEl.innerHTML+=renderHistoryRealisasiPopup_();
+  listEl.innerHTML+=renderHistoryRealisasiPopup_(sharedStatus);
+}
+
+function encodeSharedHistoryState_(value){
+  try{return bytesToBase64UrlHistory_(new TextEncoder().encode(JSON.stringify(value)));}
+  catch(e){return '';}
+}
+function decodeSharedHistoryState_(value){
+  try{return JSON.parse(new TextDecoder().decode(base64UrlToBytesHistory_(value)));}
+  catch(e){return null;}
+}
+async function bagikanHistoryPengiriman_(){
+  const project=String(proyekAktif||document.getElementById('projectSelect')?.value||window.__HISTORY_PENGIRIMAN_PROJECT__||'').trim();
+  if(!project){alert('Proyek tidak tersedia untuk dibagikan.');return;}
+  const data=window.__DATA_TERAKHIR__||{};
+  const status=getStatusRealisasi_(data);
+  const state={p:project,s:String(status.value||'🟠 MENUNGGU PENGIRIMAN'),note:String(status.note||'RENCANA KIRIM: -'),cls:String(status.cls||'status-partial')};
+  const encoded=encodeSharedHistoryState_(state);
+  if(!encoded){alert('Link history tidak dapat dibuat.');return;}
+  const url=window.location.origin+window.location.pathname+'#share-history='+encodeURIComponent(encoded);
+  const title='HISTORY PENGIRIMAN — '+project;
+  const text='History pengiriman proyek '+project;
+  if(navigator.share){
+    try{await navigator.share({title:title,text:text,url:url});return;}
+    catch(err){if(err&&err.name==='AbortError')return;}
+  }
+  try{await copyTextHistoryMaterial_(url);alert('Link HISTORY PENGIRIMAN berhasil disalin. Silakan kirim link tersebut.');}
+  catch(e){showShortShareLinkPopup_(url,title);}
 }
 
 function bukaHistoryPengiriman_(){
@@ -4305,7 +4359,7 @@ function bukaHistoryPengiriman_(){
   overlay.style.display='flex';listEl.innerHTML='<div class="history-pengiriman-empty">Memuat history pengiriman...</div>';
   fetch(userApiUrl_('delivery_history',{project:project}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.json();}).then(function(result){if(!result||result.success!==true)throw Error(result&&result.message?result.message:'History pengiriman gagal dimuat.');renderHistoryPengiriman_(project,result.history||[]);}).catch(function(err){console.error('HISTORY PENGIRIMAN ERROR:',err);listEl.innerHTML='<div class="history-pengiriman-empty">Gagal memuat history pengiriman.</div>';});
 }
-function tutupHistoryPengiriman_(event){if(event&&event.target&&event.target.id!=='historyPengirimanOverlay')return;const overlay=document.getElementById('historyPengirimanOverlay');if(overlay)overlay.style.display='none';}
+function tutupHistoryPengiriman_(event){if(event&&event.target&&event.target.id!=='historyPengirimanOverlay')return;const overlay=document.getElementById('historyPengirimanOverlay');if(overlay)overlay.style.display='none';if(document.body.classList.contains('shared-history-view-mode')){document.body.classList.remove('shared-history-view-mode');try{history.replaceState(null,document.title,window.location.pathname+window.location.search);}catch(e){try{window.location.hash='';}catch(e2){}}}}
 
 function bukaDetailReschedule(){
   const data=window.__DATA_TERAKHIR__ || {};
