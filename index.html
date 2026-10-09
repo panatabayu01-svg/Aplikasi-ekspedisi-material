@@ -7165,20 +7165,20 @@ async function bukaKpiMaterial(){
   let rows=Array.isArray(materialDataTerakhir)?materialDataTerakhir.slice():[];
   if(!overlay || !body) return;
 
-  // Filter khusus popup pada mode MANUAL. Tidak menyentuh trigger tanggal,
-  // data AUTO, perhitungan armada, atau tampilan popup PC/HP.
+  // Filter khusus popup MANUAL; AUTO tetap memakai data asli.
   if(modeAplikasi==='MANUAL'){
-    body.innerHTML='<div class="kpi-material-empty">Memeriksa ID material...</div>';
     overlay.style.display='flex';
     document.body.style.overflow='hidden';
+    body.innerHTML='<div class="kpi-material-empty">Memeriksa ID material...</div>';
     try{
-      const response=await fetch(userApiUrl_('manual_popup_material'),{method:'GET',cache:'no-store',redirect:'follow'});
+      const response=await fetch(userApiUrl_('manual_popup_material',{project:String(proyekAktif||'').trim()}),{method:'GET',cache:'no-store',redirect:'follow'});
       if(!response.ok) throw new Error('HTTP '+response.status);
       const result=await response.json();
-      if(!result || result.success!==true) throw new Error(result&&result.message?result.message:'Gagal memeriksa ID material.');
+      if(!result||result.success!==true) throw new Error(result&&result.message?result.message:'Gagal memeriksa ID material.');
       rows=Array.isArray(result.material)?result.material:[];
     }catch(err){
-      body.innerHTML='<div class="kpi-material-empty">Gagal memuat filter material. Silakan coba lagi.</div>';
+      console.error('FILTER ID MATERIAL MANUAL:',err);
+      body.innerHTML='<div class="kpi-material-empty">Filter material MANUAL gagal dimuat. Periksa deployment API.</div>';
       return;
     }
   }
