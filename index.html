@@ -4296,8 +4296,8 @@ function formatPengirimHistory_(value){
     const s=String(v==null?'':v).trim();
     // Penanda internal MESIN tidak boleh tampil sebagai armada/pengirim.
     if(!s)return '';
-    if(/^\\**\\s*(?:🚚\\s*)?MESIN\\s*\\|/i.test(s))return '';
-    return s.replace(/^\\*+|\\*+$/g,'').trim();
+    if(/^\*{0,2}\s*(?:🚚\s*)?MESIN\s*\|/i.test(s))return '';
+    return s.replace(/^\*+|\*+$/g,'').trim();
   }
   if(Array.isArray(value)){
     const arr=value.map(function(x){
