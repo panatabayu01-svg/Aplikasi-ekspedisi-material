@@ -4413,6 +4413,23 @@ async function bukaMaterialRealisasiHistory_(){
 }
 
 async function bagikanHistoryPengiriman_(){
+  // Cegah klik ganda selama link sedang dibuat.
+  if(window.__SHARE_HISTORY_BUSY__) return;
+  window.__SHARE_HISTORY_BUSY__=true;
+  showShareLinkLoadingPopup_();
+  try{
+    await bagikanHistoryPengirimanCore_();
+  }catch(err){
+    console.error('BAGIKAN HISTORY ERROR:',err);
+    alert('Link HISTORY PENGIRIMAN gagal dibuat. Silakan coba lagi.');
+  }finally{
+    const loading=document.getElementById('shortShareLinkLoadingOverlay');
+    if(loading)loading.remove();
+    window.__SHARE_HISTORY_BUSY__=false;
+  }
+}
+
+async function bagikanHistoryPengirimanCore_(){
   const project=String(proyekAktif||document.getElementById('projectSelect')?.value||window.__HISTORY_PENGIRIMAN_PROJECT__||'').trim();
   if(!project){alert('Proyek tidak tersedia untuk dibagikan.');return;}
   const data=window.__DATA_TERAKHIR__||{};
@@ -4474,15 +4491,10 @@ async function bagikanHistoryPengiriman_(){
   if(!shareResult||shareResult.success!==true||!shareResult.token){alert(shareResult&&shareResult.message?shareResult.message:'Link pendek history gagal dibuat.');return;}
   const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token);
   const title='HISTORY PENGIRIMAN — '+project;
-  const text='History pengiriman proyek '+project;
-  if(navigator.share){
-    try{await navigator.share({title:title,text:text,url:url});return;}
-    catch(err){if(err&&err.name==='AbortError')return;}
-  }
-  try{await copyTextHistoryMaterial_(url);alert('Link HISTORY PENGIRIMAN berhasil disalin. Silakan kirim link tersebut.');}
-  catch(e){showShortShareLinkPopup_(url,title);}
+  // Tampilkan satu popup link aplikasi. Dialog share perangkat hanya dibuka
+  // jika pengguna menekan tombol BAGIKAN di dalam popup tersebut.
+  showShortShareLinkPopup_(url,title);
 }
-
 function bukaHistoryPengiriman_(){
   const project=String(proyekAktif||document.getElementById('projectSelect')?.value||'').trim();
   if(!project){alert('Pilih proyek terlebih dahulu.');return;}
