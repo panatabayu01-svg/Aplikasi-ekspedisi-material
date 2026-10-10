@@ -387,7 +387,7 @@
     .history-pengiriman-item:nth-child(3n) .history-pengiriman-number{background:#e58a00}
     .history-pengiriman-title{font-size:15px;font-weight:900;color:#0f4c81;margin:2px 0 8px}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
-    .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}
+    .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}.history-pengirim-list{display:flex;flex-direction:column;gap:4px;min-width:0}.history-pengirim-row{padding:5px 8px;border:1px solid #d8e5ef;background:#f4f8fb;border-radius:5px;overflow-wrap:anywhere;line-height:1.35}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
     .history-pengiriman-status.proses{background:#fff0cf;color:#a56600;border-color:#edc66c}
     .history-pengiriman-realisasi{position:relative;display:block;margin-top:12px;padding:12px 14px;background:#fff8e8;border:1px solid #f1cc83;border-left:4px solid #ed9200;border-radius:5px;box-sizing:border-box}
@@ -4291,6 +4291,23 @@ function renderHistoryRealisasiPopup_(sharedStatus){
   '</div>';
 }
 
+function formatPengirimHistory_(value){
+  if(Array.isArray(value)){
+    const arr=value.map(function(x){
+      if(typeof x==='string')return x.trim();
+      if(!x)return '';
+      const nama=String(x.armada||x.namaArmada||x.jenisArmada||'').trim();
+      const nopol=String(x.nopol||x.nomorPolisi||x.platNomor||x.noPolisi||'').trim();
+      return [nama,nopol].filter(Boolean).join(' • ');
+    }).filter(Boolean);
+    return arr.length?arr:['Belum ditentukan'];
+  }
+  const raw=String(value||'').trim();
+  if(!raw)return ['Belum ditentukan'];
+  return raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean).length
+    ? raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean)
+    : ['Belum ditentukan'];
+}
 function renderHistoryPengiriman_(project,history,sharedStatus){
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
@@ -4321,6 +4338,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus){
       '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+
       '<div class="history-pengiriman-label">⚖ Total Tonase</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalTon,3)+' Ton &nbsp; | &nbsp; Total Kubikasi: '+formatAngkaHistory_(item.totalCbm,2)+' m³</div>'+
       '<div class="history-pengiriman-label">📦 Material Di Kirim</div><div class="history-pengiriman-value"><button type="button" class="history-material-btn" onclick="bukaListMaterialHistory_('+index+')">📋 LIST MATERIAL</button></div>'+
+      '<div class="history-pengiriman-label">🚚 Pengirim</div><div class="history-pengiriman-value history-pengirim-list">'+formatPengirimHistory_(item.pengirim||item.armada||item.daftarArmada).map(function(a){return '<div class="history-pengirim-row">🚚 '+escapeHtmlSafe_(a)+'</div>';}).join('')+'</div>'+
       '</div>'+
       (related.length?'<div class="history-pengiriman-reschedule"><div class="history-pengiriman-reschedule-title">↻ RESCHEDULE</div>'+related.map(function(r){return '<div class="history-pengiriman-reschedule-row"><div>RENCANA AWAL</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalLama||'-'))+'</div><div>RESCHEDULE</div><div>'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(r.tanggalBaru||'-'))+'</div><div>ALASAN</div><div>'+escapeHtmlSafe_(r.alasan||'-')+'</div></div>';}).join('')+'</div>':'')+'</div>';
   }).join('');
