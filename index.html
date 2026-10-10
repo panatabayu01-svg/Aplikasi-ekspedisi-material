@@ -3621,9 +3621,36 @@ function decodeHistoryMaterialShareLegacy_(encoded){
     try{return JSON.parse(atob(encoded));}catch(e2){return null;}
   }
 }
+async function uploadHistoryShareTokenToApi_(compressed){
+  const startResp=await fetch(userApiUrl_('share_workshop_start'),{method:'GET',cache:'no-store',redirect:'follow'});
+  const start=await startResp.json();
+  if(!start||start.success!==true||!start.upload_id)throw new Error(start&&start.message?start.message:'Gagal memulai penyimpanan link.');
+  const uploadId=String(start.upload_id);
+  const chunkSize=3500;
+  const chunks=[];
+  for(let i=0;i<compressed.length;i+=chunkSize)chunks.push(compressed.slice(i,i+chunkSize));
+  for(let i=0;i<chunks.length;i++){
+    const url=userApiUrl_('share_workshop_chunk',{upload_id:uploadId,chunk_index:i,chunk_total:chunks.length,chunk_data:chunks[i]});
+    const resp=await fetch(url,{method:'GET',cache:'no-store',redirect:'follow'});
+    const result=await resp.json();
+    if(!result||result.success!==true)throw new Error(result&&result.message?result.message:'Gagal mengunggah bagian link '+(i+1)+'.');
+  }
+  const finishResp=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{method:'GET',cache:'no-store',redirect:'follow'});
+  const finish=await finishResp.json();
+  if(!finish||finish.success!==true||!finish.token)throw new Error(finish&&finish.message?finish.message:'Gagal menyelesaikan link pendek.');
+  return String(finish.token);
+}
 async function decodeHistoryMaterialShareCompressed_(token){
   try{
-    const bytes=base64UrlToBytesHistory_(String(token||'').slice(4));
+    token=String(token||'');
+    if(token.indexOf('api1.')===0){
+      const apiToken=token.slice(5);
+      const response=await fetch(userApiUrl_('share_workshop_get',{token:apiToken}),{method:'GET',cache:'no-store',redirect:'follow'});
+      const result=await response.json();
+      if(!result||result.success!==true||!result.payload)throw new Error(result&&result.message?result.message:'Data link pendek tidak ditemukan.');
+      return result.payload;
+    }
+    const bytes=base64UrlToBytesHistory_(token.slice(4));
     if(!window.DecompressionStream)return null;
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     const text=await new Response(stream).text();
@@ -4433,7 +4460,9 @@ async function bagikanHistoryPengiriman_(){
           return [name,volume+'♦'+unit];
         })
       };
-      state.wm=await encodeHistoryMaterialShare_(workshopPayload);
+      const compressedShare=await encodeHistoryMaterialShare_(workshopPayload);
+      const apiToken=await uploadHistoryShareTokenToApi_(compressedShare);
+      state.wm='api1.'+apiToken;
     }
   }catch(snapshotErr){
     console.warn('SNAPSHOT MATERIAL UNTUK LINK HISTORY TIDAK DAPAT DIBUAT:',snapshotErr);
