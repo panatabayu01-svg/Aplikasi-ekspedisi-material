@@ -4073,9 +4073,13 @@ function renderSharedWorkshopMaterialList_(payload){
 }
 function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
+  // Link history pendek dibaca dari query string agar token tidak hilang
+  // pada aplikasi chat/browser yang menghapus bagian fragment (#...).
+  let queryHistoryToken='';
+  try{queryHistoryToken=String(new URLSearchParams(window.location.search||'').get('sh1')||'').trim();}catch(e){}
   const historyShortPrefix='#sh1=';
-  if(hash.indexOf(historyShortPrefix)===0){
-    const token=decodeURIComponent(hash.slice(historyShortPrefix.length).split('&')[0]||'').trim();
+  if(queryHistoryToken || hash.indexOf(historyShortPrefix)===0){
+    const token=(queryHistoryToken || decodeURIComponent(hash.slice(historyShortPrefix.length).split('&')[0]||'')).trim();
     const overlay=document.getElementById('historyPengirimanOverlay');
     const listEl=document.getElementById('historyPengirimanList');
     if(overlay)overlay.style.display='flex';
@@ -4467,7 +4471,7 @@ async function bagikanHistoryPengiriman_(){
     shareResult=await response.json();
   }catch(apiErr){console.error('CREATE SHORT HISTORY LINK ERROR:',apiErr);alert('Link pendek history gagal dibuat. Pastikan API terbaru sudah di-deploy.');return;}
   if(!shareResult||shareResult.success!==true||!shareResult.token){alert(shareResult&&shareResult.message?shareResult.message:'Link pendek history gagal dibuat.');return;}
-  const url=window.location.origin+window.location.pathname+'#sh1='+encodeURIComponent(shareResult.token);
+  const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token);
   const title='HISTORY PENGIRIMAN — '+project;
   const text='History pengiriman proyek '+project;
   if(navigator.share){
