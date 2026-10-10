@@ -3621,36 +3621,9 @@ function decodeHistoryMaterialShareLegacy_(encoded){
     try{return JSON.parse(atob(encoded));}catch(e2){return null;}
   }
 }
-async function uploadHistoryShareTokenToApi_(compressed){
-  const startResp=await fetch(userApiUrl_('share_workshop_start'),{method:'GET',cache:'no-store',redirect:'follow'});
-  const start=await startResp.json();
-  if(!start||start.success!==true||!start.upload_id)throw new Error(start&&start.message?start.message:'Gagal memulai penyimpanan link.');
-  const uploadId=String(start.upload_id);
-  const chunkSize=3500;
-  const chunks=[];
-  for(let i=0;i<compressed.length;i+=chunkSize)chunks.push(compressed.slice(i,i+chunkSize));
-  for(let i=0;i<chunks.length;i++){
-    const url=userApiUrl_('share_workshop_chunk',{upload_id:uploadId,chunk_index:i,chunk_total:chunks.length,chunk_data:chunks[i]});
-    const resp=await fetch(url,{method:'GET',cache:'no-store',redirect:'follow'});
-    const result=await resp.json();
-    if(!result||result.success!==true)throw new Error(result&&result.message?result.message:'Gagal mengunggah bagian link '+(i+1)+'.');
-  }
-  const finishResp=await fetch(userApiUrl_('share_workshop_finish',{upload_id:uploadId}),{method:'GET',cache:'no-store',redirect:'follow'});
-  const finish=await finishResp.json();
-  if(!finish||finish.success!==true||!finish.token)throw new Error(finish&&finish.message?finish.message:'Gagal menyelesaikan link pendek.');
-  return String(finish.token);
-}
 async function decodeHistoryMaterialShareCompressed_(token){
   try{
-    token=String(token||'');
-    if(token.indexOf('api1.')===0){
-      const apiToken=token.slice(5);
-      const response=await fetch(userApiUrl_('share_workshop_get',{token:apiToken}),{method:'GET',cache:'no-store',redirect:'follow'});
-      const result=await response.json();
-      if(!result||result.success!==true||!result.payload)throw new Error(result&&result.message?result.message:'Data link pendek tidak ditemukan.');
-      return result.payload;
-    }
-    const bytes=base64UrlToBytesHistory_(token.slice(4));
+    const bytes=base64UrlToBytesHistory_(String(token||'').slice(4));
     if(!window.DecompressionStream)return null;
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     const text=await new Response(stream).text();
@@ -4100,6 +4073,28 @@ function renderSharedWorkshopMaterialList_(payload){
 }
 function initSharedMaterialView_(){
   const hash=String(window.location.hash||'');
+  const historyShortPrefix='#sh1=';
+  if(hash.indexOf(historyShortPrefix)===0){
+    const token=decodeURIComponent(hash.slice(historyShortPrefix.length).split('&')[0]||'').trim();
+    const overlay=document.getElementById('historyPengirimanOverlay');
+    const listEl=document.getElementById('historyPengirimanList');
+    if(overlay)overlay.style.display='flex';
+    if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Memuat history pengiriman...</div>';
+    document.body.classList.add('shared-history-view-mode');
+    fetch(userApiUrl_('share_history_get',{token:token}),{method:'GET',cache:'no-store',redirect:'follow'})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(result){
+        if(!result||result.success!==true||!result.state||!result.state.p)throw new Error(result&&result.message?result.message:'Link history tidak valid.');
+        const shared=result.state;
+        window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
+        return fetch(userApiUrl_('delivery_history',{project:String(shared.p)}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(historyResult){
+          if(!historyResult||historyResult.success!==true||!Array.isArray(historyResult.history))throw new Error(historyResult&&historyResult.message?historyResult.message:'History pengiriman gagal dimuat.');
+          renderHistoryPengiriman_(String(shared.p),historyResult.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'});
+        });
+      })
+      .catch(function(err){console.error('LOAD SHORT HISTORY ERROR:',err);if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Link history tidak dapat dimuat. Minta pengirim membuat link baru.</div>';});
+    return true;
+  }
   const historyPrefix='#share-history=';
   if(hash.indexOf(historyPrefix)===0){
     const shared=decodeSharedHistoryState_(decodeURIComponent(hash.slice(historyPrefix.length)));
@@ -4460,16 +4455,19 @@ async function bagikanHistoryPengiriman_(){
           return [name,volume+'♦'+unit];
         })
       };
-      const compressedShare=await encodeHistoryMaterialShare_(workshopPayload);
-      const apiToken=await uploadHistoryShareTokenToApi_(compressedShare);
-      state.wm='api1.'+apiToken;
+      state.wm=await encodeHistoryMaterialShare_(workshopPayload);
     }
   }catch(snapshotErr){
     console.warn('SNAPSHOT MATERIAL UNTUK LINK HISTORY TIDAK DAPAT DIBUAT:',snapshotErr);
   }
-  const encoded=encodeSharedHistoryState_(state);
-  if(!encoded){alert('Link history tidak dapat dibuat.');return;}
-  const url=window.location.origin+window.location.pathname+'#share-history='+encodeURIComponent(encoded);
+  let shareResult;
+  try{
+    const response=await fetch(userApiUrl_('share_history_create',{state:JSON.stringify(state)}),{method:'GET',cache:'no-store',redirect:'follow'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    shareResult=await response.json();
+  }catch(apiErr){console.error('CREATE SHORT HISTORY LINK ERROR:',apiErr);alert('Link pendek history gagal dibuat. Pastikan API terbaru sudah di-deploy.');return;}
+  if(!shareResult||shareResult.success!==true||!shareResult.token){alert(shareResult&&shareResult.message?shareResult.message:'Link pendek history gagal dibuat.');return;}
+  const url=window.location.origin+window.location.pathname+'#sh1='+encodeURIComponent(shareResult.token);
   const title='HISTORY PENGIRIMAN — '+project;
   const text='History pengiriman proyek '+project;
   if(navigator.share){
