@@ -3500,9 +3500,9 @@ function parseMaterialHistoryList_(materialText){
   return text.split(/\s*\|\s*/).map(function(part){
     const raw=String(part||'').trim();
     if(!raw)return null;
-    const m=raw.match(/^(.*?)\s*↓\s*(-?[\d.,]+)\s*$/);
-    if(m)return {material:m[1].trim(),volume:m[2].trim()};
-    return {material:raw,volume:''};
+    const m=raw.match(/^(.*?)\s*↓\s*(-?[\d.,]+)(?:\s+(.+?))?\s*$/);
+    if(m)return {material:m[1].trim(),volume:m[2].trim(),unit:String(m[3]||'').trim()};
+    return {material:raw,volume:'',unit:''};
   }).filter(Boolean);
 }
 function bukaListMaterialHistory_(index){
@@ -3521,7 +3521,7 @@ function bukaListMaterialHistory_(index){
   if(summaryEl)summaryEl.textContent='PENGIRIMAN '+(Number(item.pengirimanKe)||index+1)+'  •  '+formatAngkaHistory_(item.totalItem,0)+' jenis  •  '+formatAngkaHistory_(item.totalVolume,0)+' unit  •  '+formatAngkaHistory_(item.totalTon,3)+' Ton  •  '+formatAngkaHistory_(item.totalCbm,2)+' m³';
   const dateEl=document.getElementById('historyMaterialListDate');
   if(dateEl)dateEl.textContent='📅 '+formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-');
-  contentEl.innerHTML=list.length?'<div class="history-material-list-content"><div class="history-material-table-head"><div>NO</div><div class="history-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+' unit':'-')+'</div></div>';}).join('')+'</div>':'<div class="history-material-list-content"><div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div></div>';
+  contentEl.innerHTML=list.length?'<div class="history-material-list-content"><div class="history-material-table-head"><div>NO</div><div class="history-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="history-material-row"><div class="history-material-no">'+(i+1)+'</div><div class="history-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="history-material-volume">'+(x.volume?escapeHtmlSafe_(x.volume)+(x.unit?' '+escapeHtmlSafe_(x.unit):''):'-')+'</div></div>';}).join('')+'</div>':'<div class="history-material-list-content"><div class="history-material-list-empty">Tidak ada daftar material pada histori ini.</div></div>';
   // HP: tombol EXPORT EXCEL popup LIST MATERIAL DI KIRIM disembunyikan.
   // Popup hasil LINK BAGIKAN memakai tombol terpisah sehingga tetap tampil.
   const exportBtn=document.getElementById('btnHistoryMaterialExport');
@@ -3569,7 +3569,7 @@ function getHistoryMaterialSharePayload_(){
     tv:Number(item.totalVolume)||0,
     tt:Number(item.totalTon)||0,
     tc:Number(item.totalCbm)||0,
-    m:list.map(function(x){return [String(x.material||''),String(x.volume||'')];})
+    m:list.map(function(x){return [String(x.material||''),String(x.volume||''),String(x.unit||'')];})
   };
 }
 
@@ -3862,7 +3862,7 @@ function renderSharedMaterialList_(payload){
         '<div class="shared-material-date">📅 '+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(payload.d||'-'))+'</div>'+
         '<div class="shared-material-table-wrap">'+
           '<div class="shared-material-list">'+
-            (list.length?'<div class="shared-material-table-head"><div>NO</div><div class="shared-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+' unit</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
+            (list.length?'<div class="shared-material-table-head"><div>NO</div><div class="shared-material-head-name">MATERIAL</div><div>VOLUME</div></div>'+list.map(function(x,i){return '<div class="shared-material-row"><div class="shared-material-no">'+(i+1)+'</div><div class="shared-material-name">'+escapeHtmlSafe_(x.material)+'</div><div class="shared-material-volume">'+escapeHtmlSafe_(x.volume||'0')+(x.unit?' '+escapeHtmlSafe_(x.unit):'')+'</div></div>';}).join(''):'<div class="history-material-list-empty">Tidak ada material.</div>')+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -3885,7 +3885,7 @@ function exportSharedMaterialList_(){
   const p=window.__SHARED_MATERIAL_PAYLOAD__;
   if(!p)return;
   const oldEvents=window.__HISTORY_PENGIRIMAN_EVENTS__, oldProject=window.__HISTORY_PENGIRIMAN_PROJECT__, oldIndex=window.__HISTORY_PENGIRAN_ACTIVE_INDEX__;
-  window.__HISTORY_PENGIRIMAN_EVENTS__=[{project:p.p,pengirimanKe:p.n,tanggalPengiriman:p.d,totalItem:p.ti,totalVolume:p.tv,totalTon:p.tt,totalCbm:p.tc,materialTurun:(p.m||[]).map(function(x){return x[0]+' ↓ '+x[1];}).join(' | ')}];
+  window.__HISTORY_PENGIRIMAN_EVENTS__=[{project:p.p,pengirimanKe:p.n,tanggalPengiriman:p.d,totalItem:p.ti,totalVolume:p.tv,totalTon:p.tt,totalCbm:p.tc,materialTurun:(p.m||[]).map(function(x){return x[0]+' ↓ '+x[1]+(x[2]?' '+x[2]:'');}).join(' | ')}];
   window.__HISTORY_PENGIRIMAN_PROJECT__=p.p;
   window.__HISTORY_PENGIRAN_ACTIVE_INDEX__=0;
   exportListMaterialHistory_();
