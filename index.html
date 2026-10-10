@@ -4292,21 +4292,27 @@ function renderHistoryRealisasiPopup_(sharedStatus){
 }
 
 function formatPengirimHistory_(value){
+  function bersihkanBarisPengirimHistory_(v){
+    const s=String(v==null?'':v).trim();
+    // Penanda internal MESIN tidak boleh tampil sebagai armada/pengirim.
+    if(!s)return '';
+    if(/^\\**\\s*(?:🚚\\s*)?MESIN\\s*\\|/i.test(s))return '';
+    return s.replace(/^\\*+|\\*+$/g,'').trim();
+  }
   if(Array.isArray(value)){
     const arr=value.map(function(x){
-      if(typeof x==='string')return x.trim();
+      if(typeof x==='string')return bersihkanBarisPengirimHistory_(x);
       if(!x)return '';
-      const nama=String(x.armada||x.namaArmada||x.jenisArmada||'').trim();
-      const nopol=String(x.nopol||x.nomorPolisi||x.platNomor||x.noPolisi||'').trim();
+      const nama=bersihkanBarisPengirimHistory_(x.armada||x.namaArmada||x.jenisArmada||'');
+      const nopol=bersihkanBarisPengirimHistory_(x.nopol||x.nomorPolisi||x.platNomor||x.noPolisi||'');
       return [nama,nopol].filter(Boolean).join(' • ');
     }).filter(Boolean);
     return arr.length?arr:['Belum ditentukan'];
   }
   const raw=String(value||'').trim();
   if(!raw)return ['Belum ditentukan'];
-  return raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean).length
-    ? raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean)
-    : ['Belum ditentukan'];
+  const arr=raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(bersihkanBarisPengirimHistory_).filter(Boolean);
+  return arr.length?arr:['Belum ditentukan'];
 }
 function renderHistoryPengiriman_(project,history,sharedStatus){
   const nameEl=document.getElementById('historyPengirimanProjectName');
