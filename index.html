@@ -5005,15 +5005,11 @@ function initFromCache(){
     s.value=target;
     proyekAktif=target;
 
-    const cachedData=getCache_(getProjectCacheKey_(target));
-
-    if(cachedData && cachedData.success===true){
-      tampilkanData(cachedData);
-      setStatus('Data tersimpan ditampilkan. Memperbarui data...');
-      showLoading(false);
-    }else{
-      setStatus('Memuat data terbaru...');
-    }
+    // Jangan tampilkan cache material saat startup.
+    // Data layar harus berasal dari server terbaru.
+    resetTampilan();
+    setStatus('Memuat data terbaru dari server...');
+    showLoading(false);
   }else{
     setStatus('Data proyek tersimpan.');
   }
@@ -5075,21 +5071,11 @@ function pilihProyek(){
       NAMA_PROYEK_MANUAL
     );
 
-    // HP: cache MANUAL ditampilkan dulu bila ada, lalu disegarkan
-    // dari server di belakang. Ini mencegah loading lama saat pindah mode.
-    const cachedManual=getCache_(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
-    if(cachedManual && cachedManual.success===true){
-      resetTampilan();
-      tampilkanData(cachedManual);
-      showLoading(false);
-      setStatus('Data MANUAL tersimpan ditampilkan. Memperbarui data...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,false);
-    }else{
-      resetTampilan();
-      showLoading(false);
-      setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
-      loadDataProyek(NAMA_PROYEK_MANUAL,false);
-    }
+    // Jangan gunakan cache MANUAL sebagai data aktif.
+    resetTampilan();
+    showLoading(true);
+    setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
+    loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
 
@@ -5135,29 +5121,10 @@ function pilihProyek(){
     armadaModePilihan='AUTO';
   }
 
-  const cachedData=
-    getCache_(
-      getProjectCacheKey_(p)
-    );
-
-  if(
-    cachedData &&
-    cachedData.success===true
-  ){
-
-    tampilkanData(cachedData);
-
-    setStatus(
-      'Data tersimpan ditampilkan. Memperbarui data...'
-    );
-
-    loadDataProyek(p,false);
-
-  }else{
-
-    loadDataProyek(p,true);
-
-  }
+  // Cache lokal tidak digunakan untuk menampilkan material.
+  // Kosongkan hasil lama lalu ambil data terbaru dari server.
+  resetTampilan();
+  loadDataProyek(p,true);
 
 }
 
@@ -5212,6 +5179,19 @@ function loadDataProyek(p,showOverlay){
           : 'Data proyek gagal dimuat.'
       );
 
+    }
+
+    const materialTerbaru = Array.isArray(result.material) ? result.material : [];
+    if(materialTerbaru.length===0){
+      localStorage.removeItem(getProjectCacheKey_(p));
+      if(requestId===requestSerial &&
+         document.getElementById('projectSelect') &&
+         document.getElementById('projectSelect').value===p){
+        resetTampilan();
+        showLoading(false);
+        setStatus('Sumber data kosong. Tidak ada material untuk ditampilkan.');
+      }
+      return;
     }
 
     setCache_(
@@ -5275,6 +5255,8 @@ function loadDataProyek(p,showOverlay){
     if(requestId!==requestSerial){
       return;
     }
+
+    localStorage.removeItem(getProjectCacheKey_(p));
 
     if(showOverlay){
 
