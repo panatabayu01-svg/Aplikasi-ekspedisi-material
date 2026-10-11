@@ -5258,23 +5258,17 @@ function loadDataProyek(p,showOverlay){
 
     localStorage.removeItem(getProjectCacheKey_(p));
 
+    // Cache proyek sudah dihapus di atas. Jangan pertahankan tampilan
+    // material/KPI lama ketika request server gagal, termasuk background refresh.
+    resetTampilan();
+
     if(showOverlay){
-
       showLoading(false);
-
-      resetTampilan();
-
-      setStatus(
-        'Gagal membaca data proyek.'
-      );
-
-    }else{
-
-      setStatus(
-        'Data tersimpan tetap digunakan. Gagal memperbarui dari server.'
-      );
-
     }
+
+    setStatus(
+      'Gagal memperbarui data dari server.'
+    );
 
   });
 
