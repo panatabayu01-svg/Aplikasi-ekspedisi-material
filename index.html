@@ -4347,7 +4347,18 @@ function renderHistoryPengiriman_(project,history,sharedStatus){
   if(nameEl)nameEl.textContent=project||'-';
   if(!listEl)return;
   const events=Array.isArray(history)?history.slice():[];
-  events.sort(function(a,b){return parseWaktuRiwayatReschedule_(a.timestamp||'')-parseWaktuRiwayatReschedule_(b.timestamp||'');});
+  // Urutkan kartu berdasarkan nomor pengiriman, bukan timestamp pencatatan.
+  // Timestamp bisa lebih baru untuk pengiriman lama yang dimasukkan manual.
+  events.sort(function(a,b){
+    const typeA=String(a.eventType||a.jenisEvent||'').toUpperCase();
+    const typeB=String(b.eventType||b.jenisEvent||'').toUpperCase();
+    const noA=Number(a.pengirimanKe)||0;
+    const noB=Number(b.pengirimanKe)||0;
+    if(typeA==='PENGIRIMAN'&&typeB==='PENGIRIMAN'&&noA!==noB)return noA-noB;
+    if(typeA==='PENGIRIMAN'&&typeB!=='PENGIRIMAN')return -1;
+    if(typeA!=='PENGIRIMAN'&&typeB==='PENGIRIMAN')return 1;
+    return parseWaktuRiwayatReschedule_(a.timestamp||'')-parseWaktuRiwayatReschedule_(b.timestamp||'');
+  });
   const shipments=events.filter(function(e){return String(e.eventType||e.jenisEvent||'').toUpperCase()==='PENGIRIMAN';});
   const reschedules=events.filter(function(e){return String(e.eventType||e.jenisEvent||'').toUpperCase()==='RESCHEDULE';});
   window.__HISTORY_PENGIRIMAN_EVENTS__=shipments;
