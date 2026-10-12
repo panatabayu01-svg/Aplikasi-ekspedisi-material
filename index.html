@@ -3360,10 +3360,8 @@ function hitungStatusRencanaKirim_(data,materialData,rescheduleHistory){
   const history=Array.isArray(rescheduleHistory) ? rescheduleHistory : [];
 
   if(rows.length===0){
-    // Jika sumber material kosong, status rencana kirim harus seragam
-    // di PC dan HP: BELUM ADA SCHEDULE.
     return {
-      text:'BELUM ADA SCHEDULE',
+      text:'BELUM ADA MATERIAL',
       tanggalInput:'',
       hasReschedule:false,
       expired:false,
@@ -4093,7 +4091,7 @@ function initSharedMaterialView_(){
       .then(function(result){
         if(!result||result.success!==true||!result.state||!result.state.p)throw new Error(result&&result.message?result.message:'Link history tidak valid.');
         const shared=result.state;
-        window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
+        window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||((new URLSearchParams(window.location.search)).get('wm'))||'');
         return fetch(userApiUrl_('delivery_history',{project:String(shared.p)}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(historyResult){
           if(!historyResult||historyResult.success!==true||!Array.isArray(historyResult.history))throw new Error(historyResult&&historyResult.message?historyResult.message:'History pengiriman gagal dimuat.');
           renderHistoryPengiriman_(String(shared.p),historyResult.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'});
@@ -4113,7 +4111,7 @@ function initSharedMaterialView_(){
     // Snapshot material workshop ikut dibawa pada link history yang baru.
     // Jadi tombol LIST MATERIAL pada perangkat penerima tidak bergantung
     // pada state lokal yang memang kosong di perangkat tersebut.
-    window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
+    window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||((new URLSearchParams(window.location.search)).get('wm'))||'');
     const overlay=document.getElementById('historyPengirimanOverlay');
     const listEl=document.getElementById('historyPengirimanList');
     if(overlay)overlay.style.display='flex';
@@ -4502,7 +4500,7 @@ async function bagikanHistoryPengirimanCore_(){
     shareResult=await response.json();
   }catch(apiErr){console.error('CREATE SHORT HISTORY LINK ERROR:',apiErr);alert('Link pendek history gagal dibuat. Pastikan API terbaru sudah di-deploy.');return;}
   if(!shareResult||shareResult.success!==true||!shareResult.token){alert(shareResult&&shareResult.message?shareResult.message:'Link pendek history gagal dibuat.');return;}
-  const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token);
+  const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token)+(state.wm?'&wm='+encodeURIComponent(state.wm):'');
   const title='HISTORY PENGIRIMAN — '+project;
   // Tampilkan satu popup link aplikasi. Dialog share perangkat hanya dibuka
   // jika pengguna menekan tombol BAGIKAN di dalam popup tersebut.
@@ -5190,13 +5188,6 @@ function loadDataProyek(p,showOverlay){
          document.getElementById('projectSelect') &&
          document.getElementById('projectSelect').value===p){
         resetTampilan();
-        // Saat sumber benar-benar kosong, Rencana Kirim juga dikosongkan
-        // dari tanggal lama dan menampilkan BELUM ADA SCHEDULE.
-        const planEl=document.getElementById('deliveryDateValue');
-        if(planEl){
-          planEl.classList.add('status-no-schedule');
-          planEl.textContent='BELUM ADA SCHEDULE';
-        }
         showLoading(false);
         setStatus('Sumber data kosong. Tidak ada material untuk ditampilkan.');
       }
