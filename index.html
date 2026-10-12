@@ -23,10 +23,6 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="APLIKASI EKSPEDISI MATERIAL">
-  <meta name="twitter:description" content="History pengiriman dan daftar material ekspedisi">
-  <meta name="twitter:image" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/og-preview-wa.png">
   <meta property="og:url" content="https://panatabayu01-svg.github.io/Aplikasi-ekspedisi-material/">
   <base target="_top">
   <meta charset="UTF-8">
@@ -4498,12 +4494,6 @@ async function bagikanHistoryPengirimanCore_(){
     }
   }catch(snapshotErr){
     console.warn('SNAPSHOT MATERIAL UNTUK LINK HISTORY TIDAK DAPAT DIBUAT:',snapshotErr);
-  }
-  // Jangan membuat link HISTORY baru tanpa snapshot material. Link seperti itu
-  // akan membuat tombol LIST MATERIAL gagal di perangkat penerima.
-  if(Array.isArray(materialDataTerakhir) && materialDataTerakhir.length && !state.wm){
-    alert('Link HISTORY belum dibuat karena data material belum berhasil disertakan. Silakan tekan BAGIKAN LINK sekali lagi.');
-    return;
   }
   let shareResult;
   try{
