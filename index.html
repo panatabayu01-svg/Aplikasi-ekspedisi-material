@@ -3360,8 +3360,10 @@ function hitungStatusRencanaKirim_(data,materialData,rescheduleHistory){
   const history=Array.isArray(rescheduleHistory) ? rescheduleHistory : [];
 
   if(rows.length===0){
+    // Jika sumber material kosong, status rencana kirim harus seragam
+    // di PC dan HP: BELUM ADA SCHEDULE.
     return {
-      text:'BELUM ADA MATERIAL',
+      text:'BELUM ADA SCHEDULE',
       tanggalInput:'',
       hasReschedule:false,
       expired:false,
@@ -5188,6 +5190,13 @@ function loadDataProyek(p,showOverlay){
          document.getElementById('projectSelect') &&
          document.getElementById('projectSelect').value===p){
         resetTampilan();
+        // Saat sumber benar-benar kosong, Rencana Kirim juga dikosongkan
+        // dari tanggal lama dan menampilkan BELUM ADA SCHEDULE.
+        const planEl=document.getElementById('deliveryDateValue');
+        if(planEl){
+          planEl.classList.add('status-no-schedule');
+          planEl.textContent='BELUM ADA SCHEDULE';
+        }
         showLoading(false);
         setStatus('Sumber data kosong. Tidak ada material untuk ditampilkan.');
       }
