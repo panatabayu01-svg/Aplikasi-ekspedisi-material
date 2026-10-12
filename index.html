@@ -5199,10 +5199,10 @@ function loadDataProyek(p,showOverlay){
         const planEl=document.getElementById('deliveryDateValue');
         if(planEl){
           planEl.classList.add('status-no-schedule');
-          planEl.textContent='BELUM ADA SCHEDULE';
+          planEl.textContent='MATERIAL KOSONG';
         }
         showLoading(false);
-        setStatus('Sumber data kosong. Tidak ada material untuk ditampilkan.');
+        setStatus('MATERIAL KOSONG — tidak ada material untuk ditampilkan.');
       }
       return;
     }
@@ -5277,6 +5277,24 @@ function loadDataProyek(p,showOverlay){
 
     if(showOverlay){
       showLoading(false);
+    }
+
+    // Jika API secara eksplisit melaporkan bahwa material tidak ada,
+    // perlakukan sebagai kondisi kosong, bukan kegagalan server.
+    const pesanError=String(e && e.message ? e.message : e || '').toLowerCase();
+    const sumberKosong=
+      /material.*(kosong|tidak ada|tidak ditemukan|belum ada)/.test(pesanError) ||
+      /(kosong|tidak ada|tidak ditemukan|belum ada).*material/.test(pesanError) ||
+      /no material|empty material|data material tidak ditemukan/.test(pesanError);
+
+    if(sumberKosong){
+      const planEl=document.getElementById('deliveryDateValue');
+      if(planEl){
+        planEl.classList.add('status-no-schedule');
+        planEl.textContent='MATERIAL KOSONG';
+      }
+      setStatus('MATERIAL KOSONG — tidak ada material untuk ditampilkan.');
+      return;
     }
 
     setStatus(
