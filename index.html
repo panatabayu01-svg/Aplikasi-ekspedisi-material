@@ -3089,12 +3089,18 @@ function pilihMode(mode){
   const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
 
   if(Array.isArray(cachedProjects) && cachedProjects.length){
+    // Tampilkan cache lebih dahulu agar dropdown langsung responsif,
+    // tetapi jangan menjadikan cache sebagai sumber final daftar proyek.
     daftarProyek=filterProyekOtomatis_(cachedProjects);
     isiDropdownProyek(false);
     const select=document.getElementById('projectSelect');
     select.value='';
     proyekAktif='';
-    setStatus('Pilih proyek untuk menampilkan data material.');
+    setStatus('Memperbarui daftar proyek terbaru...');
+
+    // Sinkronkan daftar dari API setiap kali kembali ke mode AUTO.
+    // loadSelected=false hanya memperbarui dropdown, tanpa memuat material.
+    loadDaftarProyek(false,false);
     return;
   }
 
@@ -6940,35 +6946,36 @@ function refreshData(){
   const select=document.getElementById('projectSelect');
   const p=select.value || proyekAktif;
 
-  if(!p){
-    setStatus('Pilih proyek terlebih dahulu.');
-    return;
-  }
-
-  proyekAktif=p;
-
-  localStorage.setItem(
-    CACHE_LAST_PROJECT_KEY,
-    p
-  );
-
   // KHUSUS MANUAL: jangan tampilkan cache lama.
   // Ambil langsung hasil hitung terbaru dari Google Sheet/API.
   if(modeAplikasi==='MANUAL' || p===NAMA_PROYEK_MANUAL){
     localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
+    proyekAktif=NAMA_PROYEK_MANUAL;
     setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
     loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
 
-  // AUTO tetap memakai cache agar tampilan cepat.
+  // AUTO: refresh juga daftar proyek dari API, bukan hanya data proyek aktif.
+  // Jika belum ada pilihan, perbarui dropdown saja tanpa memuat material.
+  if(!p){
+    setStatus('Memperbarui daftar proyek terbaru...');
+    loadDaftarProyek(true,false);
+    return;
+  }
+
+  proyekAktif=p;
+  localStorage.setItem(CACHE_LAST_PROJECT_KEY,p);
+
+  // Tampilkan cache proyek aktif agar layar tetap cepat, lalu sinkronkan
+  // daftar proyek dan data aktif melalui API terbaru.
   const cached=getCache_(getProjectCacheKey_(p));
   if(cached && cached.success===true){
     tampilkanData(cached);
   }
 
-  setStatus('Memperbarui data terbaru...');
-  loadDataProyek(p,false);
+  setStatus('Memperbarui daftar proyek dan data terbaru...');
+  loadDaftarProyek(false,true);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatTableNumber(v){
