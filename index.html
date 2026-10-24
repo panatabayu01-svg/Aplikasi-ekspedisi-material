@@ -5193,6 +5193,17 @@ function loadDataProyek(p,showOverlay){
 
     }
 
+    // FIX KOMPATIBILITAS ARMADA:
+    // Backend lama mengirim `armada` (objek tunggal), UI terbaru membaca `armadaAktual` (array).
+    // Normalisasi response saja; tidak mengubah layout atau perhitungan.
+    if (!Array.isArray(result.armadaAktual) || result.armadaAktual.length === 0) {
+      if (Array.isArray(result.armada) && result.armada.length > 0) {
+        result.armadaAktual = result.armada;
+      } else if (result.armada && typeof result.armada === 'object') {
+        result.armadaAktual = [result.armada];
+      }
+    }
+
     const materialTerbaru = Array.isArray(result.material) ? result.material : [];
     if(materialTerbaru.length===0){
       localStorage.removeItem(getProjectCacheKey_(p));
