@@ -7686,7 +7686,7 @@ async function bagikanKpiMaterial_(){
     const loading=document.getElementById('shortShareLinkLoadingOverlay');
     if(loading) loading.remove();
     console.error('SHARE WORKSHOP V19 ERROR:',e);
-    alert('Link tidak dapat dibuat. Silakan coba lagi.');
+    alert('Link tidak dapat dibuat: '+String(e&&e.message?e.message:e||'Kesalahan tidak diketahui')+'. Coba lagi.');
   }
 }
 
