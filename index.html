@@ -5673,22 +5673,21 @@ function tampilkanData(data){
 
 function ambilArmadaAktual(data,summary){
   /*
-   * ==========================================================
-   * SUMBER ARMADA RESMI
-   * ----------------------------------------------------------
-   * INDEX TIDAK BOLEH MENGHITUNG ULANG REKOMENDASI ARMADA.
-   * Ambil langsung dari REKAP_ARMADA_AKTUAL -> armadaAktual.
+   * URUTAN SUMBER ARMADA:
+   * 1. DETAIL_ARMADA yang lolos validasi total proyek — data muatan
+   *    aktual per unit, agar satu proyek tidak dipecah berulang dari
+   *    beberapa baris rekap yang membawa total agregat.
+   * 2. REKAP_ARMADA_AKTUAL sebagai fallback bila detail tidak lengkap.
    *
-   * Penting:
-   * - TIDAK memakai data.armada lama sebagai fallback.
-   * - TIDAK menghitung kebutuhan armada dari total proyek.
-   * - TIDAK menggabungkan beberapa armada menjadi satu jenis.
-   * - Setiap baris armada aktual = hasil alokasi mesin.
-   *
-   * Untuk Ponpes Al-Khoziny hasil yang sudah diuji:
-   * 1 x CONTAINER 40FT + 1 x FUSO.
-   * ==========================================================
+   * Jangan menjalankan pemecahan rekap sebelum memeriksa detail.
+   * Jika rekap berisi beberapa baris armada dengan nilai CBM agregat
+   * proyek, pemecahan setiap baris dapat membuat kartu armada ganda.
    */
+  const hasilDetail = ambilArmadaDariDetail_(data, summary);
+  if(hasilDetail.length > 0){
+    return hasilDetail;
+  }
+
   const rows =
     data &&
     Array.isArray(data.armadaAktual)
@@ -5696,7 +5695,7 @@ function ambilArmadaAktual(data,summary){
       : [];
 
   if(rows.length===0){
-    return ambilArmadaDariDetail_(data, summary);
+    return [];
   }
 
   const hasilRekap = rows.map(function(r){
@@ -5718,7 +5717,6 @@ function ambilArmadaAktual(data,summary){
     const kapasitasTonTotal = Number(r.kapasitasTonTotal) ||
       (maxTonase * jumlahUnit);
 
-    // Ambil MUATAN AKTUAL dari REKAP, bukan total proyek.
     const totalCbmProyek = Number(
       r.cbmTerpakai != null
         ? r.cbmTerpakai
@@ -5739,7 +5737,6 @@ function ambilArmadaAktual(data,summary){
             : r.totalTon
     ) || 0;
 
-    // Hitung pemakaian dari angka aktual armada agar konsisten.
     const pemakaianCbm = kapasitasCbmTotal > 0
       ? totalCbmProyek / kapasitasCbmTotal
       : 0;
@@ -5748,18 +5745,8 @@ function ambilArmadaAktual(data,summary){
       ? totalTonProyek / kapasitasTonTotal
       : 0;
 
-    let status = 'KUOTA MASIH TERSEDIA';
-
-    // Status mengikuti angka pemakaian yang ditampilkan di UI.
-    // Jika pembulatan sudah menjadi 100,0%, kuota dianggap tercapai.
-    // Ini hanya memperbaiki status tampilan; angka KPI dan hasil hitung
-    // armada tetap menggunakan nilai aktual dari API.
     const cbmTercapai = Math.round(pemakaianCbm * 1000) / 1000 >= 1;
     const tonTercapai = Math.round(pemakaianTon * 1000) / 1000 >= 1;
-
-    if(cbmTercapai || tonTercapai){
-      status = 'KUOTA TERCAPAI';
-    }
 
     return {
       armada: String(r.armada || '-').trim(),
@@ -5775,32 +5762,15 @@ function ambilArmadaAktual(data,summary){
       totalTonProyek: totalTonProyek,
       pemakaianCbm: pemakaianCbm,
       pemakaianTon: pemakaianTon,
-      status: status
+      status: (cbmTercapai || tonTercapai)
+        ? 'KUOTA TERCAPAI'
+        : 'KUOTA MASIH TERSEDIA'
     };
   });
 
-  // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
-  // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
-  // armada AUTO, lalu sisa muatan memakai armada berikutnya yang
-  // paling kecil tetapi masih mampu menampung sisa CBM dan tonase.
-  // Layout kartu tetap sama; hanya data kartu yang dipecah.
-  const hasilPecah = pecahArmadaBerurutan_(hasilRekap);
-  if(hasilPecah.length > 0){
-    return hasilPecah;
-  }
-
-  // Detail loading adalah data paling granular: satu armada/unit dan
-  // material yang benar-benar dimuat. Bila detail lengkap dan totalnya
-  // cocok dengan summary, pakai detail untuk membentuk kartu armada.
-  // Bila tidak lengkap, tetap aman memakai REKAP_ARMADA_AKTUAL.
-  const hasilDetail = ambilArmadaDariDetail_(data, summary);
-  if(hasilDetail.length>0){
-    return hasilDetail;
-  }
-
-  return hasilRekap;
+  // Rekap hanya dipecah jika detail per unit tidak tersedia/valid.
+  return pecahArmadaBerurutan_(hasilRekap);
 }
-
 function pecahArmadaBerurutan_(hasilRekap){
   if(!Array.isArray(hasilRekap) || hasilRekap.length===0) return [];
 
