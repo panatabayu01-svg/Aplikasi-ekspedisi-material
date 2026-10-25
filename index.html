@@ -3089,18 +3089,12 @@ function pilihMode(mode){
   const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
 
   if(Array.isArray(cachedProjects) && cachedProjects.length){
-    // Tampilkan cache lebih dahulu agar dropdown langsung responsif,
-    // tetapi jangan menjadikan cache sebagai sumber final daftar proyek.
     daftarProyek=filterProyekOtomatis_(cachedProjects);
     isiDropdownProyek(false);
     const select=document.getElementById('projectSelect');
     select.value='';
     proyekAktif='';
-    setStatus('Memperbarui daftar proyek terbaru...');
-
-    // Sinkronkan daftar dari API setiap kali kembali ke mode AUTO.
-    // loadSelected=false hanya memperbarui dropdown, tanpa memuat material.
-    loadDaftarProyek(false,false);
+    setStatus('Pilih proyek untuk menampilkan data material.');
     return;
   }
 
@@ -5193,20 +5187,6 @@ function loadDataProyek(p,showOverlay){
 
     }
 
-    // FIX KOMPATIBILITAS MULTI-ARMADA:
-    // Backend terbaru mengirim seluruh hasil REKAP_ARMADA_AKTUAL pada `armadaList`.
-    // UI memakai `armadaAktual`, jadi prioritaskan array lengkap ini agar semua
-    // jenis armada tampil. Tetap dukung format `armadaAktual` dan backend lama.
-    if (!Array.isArray(result.armadaAktual) || result.armadaAktual.length === 0) {
-      if (Array.isArray(result.armadaList) && result.armadaList.length > 0) {
-        result.armadaAktual = result.armadaList;
-      } else if (Array.isArray(result.armada) && result.armada.length > 0) {
-        result.armadaAktual = result.armada;
-      } else if (result.armada && typeof result.armada === 'object') {
-        result.armadaAktual = [result.armada];
-      }
-    }
-
     const materialTerbaru = Array.isArray(result.material) ? result.material : [];
     if(materialTerbaru.length===0){
       localStorage.removeItem(getProjectCacheKey_(p));
@@ -5673,21 +5653,22 @@ function tampilkanData(data){
 
 function ambilArmadaAktual(data,summary){
   /*
-   * URUTAN SUMBER ARMADA:
-   * 1. DETAIL_ARMADA yang lolos validasi total proyek — data muatan
-   *    aktual per unit, agar satu proyek tidak dipecah berulang dari
-   *    beberapa baris rekap yang membawa total agregat.
-   * 2. REKAP_ARMADA_AKTUAL sebagai fallback bila detail tidak lengkap.
+   * ==========================================================
+   * SUMBER ARMADA RESMI
+   * ----------------------------------------------------------
+   * INDEX TIDAK BOLEH MENGHITUNG ULANG REKOMENDASI ARMADA.
+   * Ambil langsung dari REKAP_ARMADA_AKTUAL -> armadaAktual.
    *
-   * Jangan menjalankan pemecahan rekap sebelum memeriksa detail.
-   * Jika rekap berisi beberapa baris armada dengan nilai CBM agregat
-   * proyek, pemecahan setiap baris dapat membuat kartu armada ganda.
+   * Penting:
+   * - TIDAK memakai data.armada lama sebagai fallback.
+   * - TIDAK menghitung kebutuhan armada dari total proyek.
+   * - TIDAK menggabungkan beberapa armada menjadi satu jenis.
+   * - Setiap baris armada aktual = hasil alokasi mesin.
+   *
+   * Untuk Ponpes Al-Khoziny hasil yang sudah diuji:
+   * 1 x CONTAINER 40FT + 1 x FUSO.
+   * ==========================================================
    */
-  const hasilDetail = ambilArmadaDariDetail_(data, summary);
-  if(hasilDetail.length > 0){
-    return hasilDetail;
-  }
-
   const rows =
     data &&
     Array.isArray(data.armadaAktual)
@@ -5695,7 +5676,7 @@ function ambilArmadaAktual(data,summary){
       : [];
 
   if(rows.length===0){
-    return [];
+    return ambilArmadaDariDetail_(data, summary);
   }
 
   const hasilRekap = rows.map(function(r){
@@ -5717,6 +5698,7 @@ function ambilArmadaAktual(data,summary){
     const kapasitasTonTotal = Number(r.kapasitasTonTotal) ||
       (maxTonase * jumlahUnit);
 
+    // Ambil MUATAN AKTUAL dari REKAP, bukan total proyek.
     const totalCbmProyek = Number(
       r.cbmTerpakai != null
         ? r.cbmTerpakai
@@ -5737,6 +5719,7 @@ function ambilArmadaAktual(data,summary){
             : r.totalTon
     ) || 0;
 
+    // Hitung pemakaian dari angka aktual armada agar konsisten.
     const pemakaianCbm = kapasitasCbmTotal > 0
       ? totalCbmProyek / kapasitasCbmTotal
       : 0;
@@ -5745,8 +5728,18 @@ function ambilArmadaAktual(data,summary){
       ? totalTonProyek / kapasitasTonTotal
       : 0;
 
+    let status = 'KUOTA MASIH TERSEDIA';
+
+    // Status mengikuti angka pemakaian yang ditampilkan di UI.
+    // Jika pembulatan sudah menjadi 100,0%, kuota dianggap tercapai.
+    // Ini hanya memperbaiki status tampilan; angka KPI dan hasil hitung
+    // armada tetap menggunakan nilai aktual dari API.
     const cbmTercapai = Math.round(pemakaianCbm * 1000) / 1000 >= 1;
     const tonTercapai = Math.round(pemakaianTon * 1000) / 1000 >= 1;
+
+    if(cbmTercapai || tonTercapai){
+      status = 'KUOTA TERCAPAI';
+    }
 
     return {
       armada: String(r.armada || '-').trim(),
@@ -5762,33 +5755,37 @@ function ambilArmadaAktual(data,summary){
       totalTonProyek: totalTonProyek,
       pemakaianCbm: pemakaianCbm,
       pemakaianTon: pemakaianTon,
-      status: (cbmTercapai || tonTercapai)
-        ? 'KUOTA TERCAPAI'
-        : 'KUOTA MASIH TERSEDIA'
+      status: status
     };
   });
 
-  // Rekap hanya dipecah jika detail per unit tidak tersedia/valid.
-  return pecahArmadaBerurutan_(hasilRekap);
+  // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
+  // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
+  // armada AUTO, lalu sisa muatan memakai armada berikutnya yang
+  // paling kecil tetapi masih mampu menampung sisa CBM dan tonase.
+  // Layout kartu tetap sama; hanya data kartu yang dipecah.
+  const hasilPecah = pecahArmadaBerurutan_(hasilRekap);
+  if(hasilPecah.length > 0){
+    return hasilPecah;
+  }
+
+  // Detail loading adalah data paling granular: satu armada/unit dan
+  // material yang benar-benar dimuat. Bila detail lengkap dan totalnya
+  // cocok dengan summary, pakai detail untuk membentuk kartu armada.
+  // Bila tidak lengkap, tetap aman memakai REKAP_ARMADA_AKTUAL.
+  const hasilDetail = ambilArmadaDariDetail_(data, summary);
+  if(hasilDetail.length>0){
+    return hasilDetail;
+  }
+
+  return hasilRekap;
 }
+
 function pecahArmadaBerurutan_(hasilRekap){
   if(!Array.isArray(hasilRekap) || hasilRekap.length===0) return [];
 
-  /*
-   * Perbaikan: pemecahan juga diperlukan jika satu unit AUTO tidak
-   * cukup menampung muatan, walaupun kebutuhanUnit dari sheet bernilai 1.
-   * Contoh: muatan 49 m3, kapasitas tronton 47,56 m3 -> tampilkan armada
-   * berikutnya untuk sisa muatan, bukan hanya satu kartu tronton.
-   */
   const perluPecah=hasilRekap.some(function(a){
-    const unit=Math.max(1,Number(a.kebutuhanUnit)||1);
-    const muatCbm=Math.max(0,Number(a.totalCbmProyek)||0);
-    const muatTon=Math.max(0,Number(a.totalTonProyek)||0);
-    const capCbm=Number(a.kapasitasCbmTotal)||Number(a.kapasitasCbm)||0;
-    const capTon=Number(a.kapasitasTonTotal)||Number(a.maxTonase)||0;
-    return unit>1 ||
-      (capCbm>0 && muatCbm>capCbm+0.000001) ||
-      (capTon>0 && muatTon>capTon+0.000001);
+    return (Number(a.kebutuhanUnit)||0)>1;
   });
   if(!perluPecah) return hasilRekap;
 
@@ -5796,15 +5793,8 @@ function pecahArmadaBerurutan_(hasilRekap){
 
   hasilRekap.forEach(function(src){
     const jumlahAwal=Math.max(1,Number(src.kebutuhanUnit)||1);
-    const totalCbmAwal=Math.max(0,Number(src.totalCbmProyek)||0);
-    const totalTonAwal=Math.max(0,Number(src.totalTonProyek)||0);
-    const capCbmAwal=Number(src.kapasitasCbmTotal)||Number(src.kapasitasCbm)||0;
-    const capTonAwal=Number(src.kapasitasTonTotal)||Number(src.maxTonase)||0;
 
-    // Satu unit tetap menjadi satu kartu hanya bila kapasitasnya cukup.
-    if(jumlahAwal<=1 &&
-       (capCbmAwal<=0 || totalCbmAwal<=capCbmAwal+0.000001) &&
-       (capTonAwal<=0 || totalTonAwal<=capTonAwal+0.000001)){
+    if(jumlahAwal<=1){
       output.push(src);
       return;
     }
@@ -6950,36 +6940,35 @@ function refreshData(){
   const select=document.getElementById('projectSelect');
   const p=select.value || proyekAktif;
 
+  if(!p){
+    setStatus('Pilih proyek terlebih dahulu.');
+    return;
+  }
+
+  proyekAktif=p;
+
+  localStorage.setItem(
+    CACHE_LAST_PROJECT_KEY,
+    p
+  );
+
   // KHUSUS MANUAL: jangan tampilkan cache lama.
   // Ambil langsung hasil hitung terbaru dari Google Sheet/API.
   if(modeAplikasi==='MANUAL' || p===NAMA_PROYEK_MANUAL){
     localStorage.removeItem(getProjectCacheKey_(NAMA_PROYEK_MANUAL));
-    proyekAktif=NAMA_PROYEK_MANUAL;
     setStatus('Mengambil hasil hitung INPUT MANUAL terbaru...');
     loadDataProyek(NAMA_PROYEK_MANUAL,true);
     return;
   }
 
-  // AUTO: refresh juga daftar proyek dari API, bukan hanya data proyek aktif.
-  // Jika belum ada pilihan, perbarui dropdown saja tanpa memuat material.
-  if(!p){
-    setStatus('Memperbarui daftar proyek terbaru...');
-    loadDaftarProyek(true,false);
-    return;
-  }
-
-  proyekAktif=p;
-  localStorage.setItem(CACHE_LAST_PROJECT_KEY,p);
-
-  // Tampilkan cache proyek aktif agar layar tetap cepat, lalu sinkronkan
-  // daftar proyek dan data aktif melalui API terbaru.
+  // AUTO tetap memakai cache agar tampilan cepat.
   const cached=getCache_(getProjectCacheKey_(p));
   if(cached && cached.success===true){
     tampilkanData(cached);
   }
 
-  setStatus('Memperbarui daftar proyek dan data terbaru...');
-  loadDaftarProyek(false,true);
+  setStatus('Memperbarui data terbaru...');
+  loadDataProyek(p,false);
 }
 function formatNumber(v,d){const n=Number(v);if(!isFinite(n))return '0';return n.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function formatTableNumber(v){
@@ -7679,7 +7668,7 @@ async function bagikanKpiMaterial_(){
     const loading=document.getElementById('shortShareLinkLoadingOverlay');
     if(loading) loading.remove();
     console.error('SHARE WORKSHOP V19 ERROR:',e);
-    alert('Link tidak dapat dibuat: '+String(e&&e.message?e.message:e||'Kesalahan tidak diketahui')+'. Coba lagi.');
+    alert('Link tidak dapat dibuat. Silakan coba lagi.');
   }
 }
 
