@@ -5804,8 +5804,21 @@ function ambilArmadaAktual(data,summary){
 function pecahArmadaBerurutan_(hasilRekap){
   if(!Array.isArray(hasilRekap) || hasilRekap.length===0) return [];
 
+  /*
+   * Perbaikan: pemecahan juga diperlukan jika satu unit AUTO tidak
+   * cukup menampung muatan, walaupun kebutuhanUnit dari sheet bernilai 1.
+   * Contoh: muatan 49 m3, kapasitas tronton 47,56 m3 -> tampilkan armada
+   * berikutnya untuk sisa muatan, bukan hanya satu kartu tronton.
+   */
   const perluPecah=hasilRekap.some(function(a){
-    return (Number(a.kebutuhanUnit)||0)>1;
+    const unit=Math.max(1,Number(a.kebutuhanUnit)||1);
+    const muatCbm=Math.max(0,Number(a.totalCbmProyek)||0);
+    const muatTon=Math.max(0,Number(a.totalTonProyek)||0);
+    const capCbm=Number(a.kapasitasCbmTotal)||Number(a.kapasitasCbm)||0;
+    const capTon=Number(a.kapasitasTonTotal)||Number(a.maxTonase)||0;
+    return unit>1 ||
+      (capCbm>0 && muatCbm>capCbm+0.000001) ||
+      (capTon>0 && muatTon>capTon+0.000001);
   });
   if(!perluPecah) return hasilRekap;
 
@@ -5813,8 +5826,15 @@ function pecahArmadaBerurutan_(hasilRekap){
 
   hasilRekap.forEach(function(src){
     const jumlahAwal=Math.max(1,Number(src.kebutuhanUnit)||1);
+    const totalCbmAwal=Math.max(0,Number(src.totalCbmProyek)||0);
+    const totalTonAwal=Math.max(0,Number(src.totalTonProyek)||0);
+    const capCbmAwal=Number(src.kapasitasCbmTotal)||Number(src.kapasitasCbm)||0;
+    const capTonAwal=Number(src.kapasitasTonTotal)||Number(src.maxTonase)||0;
 
-    if(jumlahAwal<=1){
+    // Satu unit tetap menjadi satu kartu hanya bila kapasitasnya cukup.
+    if(jumlahAwal<=1 &&
+       (capCbmAwal<=0 || totalCbmAwal<=capCbmAwal+0.000001) &&
+       (capTonAwal<=0 || totalTonAwal<=capTonAwal+0.000001)){
       output.push(src);
       return;
     }
