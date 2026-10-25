@@ -5193,11 +5193,14 @@ function loadDataProyek(p,showOverlay){
 
     }
 
-    // FIX KOMPATIBILITAS ARMADA:
-    // Backend lama mengirim `armada` (objek tunggal), UI terbaru membaca `armadaAktual` (array).
-    // Normalisasi response saja; tidak mengubah layout atau perhitungan.
+    // FIX KOMPATIBILITAS MULTI-ARMADA:
+    // Backend terbaru mengirim seluruh hasil REKAP_ARMADA_AKTUAL pada `armadaList`.
+    // UI memakai `armadaAktual`, jadi prioritaskan array lengkap ini agar semua
+    // jenis armada tampil. Tetap dukung format `armadaAktual` dan backend lama.
     if (!Array.isArray(result.armadaAktual) || result.armadaAktual.length === 0) {
-      if (Array.isArray(result.armada) && result.armada.length > 0) {
+      if (Array.isArray(result.armadaList) && result.armadaList.length > 0) {
+        result.armadaAktual = result.armadaList;
+      } else if (Array.isArray(result.armada) && result.armada.length > 0) {
         result.armadaAktual = result.armada;
       } else if (result.armada && typeof result.armada === 'object') {
         result.armadaAktual = [result.armada];
