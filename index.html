@@ -5492,7 +5492,7 @@ function tampilkanData(data){
    */
   if(Array.isArray(data.armadaMaster) && data.armadaMaster.length>0){
     const masterArmadaUnik = {};
-    MASTER_ARMADA_PILIHAN = data.armadaMaster
+    MASTER_ARMADA_PILIHAN=data.armadaMaster
       .filter(function(m){
         return m &&
           String(m.armada || '').trim() &&
@@ -5514,11 +5514,9 @@ function tampilkanData(data){
         };
       })
       .filter(function(m){
-        // Satu nama armada hanya boleh muncul sekali di dropdown.
-        // Normalisasi mencegah duplikat akibat huruf besar/kecil atau spasi.
-        const key = normalisasiNamaArmada_(m.armada);
+        const key=normalisasiNamaArmada_(m.armada);
         if(!key || masterArmadaUnik[key]) return false;
-        masterArmadaUnik[key] = true;
+        masterArmadaUnik[key]=true;
         return true;
       });
   }
@@ -6571,6 +6569,31 @@ function pilihArmadaKartuManual(index,selectEl){
 
   const rawValue=String(selectEl ? selectEl.value : '').trim();
   const nama=normalisasiNamaArmada_(rawValue);
+
+  /*
+   * AUTO pada dropdown kartu berarti pulihkan SELURUH daftar rekomendasi AUTO,
+   * bukan hanya mengubah satu kartu. Snapshot ini adalah hasil mesin asli,
+   * sehingga semua alternatif AUTO tampil kembali dan pilihan manual lama
+   * tidak ikut terbawa. Mesin hitung material dan layout tidak diubah.
+   */
+  if(!rawValue || rawValue==='__AUTO__' || nama==='AUTO'){
+    if(!Array.isArray(armadaAutoSnapshot) || armadaAutoSnapshot.length===0) return;
+    armadaModePilihan='AUTO';
+    armadaKartuPilihanManual={};
+    const autoList=armadaAutoSnapshot.map(function(a){
+      return Object.assign({},a,{
+        _isAutoResult:true,
+        _autoArmada:a._autoArmada || a.armada
+      });
+    });
+    armadaTampilanTerakhir=[];
+    tampilkanArmada(autoList);
+    const mainSelect=document.getElementById('armadaSelect');
+    if(mainSelect) mainSelect.value='__AUTO__';
+    setStatus('Rekomendasi AUTO dipulihkan: semua alternatif armada ditampilkan.');
+    return;
+  }
+
   const baseList=armadaTampilanTerakhir.map(function(a){return Object.assign({},a);});
   const target=baseList[index];
   if(!target) return;
