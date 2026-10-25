@@ -5491,7 +5491,8 @@ function tampilkanData(data){
    * Tidak mengubah layout maupun logika AUTO.
    */
   if(Array.isArray(data.armadaMaster) && data.armadaMaster.length>0){
-    MASTER_ARMADA_PILIHAN=data.armadaMaster
+    const masterArmadaUnik = {};
+    MASTER_ARMADA_PILIHAN = data.armadaMaster
       .filter(function(m){
         return m &&
           String(m.armada || '').trim() &&
@@ -5511,6 +5512,14 @@ function tampilkanData(data){
           catatan:String(m.catatan || '').trim(),
           prioritas:Number(m.prioritas)||999999
         };
+      })
+      .filter(function(m){
+        // Satu nama armada hanya boleh muncul sekali di dropdown.
+        // Normalisasi mencegah duplikat akibat huruf besar/kecil atau spasi.
+        const key = normalisasiNamaArmada_(m.armada);
+        if(!key || masterArmadaUnik[key]) return false;
+        masterArmadaUnik[key] = true;
+        return true;
       });
   }
 
