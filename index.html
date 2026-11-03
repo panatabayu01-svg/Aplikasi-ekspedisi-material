@@ -5669,11 +5669,47 @@ function ambilArmadaAktual(data,summary){
    * 1 x CONTAINER 40FT + 1 x FUSO.
    * ==========================================================
    */
-  const rows =
+  const rowsRaw =
     data &&
     Array.isArray(data.armadaAktual)
       ? data.armadaAktual
       : [];
+
+  // Hilangkan duplikat baris API yang menghasilkan kartu identik.
+  // Baris armada sama dengan muatan/kapasitas berbeda tetap dipertahankan.
+  const kunciAngka = function(v){
+    const n = Number(v);
+    return Number.isFinite(n) ? String(Math.round(n * 1000000) / 1000000) : '0';
+  };
+  const seenArmadaAktual = new Set();
+  const rows = rowsRaw.filter(function(r){
+    r = r || {};
+    const nama = String(r.armada || '').trim().toUpperCase().replace(/\s+/g,' ');
+    const jumlah = r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit;
+    const cbmMuatan = r.cbmTerpakai != null ? r.cbmTerpakai :
+      (r.totalCbmTerpakaiTotal != null ? r.totalCbmTerpakaiTotal :
+      (r.totalCbmProyek != null ? r.totalCbmProyek : r.totalCbm));
+    const tonMuatan = r.tonTerpakai != null ? r.tonTerpakai :
+      (r.totalTonTerpakaiTotal != null ? r.totalTonTerpakaiTotal :
+      (r.totalTonProyek != null ? r.totalTonProyek : r.totalTon));
+    const signature = [
+      nama,
+      kunciAngka(jumlah),
+      kunciAngka(r.panjangM),
+      kunciAngka(r.lebarM),
+      kunciAngka(r.tinggiM),
+      kunciAngka(r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm),
+      kunciAngka(r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase),
+      kunciAngka(r.kapasitasCbmTotal),
+      kunciAngka(r.kapasitasTonTotal),
+      kunciAngka(cbmMuatan),
+      kunciAngka(tonMuatan)
+    ].join('|');
+
+    if(seenArmadaAktual.has(signature)) return false;
+    seenArmadaAktual.add(signature);
+    return true;
+  });
 
   if(rows.length===0){
     return ambilArmadaDariDetail_(data, summary);
@@ -5758,33 +5794,6 @@ function ambilArmadaAktual(data,summary){
       status: status
     };
   });
-
-  /*
-   * PERBAIKAN DUPLIKAT REKOMENDASI ARMADA:
-   * API kadang mengirim baris REKAP_ARMADA_AKTUAL yang sama lebih dari sekali.
-   * Buang hanya baris yang identik pada jenis, dimensi, kapasitas, jumlah unit,
-   * dan alokasi CBM/ton. Armada sejenis dengan alokasi berbeda tetap dipertahankan.
-   */
-  const kunciArmadaTerlihat = new Set();
-  const hasilRekapUnik = hasilRekap.filter(function(a){
-    function n(v){
-      const x=Number(v);
-      return Number.isFinite(x) ? String(Math.round(x*1000000)/1000000) : '0';
-    }
-    const key=[
-      normalisasiNamaArmada_(a.armada),
-      n(a.kebutuhanUnit),
-      n(a.panjangM),n(a.lebarM),n(a.tinggiM),
-      n(a.kapasitasCbm),n(a.maxTonase),
-      n(a.kapasitasCbmTotal),n(a.kapasitasTonTotal),
-      n(a.totalCbmProyek),n(a.totalTonProyek)
-    ].join('|');
-    if(kunciArmadaTerlihat.has(key)) return false;
-    kunciArmadaTerlihat.add(key);
-    return true;
-  });
-  hasilRekap.length=0;
-  Array.prototype.push.apply(hasilRekap,hasilRekapUnik);
 
   // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
   // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
