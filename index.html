@@ -2781,7 +2781,7 @@ function prewarmStartupCache_(){
 
     const cachedData=getCache_(getProjectCacheKey_(target));
     if(cachedData && cachedData.success===true){
-      tampilkanCacheTanpaRekomendasiArmada_(cachedData);
+      tampilkanData(cachedData);
       setStatus('Data tersimpan ditampilkan. Memperbarui data...');
       showLoading(false);
     }
@@ -4987,30 +4987,6 @@ function getProjectCacheKey_(project){
   return CACHE_DATA_PREFIX + encodeURIComponent(String(project||'').trim());
 }
 
-/*
- * CACHE STARTUP: tampilkan KPI dan tabel material secepatnya,
- * tetapi jangan tampilkan rekomendasi armada dari cache lama.
- * Rekomendasi armada hanya dirender dari respons API terbaru agar
- * kartu AUTO lama tidak muncul sesaat saat aplikasi pertama dibuka.
- */
-function tampilkanCacheTanpaRekomendasiArmada_(cachedData){
-  if(!cachedData || typeof cachedData!=='object') return;
-
-  const dataCache=Object.assign({},cachedData,{
-    armadaAktual:[],
-    detailArmada:[]
-  });
-
-  armadaAktualTerakhir=[];
-  armadaAutoSnapshot=[];
-  armadaTampilanTerakhir=[];
-  armadaKartuPilihanManual={};
-  armadaModePilihan='AUTO';
-  proyekArmadaTerakhir='';
-
-  tampilkanData(dataCache);
-}
-
 function initFromCache(){
   const cachedProjects=getCache_(CACHE_PROJECTS_KEY);
 
@@ -5432,7 +5408,7 @@ function loadDaftarProyek(showOverlay,loadSelected){
 
       const cachedData=getCache_(getProjectCacheKey_(namaProyek));
       if(cachedData && cachedData.success===true){
-        tampilkanCacheTanpaRekomendasiArmada_(cachedData);
+        tampilkanData(cachedData);
         if(showOverlay){
           showLoading(false);
         }
@@ -5782,6 +5758,33 @@ function ambilArmadaAktual(data,summary){
       status: status
     };
   });
+
+  /*
+   * PERBAIKAN DUPLIKAT REKOMENDASI ARMADA:
+   * API kadang mengirim baris REKAP_ARMADA_AKTUAL yang sama lebih dari sekali.
+   * Buang hanya baris yang identik pada jenis, dimensi, kapasitas, jumlah unit,
+   * dan alokasi CBM/ton. Armada sejenis dengan alokasi berbeda tetap dipertahankan.
+   */
+  const kunciArmadaTerlihat = new Set();
+  const hasilRekapUnik = hasilRekap.filter(function(a){
+    function n(v){
+      const x=Number(v);
+      return Number.isFinite(x) ? String(Math.round(x*1000000)/1000000) : '0';
+    }
+    const key=[
+      normalisasiNamaArmada_(a.armada),
+      n(a.kebutuhanUnit),
+      n(a.panjangM),n(a.lebarM),n(a.tinggiM),
+      n(a.kapasitasCbm),n(a.maxTonase),
+      n(a.kapasitasCbmTotal),n(a.kapasitasTonTotal),
+      n(a.totalCbmProyek),n(a.totalTonProyek)
+    ].join('|');
+    if(kunciArmadaTerlihat.has(key)) return false;
+    kunciArmadaTerlihat.add(key);
+    return true;
+  });
+  hasilRekap.length=0;
+  Array.prototype.push.apply(hasilRekap,hasilRekapUnik);
 
   // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
   // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
