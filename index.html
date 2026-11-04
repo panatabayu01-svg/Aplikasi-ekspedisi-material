@@ -3184,8 +3184,19 @@ function initExistingApp_(){
   }
 
   // ==========================================================
-  // ALUR NORMAL
+  // ALUR NORMAL — STARTUP SELALU AUTO
   // ==========================================================
+  // Setiap pembukaan aplikasi normal dimulai dari rekomendasi AUTO.
+  // Pilihan manual hanya berlaku selama sesi/proyek berjalan; pilihan itu
+  // tidak boleh membuat startup berikutnya mewarisi kartu manual lama.
+  modeAplikasi='AUTO';
+  armadaModePilihan='AUTO';
+  armadaKartuPilihanManual={};
+  armadaAutoSnapshot=[];
+  armadaAktualTerakhir=[];
+  armadaTampilanTerakhir=[];
+  proyekArmadaTerakhir='';
+
   updateModeUI_();
 
   // Tampilkan data cache secepat mungkin.
@@ -5584,6 +5595,33 @@ function tampilkanData(data){
   // per armada/unit. Ini mencegah satu jenis armada terbaca ganda
   // ketika rekap tampilan membawa agregasi yang tidak sesuai alokasi.
   let armadaList=ambilArmadaAktual(data,summaryUntukArmada);
+
+  // PENGAMAN AUTO: bila API belum mengirim baris rekomendasi/detail, tetapi
+  // summary proyek dan master armada tersedia, tetap tampilkan rekomendasi
+  // otomatis. Jalur ini hanya fallback; hasil resmi dari API tidak diubah.
+  if((!Array.isArray(armadaList) || armadaList.length===0) &&
+     (Number(summaryUntukArmada.totalCbm)>0 || Number(summaryUntukArmada.totalTon)>0) &&
+     Array.isArray(MASTER_ARMADA_PILIHAN) && MASTER_ARMADA_PILIHAN.length>0){
+    const kandidatAwal=MASTER_ARMADA_PILIHAN.slice().sort(function(a,b){
+      function skor(m){
+        const c=Number(m.kapasitasCbm)||0;
+        const t=Number(m.maxTonase)||0;
+        const rc=c>0 ? c/Math.max(Number(summaryUntukArmada.totalCbm)||0.000001,0.000001) : Infinity;
+        const rt=t>0 ? t/Math.max(Number(summaryUntukArmada.totalTon)||0.000001,0.000001) : Infinity;
+        return Math.max(rc,rt);
+      }
+      const sa=skor(a), sb=skor(b);
+      if(sa!==sb) return sa-sb;
+      return (Number(a.prioritas)||999999)-(Number(b.prioritas)||999999);
+    });
+    if(kandidatAwal.length){
+      armadaList=buatArmadaManualBerurutan_(
+        kandidatAwal[0],
+        summaryUntukArmada.totalCbm,
+        summaryUntukArmada.totalTon
+      );
+    }
+  }
 
   /*
    * PENTING: armadaList di titik ini adalah HASIL AUTO asli dari mesin.
