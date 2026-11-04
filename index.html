@@ -5795,23 +5795,21 @@ function ambilArmadaAktual(data,summary){
     };
   });
 
-  // Jika mesin mengirim satu baris dengan kebutuhan lebih dari 1 unit,
-  // tampilkan sebagai rekomendasi berurutan: unit pertama memakai
-  // armada AUTO, lalu sisa muatan memakai armada berikutnya yang
-  // paling kecil tetapi masih mampu menampung sisa CBM dan tonase.
-  // Layout kartu tetap sama; hanya data kartu yang dipecah.
-  const hasilPecah = pecahArmadaBerurutan_(hasilRekap);
-  if(hasilPecah.length > 0){
-    return hasilPecah;
-  }
-
-  // Detail loading adalah data paling granular: satu armada/unit dan
-  // material yang benar-benar dimuat. Bila detail lengkap dan totalnya
-  // cocok dengan summary, pakai detail untuk membentuk kartu armada.
-  // Bila tidak lengkap, tetap aman memakai REKAP_ARMADA_AKTUAL.
+  // DETAIL ARMADA adalah data paling rinci: satu armada/unit dan
+  // material yang benar-benar dimuat. Gunakan detail terlebih dahulu
+  // HANYA bila total CBM dan tonase cocok dengan summary proyek aktif.
+  // Ini mencegah REKAP_ARMADA_AKTUAL yang tertinggal/stale membuat kartu
+  // armada berulang atau menampilkan muatan melebihi total material proyek.
   const hasilDetail = ambilArmadaDariDetail_(data, summary);
   if(hasilDetail.length>0){
     return hasilDetail;
+  }
+
+  // Jika detail tidak tersedia/tidak cocok dengan summary, gunakan rekap.
+  // Bila rekap menyatakan lebih dari 1 unit, pecah menjadi kartu berurutan.
+  const hasilPecah = pecahArmadaBerurutan_(hasilRekap);
+  if(hasilPecah.length > 0){
+    return hasilPecah;
   }
 
   return hasilRekap;
