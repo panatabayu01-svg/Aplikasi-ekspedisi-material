@@ -2757,7 +2757,13 @@ function daftarUserBaru_(){
     userStatus_=String(x.status||'').toUpperCase();
     if(userStatus_==='APPROVED'){userApproved_=true;setUserAccessMode_('APPROVED',x.name||nama);setTimeout(()=>{hideUserAccessOverlay_();mulaiHeartbeatUser_()},300)}
     else{setUserAccessMode_('PENDING',x.name||nama);mulaiPollingApprovalUser_()}
-  }).catch(e=>{alert(e.message||'Pendaftaran gagal.');setUserAccessMode_('FORM')})
+  }).catch(e=>{
+    console.error('USER REGISTRATION ERROR:',e);
+    // Jangan menghapus nama yang sudah diketik. Kegagalan fetch biasanya
+    // berarti server/deployment belum dapat dijangkau, bukan registrasi ditolak.
+    setUserAccessMode_('FORM');
+    setUserAccessMessage_('Gagal terhubung ke server. Nama tetap tersimpan di kolom. Periksa koneksi/API, lalu coba lagi.');
+  })
   .finally(()=>{if(btn){btn.disabled=false;btn.textContent='SEND REGISTRATION'}});
 }
 function prewarmStartupCache_(){
@@ -2823,11 +2829,13 @@ function mulaiSistemUser_(){
     return false;
   }).catch(e=>{
     console.error('USER ACCESS ERROR:',e);
-    // Jika server belum dapat dihubungi, tampilkan popup agar user
-    // tetap mendapat informasi dan bisa mencoba pendaftaran kembali.
+    // PENTING: kegagalan koneksi bukan berarti perangkat belum terdaftar.
+    // Jangan tampilkan formulir registrasi saat server tidak bisa dihubungi.
+    // Tetap di mode pemeriksaan dan coba ulang melalui polling.
     showUserAccessOverlay_();
-    setUserAccessMode_('FORM');
-    setUserAccessMessage_('Belum dapat terhubung ke server. Silakan coba lagi.');
+    setUserAccessMode_('LOADING');
+    setUserAccessMessage_('Koneksi server gagal. Pendaftaran tidak diulang. Sistem akan memeriksa kembali otomatis.');
+    mulaiPollingApprovalUser_();
     return false;
   });
 }
