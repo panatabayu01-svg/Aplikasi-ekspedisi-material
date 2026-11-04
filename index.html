@@ -5669,47 +5669,11 @@ function ambilArmadaAktual(data,summary){
    * 1 x CONTAINER 40FT + 1 x FUSO.
    * ==========================================================
    */
-  const rowsRaw =
+  const rows =
     data &&
     Array.isArray(data.armadaAktual)
       ? data.armadaAktual
       : [];
-
-  // Hilangkan duplikat baris API yang menghasilkan kartu identik.
-  // Baris armada sama dengan muatan/kapasitas berbeda tetap dipertahankan.
-  const kunciAngka = function(v){
-    const n = Number(v);
-    return Number.isFinite(n) ? String(Math.round(n * 1000000) / 1000000) : '0';
-  };
-  const seenArmadaAktual = new Set();
-  const rows = rowsRaw.filter(function(r){
-    r = r || {};
-    const nama = String(r.armada || '').trim().toUpperCase().replace(/\s+/g,' ');
-    const jumlah = r.jumlahUnit != null ? r.jumlahUnit : r.kebutuhanUnit;
-    const cbmMuatan = r.cbmTerpakai != null ? r.cbmTerpakai :
-      (r.totalCbmTerpakaiTotal != null ? r.totalCbmTerpakaiTotal :
-      (r.totalCbmProyek != null ? r.totalCbmProyek : r.totalCbm));
-    const tonMuatan = r.tonTerpakai != null ? r.tonTerpakai :
-      (r.totalTonTerpakaiTotal != null ? r.totalTonTerpakaiTotal :
-      (r.totalTonProyek != null ? r.totalTonProyek : r.totalTon));
-    const signature = [
-      nama,
-      kunciAngka(jumlah),
-      kunciAngka(r.panjangM),
-      kunciAngka(r.lebarM),
-      kunciAngka(r.tinggiM),
-      kunciAngka(r.kapasitasCbmUnit != null ? r.kapasitasCbmUnit : r.kapasitasCbm),
-      kunciAngka(r.maxTonaseUnit != null ? r.maxTonaseUnit : r.maxTonase),
-      kunciAngka(r.kapasitasCbmTotal),
-      kunciAngka(r.kapasitasTonTotal),
-      kunciAngka(cbmMuatan),
-      kunciAngka(tonMuatan)
-    ].join('|');
-
-    if(seenArmadaAktual.has(signature)) return false;
-    seenArmadaAktual.add(signature);
-    return true;
-  });
 
   if(rows.length===0){
     return ambilArmadaDariDetail_(data, summary);
@@ -6640,7 +6604,11 @@ function perbaruiKartuArmada_(index,a){
   const card=wrap.querySelector('.armada-layout');
   if(!card) return;
 
-  // Kubikasi yang ditampilkan adalah alokasi muatan kartu/unit ini.
+  // FIX Armada 2+: totalCbmKpi harus lokal agar handler dropdown tidak error.
+  const totalCbmKpi=materialDataTerakhir.reduce(function(sum,item){
+    return sum + (Number(item && item.totalCbm)||0);
+  },0);
+
   const dimPanjang=Number(a.panjangM)||0;
   const dimLebar=Number(a.lebarM)||0;
   const dimTinggi=Number(a.tinggiM)||0;
@@ -6688,7 +6656,7 @@ function perbaruiKartuArmada_(index,a){
     '</div>'+
     '<div class="armada-panel">'+
       '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
-      '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
+      '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(totalCbmKpi,2)+' m³</span></div>'+
       '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
       '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
       '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
@@ -6728,9 +6696,12 @@ function tampilkanArmada(list){
   result.style.display='block';
   container.innerHTML='';
 
-  // Kubikasi pada setiap kartu menunjukkan muatan yang dialokasikan
-  // ke unit tersebut, bukan total kubikasi seluruh proyek.
-  // Logika AUTO, pembagian muatan, dan dropdown tetap dipertahankan.
+  // TOTAL KUBIKASI HASIL PERHITUNGAN harus mengikuti KPI
+  // yang dihitung dari materialDataTerakhir (sumber MESIN_HITUNG).
+  // Jangan ubah logika pembagian muatan/kapasitas armada.
+  const totalCbmKpi = materialDataTerakhir.reduce(function(sum,item){
+    return sum + (Number(item && item.totalCbm)||0);
+  },0);
 
   // Simpan daftar yang sedang ditampilkan agar dropdown kartu berikutnya
   // bekerja pada hasil terakhir, bukan kembali ke hasil AUTO awal.
@@ -6812,7 +6783,7 @@ function tampilkanArmada(list){
       '</div>'+
       '<div class="armada-panel">'+
         '<div class="panel-title hasil-panel-title"><span>▣ HASIL PERHITUNGAN</span><button type="button" class="btn-material-armada" onclick="bukaMaterialArmada('+index+')">📦 MATERIAL</button></div>'+
-        '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(a.totalCbmProyek,2)+' m³</span></div>'+
+        '<div class="detail-row"><strong>Total Kubikasi</strong><span>'+formatNumber(totalCbmKpi,2)+' m³</span></div>'+
         '<div class="detail-row"><strong>Total Tonase</strong><span>'+formatNumber(a.totalTonProyek,3)+' Ton</span></div>'+
         '<div class="detail-row"><strong>Pemakaian CBM</strong><span class="'+(cbmTercapai?'red':'green')+'">'+formatPercent(usageCbm)+'</span></div>'+
         '<div class="detail-row"><strong>Pemakaian Ton</strong><span class="'+(tonTercapai?'red':'green')+'">'+formatPercent(usageTon)+'</span></div>'+
