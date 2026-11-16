@@ -389,7 +389,9 @@
     .history-pengiriman-number{position:absolute;left:0;top:0;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;background:#168a49;box-shadow:0 1px 3px rgba(0,0,0,.15)}
     .history-pengiriman-item:nth-child(2n) .history-pengiriman-number{background:#237db8}
     .history-pengiriman-item:nth-child(3n) .history-pengiriman-number{background:#e58a00}
-    .history-pengiriman-title{font-size:15px;font-weight:900;color:#0f4c81;margin:2px 0 8px}
+    .history-pengiriman-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:900;color:#0f4c81;margin:2px 0 8px}
+    .history-logistics-select{width:min(270px,100%);min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none}
+    .history-logistics-select:focus{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
     .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}.history-pengirim-list{display:flex;flex-direction:column;gap:4px;min-width:0}.history-pengirim-row{padding:5px 8px;border:1px solid #d8e5ef;background:#f4f8fb;border-radius:5px;overflow-wrap:anywhere;line-height:1.35}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
@@ -445,7 +447,7 @@
     .history-pengiriman-confirm-cancel{min-width:90px;border:1px solid #7a8b99;background:#fff;color:#4d6170}
     .history-pengiriman-confirm-save{min-width:150px;border:1px solid #168a49;background:#168a49;color:#fff}
     .history-pengiriman-confirm-save:disabled{opacity:.6;cursor:not-allowed}
-    @media(max-width:600px){.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}.history-pengiriman-realisasi{padding:10px}.history-pengiriman-realisasi-main{width:calc(100% - 116px)}.history-pengiriman-realisasi .history-material-btn{right:10px;bottom:10px}.history-pengiriman-realisasi-status{font-size:13px}.history-pengiriman-realisasi-date{font-size:11px}.history-pengiriman-realisasi-btn{width:auto;height:34px}}
+    @media(max-width:600px){.history-pengiriman-title{align-items:flex-start;flex-direction:column;gap:6px}.history-logistics-select{width:100%;max-width:100%}.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}.history-pengiriman-realisasi{padding:10px}.history-pengiriman-realisasi-main{width:calc(100% - 116px)}.history-pengiriman-realisasi .history-material-btn{right:10px;bottom:10px}.history-pengiriman-realisasi-status{font-size:13px}.history-pengiriman-realisasi-date{font-size:11px}.history-pengiriman-realisasi-btn{width:auto;height:34px}}
     @media(max-width:600px){
       .shipment-status-bottom-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
       .shipment-status-bottom-row .shipment-status-note{flex:1 1 150px;min-width:0;}
@@ -4396,7 +4398,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus){
     const shipmentTime=parseWaktuRiwayatReschedule_(item.timestamp||'')||0;
     const prevTime=index>0?(parseWaktuRiwayatReschedule_(shipments[index-1].timestamp||'')||0):0;
     const related=reschedules.filter(function(r){const rt=parseWaktuRiwayatReschedule_(r.timestamp||'')||0;const no=Number(r.pengirimanKe)||0;return no===shipmentNo||(rt>prevTime&&rt<=shipmentTime);});
-    return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title">PENGIRIMAN '+ 'KE-'+shipmentNo+'</div><div class="history-pengiriman-grid">'+
+    return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span><select class="history-logistics-select" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan ini hanya informasi sementara dan tidak disimpan"><option value="" selected>Pilih status informasi...</option><option value="Material sudah Onsite">1. Material sudah Onsite</option><option value="Material Belum Onsite">2. Material Belum Onsite</option><option value="Kapal Belum Bersandar">3. Kapal Belum Bersandar</option><option value="Kapal Sudah Bersandar">4. Kapal Sudah Bersandar</option></select></div><div class="history-pengiriman-grid">'+
       '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
       '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+
@@ -5141,20 +5143,10 @@ function pilihProyek(){
     armadaModePilihan='AUTO';
   }
 
-  // TAMPILKAN CACHE PROYEK TERPILIH TERLEBIH DAHULU AGAR DROPDOWN TERASA CEPAT.
-  // Data server tetap diminta di latar belakang untuk memperbarui hasil terbaru.
-  const cacheProyek = getCache_(getProjectCacheKey_(p));
-
-  if(cacheProyek && cacheProyek.success===true &&
-     Array.isArray(cacheProyek.material) && cacheProyek.material.length>0){
-    tampilkanData(cacheProyek);
-    setStatus('Menampilkan data tersimpan — memperbarui data terbaru...');
-    loadDataProyek(p,false);
-  } else {
-    // Jika belum ada cache, tampilkan loading hanya untuk permintaan pertama.
-    resetTampilan();
-    loadDataProyek(p,true);
-  }
+  // Cache lokal tidak digunakan untuk menampilkan material.
+  // Kosongkan hasil lama lalu ambil data terbaru dari server.
+  resetTampilan();
+  loadDataProyek(p,true);
 
 }
 
@@ -5293,22 +5285,15 @@ function loadDataProyek(p,showOverlay){
       return;
     }
 
-    const cacheTersedia = getCache_(getProjectCacheKey_(p));
+    localStorage.removeItem(getProjectCacheKey_(p));
+
+    // Cache proyek sudah dihapus di atas. Jangan pertahankan tampilan
+    // material/KPI lama ketika request server gagal, termasuk background refresh.
+    resetTampilan();
 
     if(showOverlay){
       showLoading(false);
     }
-
-    // Bila refresh latar belakang gagal, pertahankan cache proyek yang sudah tampil.
-    // Jangan menghapus data cache yang masih dapat dipakai pengguna.
-    if(!showOverlay && cacheTersedia && cacheTersedia.success===true &&
-       Array.isArray(cacheTersedia.material) && cacheTersedia.material.length>0){
-      setStatus('Data tersimpan ditampilkan. Server belum berhasil memperbarui data; coba Refresh kembali.');
-      return;
-    }
-
-    localStorage.removeItem(getProjectCacheKey_(p));
-    resetTampilan();
 
     // Jika API secara eksplisit melaporkan bahwa material tidak ada,
     // perlakukan sebagai kondisi kosong, bukan kegagalan server.
