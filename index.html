@@ -5704,6 +5704,40 @@ function tampilkanData(data){
   /* Dropdown pertama selalu dibangun dari snapshot AUTO asli. */
   siapkanDropdownArmada_(armadaAutoSnapshot,summaryUntukArmada);
 
+  /*
+   * FINAL SYNC: lakukan setelah semua proses AUTO/MANUAL dan pilihan kartu.
+   * Ini memastikan total alokasi CBM yang ditampilkan sama dengan KPI proyek,
+   * bukan kembali ke nilai dari hasil rekap armada yang lebih lama.
+   */
+  if(Array.isArray(armadaList) && armadaList.length>0){
+    const cbmTargetFinal=Math.max(0,Number(summaryUntukArmada.totalCbm)||0);
+    const cbmTotalFinal=armadaList.reduce(function(sum,a){
+      return sum+Math.max(0,Number(a && a.totalCbmProyek)||0);
+    },0);
+
+    if(cbmTargetFinal>0 && cbmTotalFinal>0 &&
+       Math.abs(cbmTotalFinal-cbmTargetFinal)>0.000001){
+      const rasioFinal=cbmTargetFinal/cbmTotalFinal;
+      armadaList=armadaList.map(function(a){
+        const item=Object.assign({},a);
+        item.totalCbmProyek=Math.max(0,Number(item.totalCbmProyek)||0)*rasioFinal;
+        const unitFinal=Math.max(1,Number(item.kebutuhanUnit)||1);
+        const kapasitasFinal=Number(item.kapasitasCbmTotal) ||
+          ((Number(item.kapasitasCbm)||0)*unitFinal);
+        item.pemakaianCbm=kapasitasFinal>0 ? item.totalCbmProyek/kapasitasFinal : 0;
+        return item;
+      });
+    }else if(cbmTargetFinal>0 && cbmTotalFinal===0 && armadaList.length===1){
+      const item=Object.assign({},armadaList[0]);
+      item.totalCbmProyek=cbmTargetFinal;
+      const unitFinal=Math.max(1,Number(item.kebutuhanUnit)||1);
+      const kapasitasFinal=Number(item.kapasitasCbmTotal) ||
+        ((Number(item.kapasitasCbm)||0)*unitFinal);
+      item.pemakaianCbm=kapasitasFinal>0 ? cbmTargetFinal/kapasitasFinal : 0;
+      armadaList=[item];
+    }
+  }
+
   tampilkanArmada(armadaList);
   tampilkanMaterial(materialData);
   updateNestingInternalButton_();
