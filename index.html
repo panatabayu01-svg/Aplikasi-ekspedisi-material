@@ -5598,6 +5598,50 @@ function tampilkanData(data){
   let armadaList=ambilArmadaAktual(data,summaryUntukArmada);
 
   /*
+   * SINKRONISASI KUBIKASI DENGAN KPI UTAMA.
+   * KPI TOTAL KUBIKASI dihitung dari seluruh DATA MATERIAL yang tampil.
+   * Jika rekap armada/API mengirim total CBM yang berbeda, distribusikan
+   * koreksi secara proporsional ke setiap hasil armada agar jumlah muatan
+   * armada sama dengan KPI proyek. Tonase tidak diubah karena pada kasus
+   * ini nilainya sudah sesuai.
+   */
+  if(Array.isArray(armadaList) && armadaList.length>0){
+    const cbmKpi=Math.max(0,Number(summaryUntukArmada.totalCbm)||0);
+    const cbmArmada=armadaList.reduce(function(sum,a){
+      return sum+(Math.max(0,Number(a && a.totalCbmProyek)||0));
+    },0);
+
+    if(cbmKpi>=0 && Math.abs(cbmArmada-cbmKpi)>0.000001){
+      if(cbmArmada>0){
+        const faktorCbm=cbmKpi/cbmArmada;
+        armadaList=armadaList.map(function(a){
+          const item=Object.assign({},a);
+          item.totalCbmProyek=Math.max(0,Number(item.totalCbmProyek)||0)*faktorCbm;
+          const capCbm=Number(item.kapasitasCbmTotal) ||
+            ((Number(item.kapasitasCbm)||0)*(Number(item.kebutuhanUnit)||1));
+          item.pemakaianCbm=capCbm>0 ? item.totalCbmProyek/capCbm : 0;
+          const capTon=Number(item.kapasitasTonTotal) ||
+            ((Number(item.maxTonase)||0)*(Number(item.kebutuhanUnit)||1));
+          const ton=Number(item.totalTonProyek)||0;
+          item.pemakaianTon=capTon>0 ? ton/capTon : 0;
+          const cbmPenuh=Math.round(item.pemakaianCbm*1000)/1000>=1;
+          const tonPenuh=Math.round(item.pemakaianTon*1000)/1000>=1;
+          item.status=(cbmPenuh||tonPenuh)?'KUOTA TERCAPAI':'KUOTA MASIH TERSEDIA';
+          return item;
+        });
+      }else if(cbmKpi>0 && armadaList.length===1){
+        armadaList[0]=Object.assign({},armadaList[0],{
+          totalCbmProyek:cbmKpi
+        });
+        const a=armadaList[0];
+        const cap=Number(a.kapasitasCbmTotal) ||
+          ((Number(a.kapasitasCbm)||0)*(Number(a.kebutuhanUnit)||1));
+        a.pemakaianCbm=cap>0 ? cbmKpi/cap : 0;
+      }
+    }
+  }
+
+  /*
    * PENTING: armadaList di titik ini adalah HASIL AUTO asli dari mesin.
    * Simpan terpisah. Pilihan manual tidak boleh pernah menimpa snapshot ini.
    */
