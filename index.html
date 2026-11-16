@@ -4114,12 +4114,11 @@ function initSharedMaterialView_(){
       .then(function(result){
         if(!result||result.success!==true||!result.state||!result.state.p)throw new Error(result&&result.message?result.message:'Link history tidak valid.');
         const shared=result.state;
+        const history=Array.isArray(result.history)?result.history:null;
+        if(!history)throw new Error('Snapshot history tidak tersedia pada link ini. Minta pengirim membuat link baru.');
         window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
-        return fetch(userApiUrl_('delivery_history',{project:String(shared.p)}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(historyResult){
-          if(!historyResult||historyResult.success!==true||!Array.isArray(historyResult.history))throw new Error(historyResult&&historyResult.message?historyResult.message:'History pengiriman gagal dimuat.');
-          window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
-          renderHistoryPengiriman_(String(shared.p),historyResult.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
-        });
+        window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
+        renderHistoryPengiriman_(String(shared.p),history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
       })
       .catch(function(err){console.error('LOAD SHORT HISTORY ERROR:',err);if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Link history tidak dapat dimuat. Minta pengirim membuat link baru.</div>';});
     return true;
@@ -5032,26 +5031,31 @@ function initFromCache(){
   isiDropdownProyek(false);
   updateModeUI_();
 
-  // STARTUP: selalu tampilkan PROYEK PERTAMA saat aplikasi dibuka.
-  // Jangan gunakan proyek terakhir dari localStorage untuk startup.
+  // Startup memakai proyek terakhir yang dipilih pada perangkat ini.
+  // Jika nama proyek sudah tidak ada di daftar, gunakan proyek pertama.
   let target='';
-
-  if(daftarProyek.length>0){
-    target=daftarProyek[0];
-  }
+  try{target=String(localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'').trim();}catch(e){}
+  if(daftarProyek.indexOf(target)<0) target=daftarProyek.length?daftarProyek[0]:'';
 
   if(target){
     const s=document.getElementById('projectSelect');
     s.value=target;
     proyekAktif=target;
+    try{localStorage.setItem(CACHE_LAST_PROJECT_KEY,target);}catch(e){}
 
-    // Jangan tampilkan cache material saat startup.
-    // Data layar harus berasal dari server terbaru.
-    resetTampilan();
-    setStatus('Memuat data terbaru dari server...');
+    // Tampilkan cache lebih dulu agar dropdown dan data tidak kosong saat startup.
+    // loadDaftarProyek() tetap menyegarkan data terbaru dari server sesudahnya.
+    const cachedData=getCache_(getProjectCacheKey_(target));
+    if(cachedData && cachedData.success===true){
+      tampilkanData(cachedData);
+      setStatus('Data tersimpan ditampilkan. Memperbarui data terbaru...');
+    }else{
+      resetTampilan();
+      setStatus('Memuat data terbaru dari server...');
+    }
     showLoading(false);
   }else{
-    setStatus('Data proyek tersimpan.');
+    setStatus('Belum ada proyek tersimpan.');
   }
 }
 
@@ -5389,7 +5393,11 @@ function loadDaftarProyek(showOverlay,loadSelected){
     updateModeUI_();
 
     const select=document.getElementById('projectSelect');
-    const currentProject=select.value || '';
+    let currentProject=select.value || '';
+    // Jika daftar proyek belum ada di cache saat startup, pulihkan pilihan terakhir.
+    if(!currentProject){
+      try{currentProject=String(localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'').trim();}catch(e){}
+    }
 
     isiDropdownProyek(false);
 
@@ -5421,9 +5429,8 @@ function loadDaftarProyek(showOverlay,loadSelected){
     /*
      * ==========================================================
      * SAAT APLIKASI PERTAMA DIBUKA
-     *
-     * Otomatis pilih PROYEK PERTAMA sesuai urutan daftar proyek.
-     * Tidak lagi mencari proyek pertama yang memiliki material.
+     * Pulihkan proyek terakhir jika masih tersedia; jika tidak,
+     * gunakan proyek pertama sesuai urutan daftar.
      * ==========================================================
      */
     if(requestId!==requestSerial || modeAplikasi!=='AUTO'){
@@ -5431,7 +5438,9 @@ function loadDaftarProyek(showOverlay,loadSelected){
     }
 
     if(daftarProyek.length>0){
-      const namaProyek=daftarProyek[0];
+      let namaProyek='';
+      try{namaProyek=String(localStorage.getItem(CACHE_LAST_PROJECT_KEY)||'').trim();}catch(e){}
+      if(daftarProyek.indexOf(namaProyek)<0) namaProyek=daftarProyek[0];
       select.value=namaProyek;
       proyekAktif=namaProyek;
 
