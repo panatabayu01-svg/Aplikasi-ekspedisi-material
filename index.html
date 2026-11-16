@@ -896,6 +896,13 @@
     .kpi-material-meta-line{padding:2px 0 0;color:#17324d;font-size:12px;font-weight:800;line-height:1.35;}
     .kpi-material-meta-spacer{height:10px;}
     .kpi-material-armada-line{color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
+    .kpi-material-capacity-usage{margin-top:7px;padding:8px 10px;background:#effaf3;border:1px solid #c9e8d4;box-sizing:border-box;}
+    .kpi-material-usage-row{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#17324d;font-size:12px;font-weight:800;line-height:1.3;}
+    .kpi-material-usage-row strong{color:#159653;font-size:13px;font-weight:900;}
+    .kpi-material-usage-row-ton{margin-top:7px;}
+    .kpi-material-usage-track{height:8px;margin-top:4px;background:#dfe7e2;border-radius:99px;overflow:hidden;}
+    .kpi-material-usage-bar{height:100%;width:0;background:#20a464;border-radius:99px;transition:width .2s ease;}
+    .kpi-material-capacity-fleet{margin-top:5px;color:#526477;font-size:10px;font-weight:700;line-height:1.3;}
     .kpi-material-target-line{padding-top:3px;color:#17324d;font-size:12px;font-weight:900;line-height:1.35;}
     .kpi-material-mobile-footer{display:none;align-items:center;justify-content:flex-end;gap:7px;padding:9px 10px;background:#eef3f7;border-top:1px solid #d7e1ea;box-sizing:border-box;}
     .kpi-material-mobile-footer-left{display:flex;align-items:center;gap:6px;min-width:0;margin-left:0;}
@@ -2576,6 +2583,13 @@ body.history-material-list-scroll-lock{
       <div id="kpiMaterialUpdate" class="kpi-material-meta-line">Update : -</div>
       <div class="kpi-material-meta-spacer"></div>
       <div id="kpiMaterialArmada" class="kpi-material-armada-line">MATERIAL : 0 jenis | CBM : 0 m³ | TON : 0 Ton</div>
+      <div id="kpiMaterialCapacityUsage" class="kpi-material-capacity-usage" style="display:none">
+        <div class="kpi-material-usage-row"><span>CBM</span><strong id="kpiMaterialCbmPercent">—</strong></div>
+        <div class="kpi-material-usage-track"><div id="kpiMaterialCbmBar" class="kpi-material-usage-bar"></div></div>
+        <div class="kpi-material-usage-row kpi-material-usage-row-ton"><span>Tonase</span><strong id="kpiMaterialTonPercent">—</strong></div>
+        <div class="kpi-material-usage-track"><div id="kpiMaterialTonBar" class="kpi-material-usage-bar"></div></div>
+        <div id="kpiMaterialCapacityFleet" class="kpi-material-capacity-fleet"></div>
+      </div>
     </div>
 
     <div id="kpiMaterialBody" class="kpi-material-body"></div>
@@ -7473,6 +7487,82 @@ function bukaKpiMaterial(){
     const tonDisplay=liveTon || formatNumber(meta.ton||0,3);
     armadaEl.textContent='MATERIAL : '+formatNumber(materialCount,0)+' jenis | CBM : '+cbmDisplay+' m³ | TON : '+tonDisplay+' Ton';
   }
+  // Persentase kapasitas mengikuti armada aktif pada kartu rekomendasi.
+  // Jika ada armada yang dipilih manual, gunakan kartu tersebut; jika tidak,
+  // gunakan rekomendasi pertama yang sedang tampil.
+  // Buat indikator secara dinamis bila markup lama yang sedang dipakai
+  // belum memiliki elemen indikator. Ini mencegah popup hanya menampilkan
+  // ringkasan dan langsung melompat ke tabel.
+  let usageBox=document.getElementById('kpiMaterialCapacityUsage');
+  if(!usageBox && armadaEl && armadaEl.parentNode){
+    usageBox=document.createElement('div');
+    usageBox.id='kpiMaterialCapacityUsage';
+    usageBox.className='kpi-material-capacity-usage';
+    usageBox.style.cssText='display:block;margin-top:7px;padding:8px 10px;background:#effaf3;border:1px solid #c9e8d4;box-sizing:border-box;color:#17324d;font-size:12px;';
+    usageBox.innerHTML=
+      '<div class="kpi-material-usage-row"><span>CBM</span><strong id="kpiMaterialCbmPercent">—</strong></div>'+
+      '<div class="kpi-material-usage-track"><div id="kpiMaterialCbmBar" class="kpi-material-usage-bar"></div></div>'+
+      '<div class="kpi-material-usage-row kpi-material-usage-row-ton"><span>Tonase</span><strong id="kpiMaterialTonPercent">—</strong></div>'+
+      '<div class="kpi-material-usage-track"><div id="kpiMaterialTonBar" class="kpi-material-usage-bar"></div></div>'+
+      '<div id="kpiMaterialCapacityFleet" class="kpi-material-capacity-fleet"></div>';
+    armadaEl.insertAdjacentElement('afterend',usageBox);
+  }
+  const cbmPercentEl=document.getElementById('kpiMaterialCbmPercent');
+  const tonPercentEl=document.getElementById('kpiMaterialTonPercent');
+  const cbmBar=document.getElementById('kpiMaterialCbmBar');
+  const tonBar=document.getElementById('kpiMaterialTonBar');
+  const fleetLabel=document.getElementById('kpiMaterialCapacityFleet');
+  const fleetList=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
+  const manualFleetIndexes=Object.keys(armadaKartuPilihanManual||{})
+    .map(function(key){return Number(key);})
+    .filter(function(index){return isFinite(index)&&index>=0&&fleetList[index];})
+    .sort(function(a,b){return a-b;});
+  const activeFleetIndex=manualFleetIndexes.length?manualFleetIndexes[0]:0;
+  // Fallback berlapis: kartu yang sedang tampil -> snapshot AUTO -> data armada aktual.
+  // Ini menjaga indikator tetap tampil walaupun popup dibuka saat render kartu belum selesai.
+  const activeFleet=fleetList[activeFleetIndex] ||
+    (Array.isArray(armadaAutoSnapshot) ? armadaAutoSnapshot[activeFleetIndex] : null) ||
+    (Array.isArray(armadaAktualTerakhir) ? armadaAktualTerakhir[activeFleetIndex] : null) ||
+    fleetList[0] ||
+    (Array.isArray(armadaAutoSnapshot) ? armadaAutoSnapshot[0] : null) || null;
+  if(usageBox){
+    let cbmUsage=activeFleet ? Number(activeFleet.pemakaianCbm) : NaN;
+    let tonUsage=activeFleet ? Number(activeFleet.pemakaianTon) : NaN;
+    // Jika rasio belum tersedia, hitung dari muatan dan kapasitas armada terpilih.
+    const unitCount=activeFleet ? Math.max(1,Number(activeFleet.kebutuhanUnit)||1) : 1;
+    const capCbm=activeFleet ? (Number(activeFleet.kapasitasCbmTotal)||((Number(activeFleet.kapasitasCbm)||0)*unitCount)) : 0;
+    const capTon=activeFleet ? (Number(activeFleet.kapasitasTonTotal)||((Number(activeFleet.maxTonase)||0)*unitCount)) : 0;
+    const loadCbm=activeFleet ? Number(activeFleet.totalCbmProyek) : NaN;
+    const loadTon=activeFleet ? Number(activeFleet.totalTonProyek) : NaN;
+    if(!isFinite(cbmUsage) || cbmUsage<0) cbmUsage=capCbm>0 && isFinite(loadCbm) ? loadCbm/capCbm : NaN;
+    if(!isFinite(tonUsage) || tonUsage<0) tonUsage=capTon>0 && isFinite(loadTon) ? loadTon/capTon : NaN;
+    const cbmValid=isFinite(cbmUsage)&&cbmUsage>=0;
+    const tonValid=isFinite(tonUsage)&&tonUsage>=0;
+    if(cbmPercentEl) cbmPercentEl.textContent=cbmValid ? formatPercent(cbmUsage) : '—';
+    if(tonPercentEl) tonPercentEl.textContent=tonValid ? formatPercent(tonUsage) : '—';
+    if(cbmBar) cbmBar.style.width=cbmValid ? Math.min(100,cbmUsage*100)+'%' : '0%';
+    if(tonBar) tonBar.style.width=tonValid ? Math.min(100,tonUsage*100)+'%' : '0%';
+    if(fleetLabel) fleetLabel.textContent=activeFleet
+      ? 'Acuan armada: '+String(activeFleet.armada||'-')+' ('+formatTableNumber(unitCount)+' unit) · kapasitas/unit '+formatNumber(activeFleet.kapasitasCbm,2)+' m³ dan '+formatNumber(activeFleet.maxTonase,2)+' ton'
+      : 'Kapasitas armada belum tersedia';
+    usageBox.style.display='block';
+    usageBox.style.visibility='visible';
+    usageBox.style.opacity='1';
+    usageBox.querySelectorAll('.kpi-material-usage-row').forEach(function(el){
+      el.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;color:#17324d;font-size:12px;font-weight:800;line-height:1.3;';
+    });
+    usageBox.querySelectorAll('.kpi-material-usage-row strong').forEach(function(el){
+      el.style.cssText='color:#159653;font-size:13px;font-weight:900;';
+    });
+    usageBox.querySelectorAll('.kpi-material-usage-track').forEach(function(el){
+      el.style.cssText='height:8px;margin-top:4px;background:#dfe7e2;border-radius:99px;overflow:hidden;';
+    });
+    usageBox.querySelectorAll('.kpi-material-usage-bar').forEach(function(el){
+      el.style.cssText='height:100%;background:#20a464;border-radius:99px;transition:width .2s ease;';
+    });
+    if(fleetLabel) fleetLabel.style.cssText='margin-top:5px;color:#526477;font-size:10px;font-weight:700;line-height:1.3;';
+  }
+
   if(footer) footer.style.display='flex';
   const mobileExportBtn=footer ? footer.querySelector('.kpi-material-mobile-export') : null;
   if(mobileExportBtn){
@@ -7713,6 +7803,8 @@ function tutupKpiMaterial(event){
   if(overlay) overlay.style.display='none';
   if(title) title.textContent='📦 MATERIAL';
   if(infoBox) infoBox.style.display='none';
+  const usageBox=document.getElementById('kpiMaterialCapacityUsage');
+  if(usageBox) usageBox.style.display='none';
   if(infoTitle) infoTitle.textContent='LIST MATERIAL DI WORKSHOP SAAT INI';
   if(dateEl){
     dateEl.textContent='-';
