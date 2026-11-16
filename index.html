@@ -392,6 +392,7 @@
     .history-pengiriman-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:900;color:#0f4c81;margin:2px 0 8px}
     .history-logistics-select{width:min(270px,100%);min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none}
     .history-logistics-select:focus{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
+    .history-logistics-shared-value{display:inline-flex;align-items:center;max-width:100%;min-height:30px;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#eaf5ed;color:#176b36;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
     .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}.history-pengirim-list{display:flex;flex-direction:column;gap:4px;min-width:0}.history-pengirim-row{padding:5px 8px;border:1px solid #d8e5ef;background:#f4f8fb;border-radius:5px;overflow-wrap:anywhere;line-height:1.35}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
@@ -4116,7 +4117,8 @@ function initSharedMaterialView_(){
         window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
         return fetch(userApiUrl_('delivery_history',{project:String(shared.p)}),{method:'GET',cache:'no-store',redirect:'follow'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(historyResult){
           if(!historyResult||historyResult.success!==true||!Array.isArray(historyResult.history))throw new Error(historyResult&&historyResult.message?historyResult.message:'History pengiriman gagal dimuat.');
-          renderHistoryPengiriman_(String(shared.p),historyResult.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'});
+          window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
+          renderHistoryPengiriman_(String(shared.p),historyResult.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
         });
       })
       .catch(function(err){console.error('LOAD SHORT HISTORY ERROR:',err);if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Link history tidak dapat dimuat. Minta pengirim membuat link baru.</div>';});
@@ -4142,7 +4144,8 @@ function initSharedMaterialView_(){
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
       .then(function(result){
         if(!result||result.success!==true||!Array.isArray(result.history))throw new Error(result&&result.message?result.message:'History pengiriman gagal dimuat.');
-        renderHistoryPengiriman_(String(shared.p),result.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'});
+        window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
+        renderHistoryPengiriman_(String(shared.p),result.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
       })
       .catch(function(err){
         console.error('LOAD SHARED HISTORY ERROR:',err);
@@ -4363,7 +4366,9 @@ function formatPengirimHistory_(value){
   const parts=raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean);
   return parts.length?parts:['Belum ditentukan'];
 }
-function renderHistoryPengiriman_(project,history,sharedStatus){
+function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses){
+  const sharedLogistics=logisticsStatuses&&typeof logisticsStatuses==='object'?logisticsStatuses:(window.__SHARED_HISTORY_LOGISTICS_STATUS__||{});
+  const isSharedHistory=document.body.classList.contains('shared-history-view-mode');
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
   if(nameEl)nameEl.textContent=project||'-';
@@ -4398,7 +4403,11 @@ function renderHistoryPengiriman_(project,history,sharedStatus){
     const shipmentTime=parseWaktuRiwayatReschedule_(item.timestamp||'')||0;
     const prevTime=index>0?(parseWaktuRiwayatReschedule_(shipments[index-1].timestamp||'')||0):0;
     const related=reschedules.filter(function(r){const rt=parseWaktuRiwayatReschedule_(r.timestamp||'')||0;const no=Number(r.pengirimanKe)||0;return no===shipmentNo||(rt>prevTime&&rt<=shipmentTime);});
-    return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span><select class="history-logistics-select" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan ini hanya informasi sementara dan tidak disimpan"><option value="" selected>Pilih status informasi...</option><option value="Material sudah Onsite">1. Material sudah Onsite</option><option value="Material Belum Onsite">2. Material Belum Onsite</option><option value="Kapal Belum Bersandar">3. Kapal Belum Bersandar</option><option value="Kapal Sudah Bersandar">4. Kapal Sudah Bersandar</option></select></div><div class="history-pengiriman-grid">'+
+    const selectedLogistics=String(sharedLogistics[String(shipmentNo)]||'').trim();
+    const logisticsControl=isSharedHistory
+      ?(selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')
+      :'<select class="history-logistics-select" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan ini hanya informasi sementara dan tidak disimpan"><option value="" selected>Pilih status informasi...</option><option value="1. Material sudah Onsite">1. Material sudah Onsite</option><option value="2. Material Belum Onsite">2. Material Belum Onsite</option><option value="3. Kapal Belum Bersandar">3. Kapal Belum Bersandar</option><option value="4. Kapal Sudah Bersandar">4. Kapal Sudah Bersandar</option></select>';
+    return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span>'+logisticsControl+'</div><div class="history-pengiriman-grid">'+
       '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
       '<div class="history-pengiriman-label">📦 Total Item</div><div class="history-pengiriman-value">'+formatAngkaHistory_(item.totalItem,0)+' jenis &nbsp; ('+formatAngkaHistory_(item.totalVolume,0)+' unit)</div>'+
@@ -4468,6 +4477,15 @@ async function bagikanHistoryPengirimanCore_(){
   const data=window.__DATA_TERAKHIR__||{};
   const status=getStatusRealisasi_(data);
   const state={p:project,s:String(status.value||'🟠 MENUNGGU PENGIRIMAN'),note:String(status.note||'RENCANA KIRIM: -'),cls:String(status.cls||'status-partial')};
+  // Status logistik hanya disertakan di link yang dibagikan; tidak disimpan ke database.
+  state.ls={};
+  document.querySelectorAll('#historyPengirimanList .history-pengiriman-item').forEach(function(card){
+    const title=card.querySelector('.history-pengiriman-title span');
+    const select=card.querySelector('.history-logistics-select');
+    if(!title||!select||!select.value)return;
+    const match=String(title.textContent||'').match(/PENGIRIMAN KE-(\d+)/i);
+    if(match)state.ls[String(Number(match[1]))]=String(select.options[select.selectedIndex].textContent||select.value).trim();
+  });
 
   // Sertakan snapshot material workshop pada link history. Tanpa ini,
   // tombol LIST MATERIAL di perangkat penerima memanggil state lokal
