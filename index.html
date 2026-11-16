@@ -5141,10 +5141,20 @@ function pilihProyek(){
     armadaModePilihan='AUTO';
   }
 
-  // Cache lokal tidak digunakan untuk menampilkan material.
-  // Kosongkan hasil lama lalu ambil data terbaru dari server.
-  resetTampilan();
-  loadDataProyek(p,true);
+  // TAMPILKAN CACHE PROYEK TERPILIH TERLEBIH DAHULU AGAR DROPDOWN TERASA CEPAT.
+  // Data server tetap diminta di latar belakang untuk memperbarui hasil terbaru.
+  const cacheProyek = getCache_(getProjectCacheKey_(p));
+
+  if(cacheProyek && cacheProyek.success===true &&
+     Array.isArray(cacheProyek.material) && cacheProyek.material.length>0){
+    tampilkanData(cacheProyek);
+    setStatus('Menampilkan data tersimpan — memperbarui data terbaru...');
+    loadDataProyek(p,false);
+  } else {
+    // Jika belum ada cache, tampilkan loading hanya untuk permintaan pertama.
+    resetTampilan();
+    loadDataProyek(p,true);
+  }
 
 }
 
@@ -5283,15 +5293,22 @@ function loadDataProyek(p,showOverlay){
       return;
     }
 
-    localStorage.removeItem(getProjectCacheKey_(p));
-
-    // Cache proyek sudah dihapus di atas. Jangan pertahankan tampilan
-    // material/KPI lama ketika request server gagal, termasuk background refresh.
-    resetTampilan();
+    const cacheTersedia = getCache_(getProjectCacheKey_(p));
 
     if(showOverlay){
       showLoading(false);
     }
+
+    // Bila refresh latar belakang gagal, pertahankan cache proyek yang sudah tampil.
+    // Jangan menghapus data cache yang masih dapat dipakai pengguna.
+    if(!showOverlay && cacheTersedia && cacheTersedia.success===true &&
+       Array.isArray(cacheTersedia.material) && cacheTersedia.material.length>0){
+      setStatus('Data tersimpan ditampilkan. Server belum berhasil memperbarui data; coba Refresh kembali.');
+      return;
+    }
+
+    localStorage.removeItem(getProjectCacheKey_(p));
+    resetTampilan();
 
     // Jika API secara eksplisit melaporkan bahwa material tidak ada,
     // perlakukan sebagai kondisi kosong, bukan kegagalan server.
