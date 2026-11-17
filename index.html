@@ -7940,15 +7940,21 @@ async function bagikanKpiMaterial_(){
     (Array.isArray(armadaAktualTerakhir)?armadaAktualTerakhir[shareActiveFleetIndex]:null) ||
     shareFleetList[0] ||
     (Array.isArray(armadaAutoSnapshot)?armadaAutoSnapshot[0]:null) || null;
-  const shareFleetUnits=shareActiveFleet?Math.max(1,Number(shareActiveFleet.kebutuhanUnit)||1):0;
+  const shareMetaArmada=String((kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.armada) || (shareActiveFleet && shareActiveFleet.armada) || '').trim();
+  // Penting: ketika rekomendasi armada tidak tampil di layar, shareActiveFleet
+  // bisa null walaupun nama armada dan kapasitasnya tersedia di master armada.
+  // Cari kapasitas berdasarkan nama armada yang sedang ditampilkan di popup.
+  const shareMasterFleet=shareMetaArmada ? cariMasterArmada_(shareMetaArmada) : null;
+  const shareFleetUnits=Math.max(1,
+    Number(shareActiveFleet && shareActiveFleet.kebutuhanUnit) ||
+    Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.unit) || 1
+  );
   // Kapasitas total kadang tidak ikut tersimpan pada object kartu armada,
-  // meskipun nilai persentase pemakaian sudah tersedia. Dalam kondisi itu,
-  // pulihkan kapasitas dari total muatan ÷ rasio pemakaian agar link share
-  // tetap membawa target kapasitas dan indikator tidak tampil sebagai '—'.
+  // sehingga gunakan data master armada sebagai fallback.
   const shareRowsCbm=rows.reduce(function(sum,row){return sum+(Number(row && row.totalCbm)||0);},0);
   const shareRowsTon=rows.reduce(function(sum,row){return sum+(Number(row && row.totalTon)||0);},0);
-  const shareLoadCbm=(shareActiveFleet ? Number(shareActiveFleet.totalCbmProyek)||0 : 0)||shareRowsCbm;
-  const shareLoadTon=(shareActiveFleet ? Number(shareActiveFleet.totalTonProyek)||0 : 0)||shareRowsTon;
+  const shareLoadCbm=(shareActiveFleet ? Number(shareActiveFleet.totalCbmProyek)||0 : 0)||shareRowsCbm||Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.cbm)||0;
+  const shareLoadTon=(shareActiveFleet ? Number(shareActiveFleet.totalTonProyek)||0 : 0)||shareRowsTon||Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.ton)||0;
 
   // Fallback penting untuk link berbagi: pada beberapa kartu armada, data
   // kapasitas/rasio tidak ikut tersimpan di object JavaScript, padahal nilai
@@ -7969,12 +7975,14 @@ async function bagikanKpiMaterial_(){
     ? Number(shareActiveFleet.pemakaianCbm) : readSharePercent_('CBM');
   const shareUsageTon=(shareActiveFleet && Number(shareActiveFleet.pemakaianTon)>0)
     ? Number(shareActiveFleet.pemakaianTon) : readSharePercent_('Ton');
-  const shareCapacityCbm=shareActiveFleet
-    ? (Number(shareActiveFleet.kapasitasCbmTotal)||((Number(shareActiveFleet.kapasitasCbm)||0)*shareFleetUnits)||(shareUsageCbm>0&&shareLoadCbm>0?shareLoadCbm/shareUsageCbm:0))
-    : 0;
-  const shareCapacityTon=shareActiveFleet
-    ? (Number(shareActiveFleet.kapasitasTonTotal)||((Number(shareActiveFleet.maxTonase)||0)*shareFleetUnits)||(shareUsageTon>0&&shareLoadTon>0?shareLoadTon/shareUsageTon:0))
-    : 0;
+  const shareCapacityCbm=
+    Number(shareActiveFleet && shareActiveFleet.kapasitasCbmTotal) ||
+    ((Number(shareActiveFleet && shareActiveFleet.kapasitasCbm) || Number(shareMasterFleet && shareMasterFleet.kapasitasCbm) || 0)*shareFleetUnits) ||
+    (shareUsageCbm>0&&shareLoadCbm>0?shareLoadCbm/shareUsageCbm:0);
+  const shareCapacityTon=
+    Number(shareActiveFleet && shareActiveFleet.kapasitasTonTotal) ||
+    ((Number(shareActiveFleet && shareActiveFleet.maxTonase) || Number(shareMasterFleet && shareMasterFleet.maxTonase) || 0)*shareFleetUnits) ||
+    (shareUsageTon>0&&shareLoadTon>0?shareLoadTon/shareUsageTon:0);
 
   // Total CBM dan tonase di payload diambil dari baris material sebenarnya.
   const payload={
