@@ -403,6 +403,7 @@
     .history-logistics-shared-value{display:inline-flex;align-items:center;flex:1 1 50%;max-width:50%;min-height:30px;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#eaf5ed;color:#176b36;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-logistics-shared-date{display:block;flex:1 1 50%;max-width:50%;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#f4f8fb;color:#17324d;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
+    .history-pengiriman-grid > .history-pengiriman-label:nth-child(3){align-self:center}
     .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}.history-pengirim-list{display:flex;flex-direction:column;gap:4px;min-width:0}.history-pengirim-row{padding:5px 8px;border:1px solid #d8e5ef;background:#f4f8fb;border-radius:5px;overflow-wrap:anywhere;line-height:1.35}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
     .history-pengiriman-status.proses{background:#fff0cf;color:#a56600;border-color:#edc66c}
@@ -4503,7 +4504,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
       ?normalizeHistoryLogisticsStatus_(sharedLogistics[String(shipmentNo)]||'')
       :getHistoryLogisticsStatus_(project)[String(shipmentNo)]||'';
     const selectedLogistics=normalizeHistoryLogisticsStatus_(savedLogistics);
-    const logisticsOptions=['Status Material - Sudah Onsite','Status Material - Belum Onsite','Status Material - Menunggu Jadwal Kapal','Status Material - Kapal Belum Bersandar','Status Material - Proses Doring'];
+    const logisticsOptions=['Material Sudah Onsite','Material Belum Onsite','Menunggu Jadwal Kapal','Kapal Masih Berlayar','Kapal Belum Bersandar','Proses Doring'];
     const savedDate=isSharedHistory?String(sharedDates[String(shipmentNo)]||''):String(getHistoryLogisticsDates_(project)[String(shipmentNo)]||'');
     const logisticsControl=isSharedHistory
       ?((selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')+(savedDate?'<span class="history-logistics-shared-date">📅 '+escapeHtmlSafe_(formatTanggalInformasiLogistik_(savedDate))+'</span>':''))
