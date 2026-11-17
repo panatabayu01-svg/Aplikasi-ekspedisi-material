@@ -7971,10 +7971,27 @@ async function bagikanKpiMaterial_(){
     }catch(e){}
     return 0;
   }
+  // Fallback berlapis: baca rasio dari kartu armada, lalu dari indikator
+  // persentase popup MATERIAL yang memang terlihat oleh pengguna. Ini penting
+  // saat data kapasitas tidak tersedia pada object kartu armada.
+  function readVisibleKpiPercent_(elementId){
+    try{
+      const el=document.getElementById(elementId);
+      const text=String(el && el.textContent || '').trim();
+      const match=text.match(/([0-9]+(?:[.,][0-9]+)?)\s*%/);
+      if(match){
+        const n=Number(match[1].replace(',','.'));
+        return isFinite(n)&&n>0?n/100:0;
+      }
+    }catch(e){}
+    return 0;
+  }
   const shareUsageCbm=(shareActiveFleet && Number(shareActiveFleet.pemakaianCbm)>0)
-    ? Number(shareActiveFleet.pemakaianCbm) : readSharePercent_('CBM');
+    ? Number(shareActiveFleet.pemakaianCbm)
+    : (readSharePercent_('CBM') || readVisibleKpiPercent_('kpiMaterialCbmPercent'));
   const shareUsageTon=(shareActiveFleet && Number(shareActiveFleet.pemakaianTon)>0)
-    ? Number(shareActiveFleet.pemakaianTon) : readSharePercent_('Ton');
+    ? Number(shareActiveFleet.pemakaianTon)
+    : (readSharePercent_('Ton') || readVisibleKpiPercent_('kpiMaterialTonPercent'));
   const shareCapacityCbm=
     Number(shareActiveFleet && shareActiveFleet.kapasitasCbmTotal) ||
     ((Number(shareActiveFleet && shareActiveFleet.kapasitasCbm) || Number(shareMasterFleet && shareMasterFleet.kapasitasCbm) || 0)*shareFleetUnits) ||
