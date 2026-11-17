@@ -390,9 +390,13 @@
     .history-pengiriman-item:nth-child(2n) .history-pengiriman-number{background:#237db8}
     .history-pengiriman-item:nth-child(3n) .history-pengiriman-number{background:#e58a00}
     .history-pengiriman-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:900;color:#0f4c81;margin:2px 0 8px}
-    .history-logistics-select{width:min(270px,100%);min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none}
-    .history-logistics-select:focus{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
+    .history-logistics-controls{display:flex;flex-direction:column;align-items:stretch;gap:5px;width:min(270px,100%);min-width:190px}
+    .history-logistics-select{width:100%;min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none;box-sizing:border-box}
+    .history-logistics-select:focus,.history-logistics-date:focus{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
+    .history-logistics-date{width:100%;min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none;box-sizing:border-box}
+    .history-logistics-date-preview{font-size:10px;font-weight:700;color:#42647d;min-height:12px;line-height:1.3}
     .history-logistics-shared-value{display:inline-flex;align-items:center;max-width:100%;min-height:30px;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#eaf5ed;color:#176b36;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
+    .history-logistics-shared-date{display:block;max-width:100%;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#f4f8fb;color:#17324d;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
     .history-pengiriman-label{color:#657786;font-weight:800}.history-pengiriman-value{color:#17324d;font-weight:700}.history-pengirim-list{display:flex;flex-direction:column;gap:4px;min-width:0}.history-pengirim-row{padding:5px 8px;border:1px solid #d8e5ef;background:#f4f8fb;border-radius:5px;overflow-wrap:anywhere;line-height:1.35}
     .history-pengiriman-status{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:900;background:#dff5e7;color:#168a49;border:1px solid #9dd8b0}
@@ -448,7 +452,7 @@
     .history-pengiriman-confirm-cancel{min-width:90px;border:1px solid #7a8b99;background:#fff;color:#4d6170}
     .history-pengiriman-confirm-save{min-width:150px;border:1px solid #168a49;background:#168a49;color:#fff}
     .history-pengiriman-confirm-save:disabled{opacity:.6;cursor:not-allowed}
-    @media(max-width:600px){.history-pengiriman-title{align-items:flex-start;flex-direction:column;gap:6px}.history-logistics-select{width:100%;max-width:100%}.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}.history-pengiriman-realisasi{padding:10px}.history-pengiriman-realisasi-main{width:calc(100% - 116px)}.history-pengiriman-realisasi .history-material-btn{right:10px;bottom:10px}.history-pengiriman-realisasi-status{font-size:13px}.history-pengiriman-realisasi-date{font-size:11px}.history-pengiriman-realisasi-btn{width:auto;height:34px}}
+    @media(max-width:600px){.history-pengiriman-title{align-items:flex-start;flex-direction:column;gap:6px}.history-logistics-controls{width:100%;max-width:100%}.history-logistics-select,.history-logistics-date{width:100%;max-width:100%}.history-pengiriman-overlay{padding:8px}.history-pengiriman-modal{width:100%;max-height:88vh;border-radius:7px}.history-pengiriman-header{min-height:48px;font-size:16px;padding:0 12px}.history-pengiriman-body{padding:10px}.history-pengiriman-project-name{font-size:16px}.history-pengiriman-item{padding-left:43px}.history-pengiriman-number{width:32px;height:32px}.history-pengiriman-item::before{left:15px}.history-pengiriman-grid{grid-template-columns:112px 1fr;font-size:11px}.history-pengiriman-reschedule-row{grid-template-columns:105px 1fr}.history-pengiriman-footer{align-items:stretch}.history-pengiriman-footer-left{flex:1}.history-pengiriman-save-btn{width:100%;min-width:0;padding:0 8px;font-size:11px}.history-pengiriman-close-btn{min-width:82px}.btn-history-pengiriman{grid-column:1;grid-row:3;width:100%;min-width:0;height:38px;font-size:11px} .history-material-list-overlay{padding:8px}.history-material-list-modal{width:100%;max-height:86vh}.history-material-list-header{min-height:48px;font-size:15px;padding:0 12px}.history-material-list-body{padding:10px;overflow:hidden}.history-material-list-content{min-height:0;flex:1;overflow:auto}.history-material-row{grid-template-columns:30px 1fr 78px;font-size:11px;gap:6px}.history-material-btn{min-width:100px;height:27px;font-size:9px;margin-left:5px}.history-pengiriman-realisasi{padding:10px}.history-pengiriman-realisasi-main{width:calc(100% - 116px)}.history-pengiriman-realisasi .history-material-btn{right:10px;bottom:10px}.history-pengiriman-realisasi-status{font-size:13px}.history-pengiriman-realisasi-date{font-size:11px}.history-pengiriman-realisasi-btn{width:auto;height:34px}}
     @media(max-width:600px){
       .shipment-status-bottom-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
       .shipment-status-bottom-row .shipment-status-note{flex:1 1 150px;min-width:0;}
@@ -4118,7 +4122,8 @@ function initSharedMaterialView_(){
         if(!history)throw new Error('Snapshot history tidak tersedia pada link ini. Minta pengirim membuat link baru.');
         window.__SHARED_HISTORY_WORKSHOP_TOKEN__=String(shared.wm||'');
         window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
-        renderHistoryPengiriman_(String(shared.p),history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
+        window.__SHARED_HISTORY_LOGISTICS_DATES__=shared.ld&&typeof shared.ld==='object'?shared.ld:{};
+        renderHistoryPengiriman_(String(shared.p),history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__,window.__SHARED_HISTORY_LOGISTICS_DATES__);
       })
       .catch(function(err){console.error('LOAD SHORT HISTORY ERROR:',err);if(listEl)listEl.innerHTML='<div class="history-pengiriman-empty">Link history tidak dapat dimuat. Minta pengirim membuat link baru.</div>';});
     return true;
@@ -4144,7 +4149,8 @@ function initSharedMaterialView_(){
       .then(function(result){
         if(!result||result.success!==true||!Array.isArray(result.history))throw new Error(result&&result.message?result.message:'History pengiriman gagal dimuat.');
         window.__SHARED_HISTORY_LOGISTICS_STATUS__=shared.ls&&typeof shared.ls==='object'?shared.ls:{};
-        renderHistoryPengiriman_(String(shared.p),result.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__);
+        window.__SHARED_HISTORY_LOGISTICS_DATES__=shared.ld&&typeof shared.ld==='object'?shared.ld:{};
+        renderHistoryPengiriman_(String(shared.p),result.history,{value:shared.s||'🟠 MENUNGGU PENGIRIMAN',note:shared.note||'RENCANA KIRIM: -',cls:shared.cls||'status-partial'},window.__SHARED_HISTORY_LOGISTICS_STATUS__,window.__SHARED_HISTORY_LOGISTICS_DATES__);
       })
       .catch(function(err){
         console.error('LOAD SHARED HISTORY ERROR:',err);
@@ -4406,23 +4412,46 @@ function saveHistoryLogisticsStatus_(project,shipmentNo,value){
     localStorage.setItem(getHistoryLogisticsStorageKey_(project),JSON.stringify(all));
   }catch(e){console.warn('Status informasi pengiriman tidak dapat disimpan di browser:',e);}
 }
+function getHistoryLogisticsDateStorageKey_(project){
+  return 'EXPEDISI_HISTORY_LOGISTICS_DATE_V1::'+String(project||'').trim();
+}
+function getHistoryLogisticsDates_(project){
+  try{const raw=localStorage.getItem(getHistoryLogisticsDateStorageKey_(project));const parsed=raw?JSON.parse(raw):{};return parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{};}catch(e){return {};}
+}
+function saveHistoryLogisticsDate_(project,shipmentNo,value){
+  try{const all=getHistoryLogisticsDates_(project);if(value)all[String(Number(shipmentNo))]=String(value);else delete all[String(Number(shipmentNo))];localStorage.setItem(getHistoryLogisticsDateStorageKey_(project),JSON.stringify(all));}catch(e){console.warn('Tanggal informasi pengiriman tidak dapat disimpan di browser:',e);}
+}
+function formatTanggalInformasiLogistik_(value){
+  const raw=String(value||'').trim();if(!raw)return '';
+  const parts=raw.split('-').map(Number);if(parts.length!==3||!parts[0]||!parts[1]||!parts[2])return raw;
+  const date=new Date(parts[0],parts[1]-1,parts[2]);
+  return date.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
 if(!window.__HISTORY_LOGISTICS_CHANGE_BOUND__){
   window.__HISTORY_LOGISTICS_CHANGE_BOUND__=true;
   document.addEventListener('change',function(event){
-    const select=event.target;
-    if(!select||!select.classList||!select.classList.contains('history-logistics-select'))return;
+    const control=event.target;
+    if(!control||!control.classList)return;
     if(document.body.classList.contains('shared-history-view-mode'))return;
-    const card=select.closest('.history-pengiriman-item');
+    if(!control.classList.contains('history-logistics-select')&&!control.classList.contains('history-logistics-date'))return;
+    const card=control.closest('.history-pengiriman-item');
     const title=card&&card.querySelector('.history-pengiriman-title span');
     const match=String(title&&title.textContent||'').match(/PENGIRIMAN KE-(\d+)/i);
-    const shipmentNo=Number(select.getAttribute('data-shipment-no')||(match&&match[1]));
+    const shipmentNo=Number(control.getAttribute('data-shipment-no')||(match&&match[1]));
     const project=String(window.__HISTORY_PENGIRIMAN_PROJECT__||'').trim();
-    if(project&&shipmentNo)saveHistoryLogisticsStatus_(project,shipmentNo,select.value);
+    if(!project||!shipmentNo)return;
+    if(control.classList.contains('history-logistics-select'))saveHistoryLogisticsStatus_(project,shipmentNo,control.value);
+    if(control.classList.contains('history-logistics-date')){
+      saveHistoryLogisticsDate_(project,shipmentNo,control.value);
+      const preview=card&&card.querySelector('.history-logistics-date-preview');
+      if(preview)preview.textContent=formatTanggalInformasiLogistik_(control.value);
+    }
   });
 }
 
-function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses){
+function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses,logisticsDates){
   const sharedLogistics=logisticsStatuses&&typeof logisticsStatuses==='object'?logisticsStatuses:(window.__SHARED_HISTORY_LOGISTICS_STATUS__||{});
+  const sharedDates=logisticsDates&&typeof logisticsDates==='object'?logisticsDates:(window.__SHARED_HISTORY_LOGISTICS_DATES__||{});
   const isSharedHistory=document.body.classList.contains('shared-history-view-mode');
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
@@ -4463,9 +4492,10 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
       :getHistoryLogisticsStatus_(project)[String(shipmentNo)]||'';
     const selectedLogistics=normalizeHistoryLogisticsStatus_(savedLogistics);
     const logisticsOptions=['Status Material - Sudah Onsite','Status Material - Belum Onsite','Status Material - Menunggu Jadwal Kapal','Status Material - Kapal Belum Bersandar','Status Material - Proses Doring'];
+    const savedDate=isSharedHistory?String(sharedDates[String(shipmentNo)]||''):String(getHistoryLogisticsDates_(project)[String(shipmentNo)]||'');
     const logisticsControl=isSharedHistory
-      ?(selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')
-      :'<select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select>';
+      ?((selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')+(savedDate?'<span class="history-logistics-shared-date">📅 '+escapeHtmlSafe_(formatTanggalInformasiLogistik_(savedDate))+'</span>':''))
+      :'<div class="history-logistics-controls"><select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select><input type="date" class="history-logistics-date" data-shipment-no="'+shipmentNo+'" aria-label="Tanggal informasi pengiriman ke-'+shipmentNo+'" title="Tanggal informasi tersimpan hanya di browser ini dan disertakan saat membagikan link" value="'+escapeHtmlSafe_(savedDate)+'"><span class="history-logistics-date-preview">'+escapeHtmlSafe_(formatTanggalInformasiLogistik_(savedDate))+'</span></div>';
     return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span>'+logisticsControl+'</div><div class="history-pengiriman-grid">'+
       '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
@@ -4538,12 +4568,17 @@ async function bagikanHistoryPengirimanCore_(){
   const state={p:project,s:String(status.value||'🟠 MENUNGGU PENGIRIMAN'),note:String(status.note||'RENCANA KIRIM: -'),cls:String(status.cls||'status-partial')};
   // Status logistik hanya disertakan di link yang dibagikan; tidak disimpan ke database.
   state.ls={};
+  state.ld={};
   document.querySelectorAll('#historyPengirimanList .history-pengiriman-item').forEach(function(card){
     const title=card.querySelector('.history-pengiriman-title span');
     const select=card.querySelector('.history-logistics-select');
-    if(!title||!select||!select.value)return;
+    const dateInput=card.querySelector('.history-logistics-date');
+    if(!title)return;
     const match=String(title.textContent||'').match(/PENGIRIMAN KE-(\d+)/i);
-    if(match)state.ls[String(Number(match[1]))]=String(select.options[select.selectedIndex].textContent||select.value).trim();
+    if(!match)return;
+    const key=String(Number(match[1]));
+    if(select&&select.value)state.ls[key]=String(select.options[select.selectedIndex].textContent||select.value).trim();
+    if(dateInput&&dateInput.value)state.ld[key]=String(dateInput.value);
   });
 
   // Sertakan snapshot material workshop pada link history. Tanpa ini,
