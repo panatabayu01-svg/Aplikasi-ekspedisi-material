@@ -7926,6 +7926,28 @@ async function bagikanKpiMaterial_(){
     console.warn('Gagal membaca SATUAN tabel:',e);
   }
 
+  // Ambil kapasitas total dari armada aktif yang sama dengan indikator
+  // pada popup utama. Sebelumnya tc/tt salah diisi dengan volume muatan,
+  // sehingga halaman link berbagi tidak dapat menghitung persentase.
+  const shareFleetList=Array.isArray(armadaTampilanTerakhir)?armadaTampilanTerakhir:[];
+  const shareManualFleetIndexes=Object.keys(armadaKartuPilihanManual||{})
+    .map(function(key){return Number(key);})
+    .filter(function(index){return isFinite(index)&&index>=0&&shareFleetList[index];})
+    .sort(function(a,b){return a-b;});
+  const shareActiveFleetIndex=shareManualFleetIndexes.length?shareManualFleetIndexes[0]:0;
+  const shareActiveFleet=shareFleetList[shareActiveFleetIndex] ||
+    (Array.isArray(armadaAutoSnapshot)?armadaAutoSnapshot[shareActiveFleetIndex]:null) ||
+    (Array.isArray(armadaAktualTerakhir)?armadaAktualTerakhir[shareActiveFleetIndex]:null) ||
+    shareFleetList[0] ||
+    (Array.isArray(armadaAutoSnapshot)?armadaAutoSnapshot[0]:null) || null;
+  const shareFleetUnits=shareActiveFleet?Math.max(1,Number(shareActiveFleet.kebutuhanUnit)||1):0;
+  const shareCapacityCbm=shareActiveFleet
+    ? (Number(shareActiveFleet.kapasitasCbmTotal)||((Number(shareActiveFleet.kapasitasCbm)||0)*shareFleetUnits))
+    : 0;
+  const shareCapacityTon=shareActiveFleet
+    ? (Number(shareActiveFleet.kapasitasTonTotal)||((Number(shareActiveFleet.maxTonase)||0)*shareFleetUnits))
+    : 0;
+
   const payload={
     w:2,
     d:tanggal,
@@ -7933,12 +7955,12 @@ async function bagikanKpiMaterial_(){
     p:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.project || proyekAktif || '').trim(),
     rk:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.rencanaKirim || '-').trim(),
     up:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.update || tanggal).trim(),
-    ar:String(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.armada || '-').trim(),
-    au:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.unit || 0),
+    ar:String((shareActiveFleet && shareActiveFleet.armada) || (kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.armada) || '-').trim(),
+    au:Number((shareActiveFleet && shareActiveFleet.kebutuhanUnit) || (kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.unit) || 0),
     ac:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.cbm || 0),
     at:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.ton || 0),
-    tc:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetCbm || 0),
-    tt:Number(kpiMaterialMetaTerakhir_ && kpiMaterialMetaTerakhir_.targetTon || 0),
+    tc:shareCapacityCbm,
+    tt:shareCapacityTon,
     m:rows.map(function(x,i){
       const nama=String(x && (x.material||x.namaMaterial||x.itemMaterial||x.item||'') || '').trim();
       let satuan='';
