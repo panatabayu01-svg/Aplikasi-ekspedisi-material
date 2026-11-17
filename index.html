@@ -4204,6 +4204,20 @@ function initSharedMaterialView_(){
       shareMeta=null;
     }
 
+    // Metadata kapasitas ringkas ikut pada URL agar bar progres tetap tampil
+    // meskipun API hanya mengembalikan snapshot tabel tanpa target armada.
+    try{
+      const tcPart=hashParts.find(function(part){return part.indexOf('tc=')===0;});
+      const ttPart=hashParts.find(function(part){return part.indexOf('tt=')===0;});
+      if(tcPart||ttPart){
+        if(!shareMeta)shareMeta={};
+        if(tcPart){const tcValue=Number(decodeURIComponent(tcPart.slice(3)));if(Number.isFinite(tcValue)&&tcValue>0)shareMeta.tc=tcValue;}
+        if(ttPart){const ttValue=Number(decodeURIComponent(ttPart.slice(3)));if(Number.isFinite(ttValue)&&ttValue>0)shareMeta.tt=ttValue;}
+      }
+    }catch(compactMetaErr){
+      console.warn('METADATA KAPASITAS RINGKAS TIDAK DAPAT DIBACA:',compactMetaErr);
+    }
+
     document.body.classList.add('shared-material-mode');
     const root=document.getElementById('sharedMaterialView');
     if(root){
@@ -7999,9 +8013,12 @@ async function bagikanKpiMaterial_(){
     const loadingDone=document.getElementById('shortShareLinkLoadingOverlay');
     if(loadingDone) loadingDone.remove();
 
-    // V30: metadata sudah disimpan di SERVER bersama token.
-    // URL cukup membawa token 10 karakter agar link sangat pendek.
-    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token);
+    // Link tetap pendek. Sertakan hanya kapasitas armada agar indikator
+    // persentase CBM dan tonase dapat dihitung saat penerima membuka link.
+    const compactCapacityMeta=[];
+    if(Number(payload.tc)>0)compactCapacityMeta.push('tc='+encodeURIComponent(String(Number(payload.tc))));
+    if(Number(payload.tt)>0)compactCapacityMeta.push('tt='+encodeURIComponent(String(Number(payload.tt))));
+    const url=window.location.origin+window.location.pathname+'#sw1='+encodeURIComponent(finishResult.token)+(compactCapacityMeta.length?'&'+compactCapacityMeta.join('&'):'');
     const title='LIST MATERIAL DI WORKSHOP SAAT INI';
     const text=tanggal+' | '+rows.length+' jenis material';
 
