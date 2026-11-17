@@ -4646,11 +4646,9 @@ async function bagikanHistoryPengirimanCore_(){
     shareResult=await response.json();
   }catch(apiErr){console.error('CREATE SHORT HISTORY LINK ERROR:',apiErr);alert('Link pendek history gagal dibuat. Pastikan API terbaru sudah di-deploy.');return;}
   if(!shareResult||shareResult.success!==true||!shareResult.token){alert(shareResult&&shareResult.message?shareResult.message:'Link pendek history gagal dibuat.');return;}
-  // Sertakan status dan tanggal di query string supaya ikut terbawa pada link,
-  // meskipun endpoint token lama belum menyimpan metadata tanggal.
-  let logisticsMetaToken='';
-  try{logisticsMetaToken=encodeSharedHistoryState_({ls:state.ls||{},ld:state.ld||{}});}catch(metaErr){}
-  const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token)+(logisticsMetaToken?'&lm='+encodeURIComponent(logisticsMetaToken):'');
+  // Link dibuat sesingkat mungkin: metadata status/tanggal ikut disimpan
+  // pada token server, bukan ditempelkan sebagai parameter lm yang panjang.
+  const url=window.location.origin+window.location.pathname+'?sh1='+encodeURIComponent(shareResult.token);
   const title='HISTORY PENGIRIMAN — '+project;
   // Tampilkan satu popup link aplikasi. Dialog share perangkat hanya dibuka
   // jika pengguna menekan tombol BAGIKAN di dalam popup tersebut.
