@@ -393,8 +393,13 @@
     .history-logistics-controls{display:flex;flex-direction:column;align-items:stretch;gap:5px;width:min(270px,100%);min-width:190px}
     .history-logistics-select{width:100%;min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none;box-sizing:border-box}
     .history-logistics-select:focus,.history-logistics-date:focus{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
-    .history-logistics-date{width:100%;min-height:32px;padding:5px 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;font:700 11px Arial,Helvetica,sans-serif;cursor:pointer;outline:none;box-sizing:border-box}
-    .history-logistics-date-preview{font-size:10px;font-weight:700;color:#42647d;min-height:12px;line-height:1.3}
+    .history-logistics-date-wrap{position:relative;display:flex;align-items:center;width:100%;min-height:32px;padding:0 34px 0 9px;border:1px solid #b8ccdd;border-radius:5px;background:#f8fbfe;color:#17324d;box-sizing:border-box;overflow:hidden}
+    .history-logistics-date-wrap:focus-within{border-color:#237db8;box-shadow:0 0 0 2px rgba(35,125,184,.13)}
+    .history-logistics-date-display{display:block;width:100%;font:700 11px Arial,Helvetica,sans-serif;color:#17324d;line-height:1.35;overflow-wrap:anywhere}
+    .history-logistics-date-display.is-empty{color:#6c8295;font-weight:500}
+    .history-logistics-date-icon{position:absolute;right:0;top:0;bottom:0;width:32px;display:flex;align-items:center;justify-content:center;color:#173f60;font-size:14px;pointer-events:none}
+    .history-logistics-date{position:absolute;right:0;top:0;width:32px;height:100%;opacity:0;cursor:pointer;border:0;z-index:2}
+    .history-logistics-date-preview{display:none}
     .history-logistics-shared-value{display:inline-flex;align-items:center;max-width:100%;min-height:30px;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#eaf5ed;color:#176b36;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-logistics-shared-date{display:block;max-width:100%;padding:5px 10px;border:1px solid #b8ccdd;border-radius:5px;background:#f4f8fb;color:#17324d;font:800 11px Arial,Helvetica,sans-serif;white-space:normal;line-height:1.35}
     .history-pengiriman-grid{display:grid;grid-template-columns:145px 1fr;gap:5px 8px;font-size:12px;line-height:1.35}
@@ -4443,8 +4448,8 @@ if(!window.__HISTORY_LOGISTICS_CHANGE_BOUND__){
     if(control.classList.contains('history-logistics-select'))saveHistoryLogisticsStatus_(project,shipmentNo,control.value);
     if(control.classList.contains('history-logistics-date')){
       saveHistoryLogisticsDate_(project,shipmentNo,control.value);
-      const preview=card&&card.querySelector('.history-logistics-date-preview');
-      if(preview)preview.textContent=formatTanggalInformasiLogistik_(control.value);
+      const display=card&&card.querySelector('.history-logistics-date-display');
+      if(display){display.textContent=control.value?formatTanggalInformasiLogistik_(control.value):'Pilih tanggal informasi...';display.classList.toggle('is-empty',!control.value);}
     }
   });
 }
@@ -4495,7 +4500,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
     const savedDate=isSharedHistory?String(sharedDates[String(shipmentNo)]||''):String(getHistoryLogisticsDates_(project)[String(shipmentNo)]||'');
     const logisticsControl=isSharedHistory
       ?((selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')+(savedDate?'<span class="history-logistics-shared-date">📅 '+escapeHtmlSafe_(formatTanggalInformasiLogistik_(savedDate))+'</span>':''))
-      :'<div class="history-logistics-controls"><select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select><input type="date" class="history-logistics-date" data-shipment-no="'+shipmentNo+'" aria-label="Tanggal informasi pengiriman ke-'+shipmentNo+'" title="Tanggal informasi tersimpan hanya di browser ini dan disertakan saat membagikan link" value="'+escapeHtmlSafe_(savedDate)+'"><span class="history-logistics-date-preview">'+escapeHtmlSafe_(formatTanggalInformasiLogistik_(savedDate))+'</span></div>';
+      :'<div class="history-logistics-controls"><select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select><div class="history-logistics-date-wrap" title="Pilih tanggal informasi; format tampilan Hari, tanggal bulan tahun"><span class="history-logistics-date-display'+(!savedDate?' is-empty':'')+'">'+escapeHtmlSafe_(savedDate?formatTanggalInformasiLogistik_(savedDate):'Pilih tanggal informasi...')+'</span><span class="history-logistics-date-icon">▦</span><input type="date" class="history-logistics-date" data-shipment-no="'+shipmentNo+'" aria-label="Tanggal informasi pengiriman ke-'+shipmentNo+'" title="Tanggal informasi tersimpan hanya di browser ini dan disertakan saat membagikan link" value="'+escapeHtmlSafe_(savedDate)+'"></div></div>';
     return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span>'+logisticsControl+'</div><div class="history-pengiriman-grid">'+
       '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
