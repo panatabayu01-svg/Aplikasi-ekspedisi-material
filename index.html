@@ -4370,11 +4370,27 @@ function formatPengirimHistory_(value){
 function getHistoryLogisticsStorageKey_(project){
   return 'EXPEDISI_HISTORY_LOGISTICS_STATUS_V1::'+String(project||'').trim();
 }
+function normalizeHistoryLogisticsStatus_(value){
+  const text=String(value||'').trim();
+  const legacy={
+    '1. Material sudah Onsite':'Status Material Onsite',
+    '2. Material Belum Onsite':'Status Material Belum Onsite',
+    '3. Kapal Belum Bersandar':'Status Material Kapal Belum Bersandar',
+    '4. Kapal Sudah Bersandar':'Status Material Proses Doring Di pelabuhan',
+    'Material sudah Onsite':'Status Material Onsite',
+    'Material Belum Onsite':'Status Material Belum Onsite',
+    'Kapal Belum Bersandar':'Status Material Kapal Belum Bersandar',
+    'Kapal Sudah Bersandar':'Status Material Proses Doring Di pelabuhan'
+  };
+  return legacy[text]||text;
+}
 function getHistoryLogisticsStatus_(project){
   try{
     const raw=localStorage.getItem(getHistoryLogisticsStorageKey_(project));
     const parsed=raw?JSON.parse(raw):{};
-    return parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{};
+    if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))return {};
+    Object.keys(parsed).forEach(function(key){parsed[key]=normalizeHistoryLogisticsStatus_(parsed[key]);});
+    return parsed;
   }catch(e){return {};}
 }
 function saveHistoryLogisticsStatus_(project,shipmentNo,value){
@@ -4438,10 +4454,10 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
     const prevTime=index>0?(parseWaktuRiwayatReschedule_(shipments[index-1].timestamp||'')||0):0;
     const related=reschedules.filter(function(r){const rt=parseWaktuRiwayatReschedule_(r.timestamp||'')||0;const no=Number(r.pengirimanKe)||0;return no===shipmentNo||(rt>prevTime&&rt<=shipmentTime);});
     const savedLogistics=isSharedHistory
-      ?String(sharedLogistics[String(shipmentNo)]||'').trim()
+      ?normalizeHistoryLogisticsStatus_(sharedLogistics[String(shipmentNo)]||'')
       :getHistoryLogisticsStatus_(project)[String(shipmentNo)]||'';
-    const selectedLogistics=String(savedLogistics||'').trim();
-    const logisticsOptions=['1. Material sudah Onsite','2. Material Belum Onsite','3. Kapal Belum Bersandar','4. Kapal Sudah Bersandar'];
+    const selectedLogistics=normalizeHistoryLogisticsStatus_(savedLogistics);
+    const logisticsOptions=['Status Material Onsite','Status Material Belum Onsite','Status Material Kapal Belum Bersandar','Status Material Proses Doring Di pelabuhan'];
     const logisticsControl=isSharedHistory
       ?(selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')
       :'<select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select>';
