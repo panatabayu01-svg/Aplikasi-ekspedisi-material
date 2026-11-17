@@ -4373,14 +4373,19 @@ function getHistoryLogisticsStorageKey_(project){
 function normalizeHistoryLogisticsStatus_(value){
   const text=String(value||'').trim();
   const legacy={
-    '1. Material sudah Onsite':'Status Material Onsite',
-    '2. Material Belum Onsite':'Status Material Belum Onsite',
-    '3. Kapal Belum Bersandar':'Status Material Kapal Belum Bersandar',
-    '4. Kapal Sudah Bersandar':'Status Material Proses Doring Di pelabuhan',
-    'Material sudah Onsite':'Status Material Onsite',
-    'Material Belum Onsite':'Status Material Belum Onsite',
-    'Kapal Belum Bersandar':'Status Material Kapal Belum Bersandar',
-    'Kapal Sudah Bersandar':'Status Material Proses Doring Di pelabuhan'
+    '1. Material sudah Onsite':'Status Material - Sudah Onsite',
+    '2. Material Belum Onsite':'Status Material - Belum Onsite',
+    '3. Kapal Belum Bersandar':'Status Material - Kapal Belum Bersandar',
+    '4. Kapal Sudah Bersandar':'Status Material - Proses Doring',
+    'Material sudah Onsite':'Status Material - Sudah Onsite',
+    'Material Belum Onsite':'Status Material - Belum Onsite',
+    'Kapal Belum Bersandar':'Status Material - Kapal Belum Bersandar',
+    'Kapal Sudah Bersandar':'Status Material - Proses Doring',
+    'Status Material Onsite':'Status Material - Sudah Onsite',
+    'Status Material Belum Onsite':'Status Material - Belum Onsite',
+    'Status Material Kapal Belum Bersandar':'Status Material - Kapal Belum Bersandar',
+    'Status Material Proses Doring Di pelabuhan':'Status Material - Proses Doring',
+    'Status Material - Onsite':'Status Material - Sudah Onsite'
   };
   return legacy[text]||text;
 }
@@ -4457,7 +4462,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
       ?normalizeHistoryLogisticsStatus_(sharedLogistics[String(shipmentNo)]||'')
       :getHistoryLogisticsStatus_(project)[String(shipmentNo)]||'';
     const selectedLogistics=normalizeHistoryLogisticsStatus_(savedLogistics);
-    const logisticsOptions=['Status Material Onsite','Status Material Belum Onsite','Status Material Kapal Belum Bersandar','Status Material Proses Doring Di pelabuhan'];
+    const logisticsOptions=['Status Material - Sudah Onsite','Status Material - Belum Onsite','Status Material - Menunggu Jadwal Kapal','Status Material - Kapal Belum Bersandar','Status Material - Proses Doring'];
     const logisticsControl=isSharedHistory
       ?(selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')
       :'<select class="history-logistics-select" data-shipment-no="'+shipmentNo+'" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi tersimpan hanya di browser ini dan tidak disimpan ke database"><option value=""'+(!selectedLogistics?' selected':'')+'>Pilih status informasi...</option>'+logisticsOptions.map(function(option){return '<option value="'+escapeHtmlSafe_(option)+'"'+(selectedLogistics===option?' selected':'')+'>'+escapeHtmlSafe_(option)+'</option>';}).join('')+'</select>';
