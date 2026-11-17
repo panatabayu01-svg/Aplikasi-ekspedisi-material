@@ -4365,9 +4365,39 @@ function formatPengirimHistory_(value){
   const parts=raw.split(/\\s*(?:\\||\\n|;|•{2,})\\s*/).map(function(s){return s.trim();}).filter(Boolean);
   return parts.length?parts:['Belum ditentukan'];
 }
+// Status informasi logistik disimpan hanya di browser/perangkat ini agar
+// pilihan tidak perlu diulang saat aplikasi dibuka kembali. Tidak dikirim ke database.
+function getHistoryLogisticsStorageKey_(project){
+  return 'EXPEDISI_HISTORY_LOGISTICS_INFO_V1::'+String(project||'').trim();
+}
+function getSavedHistoryLogisticsStatuses_(project){
+  try{
+    const raw=localStorage.getItem(getHistoryLogisticsStorageKey_(project));
+    const parsed=raw?JSON.parse(raw):{};
+    return parsed&&typeof parsed==='object'&&!Array.isArray(parsed)?parsed:{};
+  }catch(e){return {};}
+}
+function simpanStatusLogistikHistory_(selectEl){
+  try{
+    if(!selectEl)return;
+    const card=selectEl.closest('.history-pengiriman-item');
+    const title=card&&card.querySelector('.history-pengiriman-title span');
+    const match=String(title&&title.textContent||'').match(/PENGIRIMAN KE-(\d+)/i);
+    const project=String(window.__HISTORY_PENGIRIMAN_PROJECT__||'').trim();
+    if(!project||!match)return;
+    const saved=getSavedHistoryLogisticsStatuses_(project);
+    const shipmentNo=String(Number(match[1]));
+    if(selectEl.value)saved[shipmentNo]=String(selectEl.value).trim();
+    else delete saved[shipmentNo];
+    localStorage.setItem(getHistoryLogisticsStorageKey_(project),JSON.stringify(saved));
+  }catch(e){console.warn('Status informasi hanya tersimpan lokal pada browser ini:',e);}
+}
+
 function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses){
-  const sharedLogistics=logisticsStatuses&&typeof logisticsStatuses==='object'?logisticsStatuses:(window.__SHARED_HISTORY_LOGISTICS_STATUS__||{});
   const isSharedHistory=document.body.classList.contains('shared-history-view-mode');
+  const sharedLogistics=logisticsStatuses&&typeof logisticsStatuses==='object'
+    ?logisticsStatuses
+    :(isSharedHistory?(window.__SHARED_HISTORY_LOGISTICS_STATUS__||{}):getSavedHistoryLogisticsStatuses_(project));
   const nameEl=document.getElementById('historyPengirimanProjectName');
   const listEl=document.getElementById('historyPengirimanList');
   if(nameEl)nameEl.textContent=project||'-';
@@ -4405,7 +4435,7 @@ function renderHistoryPengiriman_(project,history,sharedStatus,logisticsStatuses
     const selectedLogistics=String(sharedLogistics[String(shipmentNo)]||'').trim();
     const logisticsControl=isSharedHistory
       ?(selectedLogistics?'<span class="history-logistics-shared-value">'+escapeHtmlSafe_(selectedLogistics)+'</span>':'')
-      :'<select class="history-logistics-select" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan ini hanya informasi sementara dan tidak disimpan"><option value="" selected>Pilih status informasi...</option><option value="1. Material sudah Onsite">1. Material sudah Onsite</option><option value="2. Material Belum Onsite">2. Material Belum Onsite</option><option value="3. Kapal Belum Bersandar">3. Kapal Belum Bersandar</option><option value="4. Kapal Sudah Bersandar">4. Kapal Sudah Bersandar</option></select>';
+      :'<select class="history-logistics-select" aria-label="Informasi status logistik pengiriman ke-'+shipmentNo+'" title="Pilihan informasi disimpan hanya di browser/perangkat ini, bukan database" onchange="simpanStatusLogistikHistory_(this)"><option value=""'+(selectedLogistics?'':' selected')+'>Pilih status informasi...</option><option value="1. Material sudah Onsite"'+(selectedLogistics==='1. Material sudah Onsite'?' selected':'')+'>1. Material sudah Onsite</option><option value="2. Material Belum Onsite"'+(selectedLogistics==='2. Material Belum Onsite'?' selected':'')+'>2. Material Belum Onsite</option><option value="3. Kapal Belum Bersandar"'+(selectedLogistics==='3. Kapal Belum Bersandar'?' selected':'')+'>3. Kapal Belum Bersandar</option><option value="4. Kapal Sudah Bersandar"'+(selectedLogistics==='4. Kapal Sudah Bersandar'?' selected':'')+'>4. Kapal Sudah Bersandar</option></select>';
     return '<div class="history-pengiriman-item"><div class="history-pengiriman-number">'+shipmentNo+'</div><div class="history-pengiriman-title"><span>PENGIRIMAN KE-'+shipmentNo+'</span>'+logisticsControl+'</div><div class="history-pengiriman-grid">'+
       '<div class="history-pengiriman-label">📅 Tanggal</div><div class="history-pengiriman-value">'+escapeHtmlSafe_(formatTanggalHistoryPengiriman_(item.tanggalPengiriman||item.tanggal||'-'))+'</div>'+
       '<div class="history-pengiriman-label">🚚 Status</div><div class="history-pengiriman-value"><span class="history-pengiriman-status'+statusClass+'">'+escapeHtmlSafe_(status)+'</span></div>'+
